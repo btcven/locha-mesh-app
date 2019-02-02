@@ -19,7 +19,6 @@ class WiFi:
         :return: None
         """
         self.wst_conf = staconf
-
         if not self.wst.isconnected():
             print('connecting to network.. %s' % self.wst_conf['ssid'])
             self.wst.active(True)
@@ -30,13 +29,10 @@ class WiFi:
 
     def ap_create(self, apconf):
         """
-        :param apconf: Tuple {ssid: str, pass: str, auth: str}
+        :param apconf: dict {ssid: str, pass: str, auth: str}
         :return: None
         """
         self.wap_conf = apconf
-        self.wap_conf = apconf['ssid']
-        self.wap_conf = apconf['pass']
-        self.wap_conf = apconf['auth']
         if not self.wap.isconnected():
             print('Creating AccessPoint %s ' % self.wap_conf['ssid'])
             self.wap.active(True)
