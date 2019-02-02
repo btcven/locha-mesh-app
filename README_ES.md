@@ -16,4 +16,5 @@ desde el repositorio privado al este público, por lo que no puede considerarse 
 
 ***
 
-Este software se encuentra bajo la licencia MIT, se adjunta por lo tanto una copia de la misma. 
+Este software se encuentra bajo la licencia MIT, se adjunta por lo tanto una copia de la misma [aquí](https://github.com/btcven/locha-mesh-app/blob/master/LICENSE)
+ 
