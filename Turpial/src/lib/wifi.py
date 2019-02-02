@@ -15,7 +15,7 @@ class WiFi:
 
     def st_connect(self, staconf):
         """
-        :param staconf: Tuple {ssid: str, pass: str}
+        :param staconf: dict {ssid: str, pass: str}
         :return: None
         """
         self.wst_conf = staconf
