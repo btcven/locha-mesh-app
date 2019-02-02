@@ -44,7 +44,7 @@ class WiFi:
 
     def aps_available(self):
         """
-        :return: Tuple of available APs
+        :return: dict of available APs
         """
         self.wst.active(True)
         aps = self.wst.scan()
