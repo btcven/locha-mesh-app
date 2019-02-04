@@ -17,7 +17,3 @@ class display:
     def clear(self):
         self.display.fill(0)
         self.display.show()
-        
-    def set_contrast(self, v):
-        pass
-        
