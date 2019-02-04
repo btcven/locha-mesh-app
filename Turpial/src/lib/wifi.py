@@ -5,6 +5,7 @@ for the full text.
 """
 import network
 
+AUTH_MODES = ["None", "WEP", "WPA-PSK", "WPA2-PSK", "WPA/WPA2-PSK"]
 
 class WiFi:
     def __init__(self):
@@ -29,7 +30,7 @@ class WiFi:
 
     def ap_create(self, apconf):
         """
-        :param apconf: dict {ssid: str, pass: str, auth: str}
+        :param apconf: dict {ssid: str, pass: str, auth: int}
         :return: None
         """
         self.wap_conf = apconf
@@ -37,8 +38,7 @@ class WiFi:
             print('Creating AccessPoint %s ' % self.wap_conf['ssid'])
             self.wap.active(True)
             self.wap.config(essid=self.wap_conf['ssid'])
-            self.wap.config(
-                authmode=self.wap_conf['auth'], password=self.wap_conf['pass'])
+            self.wap.config(authmode=self.wap_conf['auth'], password=self.wap_conf['pass'])
             while self.wap.isconnected():
                 print('new client')
 
