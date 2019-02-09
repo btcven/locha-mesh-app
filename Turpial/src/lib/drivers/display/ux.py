@@ -6,8 +6,9 @@ for the full text.
 import machine 
 from . import ssd1306
 from .writer import Writer
+from .qr import QRCode
 from . import freeSans_17
-
+from . import freeSans_14
 
 
 class OLED:
@@ -25,7 +26,7 @@ class OLED:
 
         self.i2c = machine.I2C(scl=self.scl, sda=self.sda, freq=450000)
         self.display = ssd1306.SSD1306_I2C(self.width, self.height, self.i2c, addr=0x3c)
-
+        self.contrast(128)
         self.show = self.display.show
 
     def begin(self):
@@ -57,9 +58,9 @@ class OLED:
         :param y:
         :return: None
         """
-        Writer.set_textpos(self.display, x, y)
+        Writer.set_textpos(self.display, y, x)
 
-    def text(self, x, y, txt, font=freeSans_17):
+    def text(self, x, y, txt, font=freeSans_14):
         wri = Writer(self.display, font)
         self.position(x, y)
         wri.printstring(txt)
@@ -101,5 +102,33 @@ class OLED:
         """
         self.display.fill_rect(x, y, width, height, 1)
 
-    def font(self):
-        pass
+    def set_ble(self, enabled=False, connected=False, font=freeSans_14):
+        if enabled:
+            self.text(self.width - 2 * font.max_width(), 10, "BT", font)
+        if connected:
+            self.text(self.width - 3 * font.max_width(), 10, "*", font)
+
+    def set_wap(self, enabled=False, connections=0, font=freeSans_14):
+        if enabled:
+            self.text(self.width - 2 * font.max_width(), 30, "AP", font)
+        if connections > 0:
+            self.text(self.width - 3 * font.max_width(), 30, str(connections), font)
+
+    def set_wst(self, enabled=False, connected=False, font=freeSans_14):
+        if enabled:
+            self.text(self.width - 2 * font.max_width(), 50, "ST", font)
+        if connected:
+            self.text(self.width - 3 * font.max_width(), 50, "*", font)
+
+    def qr(self, data, scale=1, border=0):
+        qr_code = QRCode(border=border)
+        qr_code.add_data(data)
+        matrix = qr_code.get_matrix()
+
+        self.clear()
+
+        for y in range(len(matrix)*scale):
+            for x in range(len(matrix[0])*scale):
+                v = not matrix[int(y / scale)][int(x / scale)]
+                self.display.pixel(x, y, v)
+        self.show()

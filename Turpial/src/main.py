@@ -5,9 +5,10 @@ for a full text.
 """
 
 from lib.drivers.display.ux import OLED
-from lib.drivers.display import freeSans_17
 
-oled = OLED()
-display = oled.begin()
-display.text(0, 0, "hello", freeSans_17)
+
+display = OLED()
+display.set_ble(enabled=True, connected=False)
+display.set_wap(enabled=True)
+display.set_wst(enabled=True, connected=True)
 display.refresh()
