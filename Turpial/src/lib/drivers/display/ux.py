@@ -5,6 +5,9 @@ for the full text.
 """
 import machine 
 from . import ssd1306
+from .writer import Writer
+from . import freeSans_17
+
 
 
 class OLED:
@@ -39,20 +42,27 @@ class OLED:
         self.display.fill(0)
         self.display.show()
 
-    def text(self, txt, x, y, refresh=False):
+    def simple_text(self, txt, x, y):
         """
         :param txt: str, text, default None
         :param x: int. "x position in px", default None
         :param y: int. "y position in px", default None
-        :param refresh: bool, "refresh screen after put the text", default False
         :return: None
         """
-        if refresh:
-            self.clear()
-            self.display.text(txt, x, y)
-            self.display.show()
-        else:
-            self.display.text(txt, x, y)
+        self.display.text(txt, x, y)
+
+    def position(self, x, y):
+        """
+        :param x:
+        :param y:
+        :return: None
+        """
+        Writer.set_textpos(self.display, x, y)
+
+    def text(self, x, y, txt, font=freeSans_17):
+        wri = Writer(self.display, font)
+        self.position(x, y)
+        wri.printstring(txt)
 
     def refresh(self):
         """
@@ -68,6 +78,28 @@ class OLED:
         :return: None
         """
         self.display.contrast(n)
+
+    def line(self, x_init, y_init, x_ends, y_ends):
+        """
+        draw a line from; "x_init, y_init" to; "x_end, y_end"
+        :param x_init: int
+        :param y_init: int
+        :param x_ends: int
+        :param y_ends: int
+        :return: None
+        """
+        self.display.line(x_init, y_init, x_ends, y_ends)
+
+    def rectangle(self, x, y, width, height):
+        """
+        draw a rectangle from x, y
+        :param x: X position in px.
+        :param y: Y position in px.
+        :param width: rectangle width, in px.
+        :param height: rectangle height in px.
+        :return: None
+        """
+        self.display.fill_rect(x, y, width, height, 1)
 
     def font(self):
         pass
