@@ -4,4 +4,7 @@ Licensed under a MIT license, see LICENSE file in the root folder
 for the full declaration.
 """
 
-from lib.drivers.display import ssd1306
+from lib.drivers.display.ux import OLED
+
+display = OLED()
+display.begin()
