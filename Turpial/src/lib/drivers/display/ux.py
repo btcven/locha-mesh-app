@@ -103,24 +103,48 @@ class OLED:
         self.display.fill_rect(x, y, width, height, 1)
 
     def set_ble(self, enabled=False, connected=False, font=freeSans_14):
+        """
+        :param enabled: bool
+        :param connected: bool
+        :param font: Obj.
+        :return: None
+        """
         if enabled:
             self.text(self.width - 2 * font.max_width(), 10, "BT", font)
         if connected:
             self.text(self.width - 3 * font.max_width(), 10, "*", font)
 
     def set_wap(self, enabled=False, connections=0, font=freeSans_14):
+        """
+        :param enabled:
+        :param connections:
+        :param font:
+        :return:
+        """
         if enabled:
             self.text(self.width - 2 * font.max_width(), 30, "AP", font)
         if connections > 0:
             self.text(self.width - 3 * font.max_width(), 30, str(connections), font)
 
     def set_wst(self, enabled=False, connected=False, font=freeSans_14):
+        """
+        :param enabled:
+        :param connected:
+        :param font:
+        :return:
+        """
         if enabled:
             self.text(self.width - 2 * font.max_width(), 50, "ST", font)
         if connected:
             self.text(self.width - 3 * font.max_width(), 50, "*", font)
 
     def qr(self, data, scale=1, border=0):
+        """
+        :param data:
+        :param scale:
+        :param border:
+        :return:
+        """
         qr_code = QRCode(border=border)
         qr_code.add_data(data)
         matrix = qr_code.get_matrix()
