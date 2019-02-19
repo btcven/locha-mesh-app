@@ -8,7 +8,7 @@
 #include <hal/hal.h>
 #include "hardwareDefinitions.h"
 
-// Pin map
+// Pin mapping
 const lmic_pinmap lmic_pins = {
   .nss = RAD_CSS,
   .rxtx = LMIC_UNUSED_PIN,
