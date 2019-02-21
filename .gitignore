@@ -3,3 +3,4 @@ example-config.py
 .vscode/settings.json
 .micropythonrc
 .DS_Store
+._*
