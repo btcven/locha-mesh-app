@@ -8,4 +8,4 @@ In the next image you can view the step of this process
 
 The process:
 
-![alt text](assets/stage_first_boot.svg)
+![Process of first boot on locha mesh devices](/assets/stage_first_boot.svg)
