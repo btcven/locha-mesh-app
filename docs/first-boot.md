@@ -10,18 +10,21 @@ The process:
 
 ```mermaid
 sequenceDiagram
-    PowerOn->>+Battery: Critical Level ?
+    PowerOn->>+Battery: Good Level ?
     alt is yes
        Battery->>PowerOn: Good Level
     else is no
        Battery-->>-PowerOn: PowerOff
     end
-    loop SCR Screen
-        PowerOn->>PowerOn: Screen ON
+    Note over PowerOn,SCR: Chek NVR prev setup, if yes load if not continue to default conf
+    Note over PowerOn,SCR: This for all Stage Init
+    PowerOn->>SCR: Enabled SCR ?
+    SCR-->>PowerOn: Yes
+    PowerOn--xSCR: S0 Init
+    loop
+        SCR-->>SCR: Stage 0
     end
-    Note over PowerOn,BLE: Chek NVR prev setup, if yes load if not continue to default conf
-    Note over PowerOn,BLE: This for all Stage Init
-    PowerOn->>BLE: Enabled BlE ?
+    PowerOn->>BLE: Enabled BLE ?
     BLE-->>PowerOn: Yes
     PowerOn--xBLE: S1 Init
     loop
