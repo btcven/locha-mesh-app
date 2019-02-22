@@ -1,6 +1,6 @@
 Turpial/src/.idea
 example-config.py
-.vscode/settings.json
+.vscode
 .micropythonrc
 .DS_Store
 ._*
