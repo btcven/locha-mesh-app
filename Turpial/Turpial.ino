@@ -3,8 +3,13 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
+#include "Configuration.h"
 
-#include "defaultStartup.h"
+
+#include <WiFiUdp.h>  // para uso de websockets
+#include <EEPROM.h>  // para el manejo de configuraciones en EPPROM
+#include <FS.h>   // Include the SPIFFS library
+
 
 SCR_status_t  SCRStatus;
 BLE_status_t  BLEStatus;
@@ -13,17 +18,17 @@ WAP_status_t  WAPStatus;
 RAD_status_t  RADStatus;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(BAUDRATE);
   // Screen (aka SCR) active on boot?
   if (SCR_ENABLED) {
     SCRStatus.isEnabled = true;
-    Serial.printf("[SCR] Allocating..");
+    Serial.printf(MSG_SCR_ALLOCATING);
     if (screen_init()) {
       SCRStatus.isActive = true;
-      Serial.printf("\tOK\n");
+      Serial.printf(MSG_OK);
     } else {
       SCRStatus.isActive = false;
-      Serial.printf("\tERROR\n");
+      Serial.printf(MSG_ERROR);
     }
   }
 
@@ -50,6 +55,6 @@ void setup() {
 
 }
 
-void loop() { // }
+void loop() { 
 
 }
