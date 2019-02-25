@@ -11,13 +11,19 @@ const int FW_VERSION = 1;  // este es el numero de la version actual
 
 #define BAUDRATE 115200
 
+// for enable debugging 
+#define DEBUG true
+
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #define MOTHERBOARD HELTEC
 #endif
-#ifndef LORACHIP
-  #define LORACHIP SX1276  // aqui puede ser cualquier variante soportada por LoraLib
+#ifndef RADIOTYPE
+  #define RADIOTYPE LORA  // aqui puede ser cualquier variante soportada por LoraLib
+#endif
+#ifndef RADIOCHIP
+  #define RADIOCHIP SX1276  // aqui puede ser cualquier variante soportada por LoraLib
 #endif
 
 // caracteristicas que se pueden activar/desactivar en el dispositivo
@@ -26,6 +32,7 @@ const int FW_VERSION = 1;  // este es el numero de la version actual
 #define RAD_ENABLED true
 #define WAP_ENABLED true
 #define WST_ENABLED true
+#define GPS_ENABLED false
 
 #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(es)
 

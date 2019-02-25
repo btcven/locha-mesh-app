@@ -17,7 +17,7 @@ int64_t xx_time_get_time() {
 }
 
 
-void create_unique_id(){
+String create_unique_id(){
   // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
   // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
    //TODO
@@ -27,15 +27,31 @@ void create_unique_id(){
    chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
    timestamp=xx_time_get_time;
    aleatorio=random(1000, 9999);
-   string uniqueid;
-   uniqueid=String(chipid)+String(aleatorio)+String(timestamp);
+   
+   string uniqueid=String(chipid)+String(aleatorio)+String(timestamp);
 // la primera vez que se invoca se marca en el eeprom como escrito
   EEPROM.write(0, 'C');
   EEPROM.write(1, 'F');
   EEPROM.write(2, 'G');
   EEPROM.write(3,uniqueid); // ocupa 32 bytes , o sea, queda ocupado el eeprom hasta la posicion 35 inclusive
   
-  
+  return uniqueid;
+}
+
+
+void split(char* data, char* delim, int index, char* out) {
+  char *copy = (char*)malloc(strlen(data) + 1);
+  strcpy(copy, data);
+  char *str;
+  int i = 0;
+
+  while ((str = strtok_r(copy, "|", &copy)) != NULL){ // delimiter is the semicolon
+    if (i == index)
+      break;
+    i++;
+  }
+  free(copy);
+  strcpy(out,str);
 }
 
 //  Auxiliar function to handle EEPROM
