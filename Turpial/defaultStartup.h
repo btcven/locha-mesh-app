@@ -38,4 +38,9 @@ typedef struct {
   bool isActive;
 } RAD_status_t;
 
+typedef struct {
+  bool isEnabled;
+  bool isActive;
+} BAT_status_t;
+
 #endif // DEFAULTSTARTUP_H_
