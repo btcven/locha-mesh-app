@@ -16,6 +16,9 @@ const int FW_VERSION = 1;  // este es el numero de la version actual
 #ifndef MOTHERBOARD
   #define MOTHERBOARD HELTEC
 #endif
+#ifndef LORACHIP
+  #define LORACHIP SX1276  // aqui puede ser cualquier variante soportada por LoraLib
+#endif
 
 // caracteristicas que se pueden activar/desactivar en el dispositivo
 #define SCR_ENABLED true
