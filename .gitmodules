@@ -1,0 +1,3 @@
+[submodule "Turpial/lib/TaskScheduler"]
+	path = Turpial/lib/TaskScheduler
+	url = git@github.com:luisan00/TaskScheduler.git
