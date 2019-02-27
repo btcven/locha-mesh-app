@@ -1,6 +1,6 @@
-[submodule "TaskScheduler"]
+[submodule "Turpial/lib/TaskScheduler"]
 	path = Turpial/lib/TaskScheduler
 	url = git@github.com:luisan00/TaskScheduler.git
-[submodule "LoRaLib"]
+[submodule "Turpial/lib/LoRaLib"]
 	path = Turpial/lib/LoRaLib
 	url = git@github.com:luisan00/LoRaLib.git
