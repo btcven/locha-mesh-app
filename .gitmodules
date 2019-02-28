@@ -4,3 +4,6 @@
 [submodule "Turpial/lib/LoRaLib"]
 	path = Turpial/lib/LoRaLib
 	url = git@github.com:luisan00/LoRaLib.git
+[submodule "Turpial/lib/heltec-oled"]
+	path = Turpial/lib/heltec-oled
+	url = git@gitlab.com:btcven/locha/heltec-oled.git
