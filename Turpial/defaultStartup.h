@@ -7,40 +7,53 @@
 #ifndef DEFAULTSTARTUP_H_
 #define DEFAULTSTARTUP_H_
 
-
-
-typedef struct  {
+typedef struct
+{
   bool isEnabled;
   bool isActive;
 } SCR_status_t;
 
-typedef struct {
+typedef struct
+{
   bool isEnabled;
   bool isActive;
   bool isConnected;
 } BLE_status_t;
 
-typedef struct {
+typedef struct
+{
   bool isEnabled;
   bool isActive;
   bool isConnected;
 } WST_status_t;
 
-typedef struct {
+typedef struct
+{
   bool isEnabled;
   bool isActive;
   // this may need a better approach:
   // client_t[max_clients]
 } WAP_status_t;
 
-typedef struct {
+typedef struct
+{
   bool isEnabled;
   bool isActive;
 } RAD_status_t;
 
-typedef struct {
+typedef struct
+{
   bool isEnabled;
   bool isActive;
+  uint8_t vBat;
 } BAT_status_t;
+
+typedef struct
+{
+  bool isEnabled;
+  bool isActive;
+  int32_t lat;
+  int32_t lon;
+} GPS_status_t;
 
 #endif // DEFAULTSTARTUP_H_

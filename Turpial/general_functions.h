@@ -3,8 +3,8 @@
  * Licensed under a MIT license, see LICENSE file in the root folder
  * for a full text.
  */
-#ifndef general_functions_H
-#define general_functions_H
+#ifndef GENERAL_FUNCTIONS_H
+#define GENERAL_FUNCTIONS_H
 
 #include "watchdog.h"
 #include <EEPROM.h>  // include for EPPROM management
@@ -114,4 +114,4 @@ String  ReadStringFromEEPROM(int beginaddress){
   return retString;
 }
 
-#endif //general_functions_H
+#endif // GENERAL_FUNCTIONS_H

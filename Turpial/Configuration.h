@@ -22,7 +22,7 @@ const int FW_VERSION = 1;  // este es el numero de la version actual
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD HELTEC
+  #define MOTHERBOARD HELTEC_V2
 #endif
 #ifndef RADIOTYPE
   #define RADIOTYPE LORA  // aqui puede ser cualquier variante soportada por LoraLib

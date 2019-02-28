@@ -7,7 +7,7 @@
 #define WATCHDOG_H
 
 void setWD() {
-  wdt = millis();
+  unsigned long wdt = millis();
 }
 
 void watchDog(void *pvParameters)

@@ -12,17 +12,21 @@
   Comment out your board or use "CUSTOM" definition
   and set up your pinout.
 */
-
-#define HELTEC_V1
+//#define HELTEC_V1
+#define HELTEC_V2
 //#define CUSTOM
 
 /* HARDWARE HAL */
 #ifdef HELTEC_V1
   #include "pins_HELTEC_V1.h"
-#elif HELTEC_V2
+#endif // HELTEC_V1
+
+#ifdef HELTEC_V2
   #include "pins_HELTEC_V2.h"
+#endif // HELTEC_V2
+
 #ifdef CUSTOM
   #include "pins_CUSTOM.h"  
-#endif // CUSTOM
+#endif
 
 #endif // PINS_H_

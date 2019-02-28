@@ -19,7 +19,7 @@ BLE_status_t  BLEStatus; // BLE status
 WST_status_t  WSTStatus; // Wifi station client status
 WAP_status_t  WAPStatus; // Wifi Access Point  status
 RAD_status_t  RADStatus; // Radio status (acually Lora radio, but could works with other radios)
-BAT_status_t  SCRStatus; // Battery status
+BAT_status_t  BATStatus; // Battery status
 GPS_status_t  GPSStatus; // GPS status
 
 BUFFER_packet_t Buffer_packet; // Packet struct for buffering
@@ -38,12 +38,9 @@ void scan_radio(String id_node);
 void scan_wifi();
 
 // list of scheduled task
-//Task t1(20000, TASK_ONCE, &void_to_execute);  // se puede colocar muchos tipos de TASK, en este caso TASK_ONCE,TASK_FOREVER,TASK_IMMEDIATE o 2,3,4,5... es el numero de veces que se ejecuta, tambien se puede colcoar infinitas veces
+// Task t1(20000, TASK_ONCE, &void_to_execute);  // se puede colocar muchos tipos de TASK, en este caso TASK_ONCE,TASK_FOREVER,TASK_IMMEDIATE o 2,3,4,5... es el numero de veces que se ejecuta, tambien se puede colcoar infinitas veces
 Task task_radio(30000, TASK_FOREVER, &scan_radio);  // se coloca cada 30 segundos por default, a tiempo de ejecucion se cambia segun lo que exista en el EPPROM colocado por el usuario
 Task task_wifi(60000, TASK_FOREVER, &scan_wifi);  // se coloca cada 60 segundos por default, a tiempo de ejecucion se cambia segun lo que exista en el EPPROM colocado por el usuario
-
-
-
 
 void scan_wifi(){
 // update wifi neighbors
