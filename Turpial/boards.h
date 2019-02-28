@@ -3,14 +3,13 @@
  * Licensed under a MIT license, see LICENSE file in the root folder
  * for a full text.
  */
+
 #ifndef BOARDS_H
 #define BOARDS_H
 
-#define BOARD_UNKNOWN -1
+#define BOARD_UNKNOWN   -1
+#define HELTEC_V1       10
+#define HELTEC_V2       20
+#define CUSTOM          30
 
-#define HELTEC  10
-#define CUSTOM   20
-
-
-
-#endif //__BOARDS_H
+#endif //BOARDS_H
