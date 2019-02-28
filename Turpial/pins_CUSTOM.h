@@ -3,6 +3,10 @@
  * Licensed under a MIT license, see LICENSE file in the root folder
  * for a full text.
  */
+
+#ifndef PINS_CUSTOM_H
+  #define PINS_CUSTOM_H
+  
  // Display Module
   #define SCR_SCL     22
   #define SCR_SDA     23
@@ -21,3 +25,5 @@
   #define RAD_DIO2    32
   #define RAD_BAND    915E6 // Freq
   #define RAD_PABOOST true
+
+#endif // PINS_CUSTOM_H

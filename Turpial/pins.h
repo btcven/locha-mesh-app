@@ -4,8 +4,8 @@
    for a full text.
 */
 
-#ifndef HARDWAREDEFINITIONS_H_
-#define HARDWAREDEFINITIONS_H_
+#ifndef PINS_H_
+#define PINS_H_
 
 /**
   Different boards can have different configurations.
@@ -13,16 +13,16 @@
   and set up your pinout.
 */
 
-#define HELTEC
+#define HELTEC_V1
 //#define CUSTOM
 
-/* HELTEC HAL */
-#ifdef HELTEC
-#include "pins_HELTEC.h"
-#endif // HELTEC_V1/V2
-
+/* HARDWARE HAL */
+#ifdef HELTEC_V1
+  #include "pins_HELTEC_V1.h"
+#elif HELTEC_V2
+  #include "pins_HELTEC_V2.h"
 #ifdef CUSTOM
-#include "pins_CUSTOM.h"  
+  #include "pins_CUSTOM.h"  
 #endif // CUSTOM
 
-#endif // HARDWAREDEFINITIONS_H_
+#endif // PINS_H_

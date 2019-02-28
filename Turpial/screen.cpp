@@ -4,9 +4,9 @@
    for a full text.
 */
 
-#include "SSD1306.h"
+#include "lib/heltec-oled/src/SSD1306.h"
 #include "screen.h"
-#include "hardwareDefinitions.h"
+#include "pins.h"
 
 SSD1306 _scr_(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 
@@ -39,8 +39,8 @@ bool screen_init() {
  * | └--- last radio packet's SNR level. 
  * └----- last radio packet's RSSI level.
  */
+
 void frame_rad() {
-  
   _scr_.clear();
   _scr_.setFont(ArialMT_Plain_10);
   _scr_.setTextAlignment(TEXT_ALIGN_RIGHT);
