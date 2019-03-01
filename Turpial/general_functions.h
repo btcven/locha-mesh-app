@@ -6,9 +6,10 @@
 #ifndef GENERAL_FUNCTIONS_H
 #define GENERAL_FUNCTIONS_H
 
+//#include <EEPROM.h>  // include for EPPROM management
+//#include <FS.h>   // Include the SPIFFS library
 #include "watchdog.h"
-#include <EEPROM.h>  // include for EPPROM management
-#include <FS.h>   // Include the SPIFFS library
+
 
 void read_epprom_variables(){
   // Read default variables from EPPROM
@@ -34,7 +35,7 @@ String create_unique_id(){
    aleatorio=random(1000, 9999);
    
    string uniqueid=String(chipid)+String(aleatorio)+String(timestamp);
-// la primera vez que se invoca se marca en el eeprom como escrito
+// la primera vez que se invoca se marca en el eeprom como escrito (se colocan 3 letras en la memoria como marca)
   EEPROM.write(0, 'C');
   EEPROM.write(1, 'F');
   EEPROM.write(2, 'G');
