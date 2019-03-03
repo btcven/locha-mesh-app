@@ -16,8 +16,8 @@
 BLEServer *pServer = NULL;
 BLECharacteristic *pTxCharacteristic;
 
-std::string txValue;
-std::string rxValue;
+String txValue;
+String rxValue;
 
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
