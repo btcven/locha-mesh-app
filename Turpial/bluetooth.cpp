@@ -7,7 +7,9 @@
  * Licensed under a MIT license, see LICENSE file in the root folder
  * for a full text.
  */
- 
+ #include <cstdio>
+#include <cstdlib>
+#include <string>
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>

@@ -5,7 +5,6 @@
  * for a full text.
  */
 
-#include "stdafx.h"
 #include <stdint.h>
 #include <iostream>
 #include <cstdio>
@@ -21,7 +20,7 @@
 
 
 using namespace std;
-extern String id_nodo;
+extern String id_node;
 extern packet_t Buffer_packet;
 extern route_to_node_t routeTable[255];
 extern neighbor_entry_t neighborTable[255];
@@ -33,8 +32,8 @@ extern clock_t start;
 
 
 // se incluyen los eventos para externos para cada tipo de packet_t
-extern int routing_outcoming_PACKET_HELLO(String  id_node, packet_t packet_received);
-extern int routing_incoming_PACKET_HELLO(String  id_node, packet_t packet_received);
+extern int routing_outcoming_PACKET_HELLO(id_node, Buffer_packet);
+extern int routing_incoming_PACKET_HELLO(id_node, Buffer_packet);
 extern int routing_outcoming_NET_BYE(String  id_node, packet_t packet_received);
 extern int routing_incoming_NET_BYE(String  id_node, packet_t packet_received);
 extern int routing_outcoming_NET_JOIN(String  id_node, packet_t packet_received);
@@ -48,7 +47,10 @@ extern int routing_incoming_PACKET_GOSSIP(String  id_node, packet_t packet_recei
 extern int routing_outcoming_PACKET_MSG(String  id_node, packet_t packet_received);
 extern int routing_incoming_PACKET_MSG(String  id_node, packet_t packet_received);
 extern int routing_outcoming_PACKET_TXN(String  id_node, packet_t packet_received);
-extern int routing_incoming_PACKET_TXN(String  id_node, packet_t packet_received);
+extern int routing_incoming_PACKET_TXN(id_node, Buffer_packet);
+extern int routing_outcoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
+extern int routing_incoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
+
 
 
 // timeout intervals
@@ -86,21 +88,22 @@ packet_t buildpacket(uint8_t max_hops, String from, String to, uint8_t sequence[
 packet_type_e convertir(String str)
 {
 	if(str == "NET_JOIN") return NET_JOIN;
-    if(str == "NET_BYE") return NET_BYE;
+  if(str == "NET_BYE") return NET_BYE;
 	if(str == "NET_ROUTE") return NET_ROUTE;
 	if(str == "PACKET_ACK") return PACKET_ACK;
 	if(str == "PACKET_MSG") return PACKET_MSG;
 	if(str == "PACKET_TXN") return PACKET_TXN;
 	if(str == "PACKET_HELLO") return PACKET_HELLO;
 	if(str == "PACKET_GOSSIP") return PACKET_GOSSIP;
-	// cualquier otra cosa es GOSSIP
+  if(str == "PACKET_NOTDELIVERED") return PACKET_NOTDELIVERED;
+ 	// cualquier otra cosa es GOSSIP
 	return PACKET_GOSSIP;
 }
 
 
 // for string delimiter
-std::vector<String> split(String s, String delimiter) {
-	 std::vector<String> splitted;
+String split[](String s, String delimiter) {
+	 String splitted[];
 
 size_t pos = 0;
 int pos_arreglo = 1;
@@ -117,7 +120,7 @@ return splitted;
 
 
 int convert_msg_into_buffer(String msg_received, packet_t Buffer_packet){
-  std::vector<String> splitted;
+  String splitted[]
   char* original;
  
   original = (char*)msg_received.c_str();
@@ -150,82 +153,92 @@ int procesar_buffer(packet_t Buffer_packet, int neighborEntry,neighbor_entry_t n
     if (Buffer_packet.type==NET_BYE){
 		//incoming
 		if (type_of_process==0){
-			routing_incoming_NET_BYE(id_nodo, Buffer_packet);
+			routing_incoming_NET_BYE(id_node, Buffer_packet);
 		}
 		//outcoming
 		if (type_of_process==1){
-			routing_outcoming_NET_BYE(id_nodo, Buffer_packet);
+			routing_outcoming_NET_BYE(id_node, Buffer_packet);
 		}
     }
 	if (Buffer_packet.type==NET_JOIN){
 		//incoming
 		if (type_of_process==0){
-			routing_incoming_NET_JOIN(id_nodo, Buffer_packet);
+			routing_incoming_NET_JOIN(id_node, Buffer_packet);
 		}
 		//outcoming
 		if (type_of_process==1){
-			routing_outcoming_NET_JOIN(id_nodo, Buffer_packet);
+			routing_outcoming_NET_JOIN(id_node, Buffer_packet);
 		}
     }
 	if (Buffer_packet.type==NET_ROUTE){
 		//incoming
 		if (type_of_process==0){
-			routing_incoming_NET_ROUTE(id_nodo, Buffer_packet);
+			routing_incoming_NET_ROUTE(id_node, Buffer_packet);
 		}
 		//outcoming
 		if (type_of_process==1){
-			routing_outcoming_NET_ROUTE(id_nodo, Buffer_packet);
+			routing_outcoming_NET_ROUTE(id_node, Buffer_packet);
 		}
     }
 	if (Buffer_packet.type==PACKET_ACK){
 		//incoming
 		if (type_of_process==0){
-			routing_incoming_PACKET_ACK(id_nodo, Buffer_packet);
+			routing_incoming_PACKET_ACK(id_node, Buffer_packet);
 		}
 		//outcoming
 		if (type_of_process==1){
-			routing_outcoming_PACKET_ACK(id_nodo, Buffer_packet);
+			routing_outcoming_PACKET_ACK(id_node, Buffer_packet);
 		}
     }
 	if (Buffer_packet.type==PACKET_HELLO){
 		//incoming
 		if (type_of_process==0){
-			routing_incoming_PACKET_HELLO(id_nodo, Buffer_packet);
+			routing_incoming_PACKET_HELLO(id_node, Buffer_packet);
 		}
 		//outcoming
 		if (type_of_process==1){
-			routing_outcoming_PACKET_HELLO(id_nodo, Buffer_packet);
+			routing_outcoming_PACKET_HELLO(id_node, Buffer_packet);
 		}
     }
 	if (Buffer_packet.type==PACKET_MSG){
 		//incoming
 		if (type_of_process==0){
-			routing_incoming_PACKET_MSG(id_nodo, Buffer_packet);
+			routing_incoming_PACKET_MSG(id_node, Buffer_packet);
 		}
 		//outcoming
 		if (type_of_process==1){
-			routing_outcoming_PACKET_MSG(id_nodo, Buffer_packet);
+			routing_outcoming_PACKET_MSG(id_node, Buffer_packet);
 		}
     }
 	if (Buffer_packet.type==PACKET_TXN){
 		//incoming
 		if (type_of_process==0){
-			routing_incoming_PACKET_TXN(id_nodo, Buffer_packet);
+			routing_incoming_PACKET_TXN(id_node, Buffer_packet);
 		}
 		//outcoming
 		if (type_of_process==1){
-			routing_outcoming_PACKET_TXN(id_nodo, Buffer_packet);
+			routing_outcoming_PACKET_TXN(id_node, Buffer_packet);
 		}
     }
 		if (Buffer_packet.type==PACKET_GOSSIP){
 		//incoming
 		if (type_of_process==0){
-			routing_incoming_PACKET_GOSSIP(id_nodo, Buffer_packet);
+			routing_incoming_PACKET_GOSSIP(id_node, Buffer_packet);
 		}
 		//outcoming
 		if (type_of_process==1){
-			routing_outcoming_PACKET_GOSSIP(id_nodo, Buffer_packet);
+			routing_outcoming_PACKET_GOSSIP(id_node, Buffer_packet);
 		}
+    }
+    if (Buffer_packet.type==PACKET_GOSSIP){
+    //incoming
+    if (type_of_process==0){
+      routing_incoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
+    }
+    //outcoming
+    if (type_of_process==1){
+      routing_outcoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
+    }
     }
 	return 0;
 }

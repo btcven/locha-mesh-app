@@ -3,7 +3,7 @@
  * Licensed under a MIT license, see LICENSE file in the root folder
  * for a full text.
  */
-#include "stdafx.h"
+
 #include <stdint.h>
 #include <iostream>
 #include <cstdio>
@@ -13,7 +13,7 @@
 
 using namespace std;
 
-extern String id_nodo;
+extern String id_node;
 extern packet_t Buffer_packet;
 extern route_to_node_t routeTable[255];
 extern neighbor_entry_t neighborTable[255];

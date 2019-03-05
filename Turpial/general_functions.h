@@ -30,6 +30,8 @@ String create_unique_id(){
    // se arma el unique id
    uint64_t chipid; 
    uint64_t timestamp;
+// hay que verificar que no exista previamente en EEPROM
+   
    chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
    timestamp=xx_time_get_time;
    aleatorio=random(1000, 9999);

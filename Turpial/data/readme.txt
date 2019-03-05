@@ -1,0 +1,1 @@
+Esta carpeta es para los archivos del sistema SPIFFS del ESP32

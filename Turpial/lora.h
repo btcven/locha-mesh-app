@@ -84,7 +84,7 @@ int  startup_lora(){
 
 int start_receive_lora_packets(){
    // start listening for LoRa packets
-    state = lora.startReceive();
+    int state = lora.startReceive();
     
    // NOTE: 'listen' mode will be disabled 
   // automatically by calling any of the 
@@ -126,6 +126,8 @@ int trasmit_package_lora(packet_t mensaje){
       Serial.print(F("failed, code "));
       Serial.println(state);
 }
+}
+
 int state_new=start_receive_lora_packets();
   return state;
 }
@@ -162,19 +164,19 @@ int receive_package_lora(){
       Serial.println(" Hz");
 
        // se coloca el packet recibido en el buffer
-      convert_msg_into_buffer(str);
-      procesar_buffer();
+      int respuesta = convert_msg_into_buffer(str, Buffer_packet);
+      int respuesta = procesar_buffer(Buffer_packet, neighborEntry,neighborTable[255],0);
       
-    } else if (state == ERR_CRC_MISMATCH) {
+    } //else if (state == ERR_CRC_MISMATCH) {
       // packet was received, but is malformed
-      Serial.println("CRC error!");
+      //Serial.println("CRC error!");
       
-  }
+  //}
   int state_new=start_receive_lora_packets();
   lora_enableInterrupt = true;
   lora_receivedFlag=false;
   }
-  return str;
+  return 0;
 }
 
 void scan_lora(String id_node){

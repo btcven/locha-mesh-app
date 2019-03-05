@@ -6,13 +6,13 @@
 #include "defaultStartup.h"
 #include "Configuration.h"
 #include "general_functions.h"
+#include "routing.h"
 #include "radio.h"
 
 #include <WiFiUdp.h>  // using websockets
-
 #include <TaskScheduler.h>  // https://github.com/arkhipenko/TaskScheduler
 
-
+#define DEBUG 1
 
 SCR_status_t  SCRStatus; // Screen Oled/lcd status
 BLE_status_t  BLEStatus; // BLE status
@@ -49,7 +49,7 @@ void scan_wifi(){
 
 void setup() {
   Serial.begin(BAUDRATE);
-
+// falta colocar los pre-check del boot d acuerdo a: https://gitlab.com/btcven/locha/app/blob/master/docs/first-boot.md
   read_epprom_variables();
   
   // unique id to identify turpial node
@@ -111,7 +111,7 @@ void loop() {
   if (!radio_isused()){
     int respuesta = receive_package();
   }
-  int respuesta2 = procesar_buffer(Buffer_packet);
+  int respuesta2 = procesar_buffer(Buffer_packet, neighborEntry,neighborTable[255], 0);
   
   // TODO check if deep sleep/wakeup enabled based on ESP32 UL coprocessor
     

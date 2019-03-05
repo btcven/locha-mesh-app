@@ -6,7 +6,6 @@
 #ifndef ROUTING_H
 #define ROUTING_H
 
-
 #include <stdint.h>
 #include <iostream>
 #include <cstdio>
@@ -17,13 +16,7 @@
 #include <chrono>
 #include <fstream>
 
-
-
 #define HEADER_LENGTH 16;
-
-
-
-
 
 /**
  * @brief enums the packet type
@@ -31,14 +24,26 @@
  */
 typedef enum packet_type_e
 {
-    NET_JOIN = 0,
-    NET_BYE = 1,
-    NET_ROUTE = 2,
-    PACKET_ACK = 3,
-    PACKET_MSG = 4,  
-    PACKET_TXN = 5,  //paquetes de LN, BTC TX
-    PACKET_HELLO = 6,
-    PACKET_GOSSIP = 7
+    EMPTY = 0,
+    NET_JOIN = 1,
+    NET_BYE = 2,
+    NET_ROUTE = 3,
+    PACKET_ACK = 4,
+    PACKET_MSG = 5,  
+    PACKET_TXN = 6,  //paquetes de LN, BTC TX
+    PACKET_HELLO = 7,
+    PACKET_GOSSIP = 8,
+    PACKET_NOTDELIVERED = 9
+};
+
+/**
+ * @brief enums the packet status
+ * 
+ */
+typedef enum packet_status_e
+{
+    WAITING_ACK = 0,
+    WAITING_RETRY = 1
 };
 
 /**
@@ -113,7 +118,17 @@ typedef struct
 
 typedef struct
 {
+  
+  uint8_t retries;
+  uint8_t packet_status;
+  uint8_t lastseen;
+} packets_status_t;
+
+typedef struct
+{
   packet_t el_packet;
+  uint8_t retries;
+  packet_status_e packet_status;
   uint8_t lastseen;
 } packets_in_transit_t;
 

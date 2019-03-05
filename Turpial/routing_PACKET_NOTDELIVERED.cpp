@@ -20,12 +20,12 @@ extern neighbor_entry_t neighborTable[255];
 extern int neighborEntry;
 extern int routeEntry;
 
-int routing_outcoming_PACKET_HELLO(String  id_node, packet_t packet_received){
+int routing_outcoming_PACKET_NOTDELIVERED(String  id_node, packet_t packet_received){
 
 	return 0;
 }
 
-int routing_incoming_PACKET_HELLO(String  id_node, packet_t packet_received){
+int routing_incoming_PACKET_NOTDELIVERED(String  id_node, packet_t packet_received){
 
 	return 0;
 }

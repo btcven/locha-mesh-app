@@ -13,11 +13,11 @@ extern BUFFER_packet_t Buffer_packet;
 
 int  startup_radio(){
 if (RAD_ENABLED){
-    if (RADIOTYPE==LORA){
+    if (RADIOTYPE==1){
       return startup_lora();
     }  
   } 
-  return null;
+  return 0;
   
 }
 
@@ -26,20 +26,21 @@ int start_radio(){
   
 int start_receive();
   if (RAD_ENABLED){
-    if (RADIOTYPE==LORA){
+    if (RADIOTYPE==1){  //1=LORA
       return start_receive_lora_packets();
     }  
   } 
-  return null;
+  return 0;
 }
 
 int trasmit_package(packet_t mensaje){
   if (RAD_ENABLED){
-    if (RADIOTYPE==LORA){
+    if (RADIOTYPE==1){
       return trasmit_package_lora(mensaje){;
     }  
   } 
-  return null;
+  }
+  return 0;
 }
 
 int radio_isused(){
@@ -54,16 +55,17 @@ int radio_isused(){
 
 int receive_package(){
   if (RAD_ENABLED){
-    if (RADIOTYPE==LORA){
+    if (RADIOTYPE==1){
       return receive_package_lora(){;
     }  
   } 
-  return null;
+  }
+  return 0;
 }
 
 void scan_radio(String id_node){
 // update lora neighbors
- scan_lora(String id_node);
+ scan_lora(id_node);
 }
 
 

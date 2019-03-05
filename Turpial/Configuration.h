@@ -25,7 +25,7 @@ const int FW_VERSION = 1;  // este es el numero de la version actual
   #define MOTHERBOARD HELTEC_V2
 #endif
 #ifndef RADIOTYPE
-  #define RADIOTYPE LORA  // aqui puede ser cualquier variante soportada por LoraLib
+  #define RADIOTYPE 1; //1=LORA  // aqui puede ser cualquier variante soportada por LoraLib
 #endif
 #ifndef RADIOCHIP
   #define RADIOCHIP SX1276  // aqui puede ser cualquier variante soportada por LoraLib
