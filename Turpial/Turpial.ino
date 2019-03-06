@@ -9,7 +9,6 @@
 #include "routing.h"
 #include "radio.h"
 
-#include <WiFiUdp.h>  // using websockets
 #include <TaskScheduler.h>  // https://github.com/arkhipenko/TaskScheduler
 
 #define DEBUG 1
@@ -25,7 +24,7 @@ GPS_status_t  GPSStatus; // GPS status
 BUFFER_packet_t Buffer_packet; // Packet struct for buffering
 
 // unique node id
-String id_node;
+char* id_node;
 
 // declare scheduler
 Scheduler runner;
@@ -49,6 +48,8 @@ void scan_wifi(){
 
 void setup() {
   Serial.begin(BAUDRATE);
+
+  
 // falta colocar los pre-check del boot d acuerdo a: https://gitlab.com/btcven/locha/app/blob/master/docs/first-boot.md
   read_epprom_variables();
   

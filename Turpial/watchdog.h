@@ -6,6 +6,8 @@
 #ifndef WATCHDOG_H
 #define WATCHDOG_H
 
+unsigned long wdt;
+
 void setWD() {
   unsigned long wdt = millis();
 }

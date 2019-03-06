@@ -7,13 +7,17 @@
  * Licensed under a MIT license, see LICENSE file in the root folder
  * for a full text.
  */
- #include <cstdio>
-#include <cstdlib>
-#include <string>
+// #include <cstdio>
+//#include <cstdlib>
+//#include <string>
+#include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
+#include "defaultStartup.h"
+
+extern BLE_status_t  BLEStatus;
 
 BLEServer *pServer = NULL;
 BLECharacteristic *pTxCharacteristic;
@@ -41,15 +45,18 @@ class ServerCB : public BLEServerCallbacks {
 class characteristicCB : public BLECharacteristicCallbacks {
   
     void onWrite(BLECharacteristic *pCharacteristic) {
-      
+     
       rxValue = pCharacteristic->getValue();
 
-      if (rxValue.size() > 0) {
+    //  if (rxValue.size() > 0) {
+        if (rxValue.length() > 0) {
+        
         Serial.println(rxValue.c_str());
         // incoming msg via ble iface:
         // 1.- send via rad iface handler
         // 2.- clear the var.
-        rxValue.clear();
+        //rxValue.clear();
+        rxValue="";
       }
     }
 };
@@ -81,19 +88,24 @@ void bluetooth_task(void *params) {
 
   while (1) {
     if (deviceConnected) {
-      if (txValue.size() > 0) {
+  //    if (txValue.size() > 0) {
+   if (txValue.length() > 0) {
+  
         pTxCharacteristic->setValue(txValue);
         pTxCharacteristic->notify();
-        txValue.clear();
+     //  txValue.clear();
+        txValue="";
       }
       delay(10);
     }
     else {
-      if (txValue.size() > 0) {
+     // if (txValue.size() > 0) {
+        if (txValue.length() > 0) {
         Serial.printf("Device not connected to BLE interface.\n");
         Serial.printf("Received: ");
         Serial.println(txValue.c_str());
-        txValue.clear();
+        //txValue.clear();
+        txValue="";
       }
       // disconnecting
       if (!deviceConnected && oldDeviceConnected) {

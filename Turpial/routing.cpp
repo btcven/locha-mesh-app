@@ -6,6 +6,7 @@
  */
 
 #include <stdint.h>
+#include <Arduino.h>
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -20,7 +21,7 @@
 
 
 using namespace std;
-extern String id_node;
+extern char*  id_node;
 extern packet_t Buffer_packet;
 extern route_to_node_t routeTable[255];
 extern neighbor_entry_t neighborTable[255];
@@ -32,24 +33,24 @@ extern clock_t start;
 
 
 // se incluyen los eventos para externos para cada tipo de packet_t
-extern int routing_outcoming_PACKET_HELLO(id_node, Buffer_packet);
-extern int routing_incoming_PACKET_HELLO(id_node, Buffer_packet);
-extern int routing_outcoming_NET_BYE(String  id_node, packet_t packet_received);
-extern int routing_incoming_NET_BYE(String  id_node, packet_t packet_received);
-extern int routing_outcoming_NET_JOIN(String  id_node, packet_t packet_received);
-extern int routing_incoming_NET_JOIN(String  id_node, packet_t packet_received);
-extern int routing_outcoming_NET_ROUTE(String  id_node, packet_t packet_received);
-extern int routing_incoming_NET_ROUTE(String  id_node, packet_t packet_received);
-extern int routing_outcoming_PACKET_ACK(String  id_node, packet_t packet_received);
-extern int routing_incoming_PACKET_ACK(String  id_node, packet_t packet_received);
-extern int routing_outcoming_PACKET_GOSSIP(String  id_node, packet_t packet_received);
-extern int routing_incoming_PACKET_GOSSIP(String  id_node, packet_t packet_received);
-extern int routing_outcoming_PACKET_MSG(String  id_node, packet_t packet_received);
-extern int routing_incoming_PACKET_MSG(String  id_node, packet_t packet_received);
-extern int routing_outcoming_PACKET_TXN(String  id_node, packet_t packet_received);
-extern int routing_incoming_PACKET_TXN(id_node, Buffer_packet);
-extern int routing_outcoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
-extern int routing_incoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
+extern int routing_outcoming_PACKET_HELLO(char*  id_node, packet_t packet_received);
+extern int routing_incoming_PACKET_HELLO(char*  id_node, packet_t packet_received);
+extern int routing_outcoming_NET_BYE(char*  id_node, packet_t packet_received);
+extern int routing_incoming_NET_BYE(char*  id_node, packet_t packet_received);
+extern int routing_outcoming_NET_JOIN(char*  id_node, packet_t packet_received);
+extern int routing_incoming_NET_JOIN(char*  id_node, packet_t packet_received);
+extern int routing_outcoming_NET_ROUTE(char*  id_node, packet_t packet_received);
+extern int routing_incoming_NET_ROUTE(char*  id_node, packet_t packet_received);
+extern int routing_outcoming_PACKET_ACK(char*  id_node, packet_t packet_received);
+extern int routing_incoming_PACKET_ACK(char*  id_node, packet_t packet_received);
+extern int routing_outcoming_PACKET_GOSSIP(char*  id_node, packet_t packet_received);
+extern int routing_incoming_PACKET_GOSSIP(char*  id_node, packet_t packet_received);
+extern int routing_outcoming_PACKET_MSG(char*  id_node, packet_t packet_received);
+extern int routing_incoming_PACKET_MSG(char*  id_node, packet_t packet_received);
+extern int routing_outcoming_PACKET_TXN(char*  id_node, packet_t packet_received);
+extern int routing_incoming_PACKET_TXN(char*  id_node, packet_t packet_received);
+extern int routing_outcoming_PACKET_NOTDELIVERED(char*  id_node, packet_t packet_received);
+extern int routing_incoming_PACKET_NOTDELIVERED(char*  id_node, packet_t packet_received);
 
 
 
@@ -67,7 +68,7 @@ int timeDistortion = 1;
 
 
 // se arma el paquete a transmitir
-packet_t buildpacket(uint8_t max_hops, String from, String to, uint8_t sequence[2], String payload, packet_type_e type,uint8_t packetLength ){
+packet_t buildpacket(uint8_t max_hops, char* from, char* to, uint8_t sequence[2], char* payload, packet_type_e type,uint8_t packetLength ){
    // uint8_t dataLength = (uint8_t)HEADER_LENGTH + (uint8_t)packetLength;
 	 uint8_t dataLength = packetLength;
     uint8_t hash=0; // TODO build hash for this package
@@ -85,7 +86,7 @@ packet_t buildpacket(uint8_t max_hops, String from, String to, uint8_t sequence[
   return packet;    
 }
 
-packet_type_e convertir(String str)
+packet_type_e convertir(char* str)
 {
 	if(str == "NET_JOIN") return NET_JOIN;
   if(str == "NET_BYE") return NET_BYE;
@@ -102,19 +103,19 @@ packet_type_e convertir(String str)
 
 
 // for string delimiter
-String split[](String s, String delimiter) {
-	 String splitted[];
+char* split(String s, String delimiter) {
+	 char splitted[];
 
 size_t pos = 0;
 int pos_arreglo = 1;
-String token;
+char* token;
 while ((pos = s.find(delimiter)) != String::npos) {
     token = s.substr(0, pos);
 	splitted[pos_arreglo]=token;
     //std::cout << token << std::endl;
     s.erase(0, pos + delimiter.length());
 }
-return splitted;
+return *splitted;
 }
 
 
@@ -128,6 +129,7 @@ int convert_msg_into_buffer(String msg_received, packet_t Buffer_packet){
 
     splitted = split (original, ",");
 
+  
   Buffer_packet.max_hops=reinterpret_cast<const uint8_t>(&splitted[0]);    // max_hops no entra en el calculo de hash.
   Buffer_packet.length=reinterpret_cast<const uint8_t>(&splitted[1]);      // longitud del mensaje.
   Buffer_packet.from=splitted[2];        // direccion del remitente

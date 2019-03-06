@@ -6,44 +6,83 @@
 #ifndef GENERAL_FUNCTIONS_H
 #define GENERAL_FUNCTIONS_H
 
-//#include <EEPROM.h>  // include for EPPROM management
-//#include <FS.h>   // Include the SPIFFS library
+#include <EEPROM.h>  // include for EPPROM management
+#include <FS.h>   // Include the SPIFFS library
+
+#include <cstdio>
+#include <cstdlib>
+#include <sys/time.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string>
 #include "watchdog.h"
 
+// estructura para la funcion gettimeofday
+typedef struct { 
+    time_t      tv_sec;     /* seconds since the Epoch*/
+    suseconds_t tv_usec;    /* microseconds since the Epoch*/
+} timeval_t;
 
-void read_epprom_variables(){
+byte read_epprom_variable(int address){
   // Read default variables from EPPROM
   //TODO
+  byte value;
+  value = EEPROM.read(address);
+  return value;
 }
 
 int64_t xx_time_get_time() {
-  struct timeval tv;
+  timeval tv;
   gettimeofday(&tv, NULL);
   return (tv.tv_sec * 1000LL + (tv.tv_usec / 1000LL));
 }
 
 
-String create_unique_id(){
+char* create_unique_id(){
   // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
   // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
    //TODO
    // se arma el unique id
    uint64_t chipid; 
-   uint64_t timestamp;
+//   uint64_t timestamp;
+   char* uniqueid;
 // hay que verificar que no exista previamente en EEPROM
    
    chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
-   timestamp=xx_time_get_time;
-   aleatorio=random(1000, 9999);
-   
-   string uniqueid=String(chipid)+String(aleatorio)+String(timestamp);
-// la primera vez que se invoca se marca en el eeprom como escrito (se colocan 3 letras en la memoria como marca)
-  EEPROM.write(0, 'C');
-  EEPROM.write(1, 'F');
-  EEPROM.write(2, 'G');
-  EEPROM.write(3,uniqueid); // ocupa 32 bytes , o sea, queda ocupado el eeprom hasta la posicion 35 inclusive
+ //  timestamp=xx_time_get_time();
+   String aleatorio=String(random(1000, 9999),DEC);  // un string de 4 digitos aleatorios
+   // el unique id esta conformado por el chipid del ESP concatenado con 4 digitos aleatorios y otros 4 digitos del millis
+ //  String uniqueid2="";
+ //  uniqueid2.concat(chipid);
+   String uniqueid2 = String(chipid);
+   uniqueid2.concat(aleatorio);
+   uniqueid2.concat(String(millis(), DEC));
+
+  // la primera vez que se invoca se marca en el eeprom como escrito (se colocan 3 letras en la memoria como marca)
+  byte value0;
+  byte value1;
+  byte value2;
+  value0=EPPROM.read(0);
+  value1=EPPROM.read(1);
+  value2=EPPROM.read(2);
+  if (!((value0=='C')and(value1=='F')and(value2=='G'))){
+    
+   char respuesta[16];
+
+snprintf(respuesta, 32, "%08X%04X%04X", (uint32_t)chipid,aleatorio,(uint32_t)millis());
   
-  return uniqueid;
+      EEPROM.write(0, 'C');
+      EEPROM.write(1, 'F');
+      EEPROM.write(2, 'G');
+      WriteStringToEEPROM(3,uniqueid2);
+      //EEPROM.write(3,uniqueid); // ocupa 32 bytes , o sea, queda ocupado el eeprom hasta la posicion 35 inclusive
+      return respuesta;
+  else {
+    uniqueid2=ReadStringFromEEPROM(3);
+  }
+  uniqueid2.toCharArray(uniqueid2, 32);
+  return uniqueid2;
+}
 }
 
 
@@ -115,6 +154,23 @@ String  ReadStringFromEEPROM(int beginaddress){
 
   }
   return retString;
+}
+
+// esta funcion hace parse de un string a un arreglo dado un separador (por ej. una ip, una mac address o un packet separado por algun caracter
+// ej.:
+//const char* macStr = "90-A2-AF-DA-14-11";
+// byte mac[6];
+//parseBytes(macStr, '-', mac, 6, 16);
+//////////////////////////////////////////////////////////////////////
+void parseBytes(const char* str, char sep, byte* bytes, int maxBytes, int base) {
+    for (int i = 0; i < maxBytes; i++) {
+        bytes[i] = strtoul(str, NULL, base);  // Convert byte
+        str = strchr(str, sep);               // Find next separator
+        if (str == NULL || *str == '\0') {
+            break;                            // No more separators, exit
+        }
+        str++;                                // Point to next character after separator
+    }
 }
 
 #endif // GENERAL_FUNCTIONS_H

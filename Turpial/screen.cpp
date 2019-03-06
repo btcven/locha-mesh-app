@@ -5,8 +5,15 @@
 */
 
 #include "lib/heltec-oled/src/SSD1306.h"
+#include <Arduino.h>
+#include "defaultStartup.h"
 #include "screen.h"
 #include "pins.h"
+
+extern BLE_status_t  BLEStatus;
+extern WAP_status_t  WAPStatus; 
+extern RAD_status_t  RADStatus;
+extern WST_status_t  WSTStatus;
 
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 

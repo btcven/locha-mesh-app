@@ -7,14 +7,14 @@
 #define ROUTING_H
 
 #include <stdint.h>
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <string>
-#include <algorithm>
-#include <random>
-#include <chrono>
-#include <fstream>
+//#include <iostream>
+//#include <cstdio>
+//#include <cstdlib>
+//#include <string>
+//#include <algorithm>
+//#include <random>
+//#include <chrono>
+//#include <fstream>
 
 #define HEADER_LENGTH 16;
 
@@ -80,11 +80,11 @@ typedef enum services_e
 typedef struct
 {
     uint8_t max_hops;    // max_hops no entra en el calculo de hash.
-    uint8_t length;      // longitud del mensaje.
-    String from;        // direccion del remitente
-    String to;          // enviamos el mensaje al id: to
+    uint8_t length_msg;      // longitud del mensaje.
+    char* from;        // direccion del remitente
+    char* to;          // enviamos el mensaje al id: to
     uint8_t sequence[2]; // por ejemplo {1, 2} representa parte 1 de 2 en total
-    String payload; // es la secuencia del mensaje
+    char* payload; // es la secuencia del mensaje
     uint8_t msg_hash;    // first 4 bytes.
     packet_type_e type;
 } packet_t;
@@ -96,11 +96,12 @@ typedef struct
  */
 typedef struct
 {
-    String id;         // uniqueid
+    char* id;         // uniqueid
     uint8_t offers[5];       // servicios que ofrece
     uint8_t age;            // edad conocida
     uint8_t hops_away;      // saltos de distancia (metrica)
     quality_link_t quality; // calidad de enlace
+    uint8_t connectivity_index;  // indice de conectividad autocalculado por cada nodo
 } neighbor_entry_t;
 
 /**
@@ -157,32 +158,5 @@ typedef struct
     uint8_t attempt;
     bool locked;
 } blacklist_entry_t;
-
-
-
-uint8_t millis(){
-	
-	clock_t time_elapsed = clock();
-
-// solo se toma el clock
-return uint8_t(time_elapsed);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif // ROUTING_H

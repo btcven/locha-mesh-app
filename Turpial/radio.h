@@ -24,7 +24,7 @@ if (RAD_ENABLED){
 
 int start_radio(){
   
-int start_receive();
+//int start_receive();
   if (RAD_ENABLED){
     if (RADIOTYPE==1){  //1=LORA
       return start_receive_lora_packets();

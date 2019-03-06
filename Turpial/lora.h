@@ -24,6 +24,7 @@ volatile bool lora_enableInterrupt = true;
 // NSS pin:   10 (4 on ESP32/ESP8266 boards)
 // DIO0 pin:  2
 // DIO1 pin:  3
+loraSX = new LoRa;
 if (LORACHIP==SX1278){
   SX1278 loraSX = new LoRa;
 }
@@ -70,12 +71,12 @@ int  startup_lora(){
   // preamble length:             8 symbols
 // amplifier gain:              0 (automatic gain control)
 
-  int state = lora.begin();
+  int state = loraSX.begin();
 
   // set the function that will be called 
   // when new packet is received
   if (state == ERR_NONE) {
-    lora.setDio0Action(setFlag);
+    loraSX.setDio0Action(setFlag);
    start_receive_lora_packets();
     
   }
@@ -84,7 +85,7 @@ int  startup_lora(){
 
 int start_receive_lora_packets(){
    // start listening for LoRa packets
-    int state = lora.startReceive();
+    int state = loraSX.startReceive();
     
    // NOTE: 'listen' mode will be disabled 
   // automatically by calling any of the 
@@ -120,16 +121,17 @@ int trasmit_package_lora(packet_t mensaje){
   // you can transmit C-string or Arduino string up to
   // 256 characters long
   lora_enableInterrupt = true;
-  state = lora.transmit(mensaje);
+  int state = loraSX.transmit(mensaje);
   lora_enableInterrupt = false;
   if (state != ERR_NONE) {
       Serial.print(F("failed, code "));
       Serial.println(state);
-}
+  }
+return state;
 }
 
-int state_new=start_receive_lora_packets();
-  return state;
+int state_new=start_receive_lora_packets(){;
+  return state_new;
 }
 
 int receive_package_lora(){
@@ -175,6 +177,7 @@ int receive_package_lora(){
   int state_new=start_receive_lora_packets();
   lora_enableInterrupt = true;
   lora_receivedFlag=false;
+  return state_new;
   }
   return 0;
 }
@@ -187,7 +190,7 @@ void scan_lora(String id_node){
      Serial.print("Scanning channel for LoRa preamble ... ");
 
   // start scanning current channel
-  int state = lora.scanChannel();
+  int state = loraSX.scanChannel();
   
   if(state == PREAMBLE_DETECTED) {
     // LoRa preamble was detected

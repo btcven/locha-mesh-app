@@ -11,7 +11,8 @@
 #include "defaultStartup.h"
 
 // build date and time
-#define STRING_VERSION_CONFIG_H __DATE__ "19/02/2019 2047h" __TIME__ 
+#define STRING_VERSION_CONFIG_H __DATE__ "05/03/2019 2147h" __TIME__ 
+#define SHORT_BUILD_VERSION "0.0.1"
 const int FW_VERSION = 1;  // este es el numero de la version actual
 
 #define BAUDRATE 115200
