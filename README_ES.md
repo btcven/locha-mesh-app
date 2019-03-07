@@ -8,13 +8,18 @@ Existen soluciones similares en el mercado para mensajería de texto o cartera B
 
 El total de la infraestructura necesaria para el correcto funcionamiento está formada por los propios nodos en una topología mesh<sub>[(1)](https://en.wikipedia.org/wiki/Mesh_networking)</sub>, estos, sobre los que actualmente estamos trabajando y denominamos, Turpial<sub>[(2)](https://)</sub> y Harpia<sub>[(3)](https://)</sub>.
 
-Ambos ofrecen la funcionalidad de peer, pero por cuestiones técnicas, como es capacidad de procesamiento, RAM disponible, almacenamiento en disco ó conectividad, Harpia ofrece capacidad extendida además de peer, como puede ser push de transacciones a la red Bitcoin<sub>[(4)](https://)</sub> o servidores Electrum<sub>[(5)](https://)</sub>, interconexión lochaMesh-lochaMesh a través de internet, etc.
+Ambos ofrecen la funcionalidad de peer, pero por cuestiones técnicas, como es capacidad de procesamiento, RAM disponible, almacenamiento en disco ó conectividad, Harpia ofrece capacidad extendida además de peer, como puede ser push de transacciones a la red Bitcoin<sub>[(4)](https://)</sub> o servidores Electrum<sub>[(5)](https://)</sub>, interconexión lochaMesh-lochaMesh<sub>(img.a)</sub> a través de internet, etc.
 ```mermaid
 graph LR
-mesh1(lochaMesh) --> a[Harpia]
+subgraph lochaMesh
+mesh1((peers)) --> a[Harpia]
+end
 a[Harpia]--internet--> b[Harpia]
-b[Harpia] --> mesh2(lochaMesh)
+subgraph lochaMesh
+b[Harpia] --> mesh2((peers))
+end
 ```
+<sup>img.a interconexión lochaMesh~lochaMesh</sup>
 
 ## ¿Como funciona?
 Idealmente una red en topología mesh:
