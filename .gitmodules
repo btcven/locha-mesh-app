@@ -7,3 +7,6 @@
 [submodule "Turpial/lib/heltec-oled"]
 	path = Turpial/lib/heltec-oled
 	url = git@gitlab.com:btcven/locha/heltec-oled.git
+[submodule "Turpial/lib/ESP32_BLE_Arduino"]
+	path = Turpial/lib/ESP32_BLE_Arduino
+	url = git@gitlab.com:btcven/locha/libs/ESP32_BLE_Arduino.git
