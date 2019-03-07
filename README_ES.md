@@ -14,10 +14,16 @@ graph LR
 subgraph lochaMesh
 mesh1((peers)) --> a[Harpia]
 end
+
 a[Harpia]--internet--> b[Harpia]
+
 subgraph lochaMesh
 b[Harpia] --> mesh2((peers))
 end
+
+classDef green fill:#9f6, stroke:#222, stroke-width:0.6px;
+class a,b green
+
 ```
 <sup>img.a interconexión lochaMesh~lochaMesh</sup>
 
