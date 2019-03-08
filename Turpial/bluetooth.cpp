@@ -49,17 +49,15 @@ class ServerCB : public BLEServerCallbacks
 
 class characteristicCB : public BLECharacteristicCallbacks
 {
-
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-
     rxValue = pCharacteristic->getValue();
 
     //  if (rxValue.size() > 0) {
     if (rxValue.length() > 0)
     {
-
-      Serial.println(rxValue.c_str());
+      // ** Only on developing process **
+      Serial.println(rxValue);
       // incoming msg via ble iface:
       // 1.- send via rad iface handler
       // 2.- clear the var.
@@ -99,7 +97,7 @@ void bluetooth_task(void *params)
   {
     if (deviceConnected)
     {
-      //    if (txValue.size() > 0) {
+      //if (txValue.size() > 0) {
       if (txValue.length() > 0)
       {
         pTxCharacteristic->setValue(txValue);
@@ -114,9 +112,11 @@ void bluetooth_task(void *params)
       // if (txValue.size() > 0) {
       if (txValue.length() > 0)
       {
+        // ** Only on developing process **
         Serial.printf("Device not connected to BLE interface.\n");
         Serial.printf("Received: ");
         Serial.println(txValue);
+        
         //txValue.clear();
         txValue = "";
       }
@@ -127,6 +127,7 @@ void bluetooth_task(void *params)
         delay(500);
         // And restart advertising
         pServer->startAdvertising();
+        // ** Only on developing process **
         Serial.printf("Restart advertising .. \n");
         oldDeviceConnected = deviceConnected;
       }
