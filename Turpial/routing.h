@@ -79,13 +79,13 @@ typedef enum services_e
  */
 typedef struct
 {
-    uint8_t max_hops;    // max_hops no entra en el calculo de hash.
-    uint8_t length_msg;      // longitud del mensaje.
-    char* from;        // direccion del remitente
-    char* to;          // enviamos el mensaje al id: to
-    uint8_t sequence[2]; // por ejemplo {1, 2} representa parte 1 de 2 en total
-    char* payload; // es la secuencia del mensaje
-    uint8_t msg_hash;    // first 4 bytes.
+    uint8_t max_hops;       // max_hops no entra en el calculo de hash.
+    uint8_t length_msg;     // longitud del mensaje.
+    char* from;             // direccion del remitente
+    char* to;               // enviamos el mensaje al id: to
+    uint8_t sequence[2];    // por ejemplo {1, 2} representa parte 1 de 2 en total
+    char* payload;          // es la secuencia del mensaje
+    uint8_t msg_hash;       // first 4 bytes.
     packet_type_e type;
 } packet_t;
 
@@ -96,12 +96,12 @@ typedef struct
  */
 typedef struct
 {
-    char* id;         // uniqueid
-    uint8_t offers[5];       // servicios que ofrece
-    uint8_t age;            // edad conocida
-    uint8_t hops_away;      // saltos de distancia (metrica)
-    quality_link_t quality; // calidad de enlace
-    uint8_t connectivity_index;  // indice de conectividad autocalculado por cada nodo
+    char* id;                   // uniqueid
+    uint8_t offers[5];          // servicios que ofrece
+    uint8_t age;                // edad conocida
+    uint8_t hops_away;          // saltos de distancia (metrica)
+    quality_link_t quality;     // calidad de enlace
+    uint8_t connectivity_index; // indice de conectividad autocalculado por cada nodo
 } neighbor_entry_t;
 
 /**
@@ -110,10 +110,10 @@ typedef struct
  */
 typedef struct
 {
-    neighbor_entry_t receiver;  // uniqueid del destinatario
+    neighbor_entry_t receiver;      // uniqueid del destinatario
     neighbor_entry_t next_neighbor; // unique id del vecino mas cercano
-    uint8_t age;  // edad 
-    quality_link_t quality;
+    uint8_t age;                    // edad del path
+    quality_link_t quality;         // calidad del path
 } route_to_node_t;
 
 
@@ -140,23 +140,28 @@ typedef struct
  */
 typedef enum blacklisted_for
 {
-    BLOCK_FORWARD = 0,
-    BLOCK_BACKWARD = 1,
-    SPAMING = 2,
-    FLOODING = 3
+    BLOCK_FORWARD = 0,  // bloquea paquetes
+    BLOCK_BACKWARD = 1, // bloquea paquetes de vuelta, ACK
+    SPAMING = 2,        // cumple mesajes/tiempo pero envia mensajes de valor nulo o pernicioso 
+    FLOODING = 3        // hace multicast de cualquier paquete que le es entregado, o envía mensajes sin cumplir la regla de mesnajes/time
+
 };
 
 /**
  * @brief entry to blacklist table
+ * La primera y segunda vez que un peer entra en la blacklist 
+ * es de forma temporal, si since > X : el peer sale de la lista
  * 
+ * Tras la tercera entrada el valor locked se establece en true
+ * y ya no es necesario monitorizar el valor since.
  */
 typedef struct
 {
-    neighbor_entry_t peer; // no creo q sea necesario duplicar este dato, con su id puede ser suficiente
-    uint8_t reasons[2];
-    uint8_t since;
-    uint8_t attempt;
-    bool locked;
+    neighbor_entry_t peer;  // no creo q sea necesario duplicar este dato, con su id puede ser suficiente
+    uint8_t reasons[2];     // blacklisted por.
+    uint8_t since;          // blacklisted desde.
+    uint8_t attempt;        // intento número.
+    bool locked;            // bloqueado.
 } blacklist_entry_t;
 
 #endif // ROUTING_H
