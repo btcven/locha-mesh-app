@@ -58,4 +58,7 @@
 // define serial settings
 #define BAUDRATE 115200
 
+#define DEBUG 1
+
+
 #endif // HARDWARE_H

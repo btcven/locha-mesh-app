@@ -10,11 +10,15 @@
 
 // devices and default settings
 #include "hardware.h"
-
-// #include "screen.h"
+#include "screen.h"
 
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 //OLEDDisplayUi ui(&display);
+
+// includes internos
+#include "packet.h"
+#include "incoming.h"
+
 
 void setup()
 {
