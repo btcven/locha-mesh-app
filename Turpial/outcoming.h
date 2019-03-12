@@ -28,7 +28,7 @@ int routing_outcoming_PACKET_MSG(char* id_node_destino, char* mensaje){
       body.payload=mensaje;
       Buffer_packet.header=header;
       Buffer_packet.body=body;
-      trasmit_package(Buffer_packet);
+      packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
   } else {
     if (existe_ruta(id_node, id_node_destino)){
         // se arma el paquete y se envia por esa ruta 
@@ -36,7 +36,7 @@ int routing_outcoming_PACKET_MSG(char* id_node_destino, char* mensaje){
       
     } else {
         // no existe una ruta al destino se devuelve un packet not delivered
-         Serial.println(F("PACKET NOT DELIVERED"));
+        Serial.println(F("PACKET NOT DELIVERED"));
     }
   }
 

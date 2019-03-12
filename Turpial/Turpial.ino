@@ -15,16 +15,23 @@
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 //OLEDDisplayUi ui(&display);
 
-// includes internos
+// variables fijas para este demo
 char* id_node="turpial.0";
-rutas_t routeTable[3];
-nodo_t vecinos[3];
+int total_vecinos=1;  // cantidad de vecinos del nodo actual
+int total_rutas=1;  // cantidad de rutas del nodo actual
 
+// includes internos
+rutas_t routeTable[255];
+nodo_t vecinos[255];
+message_queue_t mensajes_salientes[255];
+int total_mensajes_salientes=0;  
 
 #include "packet.h"
 #include "incoming.h"
 
-  void iniciar_vecinos_y_rutas(char* id_nodo,nodo_t vecinos[3],rutas_t routeTable[3] ){
+
+// funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
+  void iniciar_vecinos_y_rutas(char* id_nodo,nodo_t vecinos[255],rutas_t routeTable[255]){
     if (id_nodo=="turpial.0"){
         nodo_t nodo_actual;
         nodo_t nodo_vecino;
@@ -145,7 +152,7 @@ void setup()
   }
 
 
-  iniciar_vecinos_y_rutas();
+  iniciar_vecinos_y_rutas(id_node,vecinos[255],routeTable[255);
  
 }
 

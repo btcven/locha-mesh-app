@@ -6,6 +6,13 @@ typedef struct
     char* id;         // uniqueid
 } nodo_t;
 
+
+typedef struct
+{
+    packet_t paquete;         // uniqueid
+    uint8_t prioridad;        // numero para asignar la prioridad a cada paquete 
+} message_queue_t;
+
 typedef struct
 {
     nodo_t origen;  // uniqueid del destinatario
@@ -14,17 +21,7 @@ typedef struct
     uint8_t age;  // edad (ultima vez que se recibio/envio algo por esa ruta
 } rutas_t;
 
-// verifica si el nodo a consultar esta en la tabla de vecinos
-int es_vecino(char* id_nodo){
 
-  
-}
-
-// se busca en la tabla de rutas si existe una ruta al destino
-int existe_ruta(char* id_nodo_from, char* id_nodo_to){
-
-  
-}
 
 
 #endif // ROUTE_H
