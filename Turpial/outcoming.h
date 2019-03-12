@@ -37,7 +37,7 @@ int routing_outcoming_PACKET_MSG(char* id_node_destino, char* mensaje){
       header.to=id_node_destino;
       header.timestamp=millis();
       body.payload=mensaje;
-      Buffer_packet.header=header;
+      Buffer_packet.header=header; 
       Buffer_packet.body=body;
       packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
   } else {

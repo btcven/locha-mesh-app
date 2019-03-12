@@ -3,7 +3,7 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
-#ifndef PACKET_H
+#ifndef PACKET_H 
 #define PACKET_H
 
 #include <Arduino.h>

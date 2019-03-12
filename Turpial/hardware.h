@@ -5,7 +5,7 @@
 */
 
 
-#ifndef HARDWARE_H
+#ifndef HARDWARE_H 
 #define HARDWARE_H
 
 // define display settings.
