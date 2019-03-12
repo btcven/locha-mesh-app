@@ -5,6 +5,8 @@ We are happy of your visit and that you can read more about us. Here you can fin
 The locha mesh network is a radio network for text messaging and bitcoin transactions.
 The main objetive is a long range network for everyone and everywhere, for this reason, we are working not only in a protocol, also the firmware for affordable devices like "Turpial" or "Harpia".
 
+Check out [/docs]() for to know more.
+
 #### Turpial
 Is a small and portable device [ESP32](https://www.espressif.com/en/products/hardware/esp-wroom-32/overview) based system.
 
