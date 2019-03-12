@@ -6,6 +6,9 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+#include <Arduino.h>
+
+
 typedef enum
 {
   EMPTY,

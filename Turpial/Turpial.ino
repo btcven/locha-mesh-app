@@ -7,18 +7,22 @@
 #include <LoRaLib.h>
 #include <Wire.h>
 #include <SSD1306.h>
+#include <string.h>
 
 // devices and default settings
 #include "hardware.h"
 #include "screen.h"
+#include "packet.h"
+#include "route.h"
 
-SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
+
+SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, GEOMETRY_128_32);  // tambien esta GEOMETRY_128_64 pero depende del screen del HELTEC
 //OLEDDisplayUi ui(&display);
 
 // variables fijas para este demo
 char* id_node="turpial.0";
 int total_vecinos=1;  // cantidad de vecinos del nodo actual
-int total_rutas=1;  // cantidad de rutas del nodo actual
+int total_rutas=1;  // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 
 // includes internos
 rutas_t routeTable[255];
@@ -26,8 +30,7 @@ nodo_t vecinos[255];
 message_queue_t mensajes_salientes[255];
 int total_mensajes_salientes=0;  
 
-#include "packet.h"
-#include "incoming.h"
+
 
 
 // funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
@@ -152,7 +155,7 @@ void setup()
   }
 
 
-  iniciar_vecinos_y_rutas(id_node,vecinos[255],routeTable[255);
+  iniciar_vecinos_y_rutas(id_node,vecinos,routeTable);
  
 }
 

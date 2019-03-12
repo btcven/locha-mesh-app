@@ -7,6 +7,7 @@
 #ifndef RADIO_H
 #define RADIO_H
 
+#include <Arduino.h>
 
 #define RADIO_ENABLED 1
 

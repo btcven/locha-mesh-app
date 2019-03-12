@@ -1,14 +1,23 @@
 /**
+   (c) Copyright 2019 locha.io project developers
+   Licensed under a MIT license, see LICENSE file in the root folder
+   for a full text.
+*/
+/**
    procedimientos para manejo de paquetes entrantes
 */
 
 #ifndef INCOMING_H
 #define INCOMING_H
 
+#include <string.h>
+#include "route.h"
+#include "packet.h"
+
 extern char*  id_node;
 extern packet_t Buffer_packet;
-extern rutas_t routeTable[3];
-extern nodo_t vecinos[3];
+extern rutas_t routeTable[255];
+extern nodo_t vecinos[255];
 
 int routing_incoming_PACKET_MSG(char* id_node, packet_t packet_received){
   
@@ -20,6 +29,27 @@ int routing_incoming_PACKET_MSG(char* id_node, packet_t packet_received){
   
   return 0;
 }
+
+int routing_incoming_PACKET_JOIN(char* id_node, packet_t packet_received){
+  
+  return 0;
+}
+
+int routing_incoming_PACKET_BYE(char* id_node, packet_t packet_received){
+  
+  return 0;
+}
+
+int routing_incoming_PACKET_ROUTE(char* id_node, packet_t packet_received){
+  
+  return 0;
+}
+
+int routing_incoming_PACKET_NOT_DELIVERED(char* id_node, packet_t packet_received){
+  
+  return 0;
+}
+
 
 
 #endif // INCOMING_H

@@ -1,5 +1,12 @@
+/**
+   (c) Copyright 2019 locha.io project developers
+   Licensed under a MIT license, see LICENSE file in the root folder
+   for a full text.
+*/
 #include <Arduino.h>
+#include <string.h>
 #include "packet.h"
+
 
 extern char*  id_node;
 extern packet_t Buffer_packet;
@@ -35,13 +42,13 @@ void radioPacket::deserialize()
   {
   case EMPTY:
   case JOIN:
-       routing_incoming_PACKET_JOIN(id_node, Buffer_packet);
+       routing_incoming_NET_JOIN(id_node, Buffer_packet);
       break;
   case BYE:
-      routing_incoming_PACKET_BYE(id_node, Buffer_packet);
+      routing_incoming_NET_BYE(id_node, Buffer_packet);
       break;
   case ROUTE:
-      routing_incoming_PACKET_ROUTE(id_node, Buffer_packet);
+      routing_incoming_NET_ROUTE(id_node, Buffer_packet);
       break;
   case ACK:
       routing_incoming_PACKET_ACK(id_node, Buffer_packet);
@@ -56,7 +63,7 @@ void radioPacket::deserialize()
    routing_incoming_PACKET_GOSSIP(id_node, Buffer_packet);
       break;
   case NOT_DELIVERED:
-   routing_incoming_PACKET_NOT_DELIVERED(id_node, Buffer_packet);
+   routing_incoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
       break;
   default:
     break;
