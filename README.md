@@ -28,4 +28,4 @@ Dado el objetivo que se persigue, una vez completado un sprint, la rama quedará
 
 ### Licencia
 
-El contenido de este repositorio, así como el resto del proyecto se encuentra bajo licencia MIT. Podeis leer  el archivo LICENSE en path inicial del proyecto para consultar el texto completo.
+El contenido de este repositorio, así como el resto del proyecto se encuentra bajo licencia MIT. Podeis leer  el archivo [LICENSE](https://github.com/btcven/locha-mesh-app/blob/master/LICENSE) en path inicial del proyecto para consultar el texto completo.
