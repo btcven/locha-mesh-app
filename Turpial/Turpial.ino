@@ -11,10 +11,10 @@ using namespace std;
 // detecting MCU compiler
 #if defined(__AVR__)
     #define MCU_ARDUINO
-#else
+#endif 
+#ifdef ARDUINO_ARCH_ESP32
     #define MCU_ESP32
 #endif 
-
 
 // devices and default settings
 #include "hardware.h"
