@@ -13,6 +13,7 @@
 #include <string.h>
 #include "route.h"
 #include "packet.h"
+#include "debugging.h"
 
 extern char* id_node; // id unico del nodo
 extern packet_t Buffer_packet;
