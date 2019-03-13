@@ -1,7 +1,7 @@
 image: python:2.7
 
 variables: 
-  DEFAULT_PLATAFORMIO_PROJECT_CONF_FILE: plataformio.ini
+  DEFAULT_PLATFORMIO_PROJECT_CONF_FILE: platformio.ini
 
 cache:
   paths:
@@ -10,24 +10,20 @@ cache:
 stages:
  - build
 
-before_script:
-  - "pip install -U platformio"
-
 build:init:
   stage: build
   script: 
-    - "plataformio ci --project-conf=$DEFAULT_PLATAFORMIO_PROJECT_CONF_FILE"
+    - "platformio ci --project-conf=$DEFAULT_PLATFORMIO_PROJECT_CONF_FILE"
   only:
     - /^sprint.*$/
   when: always
 
 .prepare_env: &prepare_env |
-  function install_plataformio {
+  function install_platformio {
     pip install -U platformio
-    #platformio update
+    platformio update
   }
 
 before_script:
-  - pip install -U platformio
-#  - *prepare_env
+  - *prepare_env
 
