@@ -30,15 +30,13 @@ build:init:
     platformio update
   }
   function tune_image_on_the_fly {
-    apt install ssh -y
+    apt install openssh-client -y
     git submodule sync --recursive
     git submodule update --init --recursive
   }
 
 before_script:
-#  - *prepare_env
-  - apt install ssh -y
-  - git submodule sync --recursive
-  - git submodule update --init --recursive
-  - pip install -U platformio
+  - *prepare_env
+  - install_platformio
+  - tune_image_on_the_fly
 
