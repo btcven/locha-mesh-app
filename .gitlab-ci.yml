@@ -28,5 +28,6 @@ build:init:
   }
 
 before_script:
-  - *prepare_env
+  - pip install -U plataformio
+#  - *prepare_env
 
