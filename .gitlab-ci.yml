@@ -13,10 +13,10 @@ stages:
 before_script:
   - "pip install -U platformio"
 
-job:
+build:init:
   stage: build
   script: 
-    - "platformio ci -project-conf=$DEFAULT_PLATAFORMIO_PROJECT_CONF_FILE"
+    - "plataformio ci -project-conf=$DEFAULT_PLATAFORMIO_PROJECT_CONF_FILE"
   only:
     - /^sprint.*$/
   when: always
