@@ -6,6 +6,7 @@ variables:
 cache:
   paths:
     - "~/.platformio"
+    - "$CI_PROJECT_DIR/pip-cache"
 
 stages:
  - build
@@ -14,6 +15,7 @@ build:init:
   stage: build
   script: 
     - "platformio ci --project-conf=$DEFAULT_PLATFORMIO_PROJECT_CONF_FILE"
+  variables: {PLATFORMIO_CI_SRC: "Turpial/Turpial.ino"}
   only:
     - /^sprint.*$/
     - devel
