@@ -29,6 +29,9 @@ build:init:
     pip install -U platformio
     platformio update
   }
+  fuction tune_image_on_the_fly {
+    apt install ssh -y
+  }
 
 before_script:
 #  - *prepare_env
