@@ -27,7 +27,7 @@ typedef struct
   packet_type_e type;
   char *from;
   char *to;
-  time_t timestamp;
+  unsigned long timestamp;
 } packet_header_t;
 
 typedef struct

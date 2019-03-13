@@ -49,20 +49,74 @@ int es_vecino(char* id_nodo){
   return 0;
 }
 
-// se busca en la tabla de rutas si existe una ruta al destino
-int existe_ruta(char* id_nodo_from, char* id_nodo_to){
- int i;
+// posicion de la ruta en la tabla de rutas en memoria
+int pos_ruta(char* id_nodo_from, char* id_nodo_to){
+  int i;
   for (i = 1; i <= total_rutas; i++) {
       if ((routeTable[i].origen.id==id_nodo_from)and(routeTable[i].destino.id==id_nodo_to)){
-        return 1;
+        return i;
       }
       // el inverso tambien es la misma ruta
       if ((routeTable[i].origen.id==id_nodo_to)and(routeTable[i].destino.id==id_nodo_from)){
-        return 1;
+        return i;
       }
   }
-  return 0;
+}
+// se busca en la tabla de rutas si existe una ruta al destino
+int existe_ruta(char* id_nodo_from, char* id_nodo_to){
+ int pos_route=pos_ruta(id_nodo_from, id_nodo_to);
+  if (pos_route>0){
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+int existe_ruta(char* id_nodo_from, char* id_nodo_to, bool update_route){
+ int i;
+ int pos_route=pos_ruta(id_nodo_from, id_nodo_to);
+
   
+  if (update_route){
+     if (pos_route>0){
+              routeTable[pos_route].age=millis();      
+     } else {
+      // no existe la ruta, se crea una nueva ruta
+      
+     }
+  }
+        // si existe la ruta se actualiza el 
+      if (pos_route>0){
+        return 1;
+      } else {
+        return 0;
+      }
+        
+  
+}
+
+// update age of a route in routeTable , if didnt exist 
+void update_route_age(char* id_nodo_from, char* id_nodo_to){
+  int respuesta=existe_ruta(id_nodo_from, id_nodo_to, true);
+}
+
+// create a new route on memory  
+void create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
+  rutas_t nueva_ruta;
+  nueva_ruta.origen=origen;
+  nueva_ruta.destino=destino;
+  nueva_ruta.next_neighbor=next_neighbor;
+  nueva_ruta.age=millis();
+  routeTable[total_rutas+1]=nueva_ruta;
+  total_rutas++;
+}
+
+// create a new neighbor on memory  
+void create_neighbor(char* id_node_neighbor){
+   nodo_t nodo_vecino;
+   nodo_vecino.id = id_node_neighbor;
+   vecinos[total_vecinos+1] = nodo_vecino;
+   total_vecinos++;
 }
 
 // coloca el mensaje recibido en Buffer_packet a ka cika de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda

@@ -46,15 +46,18 @@ if (packet_received.header.to==id_node){
       header.from=id_node;
       header.to=packet_received.header.from;
       header.timestamp=millis();
-      body.payload=Buffer_packet.body.payload;   // aqui deberi devolver el hash y en base al hash validar que efectivamente cuando se reciba el ACK elimine al que corresponda
+      body.payload=Buffer_packet.body.payload;   // aqui deberia devolver el hash y en base al hash validar que efectivamente cuando se reciba el ACK elimine al que corresponda
       packet_t new_packet;
       new_packet.header=header;
       new_packet.body=body;
       packet_to_send(new_packet);  // se envia a la cola de mensajes salientes
+
+      // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
+       update_route_age(packet_received.header.from, packet_received.header.to);
 } else {
   // el paquete no es para mi, pero tengo que hacerle relay a mis vecinos
-  // busco si tengo una ruta entre mi nodo y el destino del paquete
-  if (existe_ruta(id_node, packet_received.header.to)){
+  // busco si tengo una ruta entre mi nodo y el destino del paquete (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
+  if (existe_ruta(id_node, packet_received.header.to,true)){
        packet_header_t header;
       packet_body_t body;
 
@@ -62,13 +65,15 @@ if (packet_received.header.to==id_node){
       header.from=id_node;
       header.to=packet_received.header.from;
       header.timestamp=millis();
-      header.last_node=id_node;   // este parametro se encarga de determinar que no se devuelva el mismo paquete hacia el origen
+  //    header.last_node=id_node;   // este parametro se encarga de determinar que no se devuelva el mismo paquete hacia el origen
       
       body=Buffer_packet.body;  
       packet_t new_packet;
       new_packet.header=header;
       new_packet.body=body;
       packet_to_send(new_packet);  // se envia a la cola de mensajes salientes
+  } else {
+    // si no existe ruta, falta determinar si me voy random por cualquiera de los nodos para intentar
   }
 
 }
@@ -86,11 +91,7 @@ int routing_incoming_PACKET_JOIN(char* id_node, packet_t packet_received){
   rutas_t nueva_ruta;
   nodo1.id=packet_received.header.to;
   nodo2.id=packet_received.header.from;
-  nueva_ruta.origen=nodo1;
-  nueva_ruta.destino=nodo2;
-  nueva_ruta.age=millis();
-  routeTable[total_rutas+1]=nueva_ruta;
-  total_rutas++;
+  create_route(nodo1, nodo_t nodo2, nodo2);
   return 0;
 }
 
@@ -183,7 +184,7 @@ int routing_incoming_PACKET_ACK(char* id_node, packet_t packet_received){
                   mensajes_salientes[i]=mensajes_salientes[i+1];
               }
               total_mensajes_salientes=total_mensajes_salientes-1;
-              Serial.println(F("ACK del packet recibido exitosamente"));
+              DEBUG_PRINTLN(F("ACK del packet recibido exitosamente"));
           }
       }
    }

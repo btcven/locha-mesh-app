@@ -6,9 +6,11 @@
 #include <Arduino.h>
 #include <LoRaLib.h> 
 #include "radio.h"
+using namespace std;
 
-extern std::string txValue;
-extern std::string rxValue;
+
+extern String txValue;
+extern String rxValue;
 
 // flag to indicate that a packet was received
 volatile bool receivedFlag = false;
@@ -29,12 +31,12 @@ void setFlag(void)
 
 void task_radio(void *pvParams) {
   SX1276 radio = new LoRa(RAD_CSS, RAD_DIO0, RAD_RST);
-  Serial.print("[RAD] Initializing ... ");
+  DEBUG_PRINT("[RAD] Initializing ... ");
   int state = radio.begin(RAD_BAND);
   if (state == ERR_NONE) {
-    Serial.println("OK");
+    DEBUG_PRINTLN("OK");
   } else {
-    Serial.println("FAILED");
+    DEBUG_PRINTLN("FAILED");
   }
 
 };

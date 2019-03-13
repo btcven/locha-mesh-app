@@ -56,7 +56,7 @@ int routing_outcoming_PACKET_MSG(char* id_node_destino, char* mensaje){
       
     } else {
         // no existe una ruta al destino se devuelve un packet not delivered
-        Serial.println(F("PACKET NOT DELIVERED"));
+        DEBUG_PRINTLN(F("PACKET NOT DELIVERED"));
     }
   }
 

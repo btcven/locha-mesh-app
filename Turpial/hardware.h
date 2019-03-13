@@ -7,8 +7,14 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
+// uncomment the following line for debug output
+// NOTE: debug output will slow down Arduino!
+#define DEBUG
+
+
+
 // define display settings.
-#define SCR_ENABLED true
+#define SCR_ENABLED false
 #ifdef SCR_ENABLED
 #define SCR_ADD 0x3C
 #define SCR_RST 16
@@ -56,8 +62,6 @@
 // define serial settings
 #define BAUDRATE 115200
 
-#define DEBUG 1
-
 char *create_unique_id()
 {
   // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
@@ -66,18 +70,21 @@ char *create_unique_id()
   // se arma el unique id
   uint64_t chipid;
   char *uniqueid;
-  chipid = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
-
-  //   String uniqueid2;
-  //  uniqueid2 = String(chipid);
-  //   uniqueid2.toCharArray(uniqueid, 32);
-
-  char ssid[23];
-  uint16_t chip = (uint16_t)(chipid >> 32);
-  snprintf(ssid, 23, "MCUDEVICE-%04X%08X", chip, (uint32_t)chipid);
-  String uniqueid2;
-  uniqueid2 = String(ssid);
-  uniqueid2.toCharArray(uniqueid, 32);
+  
+  #ifdef MCU_ARDUINO
+    String aleatorio=String(random(1000, 9999),DEC);  // un string de 4 digitos aleatorios
+    aleatorio.toCharArray(uniqueid, 32);
+  #endif 
+  #ifdef MCU_ESP32
+    chipid = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
+    char ssid[23];
+    uint16_t chip = (uint16_t)(chipid >> 32);
+    snprintf(ssid, 23, "MCUDEVICE-%04X%08X", chip, (uint32_t)chipid);
+    String uniqueid2;
+    uniqueid2 = String(ssid);
+    uniqueid2.toCharArray(uniqueid, 32);
+  #endif 
+  
   return uniqueid;
 }
 
