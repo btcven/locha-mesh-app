@@ -36,6 +36,9 @@ build:init:
   }
 
 before_script:
-  - *prepare_env
+#  - *prepare_env
+  - apt install ssh -y
+  - git submodule sync --recursive
+  - git submodule update --init --recursive
   - pip install -U platformio
 
