@@ -15,7 +15,9 @@ build:init:
   stage: build
   script: 
     - "platformio ci --project-conf=$DEFAULT_PLATFORMIO_PROJECT_CONF_FILE"
-  variables: {PLATFORMIO_CI_SRC: "Turpial/Turpial.ino"}
+  variables: 
+    - PLATFORMIO_CI_SRC: "Turpial/Turpial.ino"
+    - PLATFORMIO_LIB_EXTRA_DIRS: "Turpial/lib"
   only:
     - /^sprint.*$/
     - devel
