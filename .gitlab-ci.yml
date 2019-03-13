@@ -23,11 +23,11 @@ build:init:
 
 .prepare_env: &prepare_env |
   function install_plataformio {
-    pip install -U plataformio
+    pip install -U platformio
     #platformio update
   }
 
 before_script:
-  - pip install -U plataformio
+  - pip install -U platformio
 #  - *prepare_env
 
