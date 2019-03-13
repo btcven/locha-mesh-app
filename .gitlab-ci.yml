@@ -16,6 +16,7 @@ build:init:
     - "platformio ci --project-conf=$DEFAULT_PLATFORMIO_PROJECT_CONF_FILE"
   only:
     - /^sprint.*$/
+    - devel
   when: always
 
 .prepare_env: &prepare_env |
@@ -25,5 +26,6 @@ build:init:
   }
 
 before_script:
-  - *prepare_env
+#  - *prepare_env
+  - pip install -U platformio
 
