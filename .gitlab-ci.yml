@@ -16,7 +16,7 @@ before_script:
 build:init:
   stage: build
   script: 
-    - "plataformio ci -project-conf=$DEFAULT_PLATAFORMIO_PROJECT_CONF_FILE"
+    - "plataformio ci --project-conf=$DEFAULT_PLATAFORMIO_PROJECT_CONF_FILE"
   only:
     - /^sprint.*$/
   when: always
@@ -24,7 +24,7 @@ build:init:
 .prepare_env: &prepare_env |
   function install_plataformio {
     pip install -U plataformio
-    platformio update
+    #platformio update
   }
 
 before_script:
