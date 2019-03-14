@@ -32,9 +32,9 @@ typedef struct
 
 
 extern message_queue_t mensajes_salientes[255];
-extern int total_mensajes_salientes;  
-extern int total_vecinos;  
-extern int total_rutas;
+extern uint8_t total_mensajes_salientes;  
+extern uint8_t total_vecinos;  
+extern uint8_t total_rutas;
 extern rutas_t routeTable[255];
 extern nodo_t vecinos[255];
 
@@ -75,8 +75,8 @@ int existe_ruta(char* id_nodo_from, char* id_nodo_to){
 }
 
 int existe_ruta(char* id_nodo_from, char* id_nodo_to, bool update_route){
- int i;
- int pos_route=pos_ruta(id_nodo_from, id_nodo_to);
+ 
+ uint8_t pos_route=pos_ruta(id_nodo_from, id_nodo_to);
 
   
   if (update_route){
@@ -99,7 +99,7 @@ int existe_ruta(char* id_nodo_from, char* id_nodo_to, bool update_route){
 
 // update age of a route in routeTable , if didnt exist 
 void update_route_age(char* id_nodo_from, char* id_nodo_to){
-  int respuesta=existe_ruta(id_nodo_from, id_nodo_to, true);
+  uint8_t respuesta=existe_ruta(id_nodo_from, id_nodo_to, true);
 }
 
 // create a new route on memory  
@@ -113,12 +113,25 @@ void create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
   total_rutas++;
 }
 
+
+
+
+
+
+
 // create a new neighbor on memory  
 void create_neighbor(char* id_node_neighbor){
    nodo_t nodo_vecino;
    nodo_vecino.id = id_node_neighbor;
+   Serial.print("recibi:");
+   Serial.println(id_node_neighbor);
    vecinos[total_vecinos+1] = nodo_vecino;
+   Serial.print("total vecinos:");
+   
    total_vecinos++;
+   Serial.println(total_vecinos);
+   Serial.print("el vecino:");
+    Serial.println(vecinos[total_vecinos].id);
 }
 
 // coloca el mensaje recibido en Buffer_packet a ka cika de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda

@@ -68,7 +68,7 @@ char *create_unique_id()
   // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
   //TODO
   // se arma el unique id
-  uint64_t chipid;
+ // uint64_t chipid;
   char *uniqueid;
   
   #ifdef MCU_ARDUINO

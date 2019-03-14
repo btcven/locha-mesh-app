@@ -39,67 +39,29 @@ using namespace std;
 #ifdef MCU_ESP32
   SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST, GEOMETRY_128_64); // tambien esta GEOMETRY_128_64 pero depende del screen del HELTEC
 #endif 
+
 // variables fijas para este demo
 char *id_node = "turpial.0";
 
 
 // includes internos
-int total_vecinos = 0; // cantidad de vecinos del nodo actual
-int total_rutas = 0;   // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
+uint8_t total_vecinos = 0; // cantidad de vecinos del nodo actual
+uint8_t total_rutas = 0;   // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
+uint8_t total_mensajes_salientes = 0;   // cantidad de mensajes en la cola
 rutas_t routeTable[255];
 nodo_t vecinos[255];
 message_queue_t mensajes_salientes[255];
-int total_mensajes_salientes = 0;
-
-// funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
-void iniciar_vecinos_y_rutas(char *id_nodo, nodo_t vecinos[255], rutas_t routeTable[255])
-{
-  if (id_nodo == "turpial.0")
-  {
-    nodo_t nodo_actual;
-    nodo_t nodo_vecino;
-    nodo_actual.id = id_nodo;
-    nodo_vecino.id = "turpial_1";  // agregarle nodo_vecino.id = "turpial_0".c_str();  // para corregir warnings del compilado
-    create_neighbor(nodo_vecino.id);
-    // ruta T1
-    create_route(nodo_actual, nodo_vecino, nodo_vecino);
-   
-  }
-  if (id_nodo == "turpial.1")
-  {
-    nodo_t nodo_actual;
-    nodo_t nodo_vecino;
-    nodo_t nodo_vecino2;
-    nodo_actual.id = id_nodo;
-    nodo_vecino.id = "turpial_0";
-    nodo_vecino2.id = "turpial_2";
-    create_neighbor(nodo_vecino.id);
-    create_neighbor(nodo_vecino2.id);
-    // ruta T1
-    create_route(nodo_actual, nodo_vecino, nodo_vecino);
-    // ruta T2
-    create_route(nodo_actual, nodo_vecino2, nodo_vecino2);
-  }
-  if (id_nodo == "turpial.2")
-  {
-    nodo_t nodo_actual;
-    nodo_t nodo_vecino;
-    nodo_actual.id = id_nodo;
-    nodo_vecino.id = "turpial_1";
-    create_neighbor(nodo_vecino.id);
-    // ruta T2
-    create_route(nodo_actual, nodo_vecino, nodo_vecino);
-  }
-}
 
 void setup()
 {
-  DEBUG_BEGIN(BAUDRATE);
   
+  DEBUG_BEGIN(BAUDRATE);
+
+ 
 #ifdef MCU_ESP32
       if (SCR_ENABLED)
       {
-        DEBUG_PRINT("[SRC] Initiating... ");
+        DEBUG_PRINT(F("[SRC] Initiating... "));
         // activar módulo SCR
         // leer NVS,  verificar si existe registro
         // si existe aplicar, si no establecer parametros por defecto.
@@ -114,7 +76,7 @@ void setup()
     
         if (SCR_isActive)
         {
-          DEBUG_PRINTLN("OK");
+          DEBUG_PRINTLN(F("OK"));
           display.flipScreenVertically();
           display.setTextAlignment(TEXT_ALIGN_LEFT);
           display.setFont(ArialMT_Plain_10);
@@ -126,7 +88,7 @@ void setup()
       
       if (BLE_ENABLED)
       {
-        DEBUG_PRINT("[BLE] Initiating... ");
+        DEBUG_PRINT(F("[BLE] Initiating... "));
         // -- activar módulo ble --
         // 1.- leer NVS,  verificar si existe registro
         // 2.- si existe aplicar, si no establecer parametros por defecto.
@@ -137,34 +99,42 @@ void setup()
       }
       if (WAP_ENABLED)
       {
-        DEBUG_PRINT("[WAP] Initiating... ");
+        DEBUG_PRINT(F("[WAP] Initiating... "));
         // -- activar módulo wap --
       }
 
-  #endif // DEL MCU
+  
   if (WST_ENABLED)
   {
-    DEBUG_PRINT("[WST] Initiating... ");
+    DEBUG_PRINT(F("[WST] Initiating... "));
     // -- activar módulo wst --
     // 1.- leer NVS,  verificar si existe registro
     // 2.- si existe aplicar, si no establecer parametros por defecto.
   }
   if (RAD_ENABLED)
   {
-    DEBUG_PRINT("[RAD] Initiating... ");
+    DEBUG_PRINT(F("[RAD] Initiating... "));
     // -- activar modulo de radio --
     // 1.- leer NVS,  verificar si existe registro
     // 2.- si existe aplicar, si no establecer parametros por defecto.
     // 3.- iniciar.
     // xTaskCreate(task_rad, "task_rad", ...);
   }
-
-  iniciar_vecinos_y_rutas(id_node, vecinos, routeTable);
+#endif // DEL MCU
+// se coloca el cursor en el terminal serial
+   #ifdef DEBUG
+      char* node_id_2=create_unique_id();
+      DEBUG_PRINT(node_id_2);
+      DEBUG_PRINT(F(" >"));
+   #endif
 }
 
 void loop()
 {
-  mostrar_vecinos(id_node,vecinos);
-  mostrar_rutas(id_node,routeTable);
-  delay(5000);
+  show_debugging_info();
+  Serial.print("el vecino:");
+                Serial.println((String)vecinos[total_vecinos].id);
+                Serial.print("total vecinos:");
+                Serial.println(total_vecinos);
+                delay(5000);
 }

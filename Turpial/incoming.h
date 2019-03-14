@@ -20,9 +20,9 @@ extern packet_t Buffer_packet;
 extern rutas_t routeTable[255];
 extern nodo_t vecinos[255];
 extern message_queue_t mensajes_salientes[255];
-extern int total_vecinos;
-extern int total_rutas; 
-extern int total_mensajes_salientes; 
+extern uint8_t total_vecinos;
+extern uint8_t total_rutas; 
+extern uint8_t total_mensajes_salientes; 
 
 int routing_incoming_PACKET_MSG(char* id_node, packet_t packet_received){
   
@@ -97,7 +97,7 @@ int routing_incoming_PACKET_JOIN(char* id_node, packet_t packet_received){
 
 int routing_incoming_PACKET_BYE(char* id_node, packet_t packet_received){
   // borra al vecino de la tabla de vecinos
-  int i;
+  uint8_t i;
   int is_MSG=0;
    for (i = 1; i <= total_vecinos; i++) {
       if (vecinos[i].id==packet_received.header.from){

@@ -38,11 +38,12 @@ radioPacket::~radioPacket()
 
 void radioPacket::deserialize()
 {
+  uint8_t rpta;
   switch (header.type)
   {
   case EMPTY:
   case JOIN:
-       routing_incoming_NET_JOIN(id_node, Buffer_packet);
+      routing_incoming_NET_JOIN(id_node, Buffer_packet);
       break;
   case BYE:
       routing_incoming_NET_BYE(id_node, Buffer_packet);
