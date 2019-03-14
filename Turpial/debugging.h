@@ -38,6 +38,46 @@
 
 
 
+char* receive_serial_input(){
+   static boolean recvInProgress = false;
+   static byte ndx = 0;
+   char rc;
+   bool es_fin_linea=false;
+
+   const byte numChars_serial = 32;
+char buffer_serial_received[numChars_serial];
+boolean newData_serial = false;
+
+   
+   while (Serial.available() > 0 && newData_serial == false) {
+      rc = Serial.read();
+      // se verifica si es un \n
+      if (ndx  > 0){
+          if ((rc=='n')and(buffer_serial_received[ndx]=='\\')){
+            es_fin_linea=true;
+            // se borra el ultimo caracter del buffer
+            ndx--;
+          }
+      }
+      
+      if (recvInProgress == true) {
+        if (!es_fin_linea) {
+         
+            buffer_serial_received[ndx] = rc;
+                  ndx++;
+                  if (ndx >= numChars_serial) {
+                      ndx = numChars_serial - 1;
+                  }
+          } else {
+            // se recibio un fin de linea, se devuelve el comando
+            return buffer_serial_received[numChars_serial];
+            
+          }
+      }
+   }
+   return "";
+}
+
   void mostrar_packet(packet_t el_packet){
     int i;
     int j;

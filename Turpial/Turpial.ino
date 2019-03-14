@@ -15,6 +15,14 @@ using namespace std;
 #ifdef ARDUINO_ARCH_ESP32
     #define MCU_ESP32
 #endif 
+#ifdef WIFI_LORA_32_V2
+    #define MCU_ESP32
+#endif 
+#ifdef ARDUINO_WIFI_LORA_32_V2
+    #define MCU_ESP32
+#endif
+
+
 
 // devices and default settings
 #include "hardware.h"
@@ -51,7 +59,7 @@ void iniciar_vecinos_y_rutas(char *id_nodo, nodo_t vecinos[255], rutas_t routeTa
     nodo_t nodo_actual;
     nodo_t nodo_vecino;
     nodo_actual.id = id_nodo;
-    nodo_vecino.id = "turpial_1";
+    nodo_vecino.id = "turpial_1";  // agregarle nodo_vecino.id = "turpial_0".c_str();  // para corregir warnings del compilado
     create_neighbor(nodo_vecino.id);
     // ruta T1
     create_route(nodo_actual, nodo_vecino, nodo_vecino);
@@ -88,7 +96,7 @@ void setup()
 {
   DEBUG_BEGIN(BAUDRATE);
   
-  #ifdef MCU_ESP32
+#ifdef MCU_ESP32
       if (SCR_ENABLED)
       {
         DEBUG_PRINT("[SRC] Initiating... ");
@@ -114,7 +122,7 @@ void setup()
           display.display();
         }
       }
-    
+      
       
       if (BLE_ENABLED)
       {

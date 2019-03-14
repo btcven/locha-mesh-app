@@ -3,10 +3,8 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
-#ifndef SCREEN_H 
-#define SCREEN_H
-
-#include <Arduino.h>
+#ifndef SCREEN_H_
+#define SCREEN_H_
 
 
-#endif // SCREEN_H
+#endif // SCREEN_H_

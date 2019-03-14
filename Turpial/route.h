@@ -61,7 +61,9 @@ int pos_ruta(char* id_nodo_from, char* id_nodo_to){
         return i;
       }
   }
+  return 0;
 }
+
 // se busca en la tabla de rutas si existe una ruta al destino
 int existe_ruta(char* id_nodo_from, char* id_nodo_to){
  int pos_route=pos_ruta(id_nodo_from, id_nodo_to);
