@@ -8,34 +8,14 @@
 #include <Wire.h>
 #include <string.h>
 using namespace std;
-// detecting MCU compiler
-#if defined(__AVR__)
-    #define MCU_ARDUINO
-#endif 
-// definicion para ESP32 generico
-#ifdef ARDUINO_ARCH_ESP32
-    #define MCU_ESP32
-#endif 
-// definiciones para HELTEC
-#ifdef WIFI_LORA_32_V2
-    #define MCU_ESP32
-#endif 
-#ifdef ARDUINO_WIFI_LORA_32_V2
-    #define MCU_ESP32
-#endif
-#ifdef WIFI_KIT_32
-    #define MCU_ESP32
-#endif
-#ifdef WIFI_LORA_32
-    #define MCU_ESP32
-#endif
-#ifdef WIRELESS_STICK
-    #define MCU_ESP32
-#endif
+
 
 
 // devices and default settings
 #include "hardware.h"
+#include "boards_def.h"
+#include "memory_def.h"
+#include "general_functions.h"
 #ifdef MCU_ESP32
   #include "SSD1306.h"
   #include "bluetooth.h"
@@ -46,11 +26,13 @@ using namespace std;
 #include "debugging.h"
 
 
+
 #ifdef MCU_ESP32
   SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST, GEOMETRY_128_64); // tambien esta GEOMETRY_128_64 pero depende del screen del HELTEC
 #endif 
 
 // variables fijas para este demo
+// ID unico del nodo
 char *id_node = "turpial.0";
 
 
@@ -58,9 +40,9 @@ char *id_node = "turpial.0";
 uint8_t total_vecinos = 0; // cantidad de vecinos del nodo actual
 uint8_t total_rutas = 0;   // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 uint8_t total_mensajes_salientes = 0;   // cantidad de mensajes en la cola
-rutas_t routeTable[255];
-nodo_t vecinos[255];
-message_queue_t mensajes_salientes[255];
+rutas_t routeTable[MAX_ROUTES];
+nodo_t vecinos[MAX_NODES];
+message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 
 void setup()
 {
@@ -141,10 +123,11 @@ void setup()
 
 void loop()
 {
-  show_debugging_info();
-  Serial.print("el vecino:");
-                Serial.println((String)vecinos[total_vecinos].id);
-                Serial.print("total vecinos:");
-                Serial.println(total_vecinos);
-                delay(5000);
+  uint8_t rpta=show_debugging_info(vecinos);
+   Serial.print("variables en en el main loop:");
+   Serial.print((String)vecinos[total_vecinos].id);
+   Serial.print("-");
+   Serial.println(total_vecinos);
+ 
+                delay(2000);
 }
