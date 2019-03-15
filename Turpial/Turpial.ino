@@ -12,16 +12,26 @@ using namespace std;
 #if defined(__AVR__)
     #define MCU_ARDUINO
 #endif 
+// definicion para ESP32 generico
 #ifdef ARDUINO_ARCH_ESP32
     #define MCU_ESP32
 #endif 
+// definiciones para HELTEC
 #ifdef WIFI_LORA_32_V2
     #define MCU_ESP32
 #endif 
 #ifdef ARDUINO_WIFI_LORA_32_V2
     #define MCU_ESP32
 #endif
-
+#ifdef WIFI_KIT_32
+    #define MCU_ESP32
+#endif
+#ifdef WIFI_LORA_32
+    #define MCU_ESP32
+#endif
+#ifdef WIRELESS_STICK
+    #define MCU_ESP32
+#endif
 
 
 // devices and default settings
