@@ -43,7 +43,7 @@ String getparamValue(String data, char separator, int index)
         }
     }
     return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
-    return 0;
+    
 }
 
 uint8_t mostrar_packet(packet_t el_packet){
