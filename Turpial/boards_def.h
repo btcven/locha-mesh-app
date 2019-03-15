@@ -42,5 +42,9 @@
 #ifdef ESP32_DEV
     #define MCU_ESP32
 #endif
+#ifdef TEENSY36
+    #define MCU_ARDUINO
+#endif
+
 
 #endif BOARDS_DEF_H
