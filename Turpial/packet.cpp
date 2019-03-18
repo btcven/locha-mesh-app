@@ -4,11 +4,11 @@
    for a full text.
 */
 #include <Arduino.h>
-#include <string.h> 
+#include <string.h>
 #include "packet.h"
 
 
-extern char*  id_node;
+extern char  id_node[16];
 extern packet_t Buffer_packet;
 
 
@@ -26,9 +26,9 @@ extern int routing_incoming_PACKET_NOTDELIVERED(char*  id_node, packet_t packet_
 
 radioPacket::radioPacket(packet_t packet)
 {
-  packet = packet;
-  header = packet.header;
-  body = packet.body;
+  _packet = packet;
+  _header = packet.header;
+  _body = packet.body;
 }
 
 radioPacket::~radioPacket()
@@ -38,34 +38,39 @@ radioPacket::~radioPacket()
 
 void radioPacket::deserialize()
 {
-  switch (header.type)
+  switch (_header.type)
   {
-  case EMPTY:
-  case JOIN:
-       routing_incoming_NET_JOIN(id_node, Buffer_packet);
+    case EMPTY:
+    case JOIN:
+      routing_incoming_NET_JOIN(id_node, Buffer_packet);
       break;
-  case BYE:
+    case BYE:
       routing_incoming_NET_BYE(id_node, Buffer_packet);
       break;
-  case ROUTE:
+    case ROUTE:
       routing_incoming_NET_ROUTE(id_node, Buffer_packet);
       break;
-  case ACK:
+    case ACK:
       routing_incoming_PACKET_ACK(id_node, Buffer_packet);
       break;
-  case MSG:
-     routing_incoming_PACKET_MSG(id_node, Buffer_packet);
-     break;
-  case HELLO:
-   routing_incoming_PACKET_HELLO(id_node, Buffer_packet);
+    case MSG:
+      routing_incoming_PACKET_MSG(id_node, Buffer_packet);
       break;
-  case GOSSIP:
-   routing_incoming_PACKET_GOSSIP(id_node, Buffer_packet);
+    case HELLO:
+      routing_incoming_PACKET_HELLO(id_node, Buffer_packet);
       break;
-  case NOT_DELIVERED:
-   routing_incoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
+    case GOSSIP:
+      routing_incoming_PACKET_GOSSIP(id_node, Buffer_packet);
       break;
-  default:
-    break;
+    case NOT_DELIVERED:
+      routing_incoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
+      break;
+    default:
+      break;
   }
+}
+
+void radioPacket::serialize() {
+  // header() + body()  
+  
 }

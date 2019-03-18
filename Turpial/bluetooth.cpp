@@ -15,6 +15,7 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include "bluetooth.h"
+#include "radio.h"
 
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
@@ -29,36 +30,38 @@ bool deviceConnected = false;
 
 class ServerCB : public BLEServerCallbacks
 {
-  void onConnect(BLEServer *ble_server)
-  {
-    deviceConnected = true;
-  }
-  void onDisconnect(BLEServer *ble_server)
-  {
-    deviceConnected = false;
-    Serial.println();
-    delay(500);
-    ble_server->startAdvertising();
-  }
+    void onConnect(BLEServer *ble_server)
+    {
+      deviceConnected = true;
+    }
+    void onDisconnect(BLEServer *ble_server)
+    {
+      deviceConnected = false;
+      Serial.println("[BLE] restart advertising...");
+      delay(500);
+      ble_server->startAdvertising();
+    }
 };
 
 class characteristicCB : public BLECharacteristicCallbacks
 {
-  void onWrite(BLECharacteristic *pCharacteristic)
-  {
-    // movil -> ble_server(Turpial)
-    rxValue = pCharacteristic->getValue();
-    // si tenemos datos podemos enviarlos via radio desde aqui. 
-    if (rxValue.size() > 0)
+    void onWrite(BLECharacteristic *pCharacteristic)
     {
-      Serial.print("[BLE] Received: ");
-      Serial.println(rxValue.c_str());
+      // movil -> ble_server(Turpial)
+      rxValue = pCharacteristic->getValue();
+      // si tenemos datos podemos enviarlos via radio desde aqui.
+      if (rxValue.size() > 0)
+      {
+        Serial.print("[BLE] Received: ");
+        Serial.println(rxValue.c_str());
+        radioSend(rxValue);
+
+      }
     }
-  }
-  void onRead(BLECharacteristic *pCharacteristic)
-  {
-    // hay que hacer algo cuando el flujo de datos es: ble_server(Turpial) -> movil
-  }
+    void onRead(BLECharacteristic *pCharacteristic)
+    {
+      // hay que hacer algo cuando el flujo de datos es: ble_server(Turpial) -> movil
+    }
 };
 
 void task_bluetooth(void *params)

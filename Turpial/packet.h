@@ -3,7 +3,7 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
-#ifndef PACKET_H 
+#ifndef PACKET_H
 #define PACKET_H
 
 #include <Arduino.h>
@@ -24,9 +24,15 @@ typedef enum
 
 typedef struct
 {
+  char id[16];  // uniqueid
+} nodo_t;
+
+
+typedef struct
+{
   packet_type_e type;
-  char *from;
-  char *to;
+  nodo_t from;
+  nodo_t to;
   time_t timestamp;
 } packet_header_t;
 
@@ -41,20 +47,21 @@ typedef struct
   packet_body_t body;
 } packet_t;
 
-class radioPacket
-{
 
-public:
-  radioPacket(packet_t packet);
-  virtual ~radioPacket();
-  void serialize();
-  void deserialize();
+class radioPacket {
+  public:
+    radioPacket(packet_t _packet);
+    ~radioPacket();
+    void deserialize();
+    void serialize();
+   private:
+    packet_t _packet;
+    packet_header_t _header;
+    packet_body_t _body;
+    
 
-private:
-  void msg_handler();
-  packet_header_t header;
-  packet_body_t body;
-  packet_t packet;
 };
+
+
 
 #endif // PACKET_H

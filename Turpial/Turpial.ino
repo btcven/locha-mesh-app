@@ -4,14 +4,15 @@
    for a full text.
 */
 #include <Arduino.h>
-#include <LoRaLib.h>
+#include <string.h>
 #include <Wire.h>
 #include "SSD1306.h"
-#include <string.h>
+
 
 // devices and default settings
 #include "hardware.h"
 #include "bluetooth.h"
+#include "radio.h"
 #include "screen.h"
 #include "packet.h"
 #include "route.h"
@@ -19,26 +20,33 @@
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST, GEOMETRY_128_64); // tambien esta GEOMETRY_128_64 pero depende del screen del HELTEC
 
 // variables fijas para este demo
-char *id_node = "turpial.0";
+char id_node[] = "turpial.00000000";
+
 int total_vecinos = 1; // cantidad de vecinos del nodo actual
 int total_rutas = 1;   // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 
-// includes internos
+// tabla de rutas
 rutas_t routeTable[255];
+
+// tabla de vecinos
 nodo_t vecinos[255];
+
+// cola de mensajes salientes.
 message_queue_t mensajes_salientes[255];
+
 int total_mensajes_salientes = 0;
 
 // funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
-void iniciar_vecinos_y_rutas(char *id_nodo, nodo_t vecinos[255], rutas_t routeTable[255])
-{
-  if (id_nodo == "turpial.0")
+void iniciar_vecinos_y_rutas(char id_nodo[16], nodo_t vecinos[], rutas_t routeTable[]) {
+  if (id_nodo = "turpial.00000000")
   {
     nodo_t nodo_actual;
     nodo_t nodo_vecino;
-    nodo_actual.id = id_nodo;
-    nodo_vecino.id = "turpial_1";
+    strcpy(nodo_actual.id, id_nodo);
+    strcpy(nodo_vecino.id, "turpial_0000001");
+
     vecinos[1] = nodo_vecino;
+
     rutas_t ruta_disponible;
     ruta_disponible.origen = nodo_actual;
     ruta_disponible.next_neighbor = nodo_vecino;
@@ -46,15 +54,15 @@ void iniciar_vecinos_y_rutas(char *id_nodo, nodo_t vecinos[255], rutas_t routeTa
     ruta_disponible.age = millis();
     routeTable[1] = ruta_disponible;
   }
-  if (id_nodo == "turpial.1")
+  if (id_nodo == "turpial.00000001")
   {
     nodo_t nodo_actual;
     nodo_t nodo_vecino;
     nodo_t nodo_vecino2;
+    strcpy(nodo_actual.id, id_nodo);
+    strcpy(nodo_vecino.id, "turpial_0000000");
+    strcpy(nodo_vecino2.id, "turpial_0000002");
 
-    nodo_actual.id = id_nodo;
-    nodo_vecino.id = "turpial_0";
-    nodo_vecino2.id = "turpial_2";
     vecinos[1] = nodo_vecino;
     vecinos[2] = nodo_vecino2;
     // ruta T1
@@ -72,12 +80,14 @@ void iniciar_vecinos_y_rutas(char *id_nodo, nodo_t vecinos[255], rutas_t routeTa
     ruta_disponible2.age = millis();
     routeTable[2] = ruta_disponible;
   }
-  if (id_nodo == "turpial.2")
+  if (id_nodo == "turpial.0000002")
   {
     nodo_t nodo_actual;
     nodo_t nodo_vecino;
-    nodo_actual.id = id_nodo;
-    nodo_vecino.id = "turpial_1";
+
+    strcpy(nodo_actual.id, id_nodo);
+    strcpy(nodo_vecino.id, "turpial_0000001");
+
     vecinos[1] = nodo_vecino;
     rutas_t ruta_disponible;
     ruta_disponible.origen = nodo_actual;
@@ -118,12 +128,12 @@ void setup()
   }
   if (BLE_ENABLED)
   {
-    Serial.print("[BLE] Initiating... ");
+    Serial.print("[BLE] Initiating... \n");
     // -- activar módulo ble --
     // 1.- leer NVS,  verificar si existe registro
     // 2.- si existe aplicar, si no establecer parametros por defecto.
     // 3.- activar la tarea
-    xTaskCreate(task_bluetooth, "task_bluetooth", 1024 * 2, NULL, 5, NULL);
+    xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
   }
   if (WAP_ENABLED)
   {
@@ -139,12 +149,11 @@ void setup()
   }
   if (RAD_ENABLED)
   {
-    Serial.print("[RAD] Initiating... ");
     // -- activar modulo de radio --
     // 1.- leer NVS,  verificar si existe registro
     // 2.- si existe aplicar, si no establecer parametros por defecto.
     // 3.- iniciar.
-    // xTaskCreate(task_rad, "task_rad", ...);
+    xTaskCreate(task_radio, "task_radio", 2048, NULL, 5, NULL);
   }
 
   iniciar_vecinos_y_rutas(id_node, vecinos, routeTable);
@@ -152,4 +161,7 @@ void setup()
 
 void loop()
 {
+  while (Serial.available()) {
+
+  }
 }

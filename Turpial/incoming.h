@@ -14,7 +14,7 @@
 #include "route.h"
 #include "packet.h"
 
-extern char* id_node; // id unico del nodo
+extern char id_node[16]; // id unico del nodo
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[255];
 extern nodo_t vecinos[255];
@@ -23,7 +23,7 @@ extern int total_vecinos;
 extern int total_rutas; 
 extern int total_mensajes_salientes; 
 
-int routing_incoming_PACKET_MSG(char* id_node, packet_t packet_received){
+int routing_incoming_PACKET_MSG(char *id_node, packet_t packet_received){
   
   // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
   // 2) si no es para mi nodo se verifica si el destinatario existe en mi tabla de rutas
