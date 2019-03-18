@@ -26,8 +26,9 @@ BLECharacteristic *rx_uart;
 
 std::string server_name = "mesh.locha.io";
 
-std::string txValue;
-std::string rxValue;
+extern String rxValue;
+extern String txValue;
+
 
 bool deviceConnected = false;
 

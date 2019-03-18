@@ -6,13 +6,20 @@
 #include "memory_def.h"
 #include "packet.h"
 #include "route.h"
+#include "language_es.h"
+#include "MemoryFree.h"
 
+extern String rxValue;
+extern String txValue;
 
-extern char *id_node ;
+#ifdef MCU_ESP32
+  #include "bluetooth.h"
+#endif
+
+extern char* id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
-
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
@@ -22,10 +29,10 @@ extern uint8_t total_mensajes_salientes;
 
 
  #ifdef DEBUG
-    String mensaje;
-    char* buffer_serial_received;
-    int buffer_serial_received_size=0;
-    String str_buffer_serial_received;
+   // String mensaje;
+   // char* buffer_serial_received;
+   // int buffer_serial_received_size=0;
+    
   #endif
 
 
@@ -224,51 +231,61 @@ uint8_t mostrar_cola_mensajes(message_queue_t mensajes_salientes[MAX_MSG_QUEUE],
 }
 
 // funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
-uint8_t iniciar_vecinos_y_rutas(char *id_nodo, nodo_t vecinos[255], rutas_t routeTable[255], size_t size_vecinos, size_t size_rutas)
+uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rutas_t routeTable[MAX_ROUTES], uint8_t &total_vecinos, size_t size_vecinos, size_t size_rutas)
 {
-   String nombre_nodo="";
+   String str_nombre_nodo=""; 
+   char arr[16];
+  
+   str_nombre_nodo=(String)id_nodo;
+   nodo_t nodo_actual;
+    nodo_t nodo_vecino;
+    
   if (id_nodo == "turpial.0")
   {
-    nodo_t nodo_actual;
-    nodo_t nodo_vecino;
-    nodo_actual.id = id_nodo;
-    nombre_nodo="turpial_1";
-    nodo_vecino.id = string2char(nombre_nodo);
-    
-    
-    create_neighbor(nombre_nodo,vecinos);
+  //  Serial.println("es el nodo 0");
+   // str_nombre_nodo.toCharArray(nodo_actual.id, 16);
+    copy_array("turpial_0", nodo_actual.id, 16);
+   // str_nombre_nodo=F("turpial_1");
+  //  str_nombre_nodo.toCharArray(nodo_vecino.id, 16);
+    copy_array("turpial_1", nodo_vecino.id, 16);
+     uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
     // ruta T1
     create_route(nodo_actual, nodo_vecino, nodo_vecino);
    
   }
   if (id_nodo == "turpial.1")
   {
-    nodo_t nodo_actual;
-    nodo_t nodo_vecino;
     nodo_t nodo_vecino2;
   
-    nodo_actual.id = id_nodo;
-    nombre_nodo="turpial_0";
-    nodo_vecino.id = string2char(nombre_nodo);
-    create_neighbor(nombre_nodo,vecinos);
-    nombre_nodo="turpial_2";
-    nodo_vecino2.id = string2char(nombre_nodo);
+ //   str_nombre_nodo.toCharArray(nodo_actual.id , 16);
+    copy_array(id_nodo, nodo_vecino.id, 16);
+  //  str_nombre_nodo=F("turpial_0");
+  //  str_nombre_nodo.toCharArray(nodo_vecino.id , 16);
+     copy_array("turpial_0", nodo_vecino.id, 16);
+    uint8_t rpta2=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
+  //  str_nombre_nodo=F("turpial_2");
+  //  str_nombre_nodo.toCharArray(nodo_vecino2.id, 16);
+     copy_array("turpial_2", nodo_vecino2.id, 16);
+   // nodo_vecino2.id = nombre_nodo;
     
-    create_neighbor(nombre_nodo,vecinos);
+    
+    uint8_t rpta3=create_neighbor(nodo_vecino2.id,vecinos,total_vecinos);
     // ruta T1
     create_route(nodo_actual, nodo_vecino, nodo_vecino);
     // ruta T2
     create_route(nodo_actual, nodo_vecino2, nodo_vecino2);
   }
+  
   if (id_nodo == "turpial.2")
   {
-    nodo_t nodo_actual;
-    nodo_t nodo_vecino;
-    nodo_actual.id = id_nodo;
-     nombre_nodo="turpial_1";
-    nodo_vecino.id = string2char(nombre_nodo);
-    
-    create_neighbor(nombre_nodo,vecinos);
+   
+  //  str_nombre_nodo.toCharArray(nodo_actual.id, 16);
+  //  str_nombre_nodo=F("turpial_1");
+  //  str_nombre_nodo.toCharArray(nodo_vecino.id, 16);
+    //strcpy(arr, "turpial_1");
+    copy_array("turpial_1", nodo_vecino.id, 16);
+    //nodo_vecino.id=arr;
+    uint8_t rpta=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
     // ruta T2
     create_route(nodo_actual, nodo_vecino, nodo_vecino);
   }
@@ -277,79 +294,148 @@ uint8_t iniciar_vecinos_y_rutas(char *id_nodo, nodo_t vecinos[255], rutas_t rout
 
 
 
+uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, String &rxValue, String &txValue) {
 
-
-uint8_t show_debugging_info(nodo_t vecinos[MAX_NODES]){
   #ifdef DEBUG
     uint8_t rpta;
-    
+    String str_buffer_serial_received="";
+    String mensaje="";
+    bool ejecute=false;
+   
     if (Serial.available()) {
       str_buffer_serial_received=Serial.readStringUntil('\n');
       str_buffer_serial_received.toUpperCase();
-      str_buffer_serial_received.trim();
       str_buffer_serial_received.replace("  "," ");  // se elimina cualquier doble espacio en el input
-   }
-   
-        mensaje="SHOW ROUTES";
-        if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
+      str_buffer_serial_received.trim();
+    
+        Serial.flush();
+        mensaje=F("SHOW ROUTES");
+        if (str_buffer_serial_received==mensaje){
           str_buffer_serial_received="";
+          Serial.println("CMD>"+mensaje);
           uint8_t rpta=mostrar_rutas(id_node,routeTable, sizeof(routeTable));  
+          ejecute=true;
         }
-        mensaje="SHOW NODES";
-        if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
+        mensaje=F("SHOW NODES");
+        if (str_buffer_serial_received==mensaje){
           str_buffer_serial_received="";
-          uint8_t rpta=mostrar_vecinos(id_node,vecinos,sizeof(vecinos));  
+          Serial.println("CMD>"+mensaje);
+          uint8_t rpta=mostrar_vecinos(id_node,vecinos,total_vecinos);  
+          ejecute=true;
         }
-        mensaje="SHOW QUEUE";
-        if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
+        mensaje=F("SHOW QUEUE");
+        if (str_buffer_serial_received==mensaje){
+          Serial.println("CMD>"+mensaje);
           str_buffer_serial_received="";
           uint8_t rpta=mostrar_cola_mensajes(mensajes_salientes, sizeof(mensajes_salientes));  
+          ejecute=true;
         }
         
-        mensaje="LOAD DEMO";
-        if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
+        mensaje=F("LOAD DEMO");
+        if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
-            uint8_t rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,sizeof(vecinos),sizeof(routeTable));
-            DEBUG_PRINTLN(mensaje+" OK");
+            Serial.println("CMD>"+mensaje);
+            uint8_t rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
+            DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                DEBUG_PRINTLN("CMD>"+mensaje);
+            ejecute=true;
+            
          }
-        mensaje="CLEAR ALL";
-       
-        if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
+        mensaje=F("CLEAR ALL");
+        if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
+            Serial.println("CMD>"+mensaje);
             uint8_t rpta=vaciar_tablas();
-            DEBUG_PRINTLN(mensaje+" OK");
+            ejecute=true;
          }
-         mensaje="CREATE NODE";
-         if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
-              // getparamValue (0) devuelve CREATE , (1) devuelve NODE , (2) devuelve el nombre el nodo recibido por parametro
+          mensaje=F("INFO");
+        if (str_buffer_serial_received==mensaje){
+            str_buffer_serial_received="";
+            // se muestra el estatus de la memoria del equipo
+            DEBUG_PRINTLN("");
+            DEBUG_PRINT(F("Program storage free:"));
+            DEBUG_PRINT(freeMemory());
+            DEBUG_PRINTLN(" bytes");
+            DEBUG_PRINT(F("Memory for local variables:"));
+            DEBUG_PRINT(freeRam());
+            DEBUG_PRINTLN(" bytes");
+            DEBUG_PRINT(F("Vcc:"));
+            DEBUG_PRINT(readVcc()/1000);
+            DEBUG_PRINTLN(F(" volts"));
+            ejecute=true;
+         }
+        mensaje=F("CREATE BLE INCOMING");
+        if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
+            str_buffer_serial_received="";
+            String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
+            DEBUG_PRINT("recibi por parametro:");
+            DEBUG_PRINTLN(str_param_received);
+            rxValue=str_param_received;
+            DEBUG_PRINTLN(mensaje+F("TODO emular recepcion de un mensaje BLE "));
+            DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+            DEBUG_PRINTLN("CMD>"+mensaje);
+            ejecute=true;
+         }
+         
+         mensaje=F("CREATE BLE OUTCOMING");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+            str_buffer_serial_received="";
+            String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
+            DEBUG_PRINT("recibi por parametro:");
+            DEBUG_PRINTLN(str_param_received);
+            txValue=str_param_received;
+            DEBUG_PRINTLN(mensaje+F("TODO emular envio de un mensaje BLE "));
+            DEBUG_PRINTLN("CMD>"+mensaje);
+            
+            ejecute=true;
+         }
+         mensaje=F("SHOW BLE");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+            str_buffer_serial_received="";
               
+            DEBUG_PRINT("txValue=");
+            DEBUG_PRINTLN(txValue);
+            DEBUG_PRINT("rxValue=");
+            DEBUG_PRINTLN(rxValue);
+            
+            DEBUG_PRINTLN("CMD>"+mensaje);
+            
+            ejecute=true;
+         }
+         mensaje=F("CREATE NODE");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+              // getparamValue (0) devuelve CREATE , (1) devuelve NODE , (2) devuelve el nombre el nodo recibido por parametro
+              DEBUG_PRINTLN("CMD>"+mensaje);
               String str_node_name = getparamValue(str_buffer_serial_received, ' ', 2);  
-             Serial.print("param0:");
-             Serial.println(getparamValue(str_buffer_serial_received, ' ', 0));
-             Serial.print("param1:");
-             Serial.println(getparamValue(str_buffer_serial_received, ' ', 1));
-             Serial.print("param2:");
-             Serial.println(getparamValue(str_buffer_serial_received, ' ', 2));
-             
-              Serial.print(F("Nombre del nodo:"));
-              Serial.println(str_node_name);
+            
               if (str_node_name.length()>0){
                 
-                uint8_t rpta=create_neighbor(str_node_name,vecinos);
-                Serial.print("al salir el nombre del nodo que recibo es:");
-                Serial.println(vecinos[total_vecinos].id);
-                Serial.print("total vecinos:");
-                Serial.println(total_vecinos);
-                DEBUG_PRINTLN((String)mensaje+" "+(String)str_node_name+" OK");
+                uint8_t rpta=create_neighbor(str_node_name,vecinos,total_vecinos);
+                DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                DEBUG_PRINTLN("CMD>"+mensaje);
+               
+                ejecute=true;
+                return 1;
               }  else {
-                  DEBUG_PRINTLN((String)mensaje+" FAILED");
+                  DEBUG_PRINTLN((String)mensaje+" "+MSG_FAIL);
               }
               str_buffer_serial_received="";
          }
-         mensaje="CLEAR SCREEN";
-         if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
+         mensaje=F("CLEAR SCREEN");  // falta probar este comando
+         if (str_buffer_serial_received==mensaje){
+           
             str_buffer_serial_received="";
             Serial.write(12);
+            DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                DEBUG_PRINTLN("CMD>"+mensaje);
+         }
+         }
+         if (ejecute){
+            DEBUG_PRINTLN(">");
+         } else{
+          if (mensaje!=""){
+            DEBUG_PRINTLN((String)mensaje+" "+MSG_FAIL);
+          }
          }
          return 0;
          }

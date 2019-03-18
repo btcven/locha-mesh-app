@@ -15,7 +15,7 @@ extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 
 // verifica si el nodo a consultar esta en la tabla de vecinos
-uint8_t es_vecino(char* id_nodo){
+uint8_t es_vecino(char id_nodo[16]){
   uint8_t i;
   for (i = 1; i <= total_vecinos; i++) {
       if (vecinos[i].id==id_nodo){
@@ -26,7 +26,7 @@ uint8_t es_vecino(char* id_nodo){
 }
 
 // posicion de la ruta en la tabla de rutas en memoria
-uint8_t pos_ruta(char* id_nodo_from, char* id_nodo_to){
+uint8_t pos_ruta(char id_nodo_from[16], char id_nodo_to[16]){
   uint8_t i;
   for (i = 1; i <= total_rutas; i++) {
       if ((routeTable[i].origen.id==id_nodo_from)and(routeTable[i].destino.id==id_nodo_to)){
@@ -41,7 +41,7 @@ uint8_t pos_ruta(char* id_nodo_from, char* id_nodo_to){
 }
 
 // se busca en la tabla de rutas si existe una ruta al destino
-uint8_t existe_ruta(char* id_nodo_from, char* id_nodo_to){
+uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16]){
   if (pos_ruta(id_nodo_from, id_nodo_to)>0){
     return 1;
   } 
@@ -49,7 +49,7 @@ uint8_t existe_ruta(char* id_nodo_from, char* id_nodo_to){
   
 }
 
-uint8_t existe_ruta(char* id_nodo_from, char* id_nodo_to, bool update_route){
+uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_route){
  
  uint8_t pos_route=pos_ruta(id_nodo_from, id_nodo_to);
 
@@ -73,7 +73,7 @@ uint8_t existe_ruta(char* id_nodo_from, char* id_nodo_to, bool update_route){
 }
 
 // update age of a route in routeTable , if didnt exist 
-uint8_t update_route_age(char* id_nodo_from, char* id_nodo_to){
+uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16]){
   uint8_t respuesta=existe_ruta(id_nodo_from, id_nodo_to, true);
   return respuesta;
 }
@@ -91,23 +91,32 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
 }
 
 
-
-
-
-
-
 // create a new neighbor on memory  
-uint8_t create_neighbor(String id_node_neighbor,nodo_t vecinos[MAX_NODES]){
+uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos){
    nodo_t nodo_vecino;
    
-   nodo_vecino.id = string2char(id_node_neighbor);
-   vecinos[total_vecinos+1] = nodo_vecino;
-  total_vecinos++;
-   Serial.print("variables dentro del void create_neighbor:");
-   Serial.print(id_node_neighbor);
-   Serial.print("-");
-   Serial.print(vecinos[total_vecinos].id);
-   Serial.println(total_vecinos);
+                  char nombre_temporal[16];
+                  id_node_neighbor.toCharArray(nombre_temporal, 16);
+                 
+                  // usamos memcpy ocupando la misma direccion de memoria
+                  memcpy(nodo_vecino.id, nombre_temporal, 16);
+                  // ***
+                  total_vecinos++;
+                  vecinos[total_vecinos] = nodo_vecino;
+                  
+//   id_node_neighbor.replace("  "," ");  // se elimina cualquier doble espacio en el input
+//   id_node_neighbor.trim();
+//   if (id_node_neighbor.length()>16){
+//        id_node_neighbor.substring(0,16);
+//   }
+//   char* nombre_temporal;
+ //  id_node_neighbor.toCharArray(nombre_temporal, 16);
+//  id_node_neighbor.toCharArray(nodo_vecino.id, 16);
+ //  nodo_vecino.id = nombre_temporal;
+//   total_vecinos++;
+//--   vecinos[total_vecinos] = nodo_vecino;
+   
+ 
    
     return 0;
 }

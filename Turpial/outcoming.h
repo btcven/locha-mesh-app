@@ -15,10 +15,10 @@
 #include "packet.h"
 #include "debugging.h"
 
-extern char* id_node;
+extern char id_node[16];
 extern packet_t Buffer_packet;
-extern rutas_t routeTable[255];
-extern nodo_t vecinos[255];
+extern rutas_t routeTable[MAX_ROUTES];
+extern nodo_t vecinos[MAX_NODES];
 
 int routing_outcoming_PACKET_MSG(char* id_node_destino, char* mensaje){
 // 1) el destino es un vecino

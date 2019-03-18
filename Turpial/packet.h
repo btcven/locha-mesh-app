@@ -25,14 +25,14 @@ typedef enum
 typedef struct
 {
   packet_type_e type;
-  char *from;
-  char *to;
+  char from[16];
+  char to[16];
   unsigned long timestamp;
 } packet_header_t;
 
 typedef struct
 {
-  char *payload;
+  char payload[240];
 } packet_body_t;
 
 typedef struct

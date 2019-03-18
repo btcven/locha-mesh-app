@@ -11,9 +11,9 @@
 #include "packet.h"
 
 
-typedef struct
+typedef struct nodo_t
 {
-    char* id;         // uniqueid
+    char id[16];         // uniqueid
 } nodo_t;
 
 
@@ -33,14 +33,14 @@ typedef struct
 
 
 // definicion de voids
-uint8_t create_neighbor(String id_node_neighbor,nodo_t vecinos[MAX_NODES]);
+uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
 uint8_t packet_to_send(packet_t Buffer_packet);
 uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino);
-uint8_t update_route_age(char* id_nodo_from, char* id_nodo_to);
-uint8_t existe_ruta(char* id_nodo_from, char* id_nodo_to);
-uint8_t existe_ruta(char* id_nodo_from, char* id_nodo_to, bool update_route);
-uint8_t pos_ruta(char* id_nodo_from, char* id_nodo_to);
-uint8_t es_vecino(char* id_nodo);
+uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16]);
+uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16]);
+uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_route);
+uint8_t pos_ruta(char id_nodo_from[16], char id_nodo_to[16]);
+uint8_t es_vecino(char id_nodo[16]);
 
 
 

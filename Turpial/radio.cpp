@@ -34,7 +34,7 @@ void task_radio(void *pvParams) {
   DEBUG_PRINT("[RAD] Initializing ... ");
   int state = radio.begin(RAD_BAND);
   if (state == ERR_NONE) {
-    DEBUG_PRINTLN("OK");
+    DEBUG_PRINTLN(MSG_OK);
   } else {
     DEBUG_PRINTLN("FAILED");
   }

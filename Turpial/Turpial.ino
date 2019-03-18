@@ -4,10 +4,8 @@
    for a full text.
 */
 #include <Arduino.h>
-#include <LoRaLib.h>
-#include <Wire.h>
 #include <string.h>
-using namespace std;
+//using namespace std;
 
 
 
@@ -16,14 +14,20 @@ using namespace std;
 #include "boards_def.h"
 #include "memory_def.h"
 #include "general_functions.h"
-#ifdef MCU_ESP32
-  #include "SSD1306.h"
-  #include "bluetooth.h"
-  #include "screen.h"
-#endif 
 #include "packet.h"
 #include "route.h"
 #include "debugging.h"
+#include "language_es.h"
+
+
+#ifdef MCU_ESP32
+#include <LoRaLib.h>
+#include <Wire.h>
+  #include "SSD1306.h"
+  #include "screen.h"
+  #include "bluetooth.h"
+#endif 
+
 
 
 
@@ -33,7 +37,7 @@ using namespace std;
 
 // variables fijas para este demo
 // ID unico del nodo
-char *id_node = "turpial.0";
+char* id_node = "turpial.0";
 
 
 // includes internos
@@ -44,6 +48,11 @@ rutas_t routeTable[MAX_ROUTES];
 nodo_t vecinos[MAX_NODES];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 
+
+// variables para trasmision BLE
+  String rxValue;
+  String txValue;
+
 void setup()
 {
   
@@ -53,7 +62,7 @@ void setup()
 #ifdef MCU_ESP32
       if (SCR_ENABLED)
       {
-        DEBUG_PRINT(F("[SRC] Initiating... "));
+        DEBUG_PRINT(MSG_SCR_INIT);
         // activar módulo SCR
         // leer NVS,  verificar si existe registro
         // si existe aplicar, si no establecer parametros por defecto.
@@ -68,7 +77,7 @@ void setup()
     
         if (SCR_isActive)
         {
-          DEBUG_PRINTLN(F("OK"));
+          DEBUG_PRINTLN(MSG_OK);
           display.flipScreenVertically();
           display.setTextAlignment(TEXT_ALIGN_LEFT);
           display.setFont(ArialMT_Plain_10);
@@ -115,7 +124,7 @@ void setup()
 #endif // DEL MCU
 // se coloca el cursor en el terminal serial
    #ifdef DEBUG
-      char* node_id_2=create_unique_id();
+      char node_id_2=create_unique_id();
       DEBUG_PRINT(node_id_2);
       DEBUG_PRINT(F(" >"));
    #endif
@@ -123,11 +132,7 @@ void setup()
 
 void loop()
 {
-  uint8_t rpta=show_debugging_info(vecinos);
-   Serial.print("variables en en el main loop:");
-   Serial.print((String)vecinos[total_vecinos].id);
-   Serial.print("-");
-   Serial.println(total_vecinos);
  
-                delay(2000);
+  uint8_t rpta=show_debugging_info(vecinos,total_vecinos,rxValue,txValue);
+  
 }
