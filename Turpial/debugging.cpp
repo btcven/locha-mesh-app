@@ -366,25 +366,27 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
          }
         mensaje=F("CREATE BLE INCOMING");
         if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
-            str_buffer_serial_received="";
+            
             String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
-            DEBUG_PRINT("recibi por parametro:");
-            DEBUG_PRINTLN(str_param_received);
+    //        DEBUG_PRINT("recibi por parametro:");
+      //      DEBUG_PRINTLN(str_param_received);
             rxValue=str_param_received;
-            DEBUG_PRINTLN(mensaje+F("TODO emular recepcion de un mensaje BLE "));
-            DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+            str_buffer_serial_received="";
+          //  DEBUG_PRINTLN(mensaje+F("TODO emular recepcion de un mensaje BLE "));
+            DEBUG_PRINTLN((String)mensaje+F(" ")+MSG_OK);
             DEBUG_PRINTLN("CMD>"+mensaje);
             ejecute=true;
          }
          
          mensaje=F("CREATE BLE OUTCOMING");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
-            str_buffer_serial_received="";
+            
             String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
-            DEBUG_PRINT("recibi por parametro:");
-            DEBUG_PRINTLN(str_param_received);
+//            DEBUG_PRINT("recibi por parametro:");
+  //          DEBUG_PRINTLN(str_param_received);
             txValue=str_param_received;
-            DEBUG_PRINTLN(mensaje+F("TODO emular envio de un mensaje BLE "));
+            DEBUG_PRINTLN(mensaje+F(" ")+MSG_OK);
+            str_buffer_serial_received="";
             DEBUG_PRINTLN("CMD>"+mensaje);
             
             ejecute=true;
@@ -434,7 +436,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             DEBUG_PRINTLN(">");
          } else{
           if (mensaje!=""){
-            DEBUG_PRINTLN((String)mensaje+" "+MSG_FAIL);
+            DEBUG_PRINTLN((String)str_buffer_serial_received+" "+MSG_FAIL);
           }
          }
          return 0;

@@ -57,7 +57,8 @@ void setup()
 {
   
   DEBUG_BEGIN(BAUDRATE);
-
+  rxValue="";
+  txValue="";
  
 #ifdef MCU_ESP32
       if (SCR_ENABLED)
