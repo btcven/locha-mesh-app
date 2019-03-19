@@ -33,20 +33,21 @@ if (packet_received.header.to==id_node){
   process_received_packet(Buffer_packet);
   // se devuelve un packet_ACK por la misma ruta
   // se arma un packet_ACK
-    packet_header_t header;
-      packet_body_t body;
+   // packet_header_t header;
+     // packet_body_t body;
 
-      header.type=ACK;
+     // header.type=ACK;
       //header.from=id_node;
-      copy_array(id_node, header.from, 16);
-      copy_array(packet_received.header.from, header.to, 16);
+   //   copy_array(id_node, header.from, 16);
+   //   copy_array(packet_received.header.from, header.to, 16);
      // header.to=packet_received.header.from;
-      header.timestamp=millis();
-      copy_array(Buffer_packet.body.payload, body.payload, 240);
+   //   header.timestamp=millis();
+    //  copy_array(Buffer_packet.body.payload, body.payload, 240);
     //  body.payload=Buffer_packet.body.payload;   // aqui deberia devolver el hash y en base al hash validar que efectivamente cuando se reciba el ACK elimine al que corresponda
       packet_t new_packet;
-      new_packet.header=header;
-      new_packet.body=body;
+     // new_packet.header=header;
+    //  new_packet.body=body;
+      new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
       packet_to_send(new_packet);  // se envia a la cola de mensajes salientes
 
       // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
@@ -55,21 +56,22 @@ if (packet_received.header.to==id_node){
   // el paquete no es para mi, pero tengo que hacerle relay a mis vecinos
   // busco si tengo una ruta entre mi nodo y el destino del paquete (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
   if (existe_ruta(id_node, packet_received.header.to,true)){
-       packet_header_t header;
-      packet_body_t body;
+   //    packet_header_t header;
+  //    packet_body_t body;
 
-      header.type=ACK;
-      copy_array(id_node, header.from, 16);
+ //     header.type=ACK;
+ //     copy_array(id_node, header.from, 16);
     //  header.from=id_node;
-    copy_array(packet_received.header.from, header.to, 16);
+ //   copy_array(packet_received.header.from, header.to, 16);
      // header.to=packet_received.header.from;
-      header.timestamp=millis();
+  //    header.timestamp=millis();
   //    header.last_node=id_node;   // este parametro se encarga de determinar que no se devuelva el mismo paquete hacia el origen
       
-      body=Buffer_packet.body;  
+    //  body=Buffer_packet.body;  
       packet_t new_packet;
-      new_packet.header=header;
-      new_packet.body=body;
+     // new_packet.header=header;
+     // new_packet.body=body;
+      new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.from, Buffer_packet.body.payload);
       packet_to_send(new_packet);  // se envia a la cola de mensajes salientes
   } else {
     // si no existe ruta, falta determinar si me voy random por cualquiera de los nodos para intentar
@@ -82,7 +84,7 @@ if (packet_received.header.to==id_node){
 
 uint8_t routing_incoming_PACKET_JOIN(char* id_node, packet_t packet_received){
   // nuevo vecino de la tabla de vecinos
-  copy_array(packet_received.header.from, vecinos[total_vecinos+1].id, 16);
+  copy_array_locha(packet_received.header.from, vecinos[total_vecinos+1].id, 16);
 //  vecinos[total_vecinos+1]=packet_received.header.from;
   total_vecinos++;
   // nueva ruta en la tabla de rutas
@@ -90,9 +92,9 @@ uint8_t routing_incoming_PACKET_JOIN(char* id_node, packet_t packet_received){
   nodo_t nodo2;
   rutas_t nueva_ruta;
  // nodo1.id=packet_received.header.to;
-  copy_array(packet_received.header.to, nodo1.id, 16);
+  copy_array_locha(packet_received.header.to, nodo1.id, 16);
  // nodo2.id=packet_received.header.from;
-   copy_array(packet_received.header.from, nodo2.id, 16);
+   copy_array_locha(packet_received.header.from, nodo2.id, 16);
   create_route(nodo1, nodo2, nodo2);
   return 0;
 }

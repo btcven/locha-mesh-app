@@ -15,9 +15,9 @@
   static const int MAX_ROUTES=50;
   static const int MAX_MSG_QUEUE=128;
 #else
-  static const int MAX_NODES=12;
-  static const int MAX_ROUTES=15;
-  static const int MAX_MSG_QUEUE=22;
+  static const int MAX_NODES=5;
+  static const int MAX_ROUTES=12;
+  static const int MAX_MSG_QUEUE=15;
 #endif 
 
-#endif MEMORY_DEF_H
+#endif // MEMORY_DEF_H

@@ -42,9 +42,30 @@
 #ifdef ESP32_DEV
     #define MCU_ESP32
 #endif
+#ifdef ESP8266_GENERIC
+    #define MCU_ESP32
+#endif
+#ifdef ESP8266_WEMOS_D1MINI
+    #define MCU_ESP32
+#endif
+#ifdef ESP8266_WEMOS_D1MINIPRO
+    #define MCU_ESP32
+#endif
+#ifdef ESP8266_WEMOS_D1MINILITE
+    #define MCU_ESP32
+#endif
+#ifdef ESP8266_WEMOS_D1R1
+    #define MCU_ESP32
+#endif
+#ifdef ESP8266_ESP12
+    #define MCU_ESP32
+#endif
+#ifdef ESP8266
+    #define MCU_ESP32
+#endif
 #ifdef TEENSY36
     #define MCU_ARDUINO
 #endif
 
 
-#endif BOARDS_DEF_H
+#endif // BOARDS_DEF_H

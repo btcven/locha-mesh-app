@@ -20,32 +20,6 @@ memset(msg, 0, numBytes);
 return respuesta;
 }
 
-char* create_unique_id()
-{
-  // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
-  // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
-  //TODO
-  // se arma el unique id
-  uint64_t chipid;
-  char uniqueid[16];
-  
-  #ifdef MCU_ARDUINO
-    String aleatorio=random_name(11);  // un string de 4 digitos aleatorios
-    aleatorio="locha"+aleatorio;   // se le agrega el prefijo locha
-    aleatorio.toCharArray(uniqueid, 32);
-  #endif 
-  #ifdef MCU_ESP32
-    chipid = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
-    char ssid[23];
-    uint16_t chip = (uint16_t)(chipid >> 32);
-    snprintf(ssid, 23, "LOCH%04X%08X", chip, (uint32_t)chipid);
-    String uniqueid2;
-    uniqueid2 = String(ssid);
-    uniqueid2.toCharArray(uniqueid, 32);
-  #endif 
-  
-  return uniqueid;
-}
 
 char* string2char(String command){
     if(command.length()!=0){
@@ -54,7 +28,47 @@ char* string2char(String command){
     }
 }
 
-void copy_array(char* src, char* dst, int len) {
+char* string2char_node_name(String command){
+     char nombre_temporal[command.length()];
+     memset(nombre_temporal, ' ', sizeof(nombre_temporal)); 
+     command.toCharArray(nombre_temporal, command.length());
+     return  nombre_temporal;         
+}
+
+void string2char_node_name_v2(String command, char* &respuesta){
+  command.toCharArray(respuesta, command.length());
+}
+
+char* create_unique_id()
+{
+  // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
+  // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
+  //TODO
+  // se arma el unique id
+  uint64_t chipid;
+  char uniqueid3[16];
+  memset(uniqueid3, ' ', sizeof(uniqueid3));
+  #ifdef MCU_ARDUINO
+    String aleatorio=random_name(11);  // un string de 4 digitos aleatorios
+    aleatorio="locha"+aleatorio;   // se le agrega el prefijo locha
+    aleatorio.toCharArray(uniqueid3, 32);
+  #endif 
+  #ifdef MCU_ESP32
+    chipid = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
+    char ssid[23]=string2char("");
+    uint16_t chip = (uint16_t)(chipid >> 32);
+    snprintf(ssid, 23, "LOCH%04X%08X", chip, (uint32_t)chipid);
+    String uniqueid2 = String(ssid);
+    uniqueid2.toCharArray(uniqueid3, 32);
+  #endif 
+  
+  return uniqueid3;
+}
+
+
+
+
+void copy_array_locha(char* src, char* dst, int len) {
   //memset(msg, 0, numBytes);
     for (int i = 0; i < len; i++) {
         *dst++ = *src++;
@@ -62,38 +76,51 @@ void copy_array(char* src, char* dst, int len) {
 }
 
 
+
 // verifica la cantidad de memoria disponible libre
- uint8_t freeRam () 
+ String freeRam () 
     {
+      #if defined(__AVR__)
       extern uint8_t __heap_start, *__brkval; 
       uint8_t v; 
-      return (uint8_t) &v - (__brkval == 0 ? (uint8_t) &__heap_start : (uint8_t) __brkval); 
+      uint8_t rpta= (uint8_t) &v - (__brkval == 0 ? (uint8_t) &__heap_start : (uint8_t) __brkval);
+      return (String)rpta;
+      #else
+      return (String)ESP.getFreeHeap();
+     #endif
     }
 
 
 // lee el voltaje interno de trabajo del arduino
 long readVcc() {
-  // Read 1.1V reference against AVcc
-  // set the reference to Vcc and the measurement to the internal 1.1V reference
-  #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-  #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
-    ADMUX = _BV(MUX5) | _BV(MUX0);
-  #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
-    ADMUX = _BV(MUX3) | _BV(MUX2);
+  #if defined(__AVR__)
+        // Read 1.1V reference against AVcc
+        // set the reference to Vcc and the measurement to the internal 1.1V reference
+        #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+          ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+        #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
+          ADMUX = _BV(MUX5) | _BV(MUX0);
+        #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+          ADMUX = _BV(MUX3) | _BV(MUX2);
+        #else
+          ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+        #endif  
+      
+        delay(2); // Wait for Vref to settle
+        ADCSRA |= _BV(ADSC); // Start conversion
+        while (bit_is_set(ADCSRA,ADSC)); // measuring
+      
+        uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH  
+        uint8_t high = ADCH; // unlocks both
+      
+        long result = (high<<8) | low;
+      
+        result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
+        return result; // Vcc in millivolts
   #else
-    ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-  #endif  
-
-  delay(2); // Wait for Vref to settle
-  ADCSRA |= _BV(ADSC); // Start conversion
-  while (bit_is_set(ADCSRA,ADSC)); // measuring
-
-  uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH  
-  uint8_t high = ADCH; // unlocks both
-
-  long result = (high<<8) | low;
-
-  result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
-  return result; // Vcc in millivolts
+      // return para todo lo demas que no sea Arduino
+      
+      return 0;
+  #endif
+  
 }

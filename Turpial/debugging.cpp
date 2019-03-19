@@ -12,7 +12,7 @@
 extern String rxValue;
 extern String txValue;
 
-#ifdef MCU_ESP32
+#ifdef BLE_ENABLED
   #include "bluetooth.h"
 #endif
 
@@ -71,6 +71,14 @@ uint8_t mostrar_packet(packet_t el_packet){
     String to=(String)el_packet.header.to;
     String timest=(String)el_packet.header.timestamp;
     String payload=(String)el_packet.body.payload;
+
+    Serial.print("from:");
+    Serial.println(from);
+    Serial.print("to:");
+    Serial.println(to);
+    Serial.print("payload:");
+    Serial.println(payload);
+    
     tabla[1][0] = tipo;
     tabla[1][1] = from;
     tabla[1][2] = to;
@@ -102,6 +110,7 @@ uint8_t mostrar_packet(packet_t el_packet){
      DEBUG_PRINT(F("Tamaño del packet :"));
      DEBUG_PRINTLN(sizeof(el_packet));
      DEBUG_PRINTLN();
+     
      return 0;
 }
 
@@ -244,10 +253,10 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   {
   //  Serial.println("es el nodo 0");
    // str_nombre_nodo.toCharArray(nodo_actual.id, 16);
-    copy_array("turpial_0", nodo_actual.id, 16);
+    copy_array_locha(string2char("turpial_0"), nodo_actual.id, 16);
    // str_nombre_nodo=F("turpial_1");
   //  str_nombre_nodo.toCharArray(nodo_vecino.id, 16);
-    copy_array("turpial_1", nodo_vecino.id, 16);
+    copy_array_locha(string2char("turpial_1"), nodo_vecino.id, 16);
      uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
     // ruta T1
     create_route(nodo_actual, nodo_vecino, nodo_vecino);
@@ -258,14 +267,14 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
     nodo_t nodo_vecino2;
   
  //   str_nombre_nodo.toCharArray(nodo_actual.id , 16);
-    copy_array(id_nodo, nodo_vecino.id, 16);
+    copy_array_locha(id_nodo, nodo_vecino.id, 16);
   //  str_nombre_nodo=F("turpial_0");
   //  str_nombre_nodo.toCharArray(nodo_vecino.id , 16);
-     copy_array("turpial_0", nodo_vecino.id, 16);
+     copy_array_locha(string2char("turpial_0"), nodo_vecino.id, 16);
     uint8_t rpta2=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
   //  str_nombre_nodo=F("turpial_2");
   //  str_nombre_nodo.toCharArray(nodo_vecino2.id, 16);
-     copy_array("turpial_2", nodo_vecino2.id, 16);
+     copy_array_locha(string2char("turpial_2"), nodo_vecino2.id, 16);
    // nodo_vecino2.id = nombre_nodo;
     
     
@@ -283,7 +292,7 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   //  str_nombre_nodo=F("turpial_1");
   //  str_nombre_nodo.toCharArray(nodo_vecino.id, 16);
     //strcpy(arr, "turpial_1");
-    copy_array("turpial_1", nodo_vecino.id, 16);
+    copy_array_locha(string2char("turpial_1"), nodo_vecino.id, 16);
     //nodo_vecino.id=arr;
     uint8_t rpta=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
     // ruta T2
@@ -294,7 +303,7 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
 
 
 
-uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, String &rxValue, String &txValue) {
+uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos){
 
   #ifdef DEBUG
     uint8_t rpta;
@@ -312,20 +321,20 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
         mensaje=F("SHOW ROUTES");
         if (str_buffer_serial_received==mensaje){
           str_buffer_serial_received="";
-          Serial.println("CMD>"+mensaje);
+          DEBUG_PRINTLN("CMD>"+mensaje);
           uint8_t rpta=mostrar_rutas(id_node,routeTable, sizeof(routeTable));  
           ejecute=true;
         }
         mensaje=F("SHOW NODES");
         if (str_buffer_serial_received==mensaje){
           str_buffer_serial_received="";
-          Serial.println("CMD>"+mensaje);
+          DEBUG_PRINTLN("CMD>"+mensaje);
           uint8_t rpta=mostrar_vecinos(id_node,vecinos,total_vecinos);  
           ejecute=true;
         }
         mensaje=F("SHOW QUEUE");
         if (str_buffer_serial_received==mensaje){
-          Serial.println("CMD>"+mensaje);
+          DEBUG_PRINTLN("CMD>"+mensaje);
           str_buffer_serial_received="";
           uint8_t rpta=mostrar_cola_mensajes(mensajes_salientes, sizeof(mensajes_salientes));  
           ejecute=true;
@@ -334,17 +343,17 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
         mensaje=F("LOAD DEMO");
         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
-            Serial.println("CMD>"+mensaje);
+            DEBUG_PRINTLN("CMD>"+mensaje);
             uint8_t rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
             DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
-                DEBUG_PRINTLN("CMD>"+mensaje);
+            DEBUG_PRINTLN("CMD>"+mensaje);
             ejecute=true;
             
          }
         mensaje=F("CLEAR ALL");
         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
-            Serial.println("CMD>"+mensaje);
+            DEBUG_PRINTLN("CMD>"+mensaje);
             uint8_t rpta=vaciar_tablas();
             ejecute=true;
          }
@@ -359,9 +368,13 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             DEBUG_PRINT(F("Memory for local variables:"));
             DEBUG_PRINT(freeRam());
             DEBUG_PRINTLN(" bytes");
-            DEBUG_PRINT(F("Vcc:"));
-            DEBUG_PRINT(readVcc()/1000);
-            DEBUG_PRINTLN(F(" volts"));
+            #ifndef MCU_ESP32   // no aplica para los ESPXX
+              #ifndef TEENSY36 
+                DEBUG_PRINT(F("Vcc:"));
+                DEBUG_PRINT(readVcc()/1000);
+                DEBUG_PRINTLN(F(" volts"));
+              #endif
+            #endif
             ejecute=true;
          }
         mensaje=F("CREATE BLE INCOMING");
@@ -414,6 +427,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                 
                 uint8_t rpta=create_neighbor(str_node_name,vecinos,total_vecinos);
                 DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                mensaje="";
                 DEBUG_PRINTLN("CMD>"+mensaje);
                
                 ejecute=true;
@@ -423,6 +437,59 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
               }
               str_buffer_serial_received="";
          }
+
+         mensaje=F("CREATE PACKET INCOMING");   // formato: CREATE PACKET INCOMING TYPE FROM PAYLOAD 
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+                DEBUG_PRINTLN("CMD>"+mensaje);
+                String str_type = getparamValue(str_buffer_serial_received, ' ', 3);  
+                String str_from = getparamValue(str_buffer_serial_received, ' ', 4);  
+                String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
+
+               
+                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char_node_name(str_from),string2char_node_name(id_node) , string2char(str_payload));
+                
+                DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                mensaje="";
+                DEBUG_PRINTLN("CMD>"+mensaje);
+               
+                ejecute=true;
+                return 1;
+         }
+          mensaje=F("CREATE PACKET OUTCOMING");   // formato: CREATE PACKET OUTCOMING TYPE TO PAYLOAD 
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+                DEBUG_PRINTLN("CMD>"+mensaje);
+                String str_type = getparamValue(str_buffer_serial_received, ' ', 3);  
+                String str_to = getparamValue(str_buffer_serial_received, ' ', 4);  
+                String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
+                Serial.println(F("voy a entrar"));
+               
+                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char_node_name(id_node),string2char_node_name(str_to), string2char(str_payload));
+               Serial.println(F("sali"));
+                packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
+                
+                DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                mensaje="";
+                DEBUG_PRINTLN("CMD>"+mensaje);
+               
+                ejecute=true;
+                return 1;
+         }
+          mensaje=F("SHOW PACKET");  
+           Serial.println(F("sigoooo"));
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+          Serial.println(F("voyyyyyy"));
+                  DEBUG_PRINTLN("CMD>"+mensaje);
+
+                  uint8_t rpta=mostrar_packet(Buffer_packet);
+                    
+                  DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                  mensaje="";
+                  DEBUG_PRINTLN("CMD>"+mensaje);
+               
+                ejecute=true;
+                return 1;
+         }
+         
          mensaje=F("CLEAR SCREEN");  // falta probar este comando
          if (str_buffer_serial_received==mensaje){
            
@@ -439,8 +506,8 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             DEBUG_PRINTLN((String)str_buffer_serial_received+" "+MSG_FAIL);
           }
          }
+           #endif   // del #ifdef DEBUG
          return 0;
          }
         
   
-  #endif

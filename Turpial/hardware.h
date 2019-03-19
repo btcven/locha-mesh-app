@@ -7,60 +7,32 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
-// uncomment the following line for debug output
-// NOTE: debug output will slow down Arduino!
 #define DEBUG
-
-
-
-// define display settings.
-#define SCR_ENABLED false
-#ifdef SCR_ENABLED
-#define SCR_ADD 0x3C
-#define SCR_RST 16
-#define SCR_SDA 4
-#define SCR_SCL 15
-#define SCR_Vext 21
-#endif // SCR
-
-// Default BLE  settings
-#define BLE_ENABLED true
-#ifdef BLE_ENABLED
-// -- Default BLE Settings BLOCK --
-#endif // BLE
-
-// Radio settings
-#define RAD_ENABLED true
-#ifdef RAD_ENABLED
-
-// -- Default RAD Settings BLOCK --
-#endif // RAD
-
-// Default WAP Settings
-#define WAP_ENABLED false
-#ifdef WAP_ENABLED
-// -- Default WAP Settings BLOCK --
-#endif // WAP
-
-#define WST_ENABLED false
-#ifdef WST_ENABLED
-// -- Default WST Settings BLOCK --
-#endif // WST
-
-// Default LED Settings.
-#define LED_ENABLED true
-#ifdef LED_ENABLED
-// -- Default LED Settings BLOCK --
-#endif // LED
-
-// Default Button Settings
-#define BUTTON_ENABLED true
-#ifdef BUTTON_ENABLED
-// -- Default BUTTON Settings BLOCK --
-#endif // BUTTON
-
 // define serial settings
 #define BAUDRATE 115200
-
+#if defined(__AVR__)
+  #include "hardware_ARDUINO.h"
+#endif
+#ifdef TEENSY36
+  #include "hardware_ARDUINO.h"
+#endif
+#ifdef ESP8266
+  #include "hardware_ESP8266.h"
+#endif
+#ifdef WIFI_LORA_32_V2
+  #include "hardware_HELTEC.h"
+#endif
+#ifdef ARDUINO_WIFI_LORA_32_V2
+  #include "hardware_HELTEC.h"
+#endif
+#ifdef Heltec_WIFI_LoRa_32
+  #include "hardware_HELTEC.h"
+#endif
+#ifdef HELTEC_WIFI_LORA_32
+  #include "hardware_HELTEC.h"
+#endif
+#ifdef WIFI_LORA_32
+  #include "hardware_HELTEC.h"
+#endif
 
 #endif // HARDWARE_H

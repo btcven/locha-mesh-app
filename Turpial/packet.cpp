@@ -6,6 +6,7 @@
 #include <Arduino.h>
 #include <string.h> 
 #include "hardware.h"
+#include "general_functions.h"
 #include "packet.h"
 #include "route.h"
 
@@ -70,4 +71,34 @@ void radioPacket::deserialize()
   default:
     break;
   }
+}
+
+
+packet_type_e convertir_str_packet_type_e(String type_recibido){
+  packet_type_e rpta=EMPTY;
+  if (type_recibido==F("ACK")) return ACK;
+  if (type_recibido==F("JOIN")) return JOIN;
+  if (type_recibido==F("BYE")) return BYE;
+  if (type_recibido==F("ROUTE")) return ROUTE;
+  if (type_recibido==F("HELLO")) return HELLO;
+  if (type_recibido==F("GOSSIP")) return GOSSIP;
+  if (type_recibido==F("NOT_DELIVERED")) return NOT_DELIVERED;
+  return rpta;
+}
+
+
+packet_t create_packet(char* id_node, packet_type_e type, char* from, char* to, char* payload){
+   
+      packet_header_t header;
+      packet_body_t body;
+
+      header.type=type;
+      copy_array_locha(id_node, header.from, 16);
+      copy_array_locha(to, header.to, 16);
+      header.timestamp=millis();
+      copy_array_locha(payload, body.payload, 240);
+      packet_t new_packet;
+      new_packet.header=header;
+      new_packet.body=body;
+    return new_packet;
 }

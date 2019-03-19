@@ -7,11 +7,14 @@
 #define GENERAL_FUNCTIONS_H_
 
 char* create_unique_id();
+char* string2char_node_name(String command);
+void string2char_node_name_v2(String command, char* &respuesta);
 char* string2char(String command);
 
 long readVcc();
-uint8_t freeRam();
+String freeRam();
 String random_name(int numBytes);
-void copy_array(char* src, char* dst, int len);
+void copy_array_locha(char* src, char* dst, int len);
+
 
 #endif // GENERAL_FUNCTIONS_H_
