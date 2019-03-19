@@ -139,7 +139,8 @@ void setup()
  
 // se coloca el cursor en el terminal serial
    #ifdef DEBUG
-      char* node_id_2=create_unique_id();
+      char* node_id_2;
+      create_unique_id(node_id_2);
       DEBUG_PRINT(node_id_2);
       DEBUG_PRINT(F(" >"));
    #endif

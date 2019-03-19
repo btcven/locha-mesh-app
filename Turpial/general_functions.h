@@ -6,7 +6,7 @@
 #ifndef GENERAL_FUNCTIONS_H_
 #define GENERAL_FUNCTIONS_H_
 
-char* create_unique_id();
+void create_unique_id(char* &unique_id_created);
 char* string2char_node_name(String command);
 void string2char_node_name_v2(String command, char* &respuesta);
 char* string2char(String command);

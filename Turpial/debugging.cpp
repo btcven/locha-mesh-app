@@ -7,7 +7,9 @@
 #include "packet.h"
 #include "route.h"
 #include "language_es.h"
-#include "MemoryFree.h"
+#if defined(__AVR__) 
+  #include "MemoryFree.h"
+#endif
 
 extern String rxValue;
 extern String txValue;
@@ -362,18 +364,18 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             str_buffer_serial_received="";
             // se muestra el estatus de la memoria del equipo
             DEBUG_PRINTLN("");
-            DEBUG_PRINT(F("Program storage free:"));
-            DEBUG_PRINT(freeMemory());
-            DEBUG_PRINTLN(" bytes");
-            DEBUG_PRINT(F("Memory for local variables:"));
-            DEBUG_PRINT(freeRam());
-            DEBUG_PRINTLN(" bytes");
-            #ifndef MCU_ESP32   // no aplica para los ESPXX
-              #ifndef TEENSY36 
+            #if defined(__AVR__)   // solo aplica para los arduino
+                DEBUG_PRINT(F("Program storage free:"));
+                DEBUG_PRINT(freeMemory());
+                DEBUG_PRINTLN(" bytes");
+                DEBUG_PRINT(F("Memory for local variables:"));
+                DEBUG_PRINT(freeRam());
+                DEBUG_PRINTLN(" bytes");
+            
                 DEBUG_PRINT(F("Vcc:"));
                 DEBUG_PRINT(readVcc()/1000);
                 DEBUG_PRINTLN(F(" volts"));
-              #endif
+            
             #endif
             ejecute=true;
          }
@@ -446,7 +448,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                 String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
 
                
-                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char_node_name(str_from),string2char_node_name(id_node) , string2char(str_payload));
+                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(str_from),string2char(id_node) , string2char(str_payload));
                 
                 DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
                 mensaje="";
@@ -463,7 +465,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                 String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
                 Serial.println(F("voy a entrar"));
                
-                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char_node_name(id_node),string2char_node_name(str_to), string2char(str_payload));
+                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(id_node),string2char(str_to), string2char(str_payload));
                Serial.println(F("sali"));
                 packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
                 

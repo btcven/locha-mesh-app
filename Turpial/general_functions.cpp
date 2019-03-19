@@ -28,18 +28,22 @@ char* string2char(String command){
     }
 }
 
-char* string2char_node_name(String command){
-     char nombre_temporal[command.length()];
-     memset(nombre_temporal, ' ', sizeof(nombre_temporal)); 
-     command.toCharArray(nombre_temporal, command.length());
-     return  nombre_temporal;         
+//char* string2char_node_name(String command){
+//     char nombre_temporal[command.length()];
+//     memset(nombre_temporal, ' ', sizeof(nombre_temporal)); 
+//     command.toCharArray(nombre_temporal, command.length());
+//     return  nombre_temporal;         
+//}
+
+
+
+void copy_array_locha(char* src, char* dst, int len) {
+    for (int i = 0; i < len; i++) {
+        *dst++ = *src++;
+    }
 }
 
-void string2char_node_name_v2(String command, char* &respuesta){
-  command.toCharArray(respuesta, command.length());
-}
-
-char* create_unique_id()
+void create_unique_id(char* &unique_id_created)
 {
   // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
   // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
@@ -62,18 +66,12 @@ char* create_unique_id()
     uniqueid2.toCharArray(uniqueid3, 32);
   #endif 
   
-  return uniqueid3;
+  copy_array_locha(uniqueid3, unique_id_created, 16);
+//  return uniqueid3;
 }
 
 
 
-
-void copy_array_locha(char* src, char* dst, int len) {
-  //memset(msg, 0, numBytes);
-    for (int i = 0; i < len; i++) {
-        *dst++ = *src++;
-    }
-}
 
 
 
