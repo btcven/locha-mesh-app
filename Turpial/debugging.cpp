@@ -60,13 +60,12 @@ String getparamValue(String data, char separator, int index)
 uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes){
     uint8_t i;
      if (id_to_delete>0){
-      Serial.println("entre a borrar a partir de "+(String)id_to_delete);
+      
       for (i = id_to_delete; i < total_mensajes_salientes; i++) {
           mensajes_salientes[i]=mensajes_salientes[i+1];
       }
       total_mensajes_salientes--;
-      Serial.print("nuevo total de mensajes salientes:");
-      Serial.println(total_mensajes_salientes);
+     
      }
       return 0;
     
@@ -77,7 +76,6 @@ uint8_t show_packet(packet_t el_packet, bool show_size){
     
   
     String tipo=convertir_packet_type_e_str(el_packet.header.type);
-    //String tipo=(String)el_packet.header.type;
     String from=(String)el_packet.header.from;
     String to=(String)el_packet.header.to;
     String timest=(String)el_packet.header.timestamp;
@@ -85,19 +83,19 @@ uint8_t show_packet(packet_t el_packet, bool show_size){
 
  if (show_size){
     DEBUG_PRINTLN("");
-    DEBUG_PRINT("Packet contains:");
+    DEBUG_PRINT(F("Packet contains:"));
     DEBUG_PRINTLN("");
  }
     
-    DEBUG_PRINT("Type:");
+    DEBUG_PRINT(F("Type:"));
     DEBUG_PRINT(tipo);
-    DEBUG_PRINT(" From:");
+    DEBUG_PRINT(F(" From:"));
     DEBUG_PRINT(from);
-    DEBUG_PRINT(" To:");
+    DEBUG_PRINT(F(" To:"));
     DEBUG_PRINT(to);
-    DEBUG_PRINT(" Payload:");
+    DEBUG_PRINT(F(" Payload:"));
     DEBUG_PRINT(payload);
-    DEBUG_PRINT(" Timestamp:");
+    DEBUG_PRINT(F(" Timestamp:"));
     DEBUG_PRINT(timest);
     
      
@@ -455,8 +453,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                 String str_type = getparamValue(str_buffer_serial_received, ' ', 3);  
                 String str_to = getparamValue(str_buffer_serial_received, ' ', 4);  
                 String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
-                Serial.println("tengo:"+getparamValue(str_buffer_serial_received,  ' ', 3));
-               Serial.println("tipo de paquete a crear:"+convertir_str_packet_type_e(str_type));
+             
                 Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(id_node),string2char(str_to), string2char(str_payload));
               
                 packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
@@ -482,11 +479,11 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
          mensaje=F("PACKET DELETE");  
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
                   DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-                  String id_to_delete = getparamValue(str_buffer_serial_received, ' ', 3); 
+                  String id_to_delete = getparamValue(str_buffer_serial_received, ' ', 2); 
+                  
                   if (isNumeric(id_to_delete)){ 
-                      Serial.println("antes de entrar tengo:"+(String)total_mensajes_salientes);
+                      
                       uint8_t rpta=delete_packet(id_to_delete.toInt(),mensajes_salientes,total_mensajes_salientes);
-                      Serial.println("al salir tengo:"+(String)total_mensajes_salientes);
                       if (rpta==0){
                         DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                         mensaje="";
