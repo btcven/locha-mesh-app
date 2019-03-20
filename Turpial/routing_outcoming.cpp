@@ -4,6 +4,7 @@
 #include "general_functions.h"
 #include "debugging.h"
 
+
 extern char* id_node; // id unico del nodo
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];

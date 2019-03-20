@@ -41,14 +41,6 @@ char* string2char(String command){
     }
 }
 
-//char* string2char_node_name(String command){
-//     char nombre_temporal[command.length()];
-//     memset(nombre_temporal, ' ', sizeof(nombre_temporal)); 
-//     command.toCharArray(nombre_temporal, command.length());
-//     return  nombre_temporal;         
-//}
-
-
 
 void copy_array_locha(char* src, char* dst, int len) {
     for (int i = 0; i < len; i++) {
@@ -56,18 +48,6 @@ void copy_array_locha(char* src, char* dst, int len) {
     }
 }
 
-
-String mac2String(byte ar[]){
-  String s;
-  for (byte i = 0; i < 6; ++i)
-  {
-    char buf[3];
-    sprintf(buf, "%2X", ar[i]);
-    s += buf;
-    if (i < 5) s += ':';
-  }
-  return s;
-}
 
 void create_unique_id(char* &unique_id_created)
 {

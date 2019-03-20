@@ -9,12 +9,13 @@
 #include "routing_outcoming.h"
 
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+extern rutas_t routeTable[MAX_ROUTES];
+extern nodo_t vecinos[MAX_NODES];
+extern nodo_t blacklist[MAX_NODES_BLACKLIST];
 extern uint8_t total_mensajes_salientes;  
 extern uint8_t total_vecinos;  
 extern uint8_t total_rutas;
-extern rutas_t routeTable[MAX_ROUTES];
-extern nodo_t vecinos[MAX_NODES];
-
+extern uint8_t total_nodos_blacklist;
 
 void packet_processing_incoming(){
   // se procesa el packet que fue recibido por el radio lora y que esta en Buffer_packet
@@ -105,38 +106,97 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
   return 0;
 }
 
+uint8_t delete_route_by_id(uint8_t id_to_delete){
+   uint8_t i;
+   if (id_to_delete>0){
+      
+      for (i = id_to_delete; i < total_rutas; i++) {
+          routeTable[i]=routeTable[i+1];
+      }
+      total_rutas--;
+     
+     }
+     return 0;
+}
+
+uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16]){
+    uint8_t i;
+    uint8_t j;
+    bool encontro_ruta=false;
+    // se busca si existe en la tabla de rutas que id tiene y se elimina
+     for (i = 0; i <= total_rutas; i++) {
+        if ((routeTable[i].origen.id==id_nodo_from)and(routeTable[i].destino.id==id_nodo_to)){
+            encontro_ruta=true;
+            j=i;
+            break;
+        }
+        // y la inversa
+        if ((routeTable[i].origen.id==id_nodo_to)and(routeTable[i].destino.id==id_nodo_from)){
+            encontro_ruta=true;
+            j=i;
+            break;
+        }
+        // se borran las rutas intermedias que puedan coincidir con el criterio de from y to
+        if ((routeTable[i].origen.id==id_nodo_from)and(routeTable[i].next_neighbor.id==id_nodo_to)){
+            encontro_ruta=true;
+            j=i;
+            break;
+        }
+        if ((routeTable[i].destino.id==id_nodo_from)and(routeTable[i].next_neighbor.id==id_nodo_to)){
+            encontro_ruta=true;
+            j=i;
+            break;
+        }
+        // y las inversas
+         if ((routeTable[i].origen.id==id_nodo_to)and(routeTable[i].next_neighbor.id==id_nodo_from)){
+            encontro_ruta=true;
+            j=i;
+            break;
+        }
+        if ((routeTable[i].destino.id==id_nodo_to)and(routeTable[i].next_neighbor.id==id_nodo_from)){
+            encontro_ruta=true;
+            j=i;
+            break;
+        }
+        
+     }
+     if (encontro_ruta){
+       uint8_t rpta=delete_route_by_id(j);   // se borra y se invoca recursivamente para garantizar que no queden otras rutas
+       rpta=delete_route(id_nodo_from, id_nodo_to);
+     }
+     
+     return 0;
+    
+}
 
 // create a new neighbor on memory  
-uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos){
+uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t blacklist[MAX_NODES_BLACKLIST], uint8_t total_nodos_blacklist ){
    nodo_t nodo_vecino;
    
                   char nombre_temporal[16];
+                  uint8_t i;
+                  bool permitir_agregar=true;
                   id_node_neighbor.toCharArray(nombre_temporal, 16);
-                 
-                  // usamos memcpy ocupando la misma direccion de memoria
-                  memcpy(nodo_vecino.id, nombre_temporal, 16);
-                  // ***
-                  total_vecinos++;
-                  vecinos[total_vecinos] = nodo_vecino;
+                 // se verifica que no exista en blacklist de nodos 
+                 for (i = 1; i <= total_nodos_blacklist; i++) {
+                      if (blacklist[i].id==nombre_temporal){
+                          // como esta en blacklist no se le permite agregar como un vecino valido
+                          permitir_agregar=false;
+                      }
+                 }
+                 if (permitir_agregar){
+                      // usamos memcpy ocupando la misma direccion de memoria
+                      memcpy(nodo_vecino.id, nombre_temporal, 16);
+                      // ***
+                      total_vecinos++;
+                      vecinos[total_vecinos] = nodo_vecino;
+                 }
                   
-//   id_node_neighbor.replace("  "," ");  // se elimina cualquier doble espacio en el input
-//   id_node_neighbor.trim();
-//   if (id_node_neighbor.length()>16){
-//        id_node_neighbor.substring(0,16);
-//   }
-//   char* nombre_temporal;
- //  id_node_neighbor.toCharArray(nombre_temporal, 16);
-//  id_node_neighbor.toCharArray(nodo_vecino.id, 16);
- //  nodo_vecino.id = nombre_temporal;
-//   total_vecinos++;
-//--   vecinos[total_vecinos] = nodo_vecino;
-   
  
-   
     return 0;
 }
 
-// coloca el mensaje recibido en Buffer_packet a ka cika de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda
+// coloca el mensaje recibido en Buffer_packet a la cola de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda
 uint8_t packet_to_send(packet_t Buffer_packet){
   // por ahora solo se agrega a la cola de paquetes salientes
   message_queue_t nuevo_mensaje_en_cola;

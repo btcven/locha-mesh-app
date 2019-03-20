@@ -15,15 +15,15 @@ extern packet_t Buffer_packet;
 
 
 // se incluyen los eventos para externos para cada tipo de packet_t
-extern int routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received);
-extern int routing_incoming_NET_BYE(char id_node[16], packet_t packet_received);
-extern int routing_incoming_NET_JOIN(char id_node[16], packet_t packet_received);
-extern int routing_incoming_NET_ROUTE(char id_node[16], packet_t packet_received);
-extern int routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received);
-extern int routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received);
-extern int routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received);
-extern int routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received);
-extern int routing_incoming_PACKET_NOTDELIVERED(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_NET_BYE(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_NET_JOIN(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_NET_ROUTE(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_NOTDELIVERED(char id_node[16], packet_t packet_received);
 
 
 radioPacket::radioPacket(packet_t packet)

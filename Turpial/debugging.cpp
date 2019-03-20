@@ -6,10 +6,12 @@
 #include "memory_def.h"
 #include "packet.h"
 #include "route.h"
+#include "blacklist.h"
 #include "language_es.h"
 #if defined(__AVR__) 
   #include "MemoryFree.h"
 #endif
+
 
 extern String rxValue;
 extern String txValue;
@@ -22,10 +24,12 @@ extern char* id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
+extern nodo_t blacklist[MAX_NODES_BLACKLIST];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
+extern uint8_t total_nodos_blacklist;
 
 
 
@@ -258,9 +262,9 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   
   if (id_nodo == "turpial.0")
   {
-      copy_array_locha("turpial.0", nodo_actual.id, 16);
-      copy_array_locha("turpial.1", nodo_vecino.id, 16);
-      uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
+      copy_array_locha(id_nodo_demo0, nodo_actual.id, 16);
+      copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
+      uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
      
       // ruta T1
       create_route(nodo_actual, nodo_vecino, nodo_vecino);
@@ -271,11 +275,11 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
     nodo_t nodo_vecino2;
   
     copy_array_locha(id_nodo, nodo_vecino.id, 16);
-    copy_array_locha("turpial_0", nodo_vecino.id, 16);
-    uint8_t rpta2=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
-    copy_array_locha("turpial_2", nodo_vecino2.id, 16);
+    copy_array_locha(id_nodo_demo0, nodo_vecino.id, 16);
+    uint8_t rpta2=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+    copy_array_locha(id_nodo_demo2, nodo_vecino2.id, 16);
     
-    uint8_t rpta3=create_neighbor(nodo_vecino2.id,vecinos,total_vecinos);
+    uint8_t rpta3=create_neighbor(nodo_vecino2.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
     // ruta T1
     create_route(nodo_actual, nodo_vecino, nodo_vecino);
     // ruta T2
@@ -284,8 +288,8 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   
   if (id_nodo == "turpial.2")
   {
-    copy_array_locha("turpial_1", nodo_vecino.id, 16);
-    uint8_t rpta=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
+    copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
+    uint8_t rpta=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
     // ruta T2
     create_route(nodo_actual, nodo_vecino, nodo_vecino);
   }
@@ -417,7 +421,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             
               if (str_node_name.length()>0){
                 
-                uint8_t rpta=create_neighbor(str_node_name,vecinos,total_vecinos);
+                uint8_t rpta=create_neighbor(str_node_name,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);

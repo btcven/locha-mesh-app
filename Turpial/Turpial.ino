@@ -53,8 +53,11 @@ char* id_node=id_nodo_demo;
 uint8_t total_vecinos = 0; // cantidad de vecinos del nodo actual
 uint8_t total_rutas = 0;   // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 uint8_t total_mensajes_salientes = 0;   // cantidad de mensajes en la cola
+uint8_t total_nodos_blacklist = 0;   // cantidad de nodos en blacklist
+
 rutas_t routeTable[MAX_ROUTES];
 nodo_t vecinos[MAX_NODES];
+nodo_t blacklist[MAX_NODES_BLACKLIST];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 packet_t Buffer_packet;   // packet_t usado como buffer para mensajes incoming y outcoming
 

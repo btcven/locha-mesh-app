@@ -11,19 +11,19 @@
 
 #include <Arduino.h>
 #include "hardware.h"
-#include "general_functions.h"
-#include "debugging.h"
 #include "boards_def.h"
 #include "memory_def.h"
 #include "packet.h"
 #include "route.h"
-#include "language_es.h"
+#include "blacklist.h"
+
 
 
 extern char* id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
+extern nodo_t blacklist[MAX_NODES_BLACKLIST];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
