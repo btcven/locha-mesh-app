@@ -55,66 +55,40 @@ String getparamValue(String data, char separator, int index)
     
 }
 
-uint8_t mostrar_packet(packet_t el_packet){
-    uint8_t i;
-    uint8_t j;
-    uint8_t max_cols=4;
-    uint8_t max_rows=4;
-    String tabla[max_rows][max_cols];  // 4 columnas y max 5 filas
-
-    tabla[0][0] = "Header - type";
-    tabla[0][1] = "Header - from";
-    tabla[0][2] = "Header - to";
-    tabla[0][3] = F("Header - timestamp");
-    tabla[0][4] = "Body - payload";
+uint8_t mostrar_packet(packet_t el_packet, bool show_size){
+    
   
-    String tipo=convertir_str_packet_type_e(el_packet.header.type);
+    //String tipo=convertir_packet_type_e_str(el_packet.header.type);
+    String tipo=(String)el_packet.header.type;
     String from=(String)el_packet.header.from;
     String to=(String)el_packet.header.to;
     String timest=(String)el_packet.header.timestamp;
     String payload=(String)el_packet.body.payload;
-    Serial.print("Type:");
-    Serial.println(tipo);
 
-    Serial.print("from:");
-    Serial.println(from);
-    Serial.print("to:");
-    Serial.println(to);
-    Serial.print("payload:");
-    Serial.println(payload);
+ if (show_size){
+    DEBUG_PRINTLN("");
+    DEBUG_PRINT("Packet contains:");
+    DEBUG_PRINTLN("");
+ }
     
-    tabla[1][0] = tipo;
-    tabla[1][1] = from;
-    tabla[1][2] = to;
-    tabla[1][3] = timest;
-    tabla[1][4] = payload;
-    DEBUG_PRINTLN();
-    for (i = 1; i <= 80; i++) {
-      DEBUG_PRINT(F("-"));
-    }
-     for (j = 0; i <= max_rows; j++) {
-        for (i = 0; i <= max_cols; i++) {
-            DEBUG_PRINT(F("\t"));
-            DEBUG_PRINT(tabla[i][j]);
-            DEBUG_PRINT(F(" | "));
-        }
-         DEBUG_PRINTLN(" ");
-         if (j==0){
-           for (i = 1; i <= 80; i++) {
-              DEBUG_PRINT(F("-"));
-            }
-          
-         }
-      }
-      DEBUG_PRINTLN();
-      for (i = 1; i <= 80; i++) {
-          DEBUG_PRINT(F("-"));
-      }
-     DEBUG_PRINTLN();
-     DEBUG_PRINT(F("Tamaño del packet :"));
-     DEBUG_PRINTLN(sizeof(el_packet));
-     DEBUG_PRINTLN();
+    DEBUG_PRINT("Type:");
+    DEBUG_PRINT(tipo);
+    DEBUG_PRINT(" From:");
+    DEBUG_PRINT(from);
+    DEBUG_PRINT(" To:");
+    DEBUG_PRINT(to);
+    DEBUG_PRINT(" Payload:");
+    DEBUG_PRINT(payload);
+    DEBUG_PRINT(" Timestamp:");
+    DEBUG_PRINT(timest);
+    
      
+    if (show_size){
+        DEBUG_PRINT(F(" Tamaño del packet :"));
+        DEBUG_PRINT(sizeof(el_packet));
+        DEBUG_PRINT(F(" bytes"));
+        DEBUG_PRINTLN();
+    }
      return 0;
 }
 
@@ -202,7 +176,9 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
 }
 
 uint8_t mostrar_cola_mensajes(message_queue_t mensajes_salientes[MAX_MSG_QUEUE], size_t tamano_arreglo){
-   uint8_t i;
+  uint8_t i;
+ 
+    
    DEBUG_PRINTLN();
    DEBUG_PRINT(F("Cola mensajes salientes: "));
    DEBUG_PRINTLN();
@@ -215,12 +191,9 @@ uint8_t mostrar_cola_mensajes(message_queue_t mensajes_salientes[MAX_MSG_QUEUE],
       DEBUG_PRINT(F("\t"));
       DEBUG_PRINT(F("Prioridad"));
       DEBUG_PRINT(F("\t"));
-      DEBUG_PRINT(F("From"));
+      DEBUG_PRINT(F("Packet"));
       DEBUG_PRINT(F("\t"));
-      DEBUG_PRINT(F("To"));
-      DEBUG_PRINT(F("\t"));
-      DEBUG_PRINT(F("Timestamp"));
-      DEBUG_PRINT(F("\t"));
+      
       DEBUG_PRINTLN();
          for (i = 1; i <= 80; i++) {
           DEBUG_PRINT(F("-"));
@@ -230,14 +203,12 @@ uint8_t mostrar_cola_mensajes(message_queue_t mensajes_salientes[MAX_MSG_QUEUE],
           
           DEBUG_PRINT(i);
           DEBUG_PRINT(F("\t"));
-          DEBUG_PRINT(mensajes_salientes[i].prioridad);
           DEBUG_PRINT(F("\t"));
-          DEBUG_PRINT(mensajes_salientes[i].paquete.header.from);
+          DEBUG_PRINT((String)mensajes_salientes[i].prioridad);
           DEBUG_PRINT(F("\t"));
-          DEBUG_PRINT(mensajes_salientes[i].paquete.header.to);
+          mostrar_packet(mensajes_salientes[i].paquete, false);
           DEBUG_PRINT(F("\t"));
-          DEBUG_PRINT(mensajes_salientes[i].paquete.header.timestamp);
-          DEBUG_PRINT(F("\t"));
+          
           
      }
      return 0;
@@ -472,7 +443,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
          
                   DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
 
-                  uint8_t rpta=mostrar_packet(Buffer_packet);
+                  uint8_t rpta=mostrar_packet(Buffer_packet,true);
                     
                   DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
                   mensaje="";

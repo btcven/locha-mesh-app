@@ -86,6 +86,17 @@ packet_type_e convertir_str_packet_type_e(String type_recibido){
   return rpta;
 }
 
+String convertir_packet_type_e_str(packet_type_e type_recibido){
+  String rpta="";
+  if (type_recibido==ACK) return F("ACK");
+  if (type_recibido==JOIN) return F("JOIN");
+  if (type_recibido==BYE) return F("BYE");
+  if (type_recibido==ROUTE) return F("ROUTE");
+  if (type_recibido==HELLO) return F("HELLO");
+  if (type_recibido==GOSSIP) return F("GOSSIP");
+  if (type_recibido==NOT_DELIVERED) return F("NOT_DELIVERED");
+  return rpta;
+}
 
 packet_t create_packet(char* id_node, packet_type_e type, char* from, char* to, char* payload){
    
