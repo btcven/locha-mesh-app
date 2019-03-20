@@ -33,6 +33,8 @@ typedef struct rutas_t
 
 
 // definicion de voids
+void packet_processing_incoming();
+void packet_processing_outcoming();
 uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
 uint8_t packet_to_send(packet_t Buffer_packet);
 uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino);

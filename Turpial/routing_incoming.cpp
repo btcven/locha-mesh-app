@@ -15,7 +15,7 @@ extern uint8_t total_mensajes_salientes;
 
 // esta funcion procesa el paquete recibido 
 void process_received_packet(packet_t Buffer_packet){
-
+//    Buffer_packet.deserialize();
 }
 
 uint8_t routing_incoming_PACKET_MSG(char* id_node, packet_t packet_received){

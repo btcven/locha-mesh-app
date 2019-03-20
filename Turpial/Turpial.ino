@@ -159,7 +159,12 @@ void setup()
 void loop()
 {
 
-
-  uint8_t rpta=show_debugging_info(vecinos,total_vecinos);
-  
+          // se efectua el procesamiento de paquetes entrantes
+          packet_processing_incoming();
+          // se efectua el procesamiento de paquetes salientes
+          packet_processing_outcoming();   
+          // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
+          #ifdef DEBUG
+            uint8_t rpta=show_debugging_info(vecinos,total_vecinos);
+          #endif
 }

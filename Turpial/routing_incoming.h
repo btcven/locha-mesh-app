@@ -14,7 +14,7 @@
 #include "route.h"
 #include "packet.h"
 #include "general_functions.h"
-//#include "debugging.h"
+
 
 extern char* id_node; // id unico del nodo
 extern packet_t Buffer_packet;
@@ -32,6 +32,8 @@ uint8_t routing_incoming_PACKET_ROUTE(char* id_node, packet_t packet_received);
 uint8_t routing_incoming_PACKET_NOT_DELIVERED(char* id_node, packet_t packet_received);
 uint8_t routing_incoming_PACKET_ACK(char* id_node, packet_t packet_received);
 
+// definicion de voids
+void process_received_packet(packet_t Buffer_packet);
 
 
 #endif // INCOMING_H

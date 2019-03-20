@@ -5,7 +5,8 @@
 #include "memory_def.h"
 #include "route.h"
 #include "packet.h"
-
+#include "routing_incoming.h"
+#include "routing_outcoming.h"
 
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_salientes;  
@@ -13,6 +14,20 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
+
+
+void packet_processing_incoming(){
+  // se procesa el packet que fue recibido por el radio lora y que esta en Buffer_packet
+  
+  process_received_packet(Buffer_packet);    // este void esta en routing_incoming.h
+  
+}
+
+void packet_processing_outcoming(){
+
+  
+}
+
 
 // verifica si el nodo a consultar esta en la tabla de vecinos
 uint8_t es_vecino(char id_nodo[16]){
