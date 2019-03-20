@@ -8,14 +8,18 @@
 #ifndef HARDWARE_HELTEC_H
 #define HARDWARE_HELTEC_H
 
+#define ESP32_BASED_DEVICE
+//#define ESP8266_BASED_DEVICE
+//#define NOWIFI_DEVICE
+
 // define display settings.
 #define SCR_ENABLED false
 #ifdef SCR_ENABLED
-#define SCR_ADD 0x3C
-#define SCR_RST 16
-#define SCR_SDA 4
-#define SCR_SCL 15
-#define SCR_Vext 21
+  #define SCR_ADD 0x3C
+  #define SCR_RST 16
+  #define SCR_SDA 4
+  #define SCR_SCL 15
+  #define SCR_Vext 21
 #endif // SCR
 
 // Default BLE  settings

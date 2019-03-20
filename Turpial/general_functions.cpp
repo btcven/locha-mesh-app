@@ -1,6 +1,19 @@
+
 #include <Arduino.h>
 #include <string.h> 
+#include "hardware.h" 
+
+#ifndef NOWIFI_DEVICE
+  #include <WiFiClient.h>
+  #ifdef ESP8266
+    #include <ESP8266WiFi.h>
+  #endif
+  #ifdef ESP32_BASED_DEVICE
+    #include <WiFi.h>
+  #endif
+#endif 
 #include "route.h"
+
 
 String random_name(int numBytes){
 char* msg; 
@@ -43,28 +56,67 @@ void copy_array_locha(char* src, char* dst, int len) {
     }
 }
 
+
+String mac2String(byte ar[]){
+  String s;
+  for (byte i = 0; i < 6; ++i)
+  {
+    char buf[3];
+    sprintf(buf, "%2X", ar[i]);
+    s += buf;
+    if (i < 5) s += ':';
+  }
+  return s;
+}
+
 void create_unique_id(char* &unique_id_created)
 {
   // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
   // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
   //TODO
   // se arma el unique id
-  uint64_t chipid;
+  
   char uniqueid3[16];
-  memset(uniqueid3, ' ', sizeof(uniqueid3));
-  #ifdef MCU_ARDUINO
-    String aleatorio=random_name(11);  // un string de 4 digitos aleatorios
-    aleatorio="locha"+aleatorio;   // se le agrega el prefijo locha
-    aleatorio.toCharArray(uniqueid3, 32);
-  #endif 
-  #ifdef MCU_ESP32
-    chipid = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
-    char ssid[23]=string2char("");
-    uint16_t chip = (uint16_t)(chipid >> 32);
-    snprintf(ssid, 23, "LOCH%04X%08X", chip, (uint32_t)chipid);
-    String uniqueid2 = String(ssid);
-    uniqueid2.toCharArray(uniqueid3, 32);
-  #endif 
+ // memset(uniqueid3, ' ', sizeof(uniqueid3));
+    #ifdef NOWIFI_DEVICE
+          String aleatorio=random_name(11);  // un string de 4 digitos aleatorios
+          aleatorio="locha"+aleatorio;   // se le agrega el prefijo locha
+          aleatorio.toCharArray(uniqueid3, 32);
+    #else 
+       uint32_t uChipId;
+   // uint64_t uChipId2;
+        #ifdef ESP32_BASED_DEVICE
+           
+            uChipId = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
+            ///Serial.printf("ESP32 Chip ID = %04X",(uint16_t)(chipid>>32));//print High 2 bytes
+            //Serial.printf("%08X\n",(uint32_t)chipid);//print Low 4bytes.
+            //char ssid[23];
+            //uint16_t chip = (uint16_t)(chipid >> 32);
+            //snprintf(ssid, 23, "%04X%08X", chip, (uint32_t)chipid);
+            //copy_array_locha(ssid, uniqueid3, 16);
+         #endif
+         #ifdef ESP8266_BASED_DEVICE
+      //    String s = WiFi.macAddress();
+      //    Serial.println("mac address:"+s);
+                uChipId=ESP.getChipId();
+            //  char clientid[25];
+            //  snprintf(clientid,25,"%08X",chipid);
+           //   Serial.print("ESP8266 Chip ID =");
+           //   Serial.println(clientid);
+           //   copy_array_locha(clientid, uniqueid3, 16);
+         #endif
+       //  Serial.printf("ESP Chip ID = %04X",(uint16_t)(uChipId>>32));//print High 2 bytes
+       //  Serial.printf("%08X\n",(uint32_t)uChipId);//print Low 4bytes.
+   //      char clientid[25];
+   //      Serial.print("sigo:");
+         snprintf(uniqueid3,25,"%08X",uChipId); 
+     //    Serial.println(clientid);
+     //    copy_array_locha(clientid, uniqueid3, 16);
+   
+    #endif 
+
+ 
+   
   
   copy_array_locha(uniqueid3, unique_id_created, 16);
 //  return uniqueid3;

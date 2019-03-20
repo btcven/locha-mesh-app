@@ -8,7 +8,9 @@
 #ifndef HARDWARE_ESP8266_H
 #define HARDWARE_ESP8266_H
 
-
+//#define ESP32_BASED_DEVICE
+#define ESP8266_BASED_DEVICE
+//#define NOWIFI_DEVICE
 
 // define display settings.
 //#define SCR_ENABLED true

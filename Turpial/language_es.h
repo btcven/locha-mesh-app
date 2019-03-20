@@ -7,4 +7,7 @@
 #define MSG_OK               "OK"
 #define MSG_ERROR            "ERROR"
 #define MSG_FAIL             "FAILED"
+#define MSG_COMMAND_LINE     "CMD>"
+
+
 #endif //LANGUAGE_ES_H

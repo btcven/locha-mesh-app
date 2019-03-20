@@ -42,8 +42,8 @@
 
 // variables fijas para este demo
 // ID unico del nodo
-char* id_node=string2char("turpial.0");
-//string2char_node_name_v2("turpial.0",id_node);
+char* id_node="turpial.0";
+
 
 
 // includes internos
@@ -61,15 +61,19 @@ packet_t Buffer_packet;   // packet_t usado como buffer para mensajes incoming y
 
 void setup()
 {
-  
   DEBUG_BEGIN(BAUDRATE);
+  #ifdef DEBUG
+    while(!Serial);
+    Serial.setDebugOutput(true);
+    delay(2000);
+  #endif
   rxValue="";
   txValue="";
 
       #ifdef SCR_ENABLED  
       if (SCR_ENABLED)
       {
-        DEBUG_PRINT(MSG_SCR_INIT);
+        DEBUG_PRINTLN(MSG_SCR_INIT);
         // activar módulo SCR
         // leer NVS,  verificar si existe registro
         // si existe aplicar, si no establecer parametros por defecto.
@@ -97,7 +101,7 @@ void setup()
       #ifdef BLE_ENABLED
       if (BLE_ENABLED)
       {
-        DEBUG_PRINT(F("[BLE] Initiating... "));
+        DEBUG_PRINTLN(F("[BLE] Initiating... "));
         // -- activar módulo ble --
         // 1.- leer NVS,  verificar si existe registro
         // 2.- si existe aplicar, si no establecer parametros por defecto.
@@ -119,7 +123,7 @@ void setup()
   #ifdef WST_ENABLED
   if (WST_ENABLED)
   {
-    DEBUG_PRINT(F("[WST] Initiating... "));
+    DEBUG_PRINTLN(F("[WST] Initiating... "));
     // -- activar módulo wst --
     // 1.- leer NVS,  verificar si existe registro
     // 2.- si existe aplicar, si no establecer parametros por defecto.
@@ -128,7 +132,7 @@ void setup()
   #ifdef RAD_ENABLED
   if (RAD_ENABLED)
   {
-    DEBUG_PRINT(F("[RAD] Initiating... "));
+    DEBUG_PRINTLN(F("[RAD] Initiating... "));
     // -- activar modulo de radio --
     // 1.- leer NVS,  verificar si existe registro
     // 2.- si existe aplicar, si no establecer parametros por defecto.
@@ -138,17 +142,21 @@ void setup()
  #endif
  
 // se coloca el cursor en el terminal serial
-   #ifdef DEBUG
-      char* node_id_2;
-      create_unique_id(node_id_2);
-      DEBUG_PRINT(node_id_2);
+ 
+      DEBUG_PRINTLN(F("Starting terminal"));
+      // se genera el node_id solo si no existe
+      if (id_node==""){
+         create_unique_id(id_node);
+      }
+      DEBUG_PRINT(id_node);
       DEBUG_PRINT(F(" >"));
-   #endif
+  
 }
 
 void loop()
 {
- 
+
+
   uint8_t rpta=show_debugging_info(vecinos,total_vecinos);
   
 }

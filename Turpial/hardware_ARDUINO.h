@@ -8,6 +8,10 @@
 #ifndef HARDWARE_ARDUINO_H
 #define HARDWARE_ARDUINO_H
 
+//#define ESP32_BASED_DEVICE
+//#define ESP8266_BASED_DEVICE
+#define NOWIFI_DEVICE
+
 // define display settings.
 //#define SCR_ENABLED true
 // Default BLE  settings

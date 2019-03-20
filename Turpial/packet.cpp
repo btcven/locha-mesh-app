@@ -93,7 +93,7 @@ packet_t create_packet(char* id_node, packet_type_e type, char* from, char* to, 
       packet_body_t body;
 
       header.type=type;
-      copy_array_locha(id_node, header.from, 16);
+      copy_array_locha(from, header.from, 16);
       copy_array_locha(to, header.to, 16);
       header.timestamp=millis();
       copy_array_locha(payload, body.payload, 240);
