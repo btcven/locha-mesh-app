@@ -55,11 +55,29 @@ String getparamValue(String data, char separator, int index)
     
 }
 
-uint8_t mostrar_packet(packet_t el_packet, bool show_size){
+
+// borra un packet de la cola de paquetes salientes
+uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes){
+    uint8_t i;
+     if (id_to_delete>0){
+      Serial.println("entre a borrar a partir de "+(String)id_to_delete);
+      for (i = id_to_delete; i < total_mensajes_salientes; i++) {
+          mensajes_salientes[i]=mensajes_salientes[i+1];
+      }
+      total_mensajes_salientes--;
+      Serial.print("nuevo total de mensajes salientes:");
+      Serial.println(total_mensajes_salientes);
+     }
+      return 0;
+    
+}
+
+// muestra el contenido del paquete recibido por parametro
+uint8_t show_packet(packet_t el_packet, bool show_size){
     
   
-    //String tipo=convertir_packet_type_e_str(el_packet.header.type);
-    String tipo=(String)el_packet.header.type;
+    String tipo=convertir_packet_type_e_str(el_packet.header.type);
+    //String tipo=(String)el_packet.header.type;
     String from=(String)el_packet.header.from;
     String to=(String)el_packet.header.to;
     String timest=(String)el_packet.header.timestamp;
@@ -136,7 +154,7 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
   nodo_t origen;
   nodo_t destino;
   nodo_t next_neighbor;
-  DEBUG_PRINTLN(" ");
+  DEBUG_PRINTLN(MSG_SPACE);
   DEBUG_PRINT("Rutas disponibles en el nodo: ");
   DEBUG_PRINT(node_id);
   DEBUG_PRINTLN();
@@ -175,9 +193,12 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
     return 0;
 }
 
-uint8_t mostrar_cola_mensajes(message_queue_t mensajes_salientes[MAX_MSG_QUEUE], size_t tamano_arreglo){
+
+
+
+uint8_t mostrar_cola_mensajes(struct message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], size_t tamano_arreglo){
   uint8_t i;
- 
+  uint8_t j;
     
    DEBUG_PRINTLN();
    DEBUG_PRINT(F("Cola mensajes salientes: "));
@@ -206,33 +227,45 @@ uint8_t mostrar_cola_mensajes(message_queue_t mensajes_salientes[MAX_MSG_QUEUE],
           DEBUG_PRINT(F("\t"));
           DEBUG_PRINT((String)mensajes_salientes[i].prioridad);
           DEBUG_PRINT(F("\t"));
-          mostrar_packet(mensajes_salientes[i].paquete, false);
+          show_packet(mensajes_salientes[i].paquete, false);
           DEBUG_PRINT(F("\t"));
-          
+          DEBUG_PRINTLN();
           
      }
+    DEBUG_PRINT(F("Tamaño de la cola:"));
+    DEBUG_PRINT(tamano_arreglo);
+    DEBUG_PRINTLN(F(" bytes"));
+    DEBUG_PRINT(F("Total de paquetes en cola :"));
+    DEBUG_PRINTLN(total_mensajes_salientes);
+    DEBUG_PRINTLN();
+     
      return 0;
 }
 
 // funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
 uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rutas_t routeTable[MAX_ROUTES], uint8_t &total_vecinos, size_t size_vecinos, size_t size_rutas)
 {
-   String str_nombre_nodo=""; 
-   char arr[16];
+  String str_nombre_nodo=""; 
+  char arr[16];
   
-   str_nombre_nodo=(String)id_nodo;
-   nodo_t nodo_actual;
-    nodo_t nodo_vecino;
+  str_nombre_nodo=(String)id_nodo;
+  nodo_t nodo_actual;
+  nodo_t nodo_vecino;
 
+  char id_nodo_demo0[]="turpial.0";
+  char id_nodo_demo1[]="turpial.1";
+  char id_nodo_demo2[]="turpial.2";
+  
+  char* id_node=id_nodo_demo0;
+  
   if (id_nodo == "turpial.0")
   {
-  
-    copy_array_locha("turpial_0", nodo_actual.id, 16);
-     copy_array_locha("turpial_1", nodo_vecino.id, 16);
-     uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
+      copy_array_locha("turpial.0", nodo_actual.id, 16);
+      copy_array_locha("turpial.1", nodo_vecino.id, 16);
+      uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos);
      
-    // ruta T1
-    create_route(nodo_actual, nodo_vecino, nodo_vecino);
+      // ruta T1
+      create_route(nodo_actual, nodo_vecino, nodo_vecino);
    
   }
   if (id_nodo == "turpial.1")
@@ -306,7 +339,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             uint8_t rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
-            DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+            DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
             
@@ -341,33 +374,31 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             str_buffer_serial_received="";
             ejecute=true;
          }
-        mensaje=F("CREATE BLE INCOMING");
+        mensaje=F("BLE CREATE INCOMING");
         if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
             
             String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
-    //        DEBUG_PRINT("recibi por parametro:");
-      //      DEBUG_PRINTLN(str_param_received);
             rxValue=str_param_received;
             str_buffer_serial_received="";
           //  DEBUG_PRINTLN(mensaje+F("TODO emular recepcion de un mensaje BLE "));
-            DEBUG_PRINTLN((String)mensaje+F(" ")+MSG_OK);
+            DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
          }
          
-         mensaje=F("CREATE BLE OUTCOMING");
+         mensaje=F("BLE CREATE OUTCOMING");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
             
             String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
 
             txValue=str_param_received;
-            DEBUG_PRINTLN(mensaje+F(" ")+MSG_OK);
+            DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             
             ejecute=true;
          }
-         mensaje=F("SHOW BLE");
+         mensaje=F("BLE SHOW");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
             str_buffer_serial_received="";
               
@@ -380,7 +411,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             
             ejecute=true;
          }
-         mensaje=F("CREATE NODE");
+         mensaje=F("NODE CREATE");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
               // getparamValue (0) devuelve CREATE , (1) devuelve NODE , (2) devuelve el nombre el nodo recibido por parametro
               DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -389,19 +420,19 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
               if (str_node_name.length()>0){
                 
                 uint8_t rpta=create_neighbor(str_node_name,vecinos,total_vecinos);
-                DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
                
                 ejecute=true;
                 return 1;
               }  else {
-                  DEBUG_PRINTLN((String)mensaje+" "+MSG_FAIL);
+                  DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_FAIL);
               }
               str_buffer_serial_received="";
          }
 
-         mensaje=F("CREATE PACKET INCOMING");   // formato: CREATE PACKET INCOMING TYPE FROM PAYLOAD 
+         mensaje=F("PACKET CREATE INCOMING");   // formato: CREATE PACKET INCOMING TYPE FROM PAYLOAD 
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
                 String str_type = getparamValue(str_buffer_serial_received, ' ', 3);  
@@ -411,46 +442,64 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                
                 Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(str_from),id_node, string2char(str_payload));
                 
-                DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
                 str_buffer_serial_received="";
                 ejecute=true;
                 return 1;
          }
-          mensaje=F("CREATE PACKET OUTCOMING");   // formato: CREATE PACKET OUTCOMING TYPE TO PAYLOAD 
+          mensaje=F("PACKET CREATE OUTCOMING");   // formato: CREATE PACKET OUTCOMING TYPE TO PAYLOAD 
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
                 String str_type = getparamValue(str_buffer_serial_received, ' ', 3);  
                 String str_to = getparamValue(str_buffer_serial_received, ' ', 4);  
                 String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
-                Serial.println(F("voy a entrar"));
-               
+                Serial.println("tengo:"+getparamValue(str_buffer_serial_received,  ' ', 3));
+               Serial.println("tipo de paquete a crear:"+convertir_str_packet_type_e(str_type));
                 Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(id_node),string2char(str_to), string2char(str_payload));
-               Serial.println(F("sali"));
+              
                 packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
                 
-                DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
                 str_buffer_serial_received="";
                 ejecute=true;
                 return 1;
          }
-          mensaje=F("SHOW PACKET");  
-           
+         mensaje=F("PACKET SHOW");  
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
-         
                   DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-
-                  uint8_t rpta=mostrar_packet(Buffer_packet,true);
-                    
-                  DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
+                  uint8_t rpta=show_packet(Buffer_packet,true);
+                  DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                   mensaje="";
                   DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-               
-                ejecute=true;
-                return 1;
+                  str_buffer_serial_received="";
+                  ejecute=true;
+                  return 1;
+         }
+         mensaje=F("PACKET DELETE");  
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+                  DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+                  String id_to_delete = getparamValue(str_buffer_serial_received, ' ', 3); 
+                  if (isNumeric(id_to_delete)){ 
+                      Serial.println("antes de entrar tengo:"+(String)total_mensajes_salientes);
+                      uint8_t rpta=delete_packet(id_to_delete.toInt(),mensajes_salientes,total_mensajes_salientes);
+                      Serial.println("al salir tengo:"+(String)total_mensajes_salientes);
+                      if (rpta==0){
+                        DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
+                        mensaje="";
+                        DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+                        str_buffer_serial_received="";
+                        ejecute=true;
+                        return 1;
+                      } else {
+                         DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_FAIL);
+                      }
+                  } else {
+                      DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_FAIL);
+                  }
          }
          
          mensaje=F("CLEAR SCREEN");  // falta probar este comando
@@ -458,8 +507,8 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
            
             str_buffer_serial_received="";
             Serial.write(12);
-            DEBUG_PRINTLN((String)mensaje+" "+MSG_OK);
-                DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
+            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
          }
          }
         // Serial.println("sali de la funcion debugging");
@@ -467,7 +516,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             DEBUG_PRINTLN(">");
          } else{
           if (mensaje!=""){
-            DEBUG_PRINTLN((String)str_buffer_serial_received+" "+MSG_FAIL);
+            DEBUG_PRINTLN((String)str_buffer_serial_received+MSG_SPACE+MSG_FAIL);
           }
          }
            #endif   // del #ifdef DEBUG

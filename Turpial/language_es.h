@@ -9,5 +9,7 @@
 #define MSG_FAIL             "FAILED"
 #define MSG_COMMAND_LINE     "CMD>"
 
+//manejo de los caracteres espacio en blanco en memoria
+const char MSG_SPACE[]=" ";
 
 #endif //LANGUAGE_ES_H

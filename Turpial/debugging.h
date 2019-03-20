@@ -51,7 +51,7 @@ extern uint8_t total_mensajes_salientes;
 
 
 uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
-
+uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes);
 
 
 #endif // DEBUGGING_H

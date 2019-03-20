@@ -76,9 +76,11 @@ void radioPacket::deserialize()
 
 packet_type_e convertir_str_packet_type_e(String type_recibido){
   packet_type_e rpta=EMPTY;
+  type_recibido.trim();
   if (type_recibido==F("ACK")) return ACK;
   if (type_recibido==F("JOIN")) return JOIN;
   if (type_recibido==F("BYE")) return BYE;
+  if (type_recibido==F("MSG")) return MSG;
   if (type_recibido==F("ROUTE")) return ROUTE;
   if (type_recibido==F("HELLO")) return HELLO;
   if (type_recibido==F("GOSSIP")) return GOSSIP;
@@ -88,22 +90,23 @@ packet_type_e convertir_str_packet_type_e(String type_recibido){
 
 String convertir_packet_type_e_str(packet_type_e type_recibido){
   String rpta="";
-  if (type_recibido==ACK) return F("ACK");
-  if (type_recibido==JOIN) return F("JOIN");
-  if (type_recibido==BYE) return F("BYE");
-  if (type_recibido==ROUTE) return F("ROUTE");
-  if (type_recibido==HELLO) return F("HELLO");
-  if (type_recibido==GOSSIP) return F("GOSSIP");
-  if (type_recibido==NOT_DELIVERED) return F("NOT_DELIVERED");
+  if (type_recibido==ACK) rpta=F("ACK");
+  if (type_recibido==JOIN) rpta=F("JOIN");
+  if (type_recibido==BYE) rpta=F("BYE");
+  if (type_recibido==MSG) rpta=F("MSG");
+  if (type_recibido==ROUTE) rpta=F("ROUTE");
+  if (type_recibido==HELLO) rpta=F("HELLO");
+  if (type_recibido==GOSSIP) rpta=F("GOSSIP");
+  if (type_recibido==NOT_DELIVERED) rpta=F("NOT_DELIVERED");
   return rpta;
 }
 
-packet_t create_packet(char* id_node, packet_type_e type, char* from, char* to, char* payload){
+packet_t create_packet(char* id_node, packet_type_e tipo_packet, char* from, char* to, char* payload){
    
       packet_header_t header;
       packet_body_t body;
 
-      header.type=type;
+      header.type=tipo_packet;
       copy_array_locha(from, header.from, 16);
       copy_array_locha(to, header.to, 16);
       header.timestamp=millis();

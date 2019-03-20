@@ -17,13 +17,13 @@ typedef struct nodo_t
 } nodo_t;
 
 
-typedef struct
+typedef struct message_queue_t
 {
     packet_t paquete;         // uniqueid
     uint8_t prioridad;        // numero para asignar la prioridad a cada paquete 
 } message_queue_t;
 
-typedef struct
+typedef struct rutas_t
 {
     nodo_t origen;  // uniqueid del destinatario
     nodo_t next_neighbor; // unique id del vecino mas cercano

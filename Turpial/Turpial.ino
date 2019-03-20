@@ -42,7 +42,10 @@
 
 // variables fijas para este demo
 // ID unico del nodo
-char* id_node="turpial.0";
+char id_nodo_demo[]="turpial.0";
+
+
+char* id_node=id_nodo_demo;
 
 
 
