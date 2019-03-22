@@ -52,8 +52,9 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16]);
 uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_route);
 uint8_t pos_ruta(char id_nodo_from[16], char id_nodo_to[16]);
 uint8_t es_vecino(char id_nodo[16]);
-
-
+uint8_t delete_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
+uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16]);
+uint8_t delete_route_by_id(uint8_t id_to_delete);
 
 
 #endif // ROUTE_H

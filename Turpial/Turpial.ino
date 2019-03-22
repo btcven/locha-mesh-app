@@ -5,7 +5,6 @@
 */
 #include <Arduino.h>
 #include <string.h>
-//using namespace std;
 
 // devices and default settings
 #include "hardware.h"
@@ -19,13 +18,25 @@
 
 #include <Wire.h>
 
+
+
 #ifdef RAD_ENABLED
-  #include <LoRaLib.h>
+  //#include <LoRaLib.h>
+  #include "heltec.h"
+#endif
+
+#ifdef WAP_ENABLED
+  #include <WiFi.h>
+#else
+  #ifdef WST_ENABLED
+    #include <WiFi.h>
+  #endif
 #endif
   
 #ifdef SCR_ENABLED  
-  #include "SSD1306.h"
-  #include "screen.h"
+  
+  #include "oled/OLEDDisplayUi.h"
+  #include "scr_images.h"
 #endif
 #ifdef BLE_ENABLED 
   #include "bluetooth.h"
@@ -35,9 +46,9 @@
 
 
 #ifdef SCR_ENABLED   
-    if (SCR_ENABLED){
-       SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST, GEOMETRY_128_64); // tambien esta GEOMETRY_128_64 pero depende del screen del HELTEC
-    } 
+  extern Heltec_ESP32 Heltec;
+  OLEDDisplayUi ui( Heltec.display );
+     
 #endif 
 
 // variables fijas para este demo
@@ -65,14 +76,110 @@ packet_t Buffer_packet;   // packet_t usado como buffer para mensajes incoming y
   String rxValue;
   String txValue;
 
+
+#ifdef SCR_ENABLED   
+
+void msOverlay(OLEDDisplay *display, OLEDDisplayUiState* state) {
+  display->setTextAlignment(TEXT_ALIGN_RIGHT);
+  display->setFont(ArialMT_Plain_10);
+  display->drawString(128, 0, String(millis()));
+}
+
+
+
+void drawFrame1(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+  display->setTextAlignment(TEXT_ALIGN_LEFT);
+  display->setFont(ArialMT_Plain_16);
+  display->drawString(x, y, "Nodes Locha Mesh");
+  display->setFont(ArialMT_Plain_10);
+  display->drawString(x, y + 25, "Total Neigbours:");
+  display->drawString(x+10, y + 35, (String)total_vecinos);
+  display->drawString(x, y + 45, "Total Blacklisted:");
+  display->drawString(x+10, y + 55, (String)total_nodos_blacklist);
+}
+
+void drawFrame2(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+  display->setTextAlignment(TEXT_ALIGN_LEFT);
+  display->setFont(ArialMT_Plain_16);
+  display->drawString(x, y, "Routes Locha Mesh");
+  display->setFont(ArialMT_Plain_10);
+  display->drawString(x, y + 25, "Total Routes:");
+  display->drawString(x, y + 35, (String)total_rutas);
+}
+
+void drawFrame3(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+  display->setTextAlignment(TEXT_ALIGN_LEFT);
+  display->setFont(ArialMT_Plain_16);
+  display->drawString(x, y, "Outcoming Queue");
+  display->setFont(ArialMT_Plain_10);
+  display->drawString(x, y + 25, "Total packets queue:");
+  display->drawString(x, y + 35, (String)total_mensajes_salientes);
+}
+
+void drawFrame4(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+  display->setTextAlignment(TEXT_ALIGN_LEFT);
+  display->setFont(ArialMT_Plain_16);
+  display->drawString(x, y, "Services");
+  display->setFont(ArialMT_Plain_10);
+  display->drawString(x, y + 25, "Wifi:");
+  String msg_screen="Inactive";
+  #ifdef WAP_ENABLED
+  msg_screen="Active";
+  #else
+    #ifdef WST_ENABLED
+       msg_screen="Active";
+    #endif
+  #endif
+  display->drawString(x, y + 35, "Lora:");
+  msg_screen="Inactive";
+  #ifdef RAD_ENABLED
+    msg_screen="Active";
+  #endif
+  display->drawString(x, y + 45, msg_screen);
+display->drawString(x, y + 55, "BLE:");
+  msg_screen="Inactive";
+  #ifdef BLE_ENABLED
+    msg_screen="Active";
+  #endif
+  display->drawString(x, y + 65, msg_screen);
+  
+}
+
+FrameCallback frames[] = { drawFrame1, drawFrame2, drawFrame3, drawFrame4 };
+
+int frameCount = 4;
+
+#endif
+
+
+
 void setup()
 {
-  DEBUG_BEGIN(BAUDRATE);
-  #ifdef DEBUG
+  bool display_enabled=false;
+  bool lora_enabled=false;
+  bool serial_enabled=false;
+ #ifdef DEBUG
+    serial_enabled=true;
+ #endif
+ #ifdef SCR_ENABLED
+    display_enabled=true;
+ #endif
+ #ifdef RAD_ENABLED
+    lora_enabled=true;
+ #endif
+
+ #ifdef DEBUG
+    DEBUG_BEGIN(BAUDRATE);
     while(!Serial);
     Serial.setDebugOutput(true);
     delay(2000);
-  #endif
+ #endif
+  
+    // se inicializa la libreria para Heltec
+    Heltec.begin(display_enabled /*DisplayEnable Enable*/, !lora_enabled /*LoRa Disable*/, serial_enabled /*Serial Enable*/);
+    
+  
+ 
   rxValue="";
   txValue="";
 
@@ -83,24 +190,34 @@ void setup()
         // activar módulo SCR
         // leer NVS,  verificar si existe registro
         // si existe aplicar, si no establecer parametros por defecto.
-        if (SCR_Vext)
-        {
-          pinMode(SCR_Vext, OUTPUT);
-          digitalWrite(SCR_Vext, LOW);
-          delay(50);
-        }
+       
+         #ifdef SCR_ENABLED
+      // se inicializa el display
+      ui.setTargetFPS(30);
+      // Customize the active and inactive symbol
+      ui.setActiveSymbol(activeSymbol);
+      ui.setInactiveSymbol(inactiveSymbol);
+      // You can change this to
+      // TOP, LEFT, BOTTOM, RIGHT
+      ui.setIndicatorPosition(BOTTOM);
     
-        bool SCR_isActive = display.init();
+      // Defines where the first frame is located in the bar.
+      ui.setIndicatorDirection(LEFT_RIGHT);
     
-        if (SCR_isActive)
-        {
-          DEBUG_PRINTLN(MSG_OK);
-          display.flipScreenVertically();
-          display.setTextAlignment(TEXT_ALIGN_LEFT);
-          display.setFont(ArialMT_Plain_10);
-          display.drawString(0, 0, "Starting ..");
-          display.display();
-        }
+      // You can change the transition that is used
+      // SLIDE_LEFT, SLIDE_RIGHT, SLIDE_UP, SLIDE_DOWN
+      ui.setFrameAnimation(SLIDE_LEFT);
+
+      // Add frames
+      ui.setFrames(frames, frameCount);
+    
+      // Initialising the UI will init the display too.
+      ui.init();
+    
+      Heltec.display->flipScreenVertically();
+  
+    #endif
+        
       }
       #endif
 
@@ -113,7 +230,7 @@ void setup()
         // 2.- si existe aplicar, si no establecer parametros por defecto.
         // 3.- activar la tarea
    
-            xTaskCreate(task_bluetooth, "task_bluetooth", 1024 * 2, NULL, 5, NULL);
+        //    xTaskCreate(task_bluetooth, "task_bluetooth", 1024 * 2, NULL, 5, NULL);
         
         
       }
@@ -156,18 +273,39 @@ void setup()
       }
       DEBUG_PRINT(id_node);
       DEBUG_PRINT(F(" >"));
-  
+
+pinMode(LED_PIN, OUTPUT);
+#ifdef LED_ENABLED
+    digitalWrite(LED_PIN, HIGH);
+#else
+    digitalWrite(LED_PIN, LOW);
+#endif
 }
 
 void loop()
 {
 
-          // se efectua el procesamiento de paquetes entrantes
+
+//  int remainingTimeBudget = ui.update();
+
+//  if (remainingTimeBudget > 0) {
+    // You can do some work here
+    // Don't do stuff if you are below your
+    // time budget.
+    
+ // se efectua el procesamiento de paquetes entrantes
           packet_processing_incoming();
           // se efectua el procesamiento de paquetes salientes
           packet_processing_outcoming();   
           // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
           #ifdef DEBUG
-            uint8_t rpta=show_debugging_info(vecinos,total_vecinos);
+              uint8_t rpta=show_debugging_info(vecinos,total_vecinos);
           #endif
+
+    
+//    delay(remainingTimeBudget);
+//  }
+         
+
+ 
 }

@@ -10,7 +10,7 @@
 #include "packet.h"
 #include "route.h"
 
-extern char id_node[16];
+extern char* id_node;
 extern packet_t Buffer_packet;
 
 
