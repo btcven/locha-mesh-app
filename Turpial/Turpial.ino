@@ -72,9 +72,11 @@ nodo_t blacklist[MAX_NODES_BLACKLIST];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 packet_t Buffer_packet;   // packet_t usado como buffer para mensajes incoming y outcoming
 
+unsigned long tiempo;
+
 // variables para trasmision BLE
-  String rxValue;
-  String txValue;
+  String rxValue="";
+  String txValue="";
 
 
 #ifdef SCR_ENABLED   
@@ -85,43 +87,42 @@ void msOverlay(OLEDDisplay *display, OLEDDisplayUiState* state) {
   display->drawString(128, 0, String(millis()));
 }
 
-
-
-void drawFrame1(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawFrame1(OLEDDisplay *display, int16_t x, int16_t y) {
+//void drawFrame1(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
   display->setTextAlignment(TEXT_ALIGN_LEFT);
   display->setFont(ArialMT_Plain_16);
-  display->drawString(x, y, "Nodes Locha Mesh");
+  display->drawString(x, y, "Node Locha Mesh");
   display->setFont(ArialMT_Plain_10);
-  display->drawString(x, y + 25, "Total Neigbours:");
-  display->drawString(x+10, y + 35, (String)total_vecinos);
-  display->drawString(x, y + 45, "Total Blacklisted:");
-  display->drawString(x+10, y + 55, (String)total_nodos_blacklist);
+  display->drawString(x, y + 20, "Total Neigbours:");
+  display->drawString(x+10, y + 30, (String)total_vecinos);
+  display->drawString(x, y + 40, "Total Blacklisted:");
+  display->drawString(x+10, y + 50, (String)total_nodos_blacklist);
 }
 
-void drawFrame2(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawFrame2(OLEDDisplay *display, int16_t x, int16_t y) {
   display->setTextAlignment(TEXT_ALIGN_LEFT);
   display->setFont(ArialMT_Plain_16);
   display->drawString(x, y, "Routes Locha Mesh");
   display->setFont(ArialMT_Plain_10);
-  display->drawString(x, y + 25, "Total Routes:");
-  display->drawString(x, y + 35, (String)total_rutas);
+  display->drawString(x, y + 20, "Total Routes:");
+  display->drawString(x, y + 30, (String)total_rutas);
 }
 
-void drawFrame3(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawFrame3(OLEDDisplay *display, int16_t x, int16_t y) {
   display->setTextAlignment(TEXT_ALIGN_LEFT);
   display->setFont(ArialMT_Plain_16);
   display->drawString(x, y, "Outcoming Queue");
   display->setFont(ArialMT_Plain_10);
-  display->drawString(x, y + 25, "Total packets queue:");
-  display->drawString(x, y + 35, (String)total_mensajes_salientes);
+  display->drawString(x, y + 20, "Total packets queue:");
+  display->drawString(x, y + 30, (String)total_mensajes_salientes);
 }
 
-void drawFrame4(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawFrame4(OLEDDisplay *display, int16_t x, int16_t y) {
   display->setTextAlignment(TEXT_ALIGN_LEFT);
   display->setFont(ArialMT_Plain_16);
   display->drawString(x, y, "Services");
   display->setFont(ArialMT_Plain_10);
-  display->drawString(x, y + 25, "Wifi:");
+  display->drawString(x, y + 20, "Wifi:");
   String msg_screen="Inactive";
   #ifdef WAP_ENABLED
   msg_screen="Active";
@@ -130,24 +131,24 @@ void drawFrame4(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int1
        msg_screen="Active";
     #endif
   #endif
-  display->drawString(x, y + 35, "Lora:");
+  display->drawString(x, y + 30, "Lora:");
   msg_screen="Inactive";
   #ifdef RAD_ENABLED
     msg_screen="Active";
   #endif
-  display->drawString(x, y + 45, msg_screen);
-display->drawString(x, y + 55, "BLE:");
+  display->drawString(x, y + 40, msg_screen);
+display->drawString(x, y + 50, "BLE:");
   msg_screen="Inactive";
   #ifdef BLE_ENABLED
     msg_screen="Active";
   #endif
-  display->drawString(x, y + 65, msg_screen);
+  display->drawString(x, y + 60, msg_screen);
   
 }
 
-FrameCallback frames[] = { drawFrame1, drawFrame2, drawFrame3, drawFrame4 };
+//FrameCallback frames[] = { drawFrame1, drawFrame2, drawFrame3, drawFrame4 };
 
-int frameCount = 4;
+//int frameCount = 4;
 
 #endif
 
@@ -191,7 +192,7 @@ void setup()
         // leer NVS,  verificar si existe registro
         // si existe aplicar, si no establecer parametros por defecto.
        
-         #ifdef SCR_ENABLED
+        
       // se inicializa el display
       ui.setTargetFPS(30);
       // Customize the active and inactive symbol
@@ -209,14 +210,14 @@ void setup()
       ui.setFrameAnimation(SLIDE_LEFT);
 
       // Add frames
-      ui.setFrames(frames, frameCount);
+//      ui.setFrames(frames, frameCount);
     
       // Initialising the UI will init the display too.
       ui.init();
     
       Heltec.display->flipScreenVertically();
   
-    #endif
+  
         
       }
       #endif
@@ -274,24 +275,57 @@ void setup()
       DEBUG_PRINT(id_node);
       DEBUG_PRINT(F(" >"));
 
-pinMode(LED_PIN, OUTPUT);
+
 #ifdef LED_ENABLED
-    digitalWrite(LED_PIN, HIGH);
-#else
-    digitalWrite(LED_PIN, LOW);
+    pinMode(LED_PIN, OUTPUT);
+    if (LED_ENABLED){
+        digitalWrite(LED_PIN, HIGH);
+    } else {
+        digitalWrite(LED_PIN, LOW);  
+    }
 #endif
+
+// se inicializa el control del tiempo
+tiempo=millis();
 }
+
+
+int pantalla_activa=1;
 
 void loop()
 {
 
-
-//  int remainingTimeBudget = ui.update();
-
-//  if (remainingTimeBudget > 0) {
-    // You can do some work here
-    // Don't do stuff if you are below your
-    // time budget.
+    
+    if (millis()-tiempo>3000){
+      Heltec.display->clear();
+      switch (pantalla_activa) {
+    case 1:
+     drawFrame1(Heltec.display, 0, 0);
+      break;
+    case 2:
+      drawFrame2(Heltec.display, 0, 0);
+      break;
+    default:
+      drawFrame3(Heltec.display, 0, 0);
+      // default is optional
+      break;
+  }
+  
+  pantalla_activa++;
+  tiempo=millis();
+  if (pantalla_activa>3){
+    pantalla_activa=1;
+  }
+  
+      Heltec.display->display();
+    }
+    
+if (millis()-tiempo<0){
+  tiempo=millis();
+}
+   
+    
+    
     
  // se efectua el procesamiento de paquetes entrantes
           packet_processing_incoming();
@@ -302,10 +336,5 @@ void loop()
               uint8_t rpta=show_debugging_info(vecinos,total_vecinos);
           #endif
 
-    
-//    delay(remainingTimeBudget);
-//  }
-         
-
- 
+  
 }
