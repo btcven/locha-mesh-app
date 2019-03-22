@@ -8,6 +8,8 @@
 #define MSG_ERROR            "ERROR"
 #define MSG_FAIL             "FAILED"
 #define MSG_COMMAND_LINE     "CMD>"
+#define MSG_ENABLED     "Enabled"
+#define MSG_DISABLED    "Disabled"
 
 //manejo de los caracteres espacio en blanco en memoria
 const char MSG_SPACE[]=" ";

@@ -55,6 +55,7 @@
 // ID unico del nodo
 char id_nodo_demo[]="turpial.0";
 
+#define OLED_SCREEN_INTERVAL 4000 
 
 char* id_node=id_nodo_demo;
 
@@ -239,23 +240,26 @@ void loop()
 {
 
     
-    if (millis()-tiempo>3000){
+    if (millis()-tiempo>OLED_SCREEN_INTERVAL){
       Heltec.display->clear();
       switch (pantalla_activa) {
     case 1:
-      drawFrame1(Heltec.display, 0, 0);
+      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
       break;
     case 2:
-      drawFrame2(Heltec.display, 0, 0);
+      drawframe_table_with_4_fields(Heltec.display, 0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos)+" bytes", "Size:", (String)sizeof(blacklist)+" bytes");
       break;
     case 3:
-      drawFrame3(Heltec.display, 0, 0);
+      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Routes Locha Mesh","Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable)+" bytes");
       break;
     case 4:
-      drawFrame4(Heltec.display, 0, 0);
+      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Outcoming Queue","Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes)+" bytes");
       break;
     case 5:
       drawFrame5(Heltec.display, 0, 0);
+      break;
+    case 6:
+      drawFrame_tech(Heltec.display, 0, 0);
       break;
     default:
      pantalla_activa=0;  //para que aparezca la primera pantalla
@@ -264,7 +268,7 @@ void loop()
   
   pantalla_activa++;
   tiempo=millis();
-  if (pantalla_activa>3){
+  if (pantalla_activa>6){
     pantalla_activa=1;
   }
   

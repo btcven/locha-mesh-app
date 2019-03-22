@@ -289,9 +289,10 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   char id_nodo_demo2[]="turpial.2";
   
   char* id_node=id_nodo_demo0;
-  
+  Serial.println("voy");
   if (id_nodo == "turpial.0")
   {
+    Serial.println("entre");
       copy_array_locha(id_nodo_demo0, nodo_actual.id, 16);
       copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
       uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
