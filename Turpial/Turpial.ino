@@ -5,6 +5,7 @@
 */
 #include <Arduino.h>
 #include <string.h>
+#include <Wire.h>
 
 // devices and default settings
 #include "hardware.h"
@@ -15,9 +16,8 @@
 #include "packet.h"
 #include "route.h"
 #include "debugging.h"
-
-#include <Wire.h>
-
+#include "fonts/DejaVu_Sans_12.h"
+#include "screens.h"
 
 
 #ifdef RAD_ENABLED
@@ -35,7 +35,7 @@
   
 #ifdef SCR_ENABLED  
   
-  #include "oled/OLEDDisplayUi.h"
+  #include "lib/heltec-oled/src/OLEDDisplayUi.h"
   #include "scr_images.h"
 #endif
 #ifdef BLE_ENABLED 
@@ -87,64 +87,7 @@ void msOverlay(OLEDDisplay *display, OLEDDisplayUiState* state) {
   display->drawString(128, 0, String(millis()));
 }
 
-void drawFrame1(OLEDDisplay *display, int16_t x, int16_t y) {
-//void drawFrame1(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
-  display->setTextAlignment(TEXT_ALIGN_LEFT);
-  display->setFont(ArialMT_Plain_16);
-  display->drawString(x, y, "Node Locha Mesh");
-  display->setFont(ArialMT_Plain_10);
-  display->drawString(x, y + 20, "Total Neigbours:");
-  display->drawString(x+10, y + 30, (String)total_vecinos);
-  display->drawString(x, y + 40, "Total Blacklisted:");
-  display->drawString(x+10, y + 50, (String)total_nodos_blacklist);
-}
 
-void drawFrame2(OLEDDisplay *display, int16_t x, int16_t y) {
-  display->setTextAlignment(TEXT_ALIGN_LEFT);
-  display->setFont(ArialMT_Plain_16);
-  display->drawString(x, y, "Routes Locha Mesh");
-  display->setFont(ArialMT_Plain_10);
-  display->drawString(x, y + 20, "Total Routes:");
-  display->drawString(x, y + 30, (String)total_rutas);
-}
-
-void drawFrame3(OLEDDisplay *display, int16_t x, int16_t y) {
-  display->setTextAlignment(TEXT_ALIGN_LEFT);
-  display->setFont(ArialMT_Plain_16);
-  display->drawString(x, y, "Outcoming Queue");
-  display->setFont(ArialMT_Plain_10);
-  display->drawString(x, y + 20, "Total packets queue:");
-  display->drawString(x, y + 30, (String)total_mensajes_salientes);
-}
-
-void drawFrame4(OLEDDisplay *display, int16_t x, int16_t y) {
-  display->setTextAlignment(TEXT_ALIGN_LEFT);
-  display->setFont(ArialMT_Plain_16);
-  display->drawString(x, y, "Services");
-  display->setFont(ArialMT_Plain_10);
-  display->drawString(x, y + 20, "Wifi:");
-  String msg_screen="Inactive";
-  #ifdef WAP_ENABLED
-  msg_screen="Active";
-  #else
-    #ifdef WST_ENABLED
-       msg_screen="Active";
-    #endif
-  #endif
-  display->drawString(x, y + 30, "Lora:");
-  msg_screen="Inactive";
-  #ifdef RAD_ENABLED
-    msg_screen="Active";
-  #endif
-  display->drawString(x, y + 40, msg_screen);
-display->drawString(x, y + 50, "BLE:");
-  msg_screen="Inactive";
-  #ifdef BLE_ENABLED
-    msg_screen="Active";
-  #endif
-  display->drawString(x, y + 60, msg_screen);
-  
-}
 
 //FrameCallback frames[] = { drawFrame1, drawFrame2, drawFrame3, drawFrame4 };
 
@@ -300,14 +243,22 @@ void loop()
       Heltec.display->clear();
       switch (pantalla_activa) {
     case 1:
-     drawFrame1(Heltec.display, 0, 0);
+      drawFrame1(Heltec.display, 0, 0);
       break;
     case 2:
       drawFrame2(Heltec.display, 0, 0);
       break;
-    default:
+    case 3:
       drawFrame3(Heltec.display, 0, 0);
-      // default is optional
+      break;
+    case 4:
+      drawFrame4(Heltec.display, 0, 0);
+      break;
+    case 5:
+      drawFrame5(Heltec.display, 0, 0);
+      break;
+    default:
+     pantalla_activa=0;  //para que aparezca la primera pantalla
       break;
   }
   
