@@ -1,72 +1,26 @@
 /**
- * (c) Copyright 2019 locha.io project developers
- * Licensed under a MIT license, see LICENSE file in the root folder
- * for a full text.
- */
-#ifndef RADIO_H_
-#define RADIO_H_
+   (c) Copyright 2019 locha.io project developers
+   Licensed under a MIT license, see LICENSE file in the root folder
+   for a full text.
+*/
 
-// HW abstraction layer for radio interfaces
-#include "lora.h"
+#ifndef RADIO_H 
+#define RADIO_H
 
-extern BUFFER_packet_t Buffer_packet;
+#include <Arduino.h>
 
-int  startup_radio(){
-if (RAD_ENABLED){
-    if (RADIOTYPE==1){
-      return startup_lora();
-    }  
-  } 
-  return 0;
-  
-}
+#define RADIO_ENABLED 1
 
+#ifdef RADIO_ENABLED
 
-int start_radio(){
-  
-//int start_receive();
-  if (RAD_ENABLED){
-    if (RADIOTYPE==1){  //1=LORA
-      return start_receive_lora_packets();
-    }  
-  } 
-  return 0;
-}
+#define RAD_SCK   5
+#define RAD_MISO  19
+#define RAD_MOSI  27
+#define RAD_CSS   18
+#define RAD_RST   14
+#define RAD_DIO0  26
+#define RAD_BAND  915.0
+#define PABOOST   true
+#endif
 
-int trasmit_package(packet_t mensaje){
-  if (RAD_ENABLED){
-    if (RADIOTYPE==1){
-      return trasmit_package_lora(mensaje){;
-    }  
-  } 
-  }
-  return 0;
-}
-
-int radio_isused(){
-   if (RAD_ENABLED){
-    if (RADIOTYPE==LORA){
-      return lora_enableInterrupt;
-      
-    }
-}
-  return null;
-}
-
-int receive_package(){
-  if (RAD_ENABLED){
-    if (RADIOTYPE==1){
-      return receive_package_lora(){;
-    }  
-  } 
-  }
-  return 0;
-}
-
-void scan_radio(String id_node){
-// update lora neighbors
- scan_lora(id_node);
-}
-
-
-#endif //RADIO_H_
+#endif // RADIO_H

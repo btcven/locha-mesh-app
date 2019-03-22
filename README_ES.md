@@ -35,6 +35,14 @@ Idealmente una red en topología mesh:
 - Auto-configuración: distribucion dinámica de carga de trabajo. (dynamic workload)
 - Interoperable entre diferentes dispositivos actuales o futuros (vendor agnostic)
 
+> Es muy importante destacar que **LoRa y LoraWAN** **no es lo mismo** si bien estan relacionados, cuando hablamos de LoRa solo nos referemos a la modulación, cuando hablamos de LoRaWAN nos referimos a una topología y protocolo concreto donde los dispositivos conectados usan la modulación LoRa. 
+
+Por lo tanto para cumplir el primer punto ningún nodo central otorga una identificación y es cada uno de los peers el encargado de asignarse su propio ID.
+Un ID no es mas que 16Bytes de una clave pública formada por 32 Bytes, por lo tanto mediante firmado con clave privada, cada nodo es capaz de demostrar su honestidad frente a otros.
+
+La cooperación no es mas una serie de reglas de consenso, donde si todos las cumplen, el resto de puntos tendrán exito, por lo cual se establecen mecanismos para la detección de nodos no honestos, todos se vigilan entre ellos para que cumplan las reglas, de lo contrario aquellos que pueden ser considerados atacantes son almacenados en una lista negra que será compartida entre los nodos vecinos.
+
+
 ---
 ##### Renuncia de responsabilidad
 El software se encuentra en una etapa muy temprana, actualmente estamos portando las fuentes,

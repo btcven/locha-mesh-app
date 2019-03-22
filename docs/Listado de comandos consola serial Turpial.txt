@@ -1,0 +1,37 @@
+Lista de comandos disponibles via serial al 20 de Marzo 2019:
+
+para nodos:
+SHOW  NODES     muestra los nodos en la tabla de nodos del sistema
+NODE CREATE XXXX      crea un nodo virtual en la tabla de nodos
+SHOW BLACKLIST  muestra los nodos en la tabla de blacklisted
+BLACKLIST NODE XXXX   coloca un nodo en blacklist
+
+para rutas:
+SHOW ROUTES     muestra la tabla de rutas
+
+para paquetes y cola de paquetes:
+SHOW QUEUE
+PACKET SHOW           muestra el contenido del Buffer_packet actualmente en memoria
+PACKET DELETE XXX     borra de la cola de paquetes salientes el que este identificado como xxx
+PACKET CREATE INCOMING TYPE FROM PAYLOAD            crea un paquete incoming del tipo TYPE asignado, cuyo origen es FROM y el contenido es PAYLOAD
+PACKET CREATE OUTCOMING TYPE TO PAYLOAD             crea un paquete outcoming del tupo TYPE asignado, cuyo destinatario es TO y el contenido es PAYLOAD
+
+globales:
+INFO            muestra el id unico del equipo
+CLEAR ALL       vacia las tablas de mensajes salientes, nodos y rutas
+
+para BLE:
+BLE CREATE INCOMING XXXX           asigna a la variable rxValue el valor XXXX
+BLE CREATE OUTCOMING XXXX          asigna a la variable txValue el valor XXXX
+BLE SHOW                           muestra el contenido de las variables rxValue y txValue
+
+para el demo:
+LOAD DEMO                          carga los nodos y rutas de acuerdo al nombre del nodo id_node definido para nuestro demo de 3 nodos
+
+
+NOTAS:
+Para que la consola funcione:
+En hardware.h debe estar #define degug sin comentar
+En turpial.ino en la linea char* id_node = "turpial.0";   pueden asignarle el nombre fijo que deseen al nodo, si se deja vacio le autoasigna un uniqueid, a efectos del demo se usan turpial.0 , turpial.1 y turpial.2 de acuerdo al valor que tenga esta varible va a cargar el contenido que corresponda el comando LOAD DEMO
+
+

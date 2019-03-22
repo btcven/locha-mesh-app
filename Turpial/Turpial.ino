@@ -3,117 +3,294 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
-#include "defaultStartup.h"
-#include "Configuration.h"
+#include <Arduino.h>
+#include <string.h>
+#include <Wire.h>
+
+// devices and default settings
+#include "hardware.h"
+#include "language_es.h"
+#include "boards_def.h"
+#include "memory_def.h"
 #include "general_functions.h"
-#include "routing.h"
-#include "radio.h"
+#include "packet.h"
+#include "route.h"
+#include "debugging.h"
+#include "fonts/DejaVu_Sans_12.h"
+#include "screens.h"
 
-#include <TaskScheduler.h>  // https://github.com/arkhipenko/TaskScheduler
 
-#define DEBUG 1
+#ifdef RAD_ENABLED
+  //#include <LoRaLib.h>
+  #include "heltec.h"
+#endif
 
-SCR_status_t  SCRStatus; // Screen Oled/lcd status
-BLE_status_t  BLEStatus; // BLE status
-WST_status_t  WSTStatus; // Wifi station client status
-WAP_status_t  WAPStatus; // Wifi Access Point  status
-RAD_status_t  RADStatus; // Radio status (acually Lora radio, but could works with other radios)
-BAT_status_t  BATStatus; // Battery status
-GPS_status_t  GPSStatus; // GPS status
+#ifdef WAP_ENABLED
+  #include <WiFi.h>
+#else
+  #ifdef WST_ENABLED
+    #include <WiFi.h>
+  #endif
+#endif
+  
+#ifdef SCR_ENABLED  
+  
+  #include "lib/heltec-oled/src/OLEDDisplayUi.h"
+  #include "scr_images.h"
+#endif
+#ifdef BLE_ENABLED 
+  #include "bluetooth.h"
+#endif 
 
-BUFFER_packet_t Buffer_packet; // Packet struct for buffering
 
-// unique node id
-char* id_node;
 
-// declare scheduler
-Scheduler runner;
 
-// watchdog 
-unsigned long wdt;
+#ifdef SCR_ENABLED   
+  extern Heltec_ESP32 Heltec;
+  OLEDDisplayUi ui( Heltec.display );
+     
+#endif 
 
-// prototype voids to be scheduled
-void scan_radio(String id_node);
-void scan_wifi();
+// variables fijas para este demo
+// ID unico del nodo
+char id_nodo_demo[]="turpial.0";
 
-// list of scheduled task
-// Task t1(20000, TASK_ONCE, &void_to_execute);  // se puede colocar muchos tipos de TASK, en este caso TASK_ONCE,TASK_FOREVER,TASK_IMMEDIATE o 2,3,4,5... es el numero de veces que se ejecuta, tambien se puede colcoar infinitas veces
-Task task_radio(30000, TASK_FOREVER, &scan_radio);  // se coloca cada 30 segundos por default, a tiempo de ejecucion se cambia segun lo que exista en el EPPROM colocado por el usuario
-Task task_wifi(60000, TASK_FOREVER, &scan_wifi);  // se coloca cada 60 segundos por default, a tiempo de ejecucion se cambia segun lo que exista en el EPPROM colocado por el usuario
+#define OLED_SCREEN_INTERVAL 5000 
 
-void scan_wifi(){
-// update wifi neighbors
-  // TODO
+char* id_node=id_nodo_demo;
+
+
+
+// includes internos
+uint8_t total_vecinos = 0; // cantidad de vecinos del nodo actual
+uint8_t total_rutas = 0;   // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
+uint8_t total_mensajes_salientes = 0;   // cantidad de mensajes en la cola
+uint8_t total_nodos_blacklist = 0;   // cantidad de nodos en blacklist
+
+rutas_t routeTable[MAX_ROUTES];
+nodo_t vecinos[MAX_NODES];
+nodo_t blacklist[MAX_NODES_BLACKLIST];
+message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+packet_t Buffer_packet;   // packet_t usado como buffer para mensajes incoming y outcoming
+
+unsigned long tiempo;
+
+// variables para trasmision BLE
+  String rxValue="";
+  String txValue="";
+
+
+#ifdef SCR_ENABLED   
+
+void msOverlay(OLEDDisplay *display, OLEDDisplayUiState* state) {
+  display->setTextAlignment(TEXT_ALIGN_RIGHT);
+  display->setFont(ArialMT_Plain_10);
+  display->drawString(128, 0, String(millis()));
 }
 
-void setup() {
-  Serial.begin(BAUDRATE);
 
+
+//FrameCallback frames[] = { drawFrame1, drawFrame2, drawFrame3, drawFrame4 };
+
+//int frameCount = 4;
+
+#endif
+
+
+
+void setup()
+{
+  bool display_enabled=false;
+  bool lora_enabled=false;
+  bool serial_enabled=false;
+ #ifdef DEBUG
+    serial_enabled=true;
+ #endif
+ #ifdef SCR_ENABLED
+    display_enabled=true;
+ #endif
+ #ifdef RAD_ENABLED
+    lora_enabled=true;
+ #endif
+
+ #ifdef DEBUG
+    DEBUG_BEGIN(BAUDRATE);
+    while(!Serial);
+    Serial.setDebugOutput(true);
+    delay(2000);
+ #endif
   
-// falta colocar los pre-check del boot d acuerdo a: https://gitlab.com/btcven/locha/app/blob/master/docs/first-boot.md
-  read_epprom_variables();
-  
-  // unique id to identify turpial node
-  id_node=create_unique_id();
-  
-  // Screen (aka SCR) active on boot?
-  if (SCR_ENABLED) {
-    SCRStatus.isEnabled = true;
-    Serial.printf(MSG_SCR_ALLOCATING);
-    if (screen_init()) {
-      SCRStatus.isActive = true;
-      Serial.printf(MSG_OK);
-    } else {
-      SCRStatus.isActive = false;
-      Serial.printf(MSG_ERROR);
-    }
-  }
-
-  // BLE iface active on boot?
-  if (BLE_ENABLED) {
-    BLEStatus.isEnabled = true;
-    // este task no esta casado a ningun core
-    xTaskCreate(bluetooth_task, "bluetooth_task", 4096, NULL, 5, NULL);
-  }
-
-  // RAD iface active on boot?
-  if (RAD_ENABLED) {
-     startup_radio();
-      start_radio();
-      // start scheduled jobs
-      //runner.init();
-      // scheduled control jobs
-      runner.addTask(task_radio);
-  }
-
-  // WAP iface active on boot?
-  if (WAP_ENABLED) {
-     // call to function start or task
-  }
-
-  // WST iface active on boot?
-  if (WST_ENABLED) {
-    // start scheduled jobs
-    //runner.init();
-    // scheduled control jobs
-    runner.addTask(task_wifi);
-  }
-start_radio();
-// for watchdog 
- setWD();
- xTaskCreatePinnedToCore(watchDog, "watchdog", 512, NULL, 1, NULL, 0);
-}
-
-// main loop for app
-void loop() { 
-    runner.execute();
-    unsigned long now = millis();
-
-  if (!radio_isused()){
-    int respuesta = receive_package();
-  }
-  int respuesta2 = procesar_buffer(Buffer_packet, neighborEntry,neighborTable[255], 0);
-  
-  // TODO check if deep sleep/wakeup enabled based on ESP32 UL coprocessor
+    // se inicializa la libreria para Heltec
+    Heltec.begin(display_enabled /*DisplayEnable Enable*/, !lora_enabled /*LoRa Disable*/, serial_enabled /*Serial Enable*/);
     
+  
+ 
+  rxValue="";
+  txValue="";
+
+      #ifdef SCR_ENABLED  
+      if (SCR_ENABLED)
+      {
+        DEBUG_PRINTLN(MSG_SCR_INIT);
+        // activar módulo SCR
+        // leer NVS,  verificar si existe registro
+        // si existe aplicar, si no establecer parametros por defecto.
+       
+        
+      // se inicializa el display
+      ui.setTargetFPS(30);
+      // Customize the active and inactive symbol
+      ui.setActiveSymbol(activeSymbol);
+      ui.setInactiveSymbol(inactiveSymbol);
+      // You can change this to
+      // TOP, LEFT, BOTTOM, RIGHT
+      ui.setIndicatorPosition(BOTTOM);
+    
+      // Defines where the first frame is located in the bar.
+      ui.setIndicatorDirection(LEFT_RIGHT);
+    
+      // You can change the transition that is used
+      // SLIDE_LEFT, SLIDE_RIGHT, SLIDE_UP, SLIDE_DOWN
+      ui.setFrameAnimation(SLIDE_LEFT);
+
+      // Add frames
+//      ui.setFrames(frames, frameCount);
+    
+      // Initialising the UI will init the display too.
+      ui.init();
+    
+      Heltec.display->flipScreenVertically();
+  
+  
+        
+      }
+      #endif
+
+      #ifdef BLE_ENABLED
+      if (BLE_ENABLED)
+      {
+        DEBUG_PRINTLN(F("[BLE] Initiating... "));
+        // -- activar módulo ble --
+        // 1.- leer NVS,  verificar si existe registro
+        // 2.- si existe aplicar, si no establecer parametros por defecto.
+        // 3.- activar la tarea
+   
+        //    xTaskCreate(task_bluetooth, "task_bluetooth", 1024 * 2, NULL, 5, NULL);
+        
+        
+      }
+      #endif
+
+      #ifdef WAP_ENABLED
+          if (WAP_ENABLED)
+          {
+            DEBUG_PRINT(F("[WAP] Initiating... "));
+            // -- activar módulo wap --
+          }
+      #endif
+  #ifdef WST_ENABLED
+  if (WST_ENABLED)
+  {
+    DEBUG_PRINTLN(F("[WST] Initiating... "));
+    // -- activar módulo wst --
+    // 1.- leer NVS,  verificar si existe registro
+    // 2.- si existe aplicar, si no establecer parametros por defecto.
+  }
+   #endif
+  #ifdef RAD_ENABLED
+  if (RAD_ENABLED)
+  {
+    DEBUG_PRINTLN(F("[RAD] Initiating... "));
+    // -- activar modulo de radio --
+    // 1.- leer NVS,  verificar si existe registro
+    // 2.- si existe aplicar, si no establecer parametros por defecto.
+    // 3.- iniciar.
+    // xTaskCreate(task_rad, "task_rad", ...);
+  }
+ #endif
+ 
+// se coloca el cursor en el terminal serial
+ 
+      DEBUG_PRINTLN(F("Starting terminal"));
+      // se genera el node_id solo si no existe
+      if (id_node==""){
+         create_unique_id(id_node);
+      }
+      DEBUG_PRINT(id_node);
+      DEBUG_PRINT(F(" >"));
+
+
+#ifdef LED_ENABLED
+    pinMode(LED_PIN, OUTPUT);
+    if (LED_ENABLED){
+        digitalWrite(LED_PIN, HIGH);
+    } else {
+        digitalWrite(LED_PIN, LOW);  
+    }
+#endif
+
+// se inicializa el control del tiempo
+tiempo=millis();
+}
+
+
+int pantalla_activa=1;
+
+void loop()
+{
+
+    
+    if (millis()-tiempo>OLED_SCREEN_INTERVAL){
+      Heltec.display->clear();
+      switch (pantalla_activa) {
+    case 1:
+      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
+      break;
+    case 2:
+      drawframe_table_with_4_fields(Heltec.display, 0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos)+" bytes", "Size:", (String)sizeof(blacklist)+" bytes");
+      break;
+    case 3:
+      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Routes Locha Mesh","Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable)+" bytes");
+      break;
+    case 4:
+      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Outcoming Queue","Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes)+" bytes");
+      break;
+    case 5:
+      drawFrame5(Heltec.display, 0, 0);
+      break;
+    case 6:
+      drawFrame_tech(Heltec.display, 0, 0);
+      break;
+    default:
+     pantalla_activa=0;  //para que aparezca la primera pantalla
+      break;
+  }
+  
+  pantalla_activa++;
+  tiempo=millis();
+  if (pantalla_activa>6){
+    pantalla_activa=1;
+  }
+  
+      Heltec.display->display();
+    }
+    
+if (millis()-tiempo<0){
+  tiempo=millis();
+}
+   
+    
+    
+    
+ // se efectua el procesamiento de paquetes entrantes
+          packet_processing_incoming();
+          // se efectua el procesamiento de paquetes salientes
+          packet_processing_outcoming();   
+          // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
+          #ifdef DEBUG
+         
+              uint8_t rpta=show_debugging_info(vecinos,total_vecinos);
+          #endif
+
+  
 }
