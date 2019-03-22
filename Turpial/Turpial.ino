@@ -55,7 +55,7 @@
 // ID unico del nodo
 char id_nodo_demo[]="turpial.0";
 
-#define OLED_SCREEN_INTERVAL 4000 
+#define OLED_SCREEN_INTERVAL 5000 
 
 char* id_node=id_nodo_demo;
 
@@ -288,6 +288,7 @@ if (millis()-tiempo<0){
           packet_processing_outcoming();   
           // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
           #ifdef DEBUG
+         
               uint8_t rpta=show_debugging_info(vecinos,total_vecinos);
           #endif
 

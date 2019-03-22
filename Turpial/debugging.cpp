@@ -287,10 +287,26 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   char id_nodo_demo0[]="turpial.0";
   char id_nodo_demo1[]="turpial.1";
   char id_nodo_demo2[]="turpial.2";
+
+
+char id_nodo_demo[]="turpial.0";
+
+#define OLED_SCREEN_INTERVAL 4000 
+
+
   
   char* id_node=id_nodo_demo0;
   Serial.println("voy");
-  if (id_nodo == "turpial.0")
+  Serial.println(id_nodo);
+  Serial.println(id_nodo_demo0);
+  
+  if (id_nodo == "turpial.0"){
+    Serial.println("son iguales");
+  } else {
+    Serial.println("no lo son");
+  }
+  
+  if (id_nodo == id_nodo_demo0)
   {
     Serial.println("entre");
       copy_array_locha(id_nodo_demo0, nodo_actual.id, 16);
@@ -336,7 +352,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
     String str_buffer_serial_received="";
     String mensaje="";
     bool ejecute=false;
-   
+
     if (Serial.available()) {
       
       str_buffer_serial_received=Serial.readStringUntil('\n');
@@ -380,6 +396,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            Serial.println("entrando...");
             uint8_t rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -573,7 +590,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
          }
-         }
+         
         // Serial.println("sali de la funcion debugging");
          if (ejecute){
             DEBUG_PRINTLN(">");
@@ -582,6 +599,8 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             DEBUG_PRINTLN((String)str_buffer_serial_received+MSG_SPACE+MSG_FAIL);
           }
          }
+
+    }
            #endif   // del #ifdef DEBUG
          return 0;
          }
