@@ -11,9 +11,11 @@
 extern std::string txValue;
 extern std::string rxValue;
 
+
 // recibe un paquete
 void onReceive(int packetSize) {
-  // txValue=packet
+  // txValue << packet
+  // pasar a la variable txValue.
   for (int i = 0; i < packetSize; i++) {
     Serial.print((char)LoRa.read());
   }
@@ -23,9 +25,10 @@ void onReceive(int packetSize) {
 // envía un paquete.
 void radioSend(std::string _data) {
   LoRa.beginPacket();
-  LoRa.print(_data);
+  LoRa.print(_data.c_str());
   int done = LoRa.endPacket();
   if (done) {
+    
     //LoRa.onReceive(onReceive);
     LoRa.receive();
   }
@@ -62,10 +65,6 @@ void task_radio(void *params) {
     if (txValue.size() > 0) {
       Serial.println(txValue.c_str());
 
-    }
-    if (rxValue.size() > 0) {
-      Serial.println(rxValue.c_str());
-      rxValue.clear();
     }
     delay(10);
   }
