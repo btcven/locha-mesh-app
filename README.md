@@ -1,5 +1,5 @@
 # Locha
-We are happy of your visit and that you can read more about us. Here you can find the main firmware for your device compatible with lochaMesh and be aware of our development process.
+We are happy of your visit and that you can read more about us. Here you can find the main firmware for your device compatible with **lochaMesh** and be aware of our development process.
 
 ## What's locha?
 The locha mesh network is a radio network for text messaging and bitcoin transactions.

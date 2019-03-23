@@ -1,54 +1,62 @@
-# locha-mesh-app
-Central application of locha mesh network
+# locha
+Nos encanta que nos visites y puedas leer mas acerca de nosotros. Aquí puedes encontrar el firmware para tu dispositivo compatible con **lochaMesh** y estar al tanto del proceso de desarrollo. 
 
 ## ¿Que es locha?
 
-La  idea del proyect **locha** parte de tres puntos fundamentales; privacidad, resistencia a censura y la no siempre disponibilidad de acceso a una infraestructura para la transmisión de datos.
-Existen soluciones similares en el mercado para mensajería de texto o cartera Bitcoin, pero entendemos que, hay un handicap difícil de superar en aquellos lugares que de verdad serían necesarios, ya sea por coste, falta de transporte o cierre de fronteras.
-
-El total de la infraestructura necesaria para el correcto funcionamiento está formada por los propios nodos en una topología mesh<sub>[(1)](https://en.wikipedia.org/wiki/Mesh_networking)</sub>, estos, sobre los que actualmente estamos trabajando y denominamos, Turpial<sub>[(2)](https://)</sub> y Harpia<sub>[(3)](https://)</sub>.
-
-Ambos ofrecen la funcionalidad de peer, pero por cuestiones técnicas, como es capacidad de procesamiento, RAM disponible, almacenamiento en disco ó conectividad, Harpia ofrece capacidad extendida además de peer, como puede ser push de transacciones a la red Bitcoin<sub>[(4)](https://)</sub> o servidores Electrum<sub>[(5)](https://)</sub>, interconexión lochaMesh-lochaMesh<sub>(img.a)</sub> a través de internet, etc.
-```mermaid
-graph LR
-subgraph lochaMesh
-mesh1((peers)) --> a[Harpia]
-end
-
-a[Harpia]--internet--> b[Harpia]
-
-subgraph lochaMesh
-b[Harpia] --> mesh2((peers))
-end
-
-classDef green fill:#9f6, stroke:#222, stroke-width:0.6px;
-class a,b green
-
-```
-<sup>img.a interconexión lochaMesh~lochaMesh</sup>
-
-## ¿Como funciona?
-Idealmente una red en topología mesh:
-- Todos son peers: no existe categorización cliente, servidor.
-- Todos cooperan:
-- Auto-organización:
-- Auto-configuración: distribucion dinámica de carga de trabajo. (dynamic workload)
-- Interoperable entre diferentes dispositivos actuales o futuros (vendor agnostic)
-
-> Es muy importante destacar que **LoRa y LoraWAN** **no es lo mismo** si bien estan relacionados, cuando hablamos de LoRa solo nos referemos a la modulación, cuando hablamos de LoRaWAN nos referimos a una topología y protocolo concreto donde los dispositivos conectados usan la modulación LoRa. 
-
-Por lo tanto para cumplir el primer punto ningún nodo central otorga una identificación y es cada uno de los peers el encargado de asignarse su propio ID.
-Un ID no es mas que 16Bytes de una clave pública formada por 32 Bytes, por lo tanto mediante firmado con clave privada, cada nodo es capaz de demostrar su honestidad frente a otros.
-
-La cooperación no es mas una serie de reglas de consenso, donde si todos las cumplen, el resto de puntos tendrán exito, por lo cual se establecen mecanismos para la detección de nodos no honestos, todos se vigilan entre ellos para que cumplan las reglas, de lo contrario aquellos que pueden ser considerados atacantes son almacenados en una lista negra que será compartida entre los nodos vecinos.
-
+La red mesh de Locha es una red via radio para el intercambio de **mensajes de texto** o **transacciones Bitcoin**
+El principal objetivo es conseguir establecer una red de largo alcance para cualquier persona en cualquier lugar, por esta razón, estamos trabajando no solo en la creación del protocolo, tambien en el firmware de dispositivos asequibles, como **Turpial** ó **Harpia**.  _([saber más](sobre locha y objetivos))_
 
 ---
-##### Renuncia de responsabilidad
-El software se encuentra en una etapa muy temprana, actualmente estamos portando las fuentes,
-desde el repositorio privado al este público, por lo que no puede considerarse en ningun caso estable.
 
-***
+#### Turpial
 
-Este software se encuentra bajo la licencia MIT, se adjunta por lo tanto una copia de la misma [aquí](https://github.com/btcven/locha-mesh-app/blob/master/LICENSE)
- 
+Es un pequeño dispositivo portatil basado en un MCU [ESP32](https://www.espressif.com/en/products/hardware/esp-wroom-32/overview).
+
+**Características**
+- Doble nucleo de 32 bits a 240 MHz de reloj.
+- 8MB de almacenamiento flash.
+- WiFi b/g/n doble modo Punto de acceso(AP) y cliente(ST)
+- Bluetooth (Para acceso al administrador)
+- Módulo de radio (para la red mesh de largo alcance)
+- Batería de 1000 mAh
+- micro USB para cargar la bateria y actualización de software.
+- Pantalla OLED de 0.96".
+
+_([descubre Turpial](saber mas sobre Turpial))_
+
+---
+
+#### Harpia
+
+**Características**
+- Cuádruple nucleo de 64 bits a 1.4 Ghz de reloj.
+- Almacena hasta 128Gb.
+- WiFi doble modo, doble banda 2.4Ghz/5Ghz.
+- Bluetooth 4.2
+- Módulo de radio (para la red mesh de largo alcance).
+- Ethernet port.
+- 4 USB ports.
+
+_([descubre Harpia](saber mas sobre Harpia))_
+
+---
+
+### ¿Es posible instalar el firmware de locha en otros dispositivos?
+
+¡Claro! Hemos probado su instalación en routers domésticos con openWRT, algunos MCUs de ARM pueden ser uns estupenda opción para hacerlo. El firmware usa poca memoria RAM y estamos intentando seguir la linea de un producto agnóstico al hardware o marca concreta.
+
+
+## El Código
+* En el siguiente repo puedes encontrar el firmware para [Turpial](Turpial) y [Harpia](Harpia) (soon).
+* Documentos de carácter general y otras cosas [Docs](docs)
+* La aplicación movil usada por locha [aqui](https://)
+
+#### Atención
+Nos encanta que leas el código y compartas tus ideas, algunas cosas en los repositorios estan en una etapa muy temprana. Recomendamos encarecidamente que esperes a futuras releases del software antes de usarlo.
+
+## Licencia
+Copyright (c) 2019 desarrolladores de locha.io
+
+El software está bajo una licencia [MIT](LICENSE), puedes leer el texto completo de la misma _[aquí](LICENSE)_.
+
+Léeme en:  [English](README.md), [Portugués](README_PT.md)
