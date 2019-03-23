@@ -1,9 +1,9 @@
-# locha
+﻿# locha
 Nos encanta que nos visites y puedas leer mas acerca de nosotros. Aquí puedes encontrar el firmware para tu dispositivo compatible con **lochaMesh** y estar al tanto del proceso de desarrollo. 
 
 ## ¿Que es locha?
 
-La red mesh de Locha es una red via radio para el intercambio de **mensajes de texto** o **transacciones Bitcoin**
+La red mesh de Locha es una red segura via radio para el intercambio de **mensajes de texto** o **transacciones Bitcoin**
 El principal objetivo es conseguir establecer una red de largo alcance para cualquier persona en cualquier lugar, por esta razón, estamos trabajando no solo en la creación del protocolo, tambien en el firmware de dispositivos asequibles, como **Turpial** ó **Harpia**.  _([saber más](sobre locha y objetivos))_
 
 ---

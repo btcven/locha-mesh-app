@@ -1,8 +1,8 @@
-# Locha
+﻿# Locha
 We are happy of your visit and that you can read more about us. Here you can find the main firmware for your device compatible with **lochaMesh** and be aware of our development process.
 
 ## What's locha?
-The locha mesh network is a radio network for text messaging and bitcoin transactions.
+The locha mesh network is a secure radio network for text messaging and bitcoin transactions.
 The main objetive is a long range network for everyone and everywhere, for this reason, we are working not only in a protocol, also the firmware for affordable devices like "Turpial" or "Harpia".
 
 Check out [/docs](docs) for to know more.

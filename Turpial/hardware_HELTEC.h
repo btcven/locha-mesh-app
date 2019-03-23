@@ -13,7 +13,7 @@
 //#define NOWIFI_DEVICE
 
 // define display settings.
-#define SCR_ENABLED false
+#define SCR_ENABLED true
 #ifdef SCR_ENABLED
   #define SCR_ADD 0x3C
   #define RST_OLED 16

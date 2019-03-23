@@ -103,16 +103,39 @@ void setup()
   bool display_enabled=false;
   bool lora_enabled=false;
   bool serial_enabled=false;
+  bool wifi_enabled=false;
+  
  #ifdef DEBUG
     serial_enabled=true;
  #endif
  #ifdef SCR_ENABLED
+ if (SCR_ENABLED) {
     display_enabled=true;
+ } else {
+      display_enabled=false;
+    }
  #endif
  #ifdef RAD_ENABLED
+ if (RAD_ENABLED) {
     lora_enabled=true;
+ } else {
+      lora_enabled=false;
+    }
  #endif
-
+ #ifdef WST_ENABLED
+ if (WST_ENABLED) {
+    wifi_enabled=true;
+ } else {
+      wifi_enabled=false;
+    }
+ #endif
+  #ifdef WAP_ENABLED
+ if (WAP_ENABLED) {
+    wifi_enabled=true;
+ } else {
+      wifi_enabled=false;
+    }
+ #endif
  #ifdef DEBUG
     DEBUG_BEGIN(BAUDRATE);
     while(!Serial);

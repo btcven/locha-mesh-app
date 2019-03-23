@@ -289,26 +289,17 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   char id_nodo_demo2[]="turpial.2";
 
 
-char id_nodo_demo[]="turpial.0";
+//char id_nodo_demo[]="turpial.0";
 
 #define OLED_SCREEN_INTERVAL 4000 
 
 
   
   char* id_node=id_nodo_demo0;
-  Serial.println("voy");
-  Serial.println(id_nodo);
-  Serial.println(id_nodo_demo0);
   
-  if (id_nodo == "turpial.0"){
-    Serial.println("son iguales");
-  } else {
-    Serial.println("no lo son");
-  }
-  
-  if (id_nodo == id_nodo_demo0)
+  if ((String)id_nodo == (String)id_nodo_demo0)
   {
-    Serial.println("entre");
+    
       copy_array_locha(id_nodo_demo0, nodo_actual.id, 16);
       copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
       uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
@@ -317,7 +308,7 @@ char id_nodo_demo[]="turpial.0";
       create_route(nodo_actual, nodo_vecino, nodo_vecino);
    
   }
-  if (id_nodo == "turpial.1")
+  if ((String)id_nodo == (String)id_nodo_demo1)
   {
     nodo_t nodo_vecino2;
   
@@ -333,7 +324,7 @@ char id_nodo_demo[]="turpial.0";
     create_route(nodo_actual, nodo_vecino2, nodo_vecino2);
   }
   
-  if (id_nodo == "turpial.2")
+  if ((String)id_nodo == (String)id_nodo_demo2)
   {
     copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
     uint8_t rpta=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
@@ -396,8 +387,9 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-            Serial.println("entrando...");
-            uint8_t rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
+            // primero se vacian las tablas para que el ambiente quede solo para el demo
+             uint8_t rpta=vaciar_tablas();
+            rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
