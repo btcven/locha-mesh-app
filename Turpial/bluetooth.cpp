@@ -10,15 +10,12 @@
 */
 
 #include <Arduino.h>
-//#include "debugging.h"
-// solo se compila bluetooth para el ESP32
-#ifdef MCU_ESP32
-
 #include <BLEServer.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include "bluetooth.h"
+#include "radio.h"
 
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
@@ -26,44 +23,46 @@ BLECharacteristic *rx_uart;
 
 std::string server_name = "mesh.locha.io";
 
-extern String rxValue;
-extern String txValue;
-
+std::string txValue;
+std::string rxValue;
 
 bool deviceConnected = false;
 
 class ServerCB : public BLEServerCallbacks
 {
-  void onConnect(BLEServer *ble_server)
-  {
-    deviceConnected = true;
-  }
-  void onDisconnect(BLEServer *ble_server)
-  {
-    deviceConnected = false;
-    DEBUG_PRINTLN();
-    delay(500);
-    ble_server->startAdvertising();
-  }
+    void onConnect(BLEServer *ble_server)
+    {
+      deviceConnected = true;
+    }
+    void onDisconnect(BLEServer *ble_server)
+    {
+      deviceConnected = false;
+      Serial.println("[BLE] restart advertising...");
+      delay(500);
+      ble_server->startAdvertising();
+    }
 };
 
 class characteristicCB : public BLECharacteristicCallbacks
 {
-  void onWrite(BLECharacteristic *pCharacteristic)
-  {
-    // movil -> ble_server(Turpial)
-    rxValue = pCharacteristic->getValue();
-    // si tenemos datos podemos enviarlos via radio desde aqui. 
-    if (rxValue.size() > 0)
+    void onWrite(BLECharacteristic *pCharacteristic)
     {
-      DEBUG_PRINT("[BLE] Received: ");
-      DEBUG_PRINTLN(rxValue.c_str());
+      // movil -> ble_server(Turpial)
+      rxValue = pCharacteristic->getValue();
+      // si tenemos datos podemos enviarlos via radio desde aqui.
+      if (rxValue.size() > 0)
+      {
+        Serial.print("[BLE] Received: ");
+        Serial.println(rxValue.c_str());
+        radioSend(rxValue);
+        rxValue.clear();
+
+      }
     }
-  }
-  void onRead(BLECharacteristic *pCharacteristic)
-  {
-    // hay que hacer algo cuando el flujo de datos es: ble_server(Turpial) -> movil
-  }
+    void onRead(BLECharacteristic *pCharacteristic)
+    {
+      // hay que hacer algo cuando el flujo de datos es: ble_server(Turpial) -> movil
+    }
 };
 
 void task_bluetooth(void *params)
@@ -107,8 +106,8 @@ void task_bluetooth(void *params)
       // hay un movil conectado, notificamos y enviamos los datos
       if (txValue.size() > 0)
       {
-        DEBUG_PRINT("[BLE] Sending: ");
-        DEBUG_PRINTLN(txValue.c_str());
+        Serial.print("[BLE] Sending: ");
+        Serial.println(txValue.c_str());
         tx_uart->setValue(txValue);
         tx_uart->notify();
         txValue.clear();
@@ -122,7 +121,7 @@ void task_bluetooth(void *params)
       // de mensajes pendientes de entrega.
       if (txValue.size() > 0)
       {
-       DEBUG_PRINTLN("Device not connected to BLE interface");
+        Serial.println("Device not connected to BLE interface");
         // - ToDo: guardamos los mensajes
         // - limpiamos la variable
         txValue.clear();
@@ -131,5 +130,3 @@ void task_bluetooth(void *params)
     }
   } // WHILE
 };
-
-#endif   // del define del MCU

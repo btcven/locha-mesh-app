@@ -77,15 +77,21 @@ void drawFrame5(OLEDDisplay *display, int16_t x, int16_t y) {
   display->setFont(DejaVu_Sans_10);
    String msg_screen="Inactive";
   #ifdef WAP_ENABLED
-    msg_screen="Active";
+    msg_screen="Active WAP";
     if (WAP_ENABLED){
+       #ifdef WST_ENABLED
+          if (WST_ENABLED){
+             msg_screen="Active WAP/WST";
+          }
+       #endif
       msg_screen=msg_screen+F("-"+MSG_ENABLED);
+      
     } else {
       msg_screen=msg_screen+F("-"+MSG_DISABLED);
     }
   #else
     #ifdef WST_ENABLED
-       msg_screen="Active";
+       msg_screen="Active WST";
        if (WST_ENABLED){
           msg_screen=msg_screen+F("-"+MSG_ENABLED);
         } else {

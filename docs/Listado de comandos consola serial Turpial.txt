@@ -24,8 +24,9 @@ para BLE:
 BLE CREATE INCOMING XXXX           asigna a la variable rxValue el valor XXXX
 BLE CREATE OUTCOMING XXXX          asigna a la variable txValue el valor XXXX
 BLE SHOW                           muestra el contenido de las variables rxValue y txValue
+BLE CLEAR                          limpia el buffer BLE (rxValue y txValue)
 
-para el demo:
+para cargar los nodos y rutas del demo:
 LOAD DEMO                          carga los nodos y rutas de acuerdo al nombre del nodo id_node definido para nuestro demo de 3 nodos
 
 

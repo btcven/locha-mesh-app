@@ -23,6 +23,7 @@
 #ifdef RAD_ENABLED
   //#include <LoRaLib.h>
   #include "heltec.h"
+  #include "radio.h"
 #endif
 
 #ifdef WAP_ENABLED
@@ -198,8 +199,7 @@ void setup()
         // 2.- si existe aplicar, si no establecer parametros por defecto.
         // 3.- activar la tarea
    
-        //    xTaskCreate(task_bluetooth, "task_bluetooth", 1024 * 2, NULL, 5, NULL);
-        
+         xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
         
       }
       #endif
@@ -228,7 +228,7 @@ void setup()
     // 1.- leer NVS,  verificar si existe registro
     // 2.- si existe aplicar, si no establecer parametros por defecto.
     // 3.- iniciar.
-    // xTaskCreate(task_rad, "task_rad", ...);
+     xTaskCreate(task_radio, "task_radio", 2048, NULL, 5, NULL);
   }
  #endif
  

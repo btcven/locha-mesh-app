@@ -4,39 +4,71 @@
    for a full text.
 */
 #include <Arduino.h>
-#include <LoRaLib.h> 
+#include <SPI.h>
+#include "lib/LoRa/src/LoRa.h"
 #include "radio.h"
-using namespace std;
+
+extern std::string txValue;
+extern std::string rxValue;
 
 
-extern String txValue;
-extern String rxValue;
-
-// flag to indicate that a packet was received
-volatile bool receivedFlag = false;
-
-// disable interrupt when it's not needed
-volatile bool enableInterrupt = true;
-
-void setFlag(void)
-{
-  if (!enableInterrupt)
-  {
-    return;
+// recibe un paquete
+void onReceive(int packetSize) {
+  // txValue << packet
+  // pasar a la variable txValue.
+  for (int i = 0; i < packetSize; i++) {
+    Serial.print((char)LoRa.read());
   }
-
-  // we got a packet, set the flag
-  receivedFlag = true;
+  Serial.print("\n");
 }
 
-void task_radio(void *pvParams) {
-  SX1276 radio = new LoRa(RAD_CSS, RAD_DIO0, RAD_RST);
-  DEBUG_PRINT("[RAD] Initializing ... ");
-  int state = radio.begin(RAD_BAND);
-  if (state == ERR_NONE) {
-    DEBUG_PRINTLN(MSG_OK);
-  } else {
-    DEBUG_PRINTLN("FAILED");
+// envía un paquete.
+void radioSend(std::string _data) {
+  LoRa.beginPacket();
+  LoRa.print(_data.c_str());
+  int done = LoRa.endPacket();
+  if (done) {
+    
+    //LoRa.onReceive(onReceive);
+    LoRa.receive();
   }
+  // ..::HEADER::..
+  // from:
+  // to: from_phone
+  // time: from_phone
+  // ..::BODY::..
+  // payload
+}
+
+void task_radio(void *params) {
+
+  Serial.print(F("[RAD] Initializing ... "));
+
+  SPI.begin(RAD_SCK, RAD_MISO, RAD_MOSI, RAD_CSS);
+  LoRa.setPins(RAD_CSS, RAD_RST, RAD_DIO0);
+
+  int rad_isInit = LoRa.begin(RAD_BAND, PABOOST);
+
+  if (rad_isInit) {
+    Serial.println("OK");
+  } else {
+    Serial.println("ERROR");
+    // kill task by task handler
+  }
+
+  // al recibir ejecutar el callback onReceive()
+  LoRa.onReceive(onReceive);
+  // ponemos en modo recepcion.
+  LoRa.receive();
+
+  while (1) {
+    if (txValue.size() > 0) {
+      Serial.println(txValue.c_str());
+
+    }
+    delay(10);
+  }
+
+
 
 };

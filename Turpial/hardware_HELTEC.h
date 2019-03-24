@@ -41,16 +41,16 @@
 
 // -- Default RAD Settings 
 // Radio Module
-  #define RAD_SCK     5 // pin?
-  #define RAD_CSS     18
-  #define RST_LoRa     14
-  #define RAD_MISO    19 // pin?
-  #define RAD_MOSI    27 // pin?
-  #define DIO0    26
-  #define DIO1    33
-  #define DIO2    32
-  #define RAD_BAND    915E6
-  #define RAD_PABOOST true
+ // #define RAD_SCK     5 // pin?
+//  #define RAD_CSS     18
+//  #define RST_LoRa     14
+//  #define RAD_MISO    19 // pin?/
+//  #define RAD_MOSI    27 // pin?
+//  #define DIO0    26
+//  #define DIO1    33
+//  #define DIO2    32
+//  #define RAD_BAND    915E6
+//  #define RAD_PABOOST true
  
 
 #endif // RAD

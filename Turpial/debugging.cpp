@@ -207,7 +207,7 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
       id_temporal_next_neighbor=next_neighbor.id;
       DEBUG_PRINT((String)id_temporal_origen);
       DEBUG_PRINT(F(" -> "));
-      if (id_temporal_destino!=id_temporal_next_neighbor){
+      if ((String)id_temporal_destino!=(String)id_temporal_next_neighbor){
           DEBUG_PRINT((String)id_temporal_next_neighbor);
           DEBUG_PRINT(F(" -> "));
       }
@@ -452,12 +452,22 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
          mensaje=F("BLE SHOW");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
             str_buffer_serial_received="";
-              
             DEBUG_PRINT("txValue=");
             DEBUG_PRINTLN(txValue);
             DEBUG_PRINT("rxValue=");
             DEBUG_PRINTLN(rxValue);
+            DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
+            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             
+            ejecute=true;
+         }
+         // limpia el buffer BLE (rxValue y txValue)
+         mensaje=F("BLE CLEAR");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+            str_buffer_serial_received="";
+            txValue="";
+            rxValue="";
+            DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             
             ejecute=true;
