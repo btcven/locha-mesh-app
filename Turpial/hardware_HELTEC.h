@@ -61,7 +61,7 @@
 // -- Default WAP Settings BLOCK --
 #endif // WAP
 
-#define WST_ENABLED false
+#define WST_ENABLED true
 #ifdef WST_ENABLED
 // -- Default WST Settings BLOCK --
 #endif // WST

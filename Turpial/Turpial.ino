@@ -34,8 +34,9 @@
 #endif
   
 #ifdef SCR_ENABLED  
+
   extern Heltec_ESP32 Heltec;
-  
+  OLEDDisplay *display = Heltec.display;
   #include "scr_images.h"
 #endif
 #ifdef BLE_ENABLED 
@@ -136,9 +137,10 @@ void setup()
        
         
       // se inicializa el display
-      Heltec.display->init();
-      Heltec.display->flipScreenVertically();
-      
+      //Heltec.display->init();
+      //Heltec.display->flipScreenVertically();
+      display->init();
+      display->flipScreenVertically();
   
         
       }
@@ -218,25 +220,32 @@ void loop()
 
     
     if (millis()-tiempo>OLED_SCREEN_INTERVAL){
-      Heltec.display->clear();
+      //Heltec.display->clear();
+      display->clear();
       switch (pantalla_activa) {
     case 1:
-      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
+     // drawframe_title_with_2_fields(Heltec.display, 0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
+      drawframe_title_with_2_fields(display, 0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
       break;
     case 2:
-      drawframe_table_with_4_fields(Heltec.display, 0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos)+" bytes", "Size:", (String)sizeof(blacklist)+" bytes");
+      //drawframe_table_with_4_fields(Heltec.display, 0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos)+" bytes", "Size:", (String)sizeof(blacklist)+" bytes");
+      drawframe_table_with_4_fields(display, 0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos)+" bytes", "Size:", (String)sizeof(blacklist)+" bytes");
       break;
     case 3:
-      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Routes Locha Mesh","Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable)+" bytes");
+     // drawframe_title_with_2_fields(Heltec.display, 0, 0, "Routes Locha Mesh","Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable)+" bytes");
+      drawframe_title_with_2_fields(display, 0, 0, "Routes Locha Mesh","Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable)+" bytes");
       break;
     case 4:
-      drawframe_title_with_2_fields(Heltec.display, 0, 0, "Outcoming Queue","Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes)+" bytes");
+      //drawframe_title_with_2_fields(Heltec.display, 0, 0, "Outcoming Queue","Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes)+" bytes");
+      drawframe_title_with_2_fields(display, 0, 0, "Outcoming Queue","Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes)+" bytes");
       break;
     case 5:
-      drawFrame5(Heltec.display, 0, 0);
+      //drawFrame5(Heltec.display, 0, 0);
+      drawFrame5(display, 0, 0);
       break;
     case 6:
-      drawFrame_tech(Heltec.display, 0, 0);
+     // drawFrame_tech(Heltec.display, 0, 0);
+      drawFrame_tech(display, 0, 0);
       break;
     default:
      pantalla_activa=0;  //para que aparezca la primera pantalla
@@ -249,7 +258,8 @@ void loop()
     pantalla_activa=1;
   }
   
-      Heltec.display->display();
+     // Heltec.display->display();
+      display->display();
      
     }
     
