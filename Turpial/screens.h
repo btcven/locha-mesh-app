@@ -9,10 +9,11 @@
 #ifndef SCREENS_H 
 #define SCREENS_H
 
-#include "heltec.h"
-
- extern Heltec_ESP32 Heltec;
-  OLEDDisplay *display = Heltec.display;
+#include "lib/Heltec_esp32/src/heltec.h"
+// libreria para el screen oled de Heltec
+extern Heltec_ESP32 Heltec;
+OLEDDisplay *display = Heltec.display;
+  
 extern char* id_node;
 extern uint8_t total_mensajes_salientes;  
 extern uint8_t total_vecinos;  
@@ -23,5 +24,6 @@ void drawframe_title_with_2_fields(OLEDDisplay *display, int16_t x, int16_t y, S
 void drawframe_table_with_4_fields(OLEDDisplay *display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2, String sub_title3, String field3, String sub_title4, String field4);
 void drawFrame5(OLEDDisplay *display, int16_t x, int16_t y);
 void drawFrame_tech(OLEDDisplay *display, int16_t x, int16_t y);
+void drawframe_rows(OLEDDisplay *display, int16_t x, int16_t y, String title, String row1, String row2, String row3, String row4, String row5);
 
 #endif //SCREENS_H

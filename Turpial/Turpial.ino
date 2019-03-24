@@ -21,7 +21,7 @@
 
 
 #ifdef RAD_ENABLED
-  #include "heltec.h"
+  #include "lib/Heltec_esp32/src/heltec.h"
   #include "radio.h"
 #endif
 

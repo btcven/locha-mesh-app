@@ -17,7 +17,7 @@
 #include <esp_partition.h>
 #include "fonts/DejaVu_Sans_10.h"
 #include "fonts/DejaVu_Sans_12.h"
-#include "lib/heltec-oled/src/OLEDDisplay.h"
+#include "lib/Heltec_esp32/src/oled/OLEDDisplay.h"
 #include "scr_images.h"
 
 extern char* id_node;
@@ -58,6 +58,20 @@ void drawframe_table_with_4_fields(OLEDDisplay *display, int16_t x, int16_t y, S
   
 }
 
+void drawframe_rows(OLEDDisplay *display, int16_t x, int16_t y, String title, String row1, String row2, String row3, String row4, String row5){
+   
+  display->setTextAlignment(TEXT_ALIGN_LEFT);
+  display->setFont(DejaVu_Sans_12);
+  display->drawString(x, y, title);
+  display->setFont(DejaVu_Sans_10);
+  display->drawString(x, y + 20, row1);
+  display->drawString(x, y + 30, row2);
+  display->drawString(x, y + 40, row3);
+  display->drawString(x, y + 50, row4);
+  display->drawString(x, y + 60, row5);
+  
+}
+
 
 
 
@@ -73,55 +87,55 @@ void drawFrame_tech(OLEDDisplay *display, int16_t x, int16_t y) {
 void drawFrame5(OLEDDisplay *display, int16_t x, int16_t y) {
 
   
-  display->setTextAlignment(TEXT_ALIGN_LEFT);
-  display->setFont(DejaVu_Sans_12);
-  display->drawString(x, y, "Services");
-  display->setFont(DejaVu_Sans_10);
-   String msg_screen="Inactive";
+
+   String msg_screen_wifi="Inactive";
   #ifdef WAP_ENABLED
-    msg_screen="Active WAP";
+    msg_screen_wifi="Active WAP";
     if (WAP_ENABLED){
        #ifdef WST_ENABLED
           if (WST_ENABLED){
-             msg_screen="Active WAP/WST";
+             msg_screen_wifi="Active WAP/WST";
           }
        #endif
-      msg_screen=msg_screen+F("-"+MSG_ENABLED);
+      msg_screen_wifi=msg_screen_wifi+F("-"+MSG_ENABLED);
       
     } else {
-      msg_screen=msg_screen+F("-"+MSG_DISABLED);
+      msg_screen_wifi=msg_screen_wifi+F("-"+MSG_DISABLED);
     }
   #else
     #ifdef WST_ENABLED
-       msg_screen="Active WST";
+       msg_screen_wifi="Active WST";
        if (WST_ENABLED){
-          msg_screen=msg_screen+F("-"+MSG_ENABLED);
+          msg_screen_wifi=msg_screen_wifi+F("-"+MSG_ENABLED);
         } else {
-          msg_screen=msg_screen+F("-"+MSG_DISABLED);
+          msg_screen_wifi=msg_screen_wifi+F("-"+MSG_DISABLED);
         }
     #endif
   #endif
-  display->drawString(x, y + 20, "Wifi: "+msg_screen);
+
  
-   msg_screen="Inactive";
+ 
+  String  msg_screen_radio="Inactive";
   #ifdef RAD_ENABLED
-    msg_screen="Active";
+    msg_screen_radio="Active";
      if (RAD_ENABLED){
-          msg_screen=msg_screen+F("-"+MSG_ENABLED);
+          msg_screen_radio=msg_screen_radio+F("-"+MSG_ENABLED);
         } else {
-          msg_screen=msg_screen+F("-"+MSG_DISABLED);
+          msg_screen_radio=msg_screen_radio+F("-"+MSG_DISABLED);
         }
   #endif
-  display->drawString(x, y + 30, "Lora: "+msg_screen);
- msg_screen="Inactive";
+  
+  
+ 
+ String msg_screen_ble="Inactive";
   #ifdef BLE_ENABLED
-    msg_screen="Active";
+    msg_screen_ble="Active";
      if (BLE_ENABLED){
-          msg_screen=msg_screen+F("-"+MSG_ENABLED);
+          msg_screen_ble=msg_screen_ble+F("-"+MSG_ENABLED);
         } else {
-          msg_screen=msg_screen+F("-"+MSG_DISABLED);
+          msg_screen_ble=msg_screen_ble+F("-"+MSG_DISABLED);
         }
   #endif
-display->drawString(x, y + 40, "BLE: "+msg_screen);
+ drawframe_rows(OLEDDisplay *display, 0, 0, "Services", "Wifi: "+msg_screen_wifi, "Lora: "+msg_screen_radio, "BLE: "+msg_screen_ble, "", "");
 
 }

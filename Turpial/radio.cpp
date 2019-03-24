@@ -5,7 +5,7 @@
 */
 #include <Arduino.h>
 #include <SPI.h>
-#include "lib/LoRa/src/LoRa.h"
+#include "lib/Heltec_ESP32/src/lora/LoRa.h"
 #include "radio.h"
 
 extern std::string txValue;
