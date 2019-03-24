@@ -1,0 +1,3 @@
+[submodule "Turpial/lib/Heltec_ESP32"]
+	path = Turpial/lib/Heltec_ESP32
+	url = git@gitlab.com:btcven/locha/Heltec_ESP32.git
