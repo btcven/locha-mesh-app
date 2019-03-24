@@ -9,8 +9,10 @@
 #ifndef SCREENS_H 
 #define SCREENS_H
 
-#include "lib/heltec-oled/src/OLEDDisplayUi.h"
+#include "heltec.h"
 
+ extern Heltec_ESP32 Heltec;
+  OLEDDisplay *display = Heltec.display;
 extern char* id_node;
 extern uint8_t total_mensajes_salientes;  
 extern uint8_t total_vecinos;  

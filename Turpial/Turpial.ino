@@ -35,8 +35,8 @@
   
 #ifdef SCR_ENABLED  
 
-  extern Heltec_ESP32 Heltec;
-  OLEDDisplay *display = Heltec.display;
+ // extern Heltec_ESP32 Heltec;
+//  OLEDDisplay *display = Heltec.display;
   #include "scr_images.h"
 #endif
 #ifdef BLE_ENABLED 

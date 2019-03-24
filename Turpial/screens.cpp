@@ -26,6 +26,8 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern uint8_t total_nodos_blacklist;
 
+ 
+
 void drawframe_title_with_2_fields(OLEDDisplay *display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2){
   display->setTextAlignment(TEXT_ALIGN_LEFT);
   display->setFont(DejaVu_Sans_12);
