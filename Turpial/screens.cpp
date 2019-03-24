@@ -17,7 +17,7 @@
 #include <esp_partition.h>
 #include "fonts/DejaVu_Sans_10.h"
 #include "fonts/DejaVu_Sans_12.h"
-#include "lib/heltec-oled/src/OLEDDisplayUi.h"
+#include "lib/heltec-oled/src/OLEDDisplay.h"
 #include "scr_images.h"
 
 extern char* id_node;

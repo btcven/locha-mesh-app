@@ -21,7 +21,6 @@
 
 
 #ifdef RAD_ENABLED
-  //#include <LoRaLib.h>
   #include "heltec.h"
   #include "radio.h"
 #endif
@@ -35,8 +34,8 @@
 #endif
   
 #ifdef SCR_ENABLED  
+  extern Heltec_ESP32 Heltec;
   
-  #include "lib/heltec-oled/src/OLEDDisplayUi.h"
   #include "scr_images.h"
 #endif
 #ifdef BLE_ENABLED 
@@ -45,22 +44,15 @@
 
 
 
-
-#ifdef SCR_ENABLED   
-  extern Heltec_ESP32 Heltec;
-  OLEDDisplayUi ui( Heltec.display );
-     
-#endif 
-
 // variables fijas para este demo
 // ID unico del nodo
 char id_nodo_demo[]="turpial.0";
-
-#define OLED_SCREEN_INTERVAL 5000 
-
 char* id_node=id_nodo_demo;
 
 
+#ifdef SCR_ENABLED  
+  #define OLED_SCREEN_INTERVAL 5000 
+#endif
 
 // includes internos
 uint8_t total_vecinos = 0; // cantidad de vecinos del nodo actual
@@ -79,24 +71,6 @@ unsigned long tiempo;
 // variables para trasmision BLE
   String rxValue="";
   String txValue="";
-
-
-#ifdef SCR_ENABLED   
-
-void msOverlay(OLEDDisplay *display, OLEDDisplayUiState* state) {
-  display->setTextAlignment(TEXT_ALIGN_RIGHT);
-  display->setFont(ArialMT_Plain_10);
-  display->drawString(128, 0, String(millis()));
-}
-
-
-
-//FrameCallback frames[] = { drawFrame1, drawFrame2, drawFrame3, drawFrame4 };
-
-//int frameCount = 4;
-
-#endif
-
 
 
 void setup()
@@ -162,29 +136,9 @@ void setup()
        
         
       // se inicializa el display
-      ui.setTargetFPS(30);
-      // Customize the active and inactive symbol
-      ui.setActiveSymbol(activeSymbol);
-      ui.setInactiveSymbol(inactiveSymbol);
-      // You can change this to
-      // TOP, LEFT, BOTTOM, RIGHT
-      ui.setIndicatorPosition(BOTTOM);
-    
-      // Defines where the first frame is located in the bar.
-      ui.setIndicatorDirection(LEFT_RIGHT);
-    
-      // You can change the transition that is used
-      // SLIDE_LEFT, SLIDE_RIGHT, SLIDE_UP, SLIDE_DOWN
-      ui.setFrameAnimation(SLIDE_LEFT);
-
-      // Add frames
-//      ui.setFrames(frames, frameCount);
-    
-      // Initialising the UI will init the display too.
-      ui.init();
-    
+      Heltec.display->init();
       Heltec.display->flipScreenVertically();
-  
+      
   
         
       }
@@ -296,6 +250,7 @@ void loop()
   }
   
       Heltec.display->display();
+     
     }
     
 if (millis()-tiempo<0){

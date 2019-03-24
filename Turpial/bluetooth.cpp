@@ -55,7 +55,7 @@ class characteristicCB : public BLECharacteristicCallbacks
         Serial.print("[BLE] Received: ");
         Serial.println(rxValue.c_str());
         radioSend(rxValue);
-        rxValue.clear();
+     //   rxValue.clear();
 
       }
     }
