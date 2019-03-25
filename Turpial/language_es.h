@@ -1,7 +1,7 @@
 
 #ifndef LANGUAGE_ES_H
 #define LANGUAGE_ES_H
-
+#include <Arduino.h>
 
 #define MSG_SCR_INIT         "[SRC] Initiating... "
 #define MSG_OK               "OK"
