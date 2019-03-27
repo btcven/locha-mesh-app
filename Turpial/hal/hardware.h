@@ -1,10 +1,15 @@
+/**
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
+ 
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
-
-//#define HELTEC_V1
+// #define HELTEC_V1
 #define HELTEC_V2
-
 
 #if defined(HELTEC_V1)
     #include "heltec_V1.h"
