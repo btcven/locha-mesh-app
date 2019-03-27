@@ -22,10 +22,7 @@
 
 
 #ifdef RAD_ENABLED
-  #include "heltec.h"
-  #include "oled/OLEDDisplayUi.h"
-  extern Heltec_ESP32 Heltec;
-  OLEDDisplayUi ui( Heltec.display );
+#include <SSD1306.h>
   
   #include "radio.h"
 #endif
@@ -39,11 +36,7 @@
 #endif
   
 #ifdef SCR_ENABLED  
-//#include "lib/Heltec_esp32/src/oled/SSD1306Wire.h"
-//#include "lib/Heltec_esp32/src/oled/OLEDDisplay.h"
-//#include "lib/Heltec_esp32/src/oled/OLEDDisplayUi.h"
- // extern Heltec_ESP32 Heltec;
-//  OLEDDisplay *display = Heltec.display;
+
   #include "scr_images.h"
 #endif
 #ifdef BLE_ENABLED 
@@ -60,6 +53,7 @@ char* id_node=id_nodo_demo;
 
 #ifdef SCR_ENABLED  
 //SSD1306Wire display(SCR_ADD, SDA_OLED, SCL_OLED,RST_OLED);
+SSD1306 display(SCR_ADD, SDA_OLED, SCL_OLED, RST_OLED);
 
   #define OLED_SCREEN_INTERVAL 5000 
 #endif
@@ -90,7 +84,7 @@ void setup()
   bool serial_enabled=false;
   bool wifi_enabled=false;
 
-
+ 
   
  #ifdef DEBUG
     serial_enabled=true;
@@ -98,6 +92,9 @@ void setup()
  #ifdef SCR_ENABLED
  if (SCR_ENABLED) {
     display_enabled=true;
+#ifdef V2
+    pinMode(Vext, OUTPUT);
+    #endif 
  } else {
       display_enabled=false;
     }
@@ -126,7 +123,7 @@ void setup()
 
 
  
-   Heltec.begin(display_enabled /*DisplayEnable Enable*/, !lora_enabled /*LoRa Disable*/, true /*Serial Enable*/);
+//   Heltec.begin(display_enabled /*DisplayEnable Enable*/, !lora_enabled /*LoRa Disable*/, true /*Serial Enable*/);
   
 //  Heltec.display->setContrast(255);
 //  Heltec.display->setContrast(255);
@@ -156,10 +153,10 @@ void setup()
         
       // se inicializa el display
       //Heltec.display->setContrast(255);
-      //display.init();
-      ui.init();
-      Heltec.display->flipScreenVertically();
-      //display.flipScreenVertically();
+      display.init();
+      //ui.init();
+      //Heltec.display->flipScreenVertically();
+      display.flipScreenVertically();
       //display->init();
       //display->flipScreenVertically();
   
@@ -239,14 +236,14 @@ tiempo=millis();
 
 
 void drawframe_title_with_2_fields(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2){
-  Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
-  Heltec.display->setFont(DejaVu_Sans_12);
-  Heltec.display->drawString(x, y, title);
-  Heltec.display->setFont(DejaVu_Sans_10);
-  Heltec.display->drawString(x, y + 20, sub_title1);
-  Heltec.display->drawString(x+10, y + 30, field1);
-  Heltec.display->drawString(x, y + 40, sub_title2);
-  Heltec.display->drawString(x+10, y + 50, field2);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(DejaVu_Sans_12);
+  display.drawString(x, y, title);
+  display.setFont(DejaVu_Sans_10);
+  display.drawString(x, y + 20, sub_title1);
+  display.drawString(x+10, y + 30, field1);
+  display.drawString(x, y + 40, sub_title2);
+  display.drawString(x+10, y + 50, field2);
 }
 
 //void drawframe_table_with_4_fields(SSD1306Wire display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2, String sub_title3, String field3, String sub_title4, String field4){
@@ -254,32 +251,32 @@ void drawframe_table_with_4_fields(int16_t x, int16_t y, String title, String su
   uint8_t borde_tabla=60;
   uint8_t margen=10;
   
-  Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
-  Heltec.display->setFont(DejaVu_Sans_12);
-  Heltec.display->drawString(x, y, title);
-  Heltec.display->setFont(DejaVu_Sans_10);
-  Heltec.display->drawString(x, y + 20, sub_title1);
-  Heltec.display->drawString(x+margen, y + 30, field1);
-  Heltec.display->drawString(x+borde_tabla, y + 20, sub_title2);
-  Heltec.display->drawString(x+margen+borde_tabla, y + 30, field2);
-  Heltec.display->drawString(x, y + 40, sub_title3);
-  Heltec.display->drawString(x+10, y + 50, field3);
-  Heltec.display->drawString(x+borde_tabla, y + 40, sub_title4);
-  Heltec.display->drawString(x+margen+borde_tabla, y + 50, field4);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(DejaVu_Sans_12);
+  display.drawString(x, y, title);
+  display.setFont(DejaVu_Sans_10);
+  display.drawString(x, y + 20, sub_title1);
+  display.drawString(x+margen, y + 30, field1);
+  display.drawString(x+borde_tabla, y + 20, sub_title2);
+  display.drawString(x+margen+borde_tabla, y + 30, field2);
+  display.drawString(x, y + 40, sub_title3);
+  display.drawString(x+10, y + 50, field3);
+  display.drawString(x+borde_tabla, y + 40, sub_title4);
+  display.drawString(x+margen+borde_tabla, y + 50, field4);
 }
 
 void drawframe_rows(int16_t x, int16_t y, String title, String row1, String row2, String row3, String row4, String row5){
   //void drawframe_rows(SSD1306Wire display, int16_t x, int16_t y, String title, String row1, String row2, String row3, String row4, String row5){
    
-  Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
-  Heltec.display->setFont(DejaVu_Sans_12);
-  Heltec.display->drawString(x, y, title);
-  Heltec.display->setFont(DejaVu_Sans_10);
-  Heltec.display->drawString(x, y + 20, row1);
-  Heltec.display->drawString(x, y + 30, row2);
-  Heltec.display->drawString(x, y + 40, row3);
-  Heltec.display->drawString(x, y + 50, row4);
-  Heltec.display->drawString(x, y + 60, row5);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(DejaVu_Sans_12);
+  display.drawString(x, y, title);
+  display.setFont(DejaVu_Sans_10);
+  display.drawString(x, y + 20, row1);
+  display.drawString(x, y + 30, row2);
+  display.drawString(x, y + 40, row3);
+  display.drawString(x, y + 50, row4);
+  display.drawString(x, y + 60, row5);
 }
 
 
@@ -353,9 +350,9 @@ void loop()
 
     
     if (millis()-tiempo>OLED_SCREEN_INTERVAL){
-      Heltec.display->clear();
+      //Heltec.display->clear();
      
-      //display.clear();
+      display.clear();
       switch (pantalla_activa) {
     case 1:
       //drawframe_title_with_2_fields(Heltec.display, 0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
@@ -401,8 +398,8 @@ void loop()
   
 //      Heltec.display.display();
   //   Heltec.display->display();
-   Heltec.display->display();
-    // display.display();
+   //Heltec.display->display();
+     display.display();
     }
     
 if (millis()-tiempo<0){

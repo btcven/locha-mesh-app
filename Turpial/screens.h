@@ -10,7 +10,7 @@
 #define SCREENS_H
 #include <Arduino.h>
 #include <Wire.h>
-
+#include <SSD1306.h>
 //#include "lib/Heltec_esp32/src/heltec.h"
 //#include "lib/Heltec_esp32/src/oled/SSD1306Wire.h"
 //#include "lib/Heltec_esp32/src/oled/OLEDDisplay.h"
