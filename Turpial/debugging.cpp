@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "hardware.h"
+#include "hal/hardware.h"
 #include "general_functions.h"
 #include "debugging.h"
 #include "boards_def.h"
@@ -8,6 +8,7 @@
 #include "route.h"
 #include "blacklist.h"
 #include "language_es.h"
+
 #if defined(__AVR__) 
   #include "MemoryFree.h"
 #endif
@@ -38,7 +39,6 @@ extern uint8_t total_nodos_blacklist;
    // String mensaje;
    // char* buffer_serial_received;
    // int buffer_serial_received_size=0;
-    
   #endif
 
 

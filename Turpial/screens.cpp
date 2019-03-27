@@ -18,10 +18,7 @@
 #include "fonts/DejaVu_Sans_10.h"
 #include "fonts/DejaVu_Sans_12.h"
 #include <SSD1306.h>
-//#include "lib/Heltec_esp32/src/heltec.h"
-//#include "lib/Heltec_esp32/src/oled/SSD1306Wire.h"
-//#include "lib/Heltec_esp32/src/oled/OLEDDisplay.h"
-//#include "lib/Heltec_esp32/src/oled/OLEDDisplayUi.h"
+
 #include "scr_images.h"
 
 extern char* id_node;

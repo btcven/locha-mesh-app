@@ -11,13 +11,6 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <SSD1306.h>
-//#include "lib/Heltec_esp32/src/heltec.h"
-//#include "lib/Heltec_esp32/src/oled/SSD1306Wire.h"
-//#include "lib/Heltec_esp32/src/oled/OLEDDisplay.h"
-//#include "lib/Heltec_esp32/src/oled/OLEDDisplayUi.h"
-// libreria para el screen oled de Heltec
-//extern Heltec_ESP32 Heltec;
-//OLEDDisplay *display = Heltec.display;
   
 extern char* id_node;
 extern uint8_t total_mensajes_salientes;  

@@ -5,7 +5,7 @@
 */
 #include <Arduino.h>
 #include <string.h> 
-#include "hardware.h"
+#include "hal/hardware.h"
 #include "general_functions.h"
 #include "packet.h"
 #include "route.h"

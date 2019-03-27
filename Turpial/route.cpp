@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "hardware.h"
+#include "hal/hardware.h"
 #include "general_functions.h"
 #include "boards_def.h"
 #include "memory_def.h"
