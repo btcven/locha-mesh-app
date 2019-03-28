@@ -18,7 +18,6 @@
 #include "packet.h"
 #include "route.h"
 #include "debugging.h"
-
 #include "fonts/DejaVu_Sans_10.h"
 #include "fonts/DejaVu_Sans_12.h"
 #include "scr_images.h"
@@ -272,7 +271,7 @@ void drawFrame5(int16_t x, int16_t y)
   drawframe_rows(0, 0, "Services", "Wifi: " + msg_screen_wifi, "Lora: " + msg_screen_radio, "BLE: " + msg_screen_ble, "", "");
 }
 
-
+uint8_t rpta_tmp ;
 
 void loop()
 {
@@ -283,16 +282,16 @@ void loop()
     switch (pantalla_activa)
     {
     case 1:
-      drawframe_title_with_2_fields(display,0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
+      drawframe_title_with_2_fields(0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
       break;
     case 2:
       drawframe_table_with_4_fields(0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos) + " bytes", "Size:", (String)sizeof(blacklist) + " bytes");
       break;
     case 3:
-      drawframe_title_with_2_fields(display,0, 0, "Routes Locha Mesh", "Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable) + " bytes");
+      drawframe_title_with_2_fields(0, 0, "Routes Locha Mesh", "Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable) + " bytes");
       break;
     case 4:
-      drawframe_title_with_2_fields(display,0, 0, "Outcoming Queue", "Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes) + " bytes");
+      drawframe_title_with_2_fields(0, 0, "Outcoming Queue", "Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes) + " bytes");
       break;
     case 5:
       drawFrame5(0, 0);
@@ -326,9 +325,9 @@ void loop()
   packet_processing_outcoming();
 
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
-  #ifdef DEBUG
-    uint8_t rpta = show_debugging_info(vecinos, total_vecinos);
-  #endif
+ // #ifdef DEBUG
+     rpta_tmp = show_debugging_info(vecinos, total_vecinos);
+//  #endif
   
 
 }

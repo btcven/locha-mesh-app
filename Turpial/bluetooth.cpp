@@ -59,7 +59,7 @@ class characteristicCB : public BLECharacteristicCallbacks
       {
         Serial.print("[BLE] Received: ");
         Serial.println(rxValue.c_str());
-       // radioSend(rxValue);   // el enviar por radio va en el main loop, enviar por radio lo que deberia hacer es leer la tabla mensajes_salientes y enviar de a un registro a la vez
+       // radioSend(rxValue);   // el enviar por radio va en el main loop en packet_processing_outcoming(), enviar por radio lo que deberia hacer es leer la tabla mensajes_salientes y enviar de a un registro a la vez
         // por que el procesamiento de paquetes es FIFO y si hay paquetes esperando por salir por la radio Lora no puede salir primero un paquete BLE hacia la radio Lora
         // se procesa el ble incoming
         String parametro;

@@ -14,8 +14,8 @@
 #endif
 
 
-extern String rxValue;
-extern String txValue;
+extern std::string txValue;
+extern std::string rxValue;
 
 #ifdef BLE_ENABLED
   #include "bluetooth.h"
@@ -338,7 +338,7 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
 
 uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos){
 
-  #ifdef DEBUG
+ // #ifdef DEBUG
     uint8_t rpta;
     String str_buffer_serial_received="";
     String mensaje="";
@@ -409,19 +409,19 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
              DEBUG_PRINTLN("");
              DEBUG_PRINT(F("Node ID:"));
              DEBUG_PRINTLN(id_node);
-             #if defined(__AVR__)   // solo aplica para los arduino
-                DEBUG_PRINT(F("Program storage free:"));
-                DEBUG_PRINT(freeMemory());
-                DEBUG_PRINTLN(" bytes");
-                DEBUG_PRINT(F("Memory for local variables:"));
-                DEBUG_PRINT(freeRam());
-                DEBUG_PRINTLN(" bytes");
+            // #if defined(__AVR__)   // solo aplica para los arduino
+            //    DEBUG_PRINT(F("Program storage free:"));
+            //    DEBUG_PRINT(freeMemory());
+            //    DEBUG_PRINTLN(" bytes");
+            //    DEBUG_PRINT(F("Memory for local variables:"));
+            //    DEBUG_PRINT(freeRam());
+            //    DEBUG_PRINTLN(" bytes");
             
-                DEBUG_PRINT(F("Vcc:"));
-                DEBUG_PRINT(readVcc()/1000);
-                DEBUG_PRINTLN(F(" volts"));
-               DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-            #endif
+            //    DEBUG_PRINT(F("Vcc:"));
+            //    DEBUG_PRINT(readVcc()/1000);
+            //    DEBUG_PRINTLN(F(" volts"));
+            //   DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            //#endif
             str_buffer_serial_received="";
             ejecute=true;
          }
@@ -429,7 +429,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
         if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
             
             String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
-            rxValue=str_param_received;
+            rxValue=str_param_received.c_str();
             str_buffer_serial_received="";
           //  DEBUG_PRINTLN(mensaje+F("TODO emular recepcion de un mensaje BLE "));
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
@@ -442,7 +442,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             
             String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
 
-            txValue=str_param_received;
+            txValue=str_param_received.c_str();
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -453,9 +453,9 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINT("txValue=");
-            DEBUG_PRINTLN(txValue);
+            DEBUG_PRINTLN(txValue.c_str());
             DEBUG_PRINT("rxValue=");
-            DEBUG_PRINTLN(rxValue);
+            DEBUG_PRINTLN(rxValue.c_str());
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             
@@ -625,7 +625,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
          }
 
     }
-           #endif   // del #ifdef DEBUG
+      //     #endif   // del #ifdef DEBUG
          return 0;
          }
         

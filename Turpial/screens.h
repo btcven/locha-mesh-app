@@ -17,7 +17,8 @@ extern uint8_t total_mensajes_salientes;
 extern uint8_t total_vecinos;  
 extern uint8_t total_rutas;
 extern uint8_t total_nodos_blacklist;
+extern SSD1306 display;
 
-void drawframe_title_with_2_fields(SSD1306 display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2);
+void drawframe_title_with_2_fields(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2);
 
 #endif //SCREENS_H

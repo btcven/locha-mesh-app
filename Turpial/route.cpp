@@ -31,8 +31,8 @@ void packet_processing_incoming(){
 }
 
 void packet_processing_outcoming(){
+// aqui se deberia invocar radio_send del primer registro que consiga en el arreglo mensajes_salientes
 
-  
 }
 
 
