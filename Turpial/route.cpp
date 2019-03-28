@@ -5,6 +5,8 @@
 #include "memory_def.h"
 #include "route.h"
 #include "packet.h"
+
+#include "radio.h"
 #include "routing_incoming.h"
 #include "routing_outcoming.h"
 #include <Time.h>
@@ -87,7 +89,7 @@ bool encontre;
     if (encontre){
         el_mensaje_saliente=mensajes_salientes[i];
         msg_to_send=packet_serialize(mensajes_salientes[i].paquete);
-        radioSend(msg_to_send);
+//        radioSend(msg_to_send);
         mensajes_salientes[i].retries=mensajes_salientes[i].retries+1;
         mensajes_salientes[i].retry_timestamp=now();
     }
@@ -328,7 +330,7 @@ uint8_t packet_to_send(packet_t Buffer_packet){
   message_queue_t nuevo_mensaje_en_cola;
   nuevo_mensaje_en_cola.paquete=Buffer_packet;
   nuevo_mensaje_en_cola.prioridad=1;
-  nuevo_mensaje_en_cola.reintentos=0;
+  nuevo_mensaje_en_cola.retries=0;
   nuevo_mensaje_en_cola.retry_timestamp=0;
   mensajes_salientes[total_mensajes_salientes+1]=nuevo_mensaje_en_cola;
   total_mensajes_salientes++;
