@@ -92,13 +92,14 @@ String packet_serialize(packet_t packet){
 packet_t packet_deserialize(String received_text){
   packet_t packet_tmp;
   String temp_var;
-  temp_var=received_text.substring(1,1);   //packet.header.type
-  packet_tmp.header.type=(int)temp_var;
+  // algo asi
+ // temp_var=received_text.substring(1,1);   //packet.header.type
+ // packet_tmp.header.type=(int)temp_var;
   
-  packet.header.from;
-  rpta_str=rpta_str+(String)packet.header.to;
-  rpta_str=rpta_str+(String)packet.header.timestamp;
-  rpta_str=rpta_str+(String)packet.body.payload;
+ // packet.header.from;
+ // rpta_str=rpta_str+(String)packet.header.to;
+ // rpta_str=rpta_str+(String)packet.header.timestamp;
+ // rpta_str=rpta_str+(String)packet.body.payload;
   return rpta_str;
 }
 

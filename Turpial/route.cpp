@@ -34,7 +34,7 @@ uint8_t delete_older_packets(){
           // se devuelve un packet NOT_DELIVERED a origen 
           // se borra de la cola de mensajes
             for (j = i; i < total_mensajes_salientes; j++) {
-                mensajes_salientes[i]=mensajes_salientes[i]+1;
+                mensajes_salientes[i]=mensajes_salientes[i+1];
             }
             total_mensajes_salientes--;
             return 1;
