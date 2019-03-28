@@ -24,7 +24,7 @@ void onReceive(int packetSize) {
 
 // envía un paquete.
 void radioSend(std::string _data) {
-  // hay que verificar primero si el canal esta libre
+  // hay que verificar primero si el canal esta libre Listen before Talk
   
   LoRa.beginPacket();
   LoRa.print(_data.c_str());

@@ -22,7 +22,7 @@
 #include "fonts/DejaVu_Sans_10.h"
 #include "fonts/DejaVu_Sans_12.h"
 #include "scr_images.h"
-//#include "screens.h"
+#include "screens.h"
 
 #include "radio.h"
 #include "bluetooth.h"
@@ -51,8 +51,8 @@ packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y o
 unsigned long tiempo;
 
 // variables para trasmision BLE
-String rxValue = "";
-String txValue = "";
+std::string rxValue = "";
+std::string txValue = "";
 
 void setup()
 {
@@ -167,7 +167,7 @@ void setup()
 
 int pantalla_activa = 1;
 
-void drawframe_title_with_2_fields(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2)
+void drawframe_title_with_2_fields_v1(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2)
 {
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(DejaVu_Sans_12);
@@ -271,6 +271,9 @@ void drawFrame5(int16_t x, int16_t y)
 
   drawframe_rows(0, 0, "Services", "Wifi: " + msg_screen_wifi, "Lora: " + msg_screen_radio, "BLE: " + msg_screen_ble, "", "");
 }
+
+
+
 void loop()
 {
 
@@ -280,16 +283,16 @@ void loop()
     switch (pantalla_activa)
     {
     case 1:
-      drawframe_title_with_2_fields(0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
+      drawframe_title_with_2_fields(display,0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
       break;
     case 2:
       drawframe_table_with_4_fields(0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos) + " bytes", "Size:", (String)sizeof(blacklist) + " bytes");
       break;
     case 3:
-      drawframe_title_with_2_fields(0, 0, "Routes Locha Mesh", "Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable) + " bytes");
+      drawframe_title_with_2_fields(display,0, 0, "Routes Locha Mesh", "Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable) + " bytes");
       break;
     case 4:
-      drawframe_title_with_2_fields(0, 0, "Outcoming Queue", "Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes) + " bytes");
+      drawframe_title_with_2_fields(display,0, 0, "Outcoming Queue", "Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes) + " bytes");
       break;
     case 5:
       drawFrame5(0, 0);
@@ -323,11 +326,9 @@ void loop()
   packet_processing_outcoming();
 
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
-  
-  /*
   #ifdef DEBUG
     uint8_t rpta = show_debugging_info(vecinos, total_vecinos);
   #endif
-  */
+  
 
 }

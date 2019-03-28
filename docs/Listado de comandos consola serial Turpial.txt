@@ -3,6 +3,7 @@ Lista de comandos disponibles via serial al 20 de Marzo 2019:
 para nodos:
 SHOW  NODES     muestra los nodos en la tabla de nodos del sistema
 NODE CREATE XXXX      crea un nodo virtual en la tabla de nodos
+NODE SETNAME XXXX     cambia el nombre del nodo y vacia todas las tablas en memoria
 SHOW BLACKLIST  muestra los nodos en la tabla de blacklisted
 BLACKLIST NODE XXXX   coloca un nodo en blacklist
 

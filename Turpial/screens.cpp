@@ -18,6 +18,7 @@
 #include "fonts/DejaVu_Sans_10.h"
 #include "fonts/DejaVu_Sans_12.h"
 #include <SSD1306.h>
+#include "OLEDDisplay.h"
 
 #include "scr_images.h"
 
@@ -25,8 +26,16 @@ extern char* id_node;
 extern uint8_t total_mensajes_salientes;  
 extern uint8_t total_vecinos;  
 extern uint8_t total_rutas;
-extern uint8_t total_nodos_blacklist;
+extern uint8_t total_nodos_blacklist;   // extern SSD1306 display;
 
- // Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, true /*Serial Enable*/);
-
-//void drawframe_title_with_2_fields(Heltec.display *display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2){
+void drawframe_title_with_2_fields(SSD1306 display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2)
+{
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(DejaVu_Sans_12);
+  display.drawString(x, y, title);
+  display.setFont(DejaVu_Sans_10);
+  display.drawString(x, y + 20, sub_title1);
+  display.drawString(x + 10, y + 30, field1);
+  display.drawString(x, y + 40, sub_title2);
+  display.drawString(x + 10, y + 50, field2);
+}

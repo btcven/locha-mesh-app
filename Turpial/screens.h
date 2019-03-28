@@ -18,16 +18,6 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern uint8_t total_nodos_blacklist;
 
-//void drawframe_title_with_2_fields(SSD1306Wire display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2);
-//void drawframe_title_with_2_fields(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2);
-//void drawframe_table_with_4_fields(SSD1306Wire display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2, String sub_title3, String field3, String sub_title4, String field4);
-//void drawframe_table_with_4_fields( int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2, String sub_title3, String field3, String sub_title4, String field4);
-//void drawframe_table_with_4_fields(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2, String sub_title3, String field3, String sub_title4, String field4);
-//void drawFrame5(SSD1306Wire display, int16_t x, int16_t y);
-//void drawFrame5(int16_t x, int16_t y);
-//void drawFrame_tech(SSD1306Wire display, int16_t x, int16_t y);
-//void drawFrame_tech(int16_t x, int16_t y);
-//void drawframe_rows(SSD1306Wire display, int16_t x, int16_t y, String title, String row1, String row2, String row3, String row4, String row5);
-//void drawframe_rows(int16_t x, int16_t y, String title, String row1, String row2, String row3, String row4, String row5);
+void drawframe_title_with_2_fields(SSD1306 display, int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2);
 
 #endif //SCREENS_H

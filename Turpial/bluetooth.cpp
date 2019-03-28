@@ -14,6 +14,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
+#include "general_functions.h"
 #include "bluetooth.h"
 #include "radio.h"
 #include "route.h"
@@ -24,8 +25,8 @@ BLECharacteristic *rx_uart;
 
 std::string server_name = "mesh.locha.io";
 
-std::string txValue;
-std::string rxValue;
+extern std::string txValue;
+extern std::string rxValue;
 
 bool deviceConnected = false;
 
@@ -58,12 +59,15 @@ class characteristicCB : public BLECharacteristicCallbacks
       {
         Serial.print("[BLE] Received: ");
         Serial.println(rxValue.c_str());
-       // radioSend(rxValue);
-     //   rxValue.clear();
+       // radioSend(rxValue);   // el enviar por radio va en el main loop, enviar por radio lo que deberia hacer es leer la tabla mensajes_salientes y enviar de a un registro a la vez
+        // por que el procesamiento de paquetes es FIFO y si hay paquetes esperando por salir por la radio Lora no puede salir primero un paquete BLE hacia la radio Lora
         // se procesa el ble incoming
-        
-        json_receive(rxValue,uid,msg,timemsg);
-        BLE_incoming(uid,msg,timemsg);   // este procesamiento coloca los paquetes en la cola de mensajes salientes, la cola se procesa en el main loop 
+        String parametro;
+        parametro=String(rxValue.c_str());    // se convierte de string c null terminated a System:String
+        // el siguiente void extrae del String BLE los 3 parametros: uid,msg,time
+        json_receive(parametro,uid,msg,timemsg);
+        // se procesa el comando que se haya recibido por BLE
+        BLE_incoming(uid,msg,timemsg);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
         rxValue.clear();
         // se vacia el buffer BLE
       }

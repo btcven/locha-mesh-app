@@ -492,6 +492,28 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
               }
               str_buffer_serial_received="";
          }
+         mensaje=F("NODE SETNAME");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+              // getparamValue (0) devuelve CREATE , (1) devuelve NODE , (2) devuelve el nombre el nodo recibido por parametro
+              DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+              String str_node_name = getparamValue(str_buffer_serial_received, ' ', 2);  
+            
+              if (str_node_name.length()>0){
+                uint8_t rpta=vaciar_tablas();
+                char nombre_tmp[16];
+                str_node_name.toCharArray(nombre_tmp,16);
+                copy_array_locha(nombre_tmp,id_node,16);
+                DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
+                mensaje="";
+                DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+               
+                ejecute=true;
+                return 1;
+              }  else {
+                  DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_FAIL);
+              }
+              str_buffer_serial_received="";
+         }
 
          mensaje=F("BLACKLIST NODE");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
@@ -510,7 +532,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                str_buffer_serial_received="";
                 ejecute=true;
                 return 1;
-              } 
+         } 
               
          
          
