@@ -20,6 +20,9 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern uint8_t total_nodos_blacklist;
 
+
+
+
 void packet_processing_incoming(){
   // se procesa el packet que fue recibido por el radio lora y que esta en Buffer_packet
   
@@ -266,4 +269,18 @@ uint8_t packet_to_send(packet_t Buffer_packet){
   mensajes_salientes[total_mensajes_salientes+1]=nuevo_mensaje_en_cola;
   total_mensajes_salientes++;
   return 0;
+}
+
+// funcion para proesar un mensaje BLE incoming
+void BLE_incoming(char* uid,char* msg, double timemsg){
+  uint8_t i;
+  uint8_t rpta;
+  // si es un mensaje tipo broadcast se envia a todos los vecinos 
+    if (String(uid)=="broadcast"){ 
+       for (i = 1; i <= total_vecinos; i++) {
+        // se arma el packet y se envia a cada vecino
+        packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, vecinos[i].id, msg);
+          rpta=packet_to_send(tmp_packet);
+       }
+    }
 }

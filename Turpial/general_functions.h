@@ -16,7 +16,7 @@ long readVcc();
 String freeRam();
 String random_name(int numBytes);
 void copy_array_locha(char* src, char* dst, int len);
-
+void json_receive(String message, char* &uid,char* &msg, double &timemsg );
 
 
 #endif // GENERAL_FUNCTIONS_H_

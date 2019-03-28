@@ -16,6 +16,7 @@
 #include <BLE2902.h>
 #include "bluetooth.h"
 #include "radio.h"
+#include "route.h"
 
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
@@ -47,6 +48,9 @@ class characteristicCB : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
+      char *uid = NULL;
+      char *msg = NULL;
+      double timemsg = 0;
       // movil -> ble_server(Turpial)
       rxValue = pCharacteristic->getValue();
       // si tenemos datos podemos enviarlos via radio desde aqui.
@@ -54,9 +58,14 @@ class characteristicCB : public BLECharacteristicCallbacks
       {
         Serial.print("[BLE] Received: ");
         Serial.println(rxValue.c_str());
-        radioSend(rxValue);
+       // radioSend(rxValue);
      //   rxValue.clear();
-
+        // se procesa el ble incoming
+        
+        json_receive(rxValue,uid,msg,timemsg);
+        BLE_incoming(uid,msg,timemsg);   // este procesamiento coloca los paquetes en la cola de mensajes salientes, la cola se procesa en el main loop 
+        rxValue.clear();
+        // se vacia el buffer BLE
       }
     }
     void onRead(BLECharacteristic *pCharacteristic)
