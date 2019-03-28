@@ -30,6 +30,8 @@ typedef struct message_queue_t
 {
     packet_t paquete;         // uniqueid
     uint8_t prioridad;        // numero para asignar la prioridad a cada paquete 
+    uint8_t retries;       // numero de reintentos de envio
+    unsigned long retry_timestamp;
 } message_queue_t;
 
 typedef struct rutas_t
@@ -56,5 +58,6 @@ uint8_t delete_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
 uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16]);
 uint8_t delete_route_by_id(uint8_t id_to_delete);
 void BLE_incoming(char* uid,char* msg, double timemsg);
+uint8_t delete_older_packets();
 
 #endif // ROUTE_H

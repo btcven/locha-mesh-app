@@ -8,16 +8,32 @@
 #include "LoRa.h"
 #include "radio.h"
 
-extern std::string txValue;
-extern std::string rxValue;
+extern std::string txValue_Lora;
+extern std::string rxValue_Lora;
 
 
 // recibe un paquete
 void onReceive(int packetSize) {
   // txValue << packet
   // pasar a la variable txValue.
+  char in_process;
   for (int i = 0; i < packetSize; i++) {
-    Serial.print((char)LoRa.read());
+    in_process=(char)LoRa.read();
+   // se coloca en el Buffer Lora
+   if (in_process!='|'){
+      rxValue_Lora=rxValue_Lora+in_process;  
+      Serial.print(in_process);
+   } else {
+      // es un fin de mensaje
+      Serial.print("procesar packet recibido por Lora:");
+      Serial.println(rxValue_Lora.c_str());
+      // se coloca en Buffer_packet
+      // se invoca process_received_packet para procesar el buffer_packet recibido
+      
+      rxValue_Lora.clear();
+   }
+    
+    
   }
   Serial.print("\n");
 }
@@ -64,13 +80,10 @@ void task_radio(void *params) {
   LoRa.receive();
 
   while (1) {
-    if (txValue.size() > 0) {
-      Serial.println(txValue.c_str());
+    if (txValue_Lora.size() > 0) {
+      Serial.println(txValue_Lora.c_str());
 
     }
     delay(10);
   }
-
-
-
-};
+}

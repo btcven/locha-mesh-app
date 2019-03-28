@@ -1,9 +1,38 @@
 #include <Arduino.h>
+#include <Time.h>
+#include <TimeLib.h>
 #include <string.h>
 #include <WiFi.h>
 #include <cJSON.h>
 #include "hal/hardware.h"
 #include "route.h"
+#include <iostream>
+#include <Time.h>
+
+
+extern char* uid;
+extern char* msg;
+extern double timemsg;
+
+
+
+char *string2char(String command)
+{
+  if (command.length() != 0)
+  {
+    char *p = const_cast<char *>(command.c_str());
+    return p;
+  }
+}
+
+void copy_array_locha(char *src, char *dst, int len)
+{
+  for (int i = 0; i < len; i++)
+  {
+    *dst++ = *src++;
+  }
+}
+
 
 String random_name(int numBytes)
 {
@@ -27,6 +56,12 @@ String random_name(int numBytes)
 }
 
 
+char* node_name_char_to_uppercase(char array_temp[16]){
+    String chars_temp=array_temp;
+    chars_temp.toUpperCase();
+    return string2char(chars_temp);
+}
+
 // use cJson integrated into espressif esp32 sdk 
 /* The cJSON structure: */
 //typedef struct cJSON {
@@ -41,36 +76,24 @@ String random_name(int numBytes)
 
     //char *string;               /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
 //} cJSON;
-void json_receive(String message, char* &uid,char* &msg, double &timemsg ){
+void json_receive(String message, char* &uid2,char* &msg, double &timemsg ){
  // this function receives data message in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
   message.replace("'","\"");
   message=message.c_str();
   char mensaje3[message.length()+1];
   message.toCharArray(mensaje3,message.length()+1);
+ 
   cJSON* el_arreglo=cJSON_Parse(mensaje3);
-  uid = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
+  uid2 = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
+ 
   msg = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
+ 
   timemsg = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuedouble;
  // deletes cJSON from memory
   cJSON_Delete(el_arreglo);
+
 }
 
-char *string2char(String command)
-{
-  if (command.length() != 0)
-  {
-    char *p = const_cast<char *>(command.c_str());
-    return p;
-  }
-}
-
-void copy_array_locha(char *src, char *dst, int len)
-{
-  for (int i = 0; i < len; i++)
-  {
-    *dst++ = *src++;
-  }
-}
 
 void create_unique_id(char *&unique_id_created) {
   // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom

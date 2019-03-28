@@ -16,7 +16,7 @@
 #include "packet.h"
 #include "route.h"
 #include "blacklist.h"
-
+using namespace std;
 extern char *id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];

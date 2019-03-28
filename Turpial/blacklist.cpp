@@ -5,6 +5,7 @@
 #include "memory_def.h"
 #include "packet.h"
 #include "route.h"
+using namespace std;
 
 extern char* id_node;
 extern packet_t Buffer_packet;

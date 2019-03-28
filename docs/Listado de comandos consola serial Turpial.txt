@@ -18,8 +18,9 @@ PACKET CREATE INCOMING TYPE FROM PAYLOAD            crea un paquete incoming del
 PACKET CREATE OUTCOMING TYPE TO PAYLOAD             crea un paquete outcoming del tupo TYPE asignado, cuyo destinatario es TO y el contenido es PAYLOAD
 
 globales:
-INFO            muestra el id unico del equipo
-CLEAR ALL       vacia las tablas de mensajes salientes, nodos y rutas
+SYSTEM INFO            muestra el id unico del equipo
+CLEAR ALL              vacia las tablas de mensajes salientes, nodos y rutas
+SYSTEM RESET           reinicia el equipo
 
 para BLE:
 BLE CREATE INCOMING XXXX           asigna a la variable rxValue el valor XXXX

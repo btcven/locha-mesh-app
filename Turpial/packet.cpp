@@ -9,6 +9,8 @@
 #include "general_functions.h"
 #include "packet.h"
 #include "route.h"
+#include <Time.h>
+#include <TimeLib.h>
 
 extern char* id_node;
 extern packet_t Buffer_packet;
@@ -24,6 +26,7 @@ extern uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_
 extern uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received);
 extern uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received);
 extern uint8_t routing_incoming_PACKET_NOTDELIVERED(char id_node[16], packet_t packet_received);
+
 
 
 radioPacket::radioPacket(packet_t packet)
@@ -71,6 +74,32 @@ void radioPacket::deserialize()
   default:
     break;
   }
+}
+
+
+// Funcion en cargada de convertir un packet en una cadana char para ser enviada por Radio
+String packet_serialize(packet_t packet){
+  String rpta_str="";
+  rpta_str=rpta_str+(String)packet.header.type;
+  rpta_str=rpta_str+(String)packet.header.from;
+  rpta_str=rpta_str+(String)packet.header.to;
+  rpta_str=rpta_str+(String)packet.header.timestamp;
+  rpta_str=rpta_str+(String)packet.body.payload;
+  return rpta_str;
+}
+
+// Funcion en cargada de convertir una cadena char en un packet 
+packet_t packet_deserialize(String received_text){
+  packet_t packet_tmp;
+  String temp_var;
+  temp_var=received_text.substring(1,1);   //packet.header.type
+  packet_tmp.header.type=(int)temp_var;
+  
+  packet.header.from;
+  rpta_str=rpta_str+(String)packet.header.to;
+  rpta_str=rpta_str+(String)packet.header.timestamp;
+  rpta_str=rpta_str+(String)packet.body.payload;
+  return rpta_str;
 }
 
 

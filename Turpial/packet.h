@@ -60,5 +60,6 @@ private:
 packet_t create_packet(char* id_node, packet_type_e type, char* from, char* to, char* payload);
 packet_type_e convertir_str_packet_type_e(String type_recibido);
 String convertir_packet_type_e_str(packet_type_e type_recibido);
+String packet_serialize(packet_t packet);
 
 #endif // PACKET_H

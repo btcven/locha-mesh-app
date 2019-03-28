@@ -14,6 +14,8 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
+#include <Time.h>
+#include <TimeLib.h>
 #include "general_functions.h"
 #include "bluetooth.h"
 #include "radio.h"
@@ -27,6 +29,10 @@ std::string server_name = "mesh.locha.io";
 
 extern std::string txValue;
 extern std::string rxValue;
+extern char *uid ;
+extern char *msg;
+extern double timemsg;
+    
 
 bool deviceConnected = false;
 
@@ -49,9 +55,9 @@ class characteristicCB : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
-      char *uid = NULL;
-      char *msg = NULL;
-      double timemsg = 0;
+     // char *uid = NULL;
+    //  char *msg = NULL;
+    //  double timemsg = 0;
       // movil -> ble_server(Turpial)
       rxValue = pCharacteristic->getValue();
       // si tenemos datos podemos enviarlos via radio desde aqui.
@@ -65,9 +71,17 @@ class characteristicCB : public BLECharacteristicCallbacks
         String parametro;
         parametro=String(rxValue.c_str());    // se convierte de string c null terminated a System:String
         // el siguiente void extrae del String BLE los 3 parametros: uid,msg,time
+   
         json_receive(parametro,uid,msg,timemsg);
         // se procesa el comando que se haya recibido por BLE
+        
+        if (timemsg>now()){ 
+            // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
+           setTime(timemsg);  
+        }
+        
         BLE_incoming(uid,msg,timemsg);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
+        Serial.println("BLE process OK");
         rxValue.clear();
         // se vacia el buffer BLE
       }

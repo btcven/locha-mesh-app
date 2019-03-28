@@ -8,6 +8,7 @@
 #include "route.h"
 #include "blacklist.h"
 #include "language_es.h"
+using namespace std;
 
 #if defined(__AVR__) 
   #include "MemoryFree.h"
@@ -284,9 +285,9 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   nodo_t nodo_actual;
   nodo_t nodo_vecino;
 
-  char id_nodo_demo0[]="turpial.0";
-  char id_nodo_demo1[]="turpial.1";
-  char id_nodo_demo2[]="turpial.2";
+  char* id_nodo_demo0="TURPIAL.0";
+  char* id_nodo_demo1="TURPIAL.1";
+  char* id_nodo_demo2="TURPIAL.2";
 
 
 //char id_nodo_demo[]="turpial.0";
@@ -294,6 +295,10 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
 #define OLED_SCREEN_INTERVAL 4000 
 
 
+   // se colocan los id_nodo en mayusculas
+ // id_nodo_demo0=char_to_uppercase(id_nodo_demo0, 16);
+ // id_nodo_demo1=char_to_uppercase(id_nodo_demo1, 16);
+ //   id_nodo_demo2=char_to_uppercase(id_nodo_demo2, 16);
   
   char* id_node=id_nodo_demo0;
   
@@ -402,29 +407,37 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             uint8_t rpta=vaciar_tablas();
             ejecute=true;
          }
-          mensaje=F("INFO");
-        if (str_buffer_serial_received==mensaje){
+         mensaje=F("SYSTEM INFO");
+         if (str_buffer_serial_received==mensaje){
              str_buffer_serial_received="";
              // se muestra el estatus de la memoria del equipo
              DEBUG_PRINTLN("");
              DEBUG_PRINT(F("Node ID:"));
              DEBUG_PRINTLN(id_node);
-            // #if defined(__AVR__)   // solo aplica para los arduino
-            //    DEBUG_PRINT(F("Program storage free:"));
-            //    DEBUG_PRINT(freeMemory());
-            //    DEBUG_PRINTLN(" bytes");
-            //    DEBUG_PRINT(F("Memory for local variables:"));
-            //    DEBUG_PRINT(freeRam());
-            //    DEBUG_PRINTLN(" bytes");
+             #if defined(__AVR__)   // solo aplica para los arduino
+                DEBUG_PRINT(F("Program storage free:"));
+                DEBUG_PRINT(freeMemory());
+                DEBUG_PRINTLN(" bytes");
+                DEBUG_PRINT(F("Memory for local variables:"));
+                DEBUG_PRINT(freeRam());
+                DEBUG_PRINTLN(" bytes");
             
-            //    DEBUG_PRINT(F("Vcc:"));
-            //    DEBUG_PRINT(readVcc()/1000);
-            //    DEBUG_PRINTLN(F(" volts"));
-            //   DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-            //#endif
+                DEBUG_PRINT(F("Vcc:"));
+                DEBUG_PRINT(readVcc()/1000);
+                DEBUG_PRINTLN(F(" volts"));
+               DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            #endif
             str_buffer_serial_received="";
             ejecute=true;
          }
+        mensaje=F("SYSTEM RESET");
+        if (str_buffer_serial_received==mensaje){
+            str_buffer_serial_received="";
+            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            ESP.restart();
+           // ejecute=true;  
+         }
+         
         mensaje=F("BLE CREATE INCOMING");
         if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
             

@@ -8,7 +8,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <SSD1306.h>
-
+#include <Time.h>
+#include <TimeLib.h>
 // devices and default settings
 #include "hal/hardware.h"
 #include "lang/language.h"
@@ -22,14 +23,15 @@
 #include "fonts/DejaVu_Sans_12.h"
 #include "scr_images.h"
 #include "screens.h"
-
 #include "radio.h"
 #include "bluetooth.h"
+using namespace std;
 
 // variables fijas para este demo
 // ID unico del nodo
-char id_nodo_demo[] = "turpial.0";
-char *id_node = id_nodo_demo;
+char id_nodo_demo[16] = "TURPIAL.0";   
+//char *id_nodo_demo = "TURPIAL.0"; 
+char *id_node;// = id_nodo_demo;
 
 #if SCR_ENABLED == true
 SSD1306 display(SCR_ADD, SDA_OLED, SCL_OLED, RST_OLED);
@@ -47,19 +49,37 @@ nodo_t blacklist[MAX_NODES_BLACKLIST];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y outcoming
 
+uint8_t packet_timeout=30;   // expiration time in seconds of packets
+
 unsigned long tiempo;
 
 // variables para trasmision BLE
 std::string rxValue = "";
 std::string txValue = "";
+char *uid ;
+char *msg;
+double timemsg;
+
+// variables para trasmision Lora
+std::string rxValue_Lora = "";
+std::string txValue_Lora = "";
 
 void setup()
 {
+  uint8_t i;
+  
   bool display_enabled = false;
   bool lora_enabled = false;
   bool serial_enabled = false;
   bool wifi_enabled = false;
-
+  
+  // se coloca el id_nodo en mayusculas
+ // id_nodo_demo=char_to_uppercase(id_nodo_demo, 16);
+   //id_node= node_name_char_to_uppercase(id_nodo_demo);
+    id_node = id_nodo_demo;
+    copy_array_locha(id_nodo_demo, id_node, 16);
+    //fin de colocar id_nodo en mayusculas
+    
 #if defined(DEBUG)
   serial_enabled = true;
 #endif
@@ -166,55 +186,9 @@ void setup()
 
 int pantalla_activa = 1;
 
-void drawframe_title_with_2_fields_v1(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2)
-{
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.setFont(DejaVu_Sans_12);
-  display.drawString(x, y, title);
-  display.setFont(DejaVu_Sans_10);
-  display.drawString(x, y + 20, sub_title1);
-  display.drawString(x + 10, y + 30, field1);
-  display.drawString(x, y + 40, sub_title2);
-  display.drawString(x + 10, y + 50, field2);
-}
 
-void drawframe_table_with_4_fields(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2, String sub_title3, String field3, String sub_title4, String field4)
-{
-  uint8_t borde_tabla = 60;
-  uint8_t margen = 10;
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.setFont(DejaVu_Sans_12);
-  display.drawString(x, y, title);
-  display.setFont(DejaVu_Sans_10);
-  display.drawString(x, y + 20, sub_title1);
-  display.drawString(x + margen, y + 30, field1);
-  display.drawString(x + borde_tabla, y + 20, sub_title2);
-  display.drawString(x + margen + borde_tabla, y + 30, field2);
-  display.drawString(x, y + 40, sub_title3);
-  display.drawString(x + 10, y + 50, field3);
-  display.drawString(x + borde_tabla, y + 40, sub_title4);
-  display.drawString(x + margen + borde_tabla, y + 50, field4);
-}
-void drawframe_rows(int16_t x, int16_t y, String title, String row1, String row2, String row3, String row4, String row5)
-{
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.setFont(DejaVu_Sans_12);
-  display.drawString(x, y, title);
-  display.setFont(DejaVu_Sans_10);
-  display.drawString(x, y + 20, row1);
-  display.drawString(x, y + 30, row2);
-  display.drawString(x, y + 40, row3);
-  display.drawString(x, y + 50, row4);
-  display.drawString(x, y + 60, row5);
-}
 
-void drawFrame_tech(int16_t x, int16_t y)
-{
-  String linea;
-  linea = (String)esp_get_idf_version();
-  linea = linea.substring(0, 10);
-  drawframe_table_with_4_fields(x, y, "System info", "Heap free:", (String)heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL), "Chip Size:", (String)(ESP.getFlashChipSize() / 1024) + " Mb", "IDF ver.:", linea, "Sketch:", (String)(ESP.getSketchSize() / 1024) + " Kb");
-}
+
 
 void drawFrame5(int16_t x, int16_t y)
 {

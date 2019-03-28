@@ -7,6 +7,8 @@
 #include "packet.h"
 #include "routing_incoming.h"
 #include "routing_outcoming.h"
+#include <Time.h>
+#include <TimeLib.h>
 
 extern char* id_node;
 extern packet_t Buffer_packet;
@@ -20,7 +22,26 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern uint8_t total_nodos_blacklist;
 
+extern uint8_t packet_timeout;
 
+//deletes expired packets in message queue
+uint8_t delete_older_packets(){
+  uint8_t i;
+  uint8_t j;
+   for (i = 1; i <= total_mensajes_salientes; i++) {
+        unsigned long xx = mensajes_salientes[i].paquete.header.timestamp;
+        if ((xx+packet_timeout)<now()){ 
+          // se devuelve un packet NOT_DELIVERED a origen 
+          // se borra de la cola de mensajes
+            for (j = i; i < total_mensajes_salientes; j++) {
+                mensajes_salientes[i]=mensajes_salientes[i]+1;
+            }
+            total_mensajes_salientes--;
+            return 1;
+        }
+   }
+   return 0;
+}
 
 
 void packet_processing_incoming(){
@@ -32,6 +53,47 @@ void packet_processing_incoming(){
 
 void packet_processing_outcoming(){
 // aqui se deberia invocar radio_send del primer registro que consiga en el arreglo mensajes_salientes
+ uint8_t i;
+ String msg_to_send="";
+bool encontre;
+ // se borran los mensajes expirados
+ do
+{
+    i=delete_older_packets();
+} while (i>0);
+
+ 
+ // se busca el primer mensaje saliente en la cola de mensajes cuyo tiempo de retry sea 0 o sea mayor a 30 seg de diferencia
+ // se serializa en un String el mensaje saliente
+ // se envia con el void radioSend
+ // se marca en la tabla de salientes como enviado y reintentos++
+ message_queue_t el_mensaje_saliente;
+ if (total_mensajes_salientes>0){
+  encontre=false;
+    for (i = 1; i <= total_mensajes_salientes; i++) {
+          if (mensajes_salientes[i].retry_timestamp==0){
+                encontre=true;
+                break;
+          } else {
+            if (mensajes_salientes[i].retry_timestamp>0){
+                if ((mensajes_salientes[i].retry_timestamp+packet_timeout)<now()){
+                  encontre=true;
+                  break;
+                }
+            }
+          }
+          
+    }
+    if (encontre){
+        el_mensaje_saliente=mensajes_salientes[i];
+        msg_to_send=packet_serialize(mensajes_salientes[i].paquete);
+        radioSend(msg_to_send);
+        mensajes_salientes[i].retries=mensajes_salientes[i].retries+1;
+        mensajes_salientes[i].retry_timestamp=now();
+    }
+ }
+ 
+ 
 
 }
 
@@ -266,21 +328,51 @@ uint8_t packet_to_send(packet_t Buffer_packet){
   message_queue_t nuevo_mensaje_en_cola;
   nuevo_mensaje_en_cola.paquete=Buffer_packet;
   nuevo_mensaje_en_cola.prioridad=1;
+  nuevo_mensaje_en_cola.reintentos=0;
+  nuevo_mensaje_en_cola.retry_timestamp=0;
   mensajes_salientes[total_mensajes_salientes+1]=nuevo_mensaje_en_cola;
   total_mensajes_salientes++;
   return 0;
 }
 
 // funcion para proesar un mensaje BLE incoming
-void BLE_incoming(char* uid,char* msg, double timemsg){
+void BLE_incoming(char* uid2,char* msg, double timemsg){
   uint8_t i;
   uint8_t rpta;
   // si es un mensaje tipo broadcast se envia a todos los vecinos 
-    if (String(uid)=="broadcast"){ 
+//  Serial.println("comenzando BLE_incoming");
+//  Serial.print("tengo:");
+//  Serial.println(uid2);
+    if (String(uid2)=="broadcast"){ 
+  //    Serial.println("es un broadcast");
        for (i = 1; i <= total_vecinos; i++) {
+   //     Serial.print("enviando packet al vecino:");
+    //    Serial.println(vecinos[i].id);
         // se arma el packet y se envia a cada vecino
         packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, vecinos[i].id, msg);
+     //   Serial.print("con from");
+     //   Serial.print(id_node);
+     //   Serial.print("=");
+     //   Serial.println(tmp_packet.header.from);
+      //  Serial.print("con to");
+     //   Serial.println(vecinos[i].id);
+     //   Serial.print("=");
+     //   Serial.println(tmp_packet.header.to);
+    //    Serial.print("contenido");
+    //    Serial.println(msg);
+    //    Serial.print("=");
+    //    Serial.println(tmp_packet.body.payload);
+    //    Serial.println("sigo");
+        rpta=packet_to_send(tmp_packet);
+       }
+    } else {
+     // Serial.print("es otro tipo de packet:");
+     //  Serial.println(String(uid2));
+       // por ahora todo lo que origina en BLE es tipo MSG
+       if (String(uid2)!=""){
+          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, uid2, msg);
           rpta=packet_to_send(tmp_packet);
        }
     }
+  //  Serial.println("listo el envio de packets");
 }
