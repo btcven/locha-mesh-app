@@ -17,6 +17,7 @@ build:init:
    script:
      - "apk add --update --no-cache make ca-certificates curl && update-ca-certificates"
      - "curl -L https://github.com/arduino/arduino-cli/releases/download/0.3.6-alpha.preview/arduino-cli-$ARDUINO_CLI_VERSION-linux64.tar.bz2 | tar xj -C /tmp/"
+     - "mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2"
      - "mv /tmp/arduino-cli-$ARDUINO_CLI_VERSION-linux64 /usr/local/bin/arduino-cli && chmod +x /urs/local/bin/arduino-cli"
      - "arduino-cli core update-index"
      - "arduino-cli core install Heltec-esp32:esp32"
