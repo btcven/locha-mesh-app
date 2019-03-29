@@ -25,15 +25,20 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 
-uint8_t routing_incoming_PACKET_MSG(char* id_node, packet_t packet_received);
-uint8_t routing_incoming_PACKET_JOIN(char* id_node, packet_t packet_received);
-uint8_t routing_incoming_PACKET_BYE(char* id_node, packet_t packet_received);
-uint8_t routing_incoming_PACKET_ROUTE(char* id_node, packet_t packet_received);
-uint8_t routing_incoming_PACKET_NOT_DELIVERED(char* id_node, packet_t packet_received);
-uint8_t routing_incoming_PACKET_ACK(char* id_node, packet_t packet_received);
+
+
+uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received);
+uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received);
+uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received);
+uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received);
+uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received);
+uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received);
+uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received);
+uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received);
+uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received);
 
 // definicion de voids
-void process_received_packet(packet_t Buffer_packet);
+void process_received_packet(packet_t packet_temporal);
 
 
 #endif // INCOMING_H

@@ -5,6 +5,7 @@
 */
 #ifndef GENERAL_FUNCTIONS_H_
 #define GENERAL_FUNCTIONS_H_
+#include <Arduino.h>
 
 extern char* uid;
 extern char* msg;

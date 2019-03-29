@@ -46,12 +46,12 @@ uint8_t delete_older_packets(){
 }
 
 
-void packet_processing_incoming(){
+//void packet_processing_incoming(){
   // se procesa el packet que fue recibido por el radio lora y que esta en Buffer_packet
   
-  process_received_packet(Buffer_packet);    // este void esta en routing_incoming.h
+      // este void esta en routing_incoming.h
   
-}
+//}
 
 void packet_processing_outcoming(){
 // aqui se deberia invocar radio_send del primer registro que consiga en el arreglo mensajes_salientes

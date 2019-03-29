@@ -3,6 +3,8 @@
 #include "packet.h"
 #include "general_functions.h"
 #include "debugging.h"
+//#include "routing_incoming.h"
+//#include "routing_outcoming.h"
 
 extern char* id_node; // id unico del nodo
 extern packet_t Buffer_packet;
@@ -13,12 +15,18 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 
+
+
 // esta funcion procesa el paquete recibido 
-void process_received_packet(packet_t Buffer_packet){
-//    Buffer_packet.deserialize();
+void process_received_packet(packet_t packet_temporal){
+
+  radioPacket tt(packet_temporal);
+  tt.deserialize();
+  // se invoca al destructor virtual de la clase
+  tt.~radioPacket();
 }
 
-uint8_t routing_incoming_PACKET_MSG(char* id_node, packet_t packet_received){
+uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
   
   // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
   // 2) si no es para mi nodo se verifica si el destinatario existe en mi tabla de rutas
@@ -28,9 +36,9 @@ uint8_t routing_incoming_PACKET_MSG(char* id_node, packet_t packet_received){
 
 
  // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
-if (packet_received.header.to==id_node){
+if ((String)packet_received.header.to==(String)id_node){
   // es un paquete para mi nodo
-  process_received_packet(Buffer_packet);
+ // process_received_packet(Buffer_packet);
   // se devuelve un packet_ACK por la misma ruta
   // se arma un packet_ACK
    // packet_header_t header;
@@ -82,7 +90,7 @@ if (packet_received.header.to==id_node){
   return 0;
 }
 
-uint8_t routing_incoming_PACKET_JOIN(char* id_node, packet_t packet_received){
+uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received){
   // nuevo vecino de la tabla de vecinos
   copy_array_locha(packet_received.header.from, vecinos[total_vecinos+1].id, 16);
 //  vecinos[total_vecinos+1]=packet_received.header.from;
@@ -99,7 +107,7 @@ uint8_t routing_incoming_PACKET_JOIN(char* id_node, packet_t packet_received){
   return 0;
 }
 
-uint8_t routing_incoming_PACKET_BYE(char* id_node, packet_t packet_received){
+uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received){
   // borra al vecino de la tabla de vecinos
   uint8_t i;
   uint8_t is_MSG=0;
@@ -154,20 +162,36 @@ uint8_t routing_incoming_PACKET_BYE(char* id_node, packet_t packet_received){
   return 0;
 }
 
-uint8_t routing_incoming_PACKET_ROUTE(char* id_node, packet_t packet_received){
+uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received){
   // este tipo de paquete permite adicionar nuevas rutas a la tabla de rutas
   
   
   return 0;
 }
 
-uint8_t routing_incoming_PACKET_NOT_DELIVERED(char* id_node, packet_t packet_received){
+uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received){
   // si no es para mi se reenvia el paquete a los vecinos por la ruta donde origino
   
   return 0;
 }
+uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received){
+  // 
+  
+  return 0;
+}
+uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received){
+  // 
+  
+  return 0;
+}
+uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received){
+  // 
+  
+  return 0;
+}
 
-uint8_t routing_incoming_PACKET_ACK(char* id_node, packet_t packet_received){
+
+uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
   // se verifica si en los mensajes enviados hay uno que tenga el mismo payload para borrarlo
   uint8_t i;
   uint8_t is_MSG=0;

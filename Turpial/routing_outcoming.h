@@ -9,7 +9,7 @@
 
 #ifndef OUTCOMING_H
 #define OUTCOMING_H
-
+#include <Arduino.h>
 #include <string.h>
 #include "route.h"
 #include "packet.h"

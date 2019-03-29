@@ -294,7 +294,7 @@ void loop()
   }
 
   // se efectua el procesamiento de paquetes entrantes
-  packet_processing_incoming();
+  //packet_processing_incoming();  // se comento porque se hace en el onreceive via callback
   // se efectua el procesamiento de paquetes salientes
   packet_processing_outcoming();
 

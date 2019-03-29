@@ -9,6 +9,9 @@
 #include "general_functions.h"
 #include "packet.h"
 #include "route.h"
+#include "routing_incoming.h"
+#include "routing_outcoming.h"
+
 #include <Time.h>
 #include <TimeLib.h>
 
@@ -18,14 +21,17 @@ extern packet_t Buffer_packet;
 
 // se incluyen los eventos para externos para cada tipo de packet_t
 extern uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_NET_BYE(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_NET_JOIN(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_NET_ROUTE(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received);
 extern uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received);
 extern uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received);
 extern uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received);
 extern uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_NOTDELIVERED(char id_node[16], packet_t packet_received);
+extern uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received);
+
+
+
 
 
 
@@ -48,13 +54,13 @@ void radioPacket::deserialize()
   {
   case EMPTY:
   case JOIN:
-      routing_incoming_NET_JOIN(id_node, Buffer_packet);
+      routing_incoming_PACKET_JOIN(id_node, Buffer_packet);
       break;
   case BYE:
-      routing_incoming_NET_BYE(id_node, Buffer_packet);
+      routing_incoming_PACKET_BYE(id_node, Buffer_packet);
       break;
   case ROUTE:
-      routing_incoming_NET_ROUTE(id_node, Buffer_packet);
+      routing_incoming_PACKET_ROUTE(id_node, Buffer_packet);
       break;
   case ACK:
       routing_incoming_PACKET_ACK(id_node, Buffer_packet);
@@ -69,7 +75,7 @@ void radioPacket::deserialize()
    routing_incoming_PACKET_GOSSIP(id_node, Buffer_packet);
       break;
   case NOT_DELIVERED:
-   routing_incoming_PACKET_NOTDELIVERED(id_node, Buffer_packet);
+   routing_incoming_PACKET_NOT_DELIVERED(id_node, Buffer_packet);
       break;
   default:
     break;
