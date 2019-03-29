@@ -15,7 +15,7 @@ stages:
 build:init:
    stage: build
    script:
-     - "apt install make curl git"
+     - "apt update -y && apt install make curl git -y"
      - "curl -L https://github.com/arduino/arduino-cli/releases/download/0.3.6-alpha.preview/arduino-cli-$ARDUINO_CLI_VERSION-linux64.tar.bz2 | tar xj -C /tmp/"
      - "mv /tmp/arduino-cli-$ARDUINO_CLI_VERSION-linux64 /usr/local/bin/arduino-cli && chmod +x /usr/local/bin/arduino-cli"
      - "cd /builds/btcven/locha/app/"
