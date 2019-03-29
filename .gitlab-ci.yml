@@ -2,7 +2,7 @@ image: alpine:3.8
 
 variables: 
 #  GIT_SUBMODULE_STRATEGY: recursive
-   ARDUINO_CLI_VERSION:0.3.6-alpha.preview
+   ARDUINO_CLI_VERSION: 0.3.6-alpha.preview
 
 cache:
   paths:
@@ -12,7 +12,7 @@ stages:
  - build
 
 
-build:init
+build:init:
    stage: build
    script:
      - "curl -L https://github.com/arduino/arduino-cli/releases/download/0.3.6-alpha.preview/arduino-cli-$ARDUINO_CLI_VERSION-linux64.tar.bz2 | tar xj -C /tmp/"
