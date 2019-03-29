@@ -19,6 +19,7 @@ build:init:
      - "curl -L https://github.com/arduino/arduino-cli/releases/download/0.3.6-alpha.preview/arduino-cli-$ARDUINO_CLI_VERSION-linux64.tar.bz2 | tar xj -C /tmp/"
      - "mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2"
      - "mv /tmp/arduino-cli-$ARDUINO_CLI_VERSION-linux64 /usr/local/bin/arduino-cli && chmod +x /usr/local/bin/arduino-cli"
+     - "cd /builds/btcven/locha/app/"
      - "arduino-cli core update-index"
      - "arduino-cli core install Heltec-esp32:esp32"
      - "git clone https://gitlab.com/btcven/locha/heltec-oled  arduino_data/packages/Heltec-esp32/hardware/esp32/0.0.2-rc1/libraries/heltec-oled"
