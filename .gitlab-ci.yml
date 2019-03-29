@@ -25,6 +25,8 @@ build:init:
      - "git clone https://gitlab.com/btcven/locha/heltec-oled  arduino_data/packages/Heltec-esp32/hardware/esp32/0.0.2-rc1/libraries/heltec-oled"
      - "git clone https://gitlab.com/btcven/locha/heltec-lora  arduino_data/packages/Heltec-esp32/hardware/esp32/0.0.2-rc1/libraries/heltec-lora"
      - "arduino-cli compile --fqbn Heltec-esp32:esp32:wifi_lora_32_V2 Turpial"
+   variables:
+     USER: root
    artifacts:
     expire_in: 1 week
     paths: ["Turpial/*.elf", "Turpial/*.bin"]
