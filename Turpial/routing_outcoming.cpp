@@ -14,11 +14,10 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 
-
 uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]){
 // 1) el destino es un vecino
-//2) si  no es vecino existe una ruta al vecino (en caso negativo se devuelve packet not delivered por ahora en este demo)
-//3) se arma el paquete
+// 2) si  no es vecino existe una ruta al vecino (en caso negativo se devuelve packet not delivered por ahora en este demo)
+// 3) se arma el paquete
 // 4) se envia el paquete
       char id_node_dest_temp[16];
        copy_array_locha(id_node_destino,id_node_dest_temp, 16);

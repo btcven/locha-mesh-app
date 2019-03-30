@@ -47,7 +47,7 @@ class radioPacket
 
 public:
   radioPacket(packet_t packet);
-  virtual ~radioPacket();
+  ~radioPacket();
   void serialize();
   void deserialize();
 

@@ -31,10 +31,6 @@ extern uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_rec
 extern uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received);
 
 
-
-
-
-
 radioPacket::radioPacket(packet_t packet)
 {
   packet = packet;
@@ -45,6 +41,7 @@ radioPacket::radioPacket(packet_t packet)
 radioPacket::~radioPacket()
 {
   // destructor
+  delete this;
 }
 
 void radioPacket::deserialize()
