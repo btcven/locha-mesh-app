@@ -11,9 +11,10 @@
 #define OUTCOMING_H
 #include <Arduino.h>
 #include <string.h>
+#include "memory_def.h"
 #include "route.h"
 #include "packet.h"
-#include "debugging.h"
+
 
 
 extern char* id_node; // id unico del nodo

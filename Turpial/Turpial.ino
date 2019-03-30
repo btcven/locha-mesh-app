@@ -13,7 +13,6 @@
 // devices and default settings
 #include "hal/hardware.h"
 #include "lang/language.h"
-
 #include "memory_def.h"
 #include "general_functions.h"
 #include "packet.h"
@@ -30,11 +29,12 @@ using namespace std;
 // variables fijas para este demo
 // ID unico del nodo
 char id_nodo_demo[16] = "TURPIAL.0";   
-//char *id_nodo_demo = "TURPIAL.0"; 
-char *id_node;// = id_nodo_demo;
+
+
+char *id_node;
 
 #if SCR_ENABLED == true
-SSD1306 display(SCR_ADD, SDA_OLED, SCL_OLED, RST_OLED);
+  SSD1306 display(SCR_ADD, SDA_OLED, SCL_OLED, RST_OLED);
 #endif
 
 // includes internos
@@ -132,7 +132,9 @@ void setup()
 
     if (SCR_ENABLED)
     {
-      DEBUG_PRINTLN(MSG_SCR_INIT);
+      DEBUG_PRINT(MSG_SCR);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
       // activar módulo SCR
       // leer NVS,  verificar si existe registro
       // si existe aplicar, si no establecer parametros por defecto.
@@ -143,28 +145,41 @@ void setup()
 
     if (BLE_ENABLED)
     {
-      DEBUG_PRINTLN(F("[BLE] Initiating... "));
+     
+      DEBUG_PRINT(MSG_BLE);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
       xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
     }
     if (WAP_ENABLED)
     {
-      DEBUG_PRINT(F("[WAP] Initiating... "));
+      DEBUG_PRINT(MSG_WAP);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
       // -- activar módulo wap --
     }
 
     if (WST_ENABLED)
     {
-      DEBUG_PRINTLN(F("[WST] Initiating... "));
+      
+      DEBUG_PRINT(MSG_WST);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
     }
 
     if (RAD_ENABLED)
     {
-      DEBUG_PRINTLN(F("[RAD] Initiating... "));
+      DEBUG_PRINT(MSG_SCR);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
       xTaskCreate(task_radio, "task_radio", 2048, NULL, 5, NULL);
     }
 
     // se coloca el cursor en el terminal serial
-    DEBUG_PRINTLN(F("Starting terminal"));
+              
+    DEBUG_PRINT(MSG_SERIAL);
+    DEBUG_PRINT(" ");
+    DEBUG_PRINTLN(MSG_START);
     // se genera el node_id solo si no existe
     if (id_node == "")
     {
@@ -184,68 +199,10 @@ void setup()
   }
 } //setup
 
-int pantalla_activa = 1;
+// con esta variable se lleva el control de cual frame de pantalla se esta mostrando en el momento
+int pantalla_activa = 1;   
 
-
-
-
-
-void drawFrame5(int16_t x, int16_t y)
-{
-  String msg_screen_wifi = "Inactive";
-  msg_screen_wifi = "Active WAP";
-  if (WAP_ENABLED)
-  {
-    if (WST_ENABLED)
-    {
-      msg_screen_wifi = "Active WAP/WST";
-    }
-    msg_screen_wifi = msg_screen_wifi + "-" + MSG_ENABLED;
-  }
-  else
-  {
-    msg_screen_wifi = msg_screen_wifi + "-" + MSG_DISABLED;
-  }
-
-  msg_screen_wifi = "Active WST";
-  if (WST_ENABLED)
-  {
-    msg_screen_wifi = msg_screen_wifi + "-" + MSG_ENABLED;
-  }
-  else
-  {
-    msg_screen_wifi = msg_screen_wifi + "-" + MSG_DISABLED;
-  }
-
-  String msg_screen_radio = "Inactive";
-
-  msg_screen_radio = "Active";
-
-  if (RAD_ENABLED)
-  {
-    msg_screen_radio = msg_screen_radio + "-" + MSG_ENABLED;
-  }
-  else
-  {
-    msg_screen_radio = msg_screen_radio + "-" + MSG_DISABLED;
-  }
-
-  String msg_screen_ble = "Inactive";
-
-  msg_screen_ble = "Active";
-  if (BLE_ENABLED)
-  {
-    msg_screen_ble = msg_screen_ble + "-" + MSG_ENABLED;
-  }
-  else
-  {
-    msg_screen_ble = msg_screen_ble + "-" + MSG_DISABLED;
-  }
-
-  drawframe_rows(0, 0, "Services", "Wifi: " + msg_screen_wifi, "Lora: " + msg_screen_radio, "BLE: " + msg_screen_ble, "", "");
-}
-
-uint8_t rpta_tmp ;
+//uint8_t rpta_tmp ;
 
 void loop()
 {
@@ -293,15 +250,13 @@ void loop()
     tiempo = millis();
   }
 
-  // se efectua el procesamiento de paquetes entrantes
-  //packet_processing_incoming();  // se comento porque se hace en el onreceive via callback
   // se efectua el procesamiento de paquetes salientes
   packet_processing_outcoming();
 
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
- // #ifdef DEBUG
-     rpta_tmp = show_debugging_info(vecinos, total_vecinos);
-//  #endif
+  #ifdef DEBUG
+     uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos);
+  #endif
   
 
 }

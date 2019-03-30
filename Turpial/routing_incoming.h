@@ -11,9 +11,10 @@
 #define INCOMING_H
 #include <Arduino.h>
 #include <string.h>
+#include "memory_def.h"
 #include "route.h"
 #include "packet.h"
-#include "general_functions.h"
+
 
 extern char* id_node; // id unico del nodo
 
@@ -37,7 +38,7 @@ uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received);
 uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received);
 
 // definicion de voids
-void process_received_packet(packet_t packet_temporal);
+void process_received_packet(char id_node[16], packet_t packet_temporal);
 
 
 #endif // INCOMING_H

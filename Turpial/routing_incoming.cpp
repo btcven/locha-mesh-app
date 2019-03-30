@@ -1,13 +1,11 @@
 #include <Arduino.h>
-#include "route.h"
-#include "packet.h"
+#include "routing_incoming.h"
 #include "general_functions.h"
 #include "debugging.h"
-//#include "routing_incoming.h"
-//#include "routing_outcoming.h"
 
-extern char* id_node; // id unico del nodo
-//extern packet_t Buffer_packet;
+
+
+//extern char* id_node; // id unico del nodo
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
@@ -15,13 +13,8 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 
-// esta funcion procesa el paquete recibido 
-void process_received_packet(packet_t packet_temporal){
-  radioPacket tt(packet_temporal);
-  tt.deserialize();
-  // se invoca al destructor virtual de la clase
-  tt.~radioPacket();
-}
+
+
 
 uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
   
@@ -213,4 +206,40 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
           }
       }
    }
+}
+
+
+// esta funcion procesa el paquete recibido 
+void process_received_packet(char id_node[16], packet_t packet_temporal){
+  uint8_t rpta;
+  switch (packet_temporal.header.type)
+  {
+  case EMPTY:
+  case JOIN:
+      routing_incoming_PACKET_JOIN(id_node, packet_temporal);
+      break;
+  case BYE:
+      routing_incoming_PACKET_BYE(id_node, packet_temporal);
+      break;
+  case ROUTE:
+      routing_incoming_PACKET_ROUTE(id_node, packet_temporal);
+      break;
+  case ACK:
+      routing_incoming_PACKET_ACK(id_node, packet_temporal);
+      break;
+  case MSG:
+     routing_incoming_PACKET_MSG(id_node, packet_temporal);
+     break;
+  case HELLO:
+   routing_incoming_PACKET_HELLO(id_node, packet_temporal);
+      break;
+  case GOSSIP:
+   routing_incoming_PACKET_GOSSIP(id_node, packet_temporal);
+      break;
+  case NOT_DELIVERED:
+   routing_incoming_PACKET_NOT_DELIVERED(id_node, packet_temporal);
+      break;
+  default:
+    break;
+  }
 }

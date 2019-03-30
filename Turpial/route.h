@@ -10,14 +10,6 @@
 #include "memory_def.h"
 #include "packet.h"
 
-//extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
-//extern rutas_t routeTable[MAX_ROUTES];
-//extern nodo_t vecinos[MAX_NODES];
-//extern nodo_t blacklist[MAX_NODES_BLACKLIST];
-//extern uint8_t total_mensajes_salientes;
-//extern uint8_t total_vecinos;
-//extern uint8_t total_rutas;
-//extern uint8_t total_nodos_blacklist;
 
 typedef struct nodo_t
 {
@@ -41,7 +33,6 @@ typedef struct rutas_t
 } rutas_t;
 
 // definicion de voids
-void packet_processing_incoming();
 void packet_processing_outcoming();
 uint8_t create_neighbor(String id_node_neighbor, struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t blacklist[MAX_NODES_BLACKLIST], uint8_t total_nodos_blacklist);
 uint8_t packet_to_send(packet_t Buffer_packet);

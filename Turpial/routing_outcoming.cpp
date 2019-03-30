@@ -1,9 +1,7 @@
 #include <Arduino.h>
-#include "route.h"
-#include "packet.h"
+#include "routing_outcoming.h"
 #include "general_functions.h"
 #include "debugging.h"
-
 
 extern char* id_node; // id unico del nodo
 extern packet_t Buffer_packet;

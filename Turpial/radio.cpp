@@ -5,23 +5,27 @@
 */
 #include <Arduino.h>
 #include <SPI.h>
-#include "LoRa.h"
 #include "radio.h"
+#include "hal/hardware.h"
+#include "lang/language.h"
+#include "LoRa.h"
+#include "packet.h"
 #include "routing_incoming.h"
+#include "debugging.h"
 
 extern std::string txValue_Lora;
 extern std::string rxValue_Lora;
-extern char* id_node;
-//extern packet_t Buffer_packet;
+extern char *id_node;
 
 
+// Funcion para validar si un string es numerico
 bool is_number(const std::string& s)
 {
     return !s.empty() && std::find_if(s.begin(), 
         s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
 
-// recibe un paquete
+// recibe un paquete, es invocado via callback 
 void onReceive(int packetSize) {
   // txValue << packet
   // pasar a la variable txValue.
@@ -69,7 +73,7 @@ void onReceive(int packetSize) {
         strncpy(packet_tmp.header.to, header_to.c_str(), sizeof(packet_tmp.header.to));
         packet_tmp.header.timestamp=std::atoi (header_timestamp.c_str());
        
-        process_received_packet(packet_tmp);
+        process_received_packet(id_node,packet_tmp);
         
       }
     }
@@ -103,19 +107,24 @@ void radioSend(std::string _data) {
   // payload
 }
 
+
+// declaracion del radio Lora y su vinculacion via SPI
 void task_radio(void *params) {
 
-  Serial.print(F("[RAD] Initializing ... "));
+  DEBUG_PRINT(MSG_SCR);
+  DEBUG_PRINT(" ");
+  DEBUG_PRINT(MSG_INIT);
+  DEBUG_PRINTLN(" ");
 
   SPI.begin(RAD_SCK, RAD_MISO, RAD_MOSI, RAD_CSS);
   LoRa.setPins(RAD_CSS, RAD_RST, RAD_DIO0);
 
-  int rad_isInit = LoRa.begin(RAD_BAND, PABOOST);
+  int rad_isInit = LoRa.begin(RAD_BAND, RAD_PABOOST);
 
   if (rad_isInit) {
-    Serial.println("OK");
+    DEBUG_PRINT(MSG_OK);
   } else {
-    Serial.println("ERROR");
+    DEBUG_PRINT(MSG_ERROR);
     // kill task by task handler
   }
 
@@ -123,10 +132,11 @@ void task_radio(void *params) {
   LoRa.onReceive(onReceive);
   // ponemos en modo recepcion.
   LoRa.receive();
-
+// se deja en modo recibiendo el radio Lora
   while (1) {
     if (txValue_Lora.size() > 0) {
-      Serial.println(txValue_Lora.c_str());
+      DEBUG_PRINT("LoRa:");
+      DEBUG_PRINTLN(txValue_Lora.c_str());
 
     }
     delay(10);

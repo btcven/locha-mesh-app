@@ -13,13 +13,11 @@
 #define MSG_BLE             "BLE"
 #define MSG_WAP             "WAP"
 #define MSG_WST             "WST"
+#define MSG_SERIAL          "serial port"
 
-#define MSG_INIT            "Initiating"
-#define MSG_SCR_INIT        "[SRC] Initiating "
-#define MSG_RAD_INIT        "[RAD] Initiating "
-#define MSG_BLE_INIT        "[BLE] Initiating "
-#define MSG_WAP_INIT        "[WAP] Initiating "
-#define MSG_WST_INIT        "[WST] Initiating "
+
+#define MSG_START           "Initiating"
+#define MSG_INIT            "Setting up"
 
 #define MSG_OK              "OK"
 #define MSG_ERROR           "ERROR"
@@ -29,7 +27,7 @@
 #define MSG_DISABLED        "Disabled"
 
 
-//
+#define MSG_SPACE           " "
 #define MSG_CR              "\n"
 #define MSG_LF              "\r"
 #define MSG_TAB             "\t"

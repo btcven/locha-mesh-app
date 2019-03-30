@@ -1,14 +1,12 @@
 #include <Arduino.h>
-#include "hal/hardware.h"
-#include "general_functions.h"
 #include "debugging.h"
+#include "hal/hardware.h"
+#include "lang/language.h"
+#include "general_functions.h"
 #include "boards_def.h"
 #include "memory_def.h"
-#include "packet.h"
-#include "route.h"
 #include "blacklist.h"
-#include "language_es.h"
-using namespace std;
+
 
 #if defined(__AVR__) 
   #include "MemoryFree.h"
@@ -187,8 +185,11 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
   nodo_t origen;
   nodo_t destino;
   nodo_t next_neighbor;
+  Serial.print("estoy dentro de mostrar_rutas con el id_nodo:");
+  Serial.println((String)node_id);
   DEBUG_PRINTLN(MSG_SPACE);
   DEBUG_PRINT("Rutas disponibles en el nodo: ");
+  Serial.println("coloque el titulo");
   DEBUG_PRINT(node_id);
   DEBUG_PRINTLN();
    for (i = 1; i <= 80; i++) {
@@ -228,8 +229,8 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
 
 
 
-
-uint8_t mostrar_cola_mensajes(struct message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], size_t tamano_arreglo){
+//uint8_t mostrar_cola_mensajes(struct message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], size_t tamano_arreglo){
+uint8_t mostrar_cola_mensajes(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], size_t tamano_arreglo){
   uint8_t i;
   uint8_t j;
     
@@ -348,14 +349,12 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
     String str_buffer_serial_received="";
     String mensaje="";
     bool ejecute=false;
-
     if (Serial.available()) {
       
       str_buffer_serial_received=Serial.readStringUntil('\n');
       str_buffer_serial_received.toUpperCase();
       str_buffer_serial_received.replace("  "," ");  // se elimina cualquier doble espacio en el input
       str_buffer_serial_received.trim();
-    
         //Serial.flush();
         mensaje=F("SHOW ROUTES");
         if (str_buffer_serial_received==mensaje){

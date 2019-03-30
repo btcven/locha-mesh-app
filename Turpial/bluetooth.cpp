@@ -20,6 +20,7 @@
 #include "bluetooth.h"
 #include "radio.h"
 #include "route.h"
+#include "debugging.h"
 
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
@@ -63,8 +64,8 @@ class characteristicCB : public BLECharacteristicCallbacks
       // si tenemos datos podemos enviarlos via radio desde aqui.
       if (rxValue.size() > 0)
       {
-        Serial.print("[BLE] Received: ");
-        Serial.println(rxValue.c_str());
+        DEBUG_PRINT("[BLE] Received:");
+        DEBUG_PRINTLN(rxValue.c_str());
        // radioSend(rxValue);   // el enviar por radio va en el main loop en packet_processing_outcoming(), enviar por radio lo que deberia hacer es leer la tabla mensajes_salientes y enviar de a un registro a la vez
         // por que el procesamiento de paquetes es FIFO y si hay paquetes esperando por salir por la radio Lora no puede salir primero un paquete BLE hacia la radio Lora
         // se procesa el ble incoming
@@ -73,13 +74,20 @@ class characteristicCB : public BLECharacteristicCallbacks
         // el siguiente void extrae del String BLE los 3 parametros: uid,msg,time
    
         json_receive(parametro,uid,msg,timemsg);
+        DEBUG_PRINTLN("Json received: ");
+        DEBUG_PRINT("uid:");
+        DEBUG_PRINTLN(uid);
+        DEBUG_PRINT("msg:");
+        DEBUG_PRINTLN(msg);
+        DEBUG_PRINT("time:");
+        DEBUG_PRINTLN(timemsg);
         // se procesa el comando que se haya recibido por BLE
         
-        if (timemsg>now()){ 
-            // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
-           setTime(timemsg);  
-        }
-        
+          if (timemsg>now()){ 
+              // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
+             setTime(timemsg);  
+          }
+         
         BLE_incoming(uid,msg,timemsg);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
         Serial.println("BLE process OK");
         rxValue.clear();

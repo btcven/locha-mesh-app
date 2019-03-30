@@ -10,13 +10,10 @@
 #define DEBUGGING_H
 
 #include <Arduino.h>
-//#include "hardware.h"
-#include "boards_def.h"
-#include "memory_def.h"
 #include "packet.h"
 #include "route.h"
-#include "blacklist.h"
 using namespace std;
+
 extern char *id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
@@ -26,6 +23,11 @@ extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern uint8_t total_mensajes_salientes;
+
+
+// la siguiente linea se comenta para produccion, solo es para hacer debugging en desarrollo
+#define DEBUG true
+
 
 #ifdef DEBUG
   #define DEBUG_BEGIN(x) Serial.begin(x)

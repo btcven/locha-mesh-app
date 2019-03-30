@@ -1,13 +1,11 @@
 #include <Arduino.h>
-#include <Time.h>
-#include <TimeLib.h>
 #include <string.h>
 #include <WiFi.h>
 #include <cJSON.h>
-#include "hal/hardware.h"
-#include "route.h"
 #include <iostream>
-#include <Time.h>
+#include "general_functions.h"
+
+
 
 
 extern char* uid;
@@ -55,7 +53,7 @@ String random_name(int numBytes)
   return respuesta;
 }
 
-
+// funcion encargada de colocar los id de nodo en mayusculas
 char* node_name_char_to_uppercase(char array_temp[16]){
     String chars_temp=array_temp;
     chars_temp.toUpperCase();
@@ -76,7 +74,7 @@ char* node_name_char_to_uppercase(char array_temp[16]){
 
     //char *string;               /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
 //} cJSON;
-void json_receive(String message, char* &uid2,char* &msg, double &timemsg ){
+void json_receive(String message, char* &uid2,char* &msg2, double &timemsg2 ){
  // this function receives data message in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
   message.replace("'","\"");
   message=message.c_str();
@@ -86,9 +84,14 @@ void json_receive(String message, char* &uid2,char* &msg, double &timemsg ){
   cJSON* el_arreglo=cJSON_Parse(mensaje3);
   uid2 = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
  
-  msg = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
+  msg2 = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
  
-  timemsg = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuedouble;
+  timemsg2 = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuedouble;
+   char* timemsg3 = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuestring;
+   Serial.print("recibi time:");
+   Serial.print((String)timemsg2);
+   Serial.print("-");
+   Serial.println((String)timemsg3);
  // deletes cJSON from memory
   cJSON_Delete(el_arreglo);
 

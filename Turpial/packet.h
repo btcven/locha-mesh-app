@@ -7,8 +7,7 @@
 #define PACKET_H
 
 #include <Arduino.h>
-#include "routing_incoming.h"
-#include "routing_outcoming.h"
+
 
 typedef enum
 {
@@ -63,14 +62,6 @@ packet_type_e convertir_str_packet_type_e(String type_recibido);
 String convertir_packet_type_e_str(packet_type_e type_recibido);
 String packet_serialize(packet_t packet);
 
-extern uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received);
-extern uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received);
+
 
 #endif // PACKET_H
