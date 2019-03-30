@@ -16,12 +16,12 @@ typedef struct nodo_t
     char id[16]; // uniqueid
 } nodo_t;
 
-typedef struct
+typedef struct message_queue_t
 {
-    packet_t paquete;  // uniqueid
+    packet_t paquete;  // packet completo, incluyendo header y body
     uint8_t prioridad; // numero para asignar la prioridad a cada paquete
     uint8_t retries;   // numero de reintentos de envio
-    unsigned long retry_timestamp;
+    unsigned long retry_timestamp;   // hora del ultimo reintento
 } message_queue_t;
 
 typedef struct rutas_t
@@ -29,13 +29,13 @@ typedef struct rutas_t
     nodo_t origen;        // uniqueid del destinatario
     nodo_t next_neighbor; // unique id del vecino mas cercano
     nodo_t destino;       // unique id del vecino mas cercano
-    uint8_t age;          // edad (ultima vez que se recibio/envio algo por esa ruta
+    uint8_t age;          // edad (ultima vez que se recibio/envio algo por esa ruta)
 } rutas_t;
 
 // definicion de voids
 void packet_processing_outcoming();
 uint8_t create_neighbor(String id_node_neighbor, struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t blacklist[MAX_NODES_BLACKLIST], uint8_t total_nodos_blacklist);
-uint8_t packet_to_send(packet_t Buffer_packet);
+uint8_t packet_to_send(packet_t packet_temp);
 uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino);
 uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16]);
 uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16]);

@@ -233,6 +233,7 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
 uint8_t mostrar_cola_mensajes(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], size_t tamano_arreglo){
   uint8_t i;
   uint8_t j;
+    uint8_t rptsx;
     
    DEBUG_PRINTLN();
    DEBUG_PRINT(F("Cola mensajes salientes: "));
@@ -261,7 +262,7 @@ uint8_t mostrar_cola_mensajes(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEU
           DEBUG_PRINT(F("\t"));
           DEBUG_PRINT((String)mensajes_salientes[i].prioridad);
           DEBUG_PRINT(F("\t"));
-          show_packet(mensajes_salientes[i].paquete, false);
+          rptsx=show_packet(mensajes_salientes[i].paquete, false);
           DEBUG_PRINT(F("\t"));
           DEBUG_PRINTLN();
           

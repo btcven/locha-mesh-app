@@ -3,6 +3,7 @@
 #include <TimeLib.h>
 #include "route.h"
 #include "hal/hardware.h"
+#include "memory_def.h"
 #include "general_functions.h"
 #include "boards_def.h"
 #include "radio.h"
@@ -323,15 +324,23 @@ uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
 }
 
 // coloca el mensaje recibido en Buffer_packet a la cola de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda
-uint8_t packet_to_send(packet_t Buffer_packet){
+uint8_t packet_to_send(packet_t packet_temp){
   // por ahora solo se agrega a la cola de paquetes salientes
+  uint8_t rptsx;
+  
   message_queue_t nuevo_mensaje_en_cola;
-  nuevo_mensaje_en_cola.paquete=Buffer_packet;
+  nuevo_mensaje_en_cola.paquete=packet_temp;
   nuevo_mensaje_en_cola.prioridad=1;
   nuevo_mensaje_en_cola.retries=0;
   nuevo_mensaje_en_cola.retry_timestamp=0;
   mensajes_salientes[total_mensajes_salientes+1]=nuevo_mensaje_en_cola;
   total_mensajes_salientes++;
+   DEBUG_PRINTLN(F("se recibio:"));
+  rptsx=show_packet(packet_temp,false);
+  DEBUG_PRINTLN(F("y se coloco en cola:"));
+  rptsx=show_packet(nuevo_mensaje_en_cola.paquete,false);
+   DEBUG_PRINTLN(F("en la ultima posicion de la cola esta:"));
+  rptsx=show_packet(mensajes_salientes[total_mensajes_salientes].paquete,false);
   DEBUG_PRINTLN(F("Packet queue succesfully"));
   return 0;
 }
