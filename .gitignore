@@ -1,5 +1,6 @@
 arduino_data
 Turpial/src/.idea
+Turpial/libraries
 example-config.py
 *.code-workspace
 .DS_Store
