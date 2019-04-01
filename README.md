@@ -1,31 +1,63 @@
-# locha-mesh-app
-Central application of locha mesh network
+﻿# Locha
+We are happy of your visit and that you can read more about us. Here you can find the main firmware for your device compatible with **lochaMesh** and be aware of our development process.
 
-## sprintX branch
+## What's locha?
+The locha mesh network is a secure radio network for text messaging and bitcoin transactions.
+The main objetive is a long range network for everyone and everywhere, for this reason, we are working not only in a protocol, also the firmware for affordable devices like "Turpial" or "Harpia".
 
-### ¿Que es la rama sprint?
-	
-La rama sprint no es la rama de desarrollo principal, pero si será sobre la cual aplicaremos funcionalidades aisladas a master.
-No se trata tampoco de una rama test/testnet.
+Check out [/docs](docs) for to know more.
 
-Ejemplos:
-	
-- Diseñar una interfaz de usuario.
-- Testear un sistema de registros en disco.
-- Nuevo módulo de radio.
-- Test de estrés de bateria, RAM,..
-- etc ...
+---
 
-### ¿Objetivo?
+#### Turpial
+Is a small and portable device [ESP32](https://www.espressif.com/en/products/hardware/esp-wroom-32/overview) based system.
 
-- Testear funciones ó funcionalidades de forma **aislada** al resto del código.
-- Diseñar componentes de forma modular.
+**Overview**
+- Dual core 32 bits running at 240 MHz.
+- 8MB flash storage.
+- WiFi b/g/n dual mode (AP/Station).
+- Bluetooth (for admin. access)
+- Radio module (for the long range mesh network)
+- 1000 mAh Battery
+- micro USB for charging and software updates.
+- 0.96" OLED screen.
+ 
+In each Turpial can be connected up to 3 clients via WiFi for to send/receive bitcoin transactions or text messages.
 
-### ¿Con qué frecuencia se actualizará la rama?
+See more about [Turpial](Turpial) 
 
-Dado el objetivo que se persigue, una vez completado un sprint, la rama quedará como referencia para reusar archivos, clases, funciones, estructuras, etc, así como material de consulta para la comunidad.
+---
 
+#### Harpia
 
-### Licencia
+**Overview**
+- Quad core 64 bits at 1.4 Ghz.
+- Storage up to 128Gb.
+- WiFi dual mode, dual band 2.4Ghz/5Ghz.
+- Bluetooth 4.2
+- Radio module (for the long range mesh network).
+- Ethernet port.
+- 4 USB ports.
 
-El contenido de este repositorio, así como el resto del proyecto se encuentra bajo licencia MIT. Podeis leer  el archivo [LICENSE](https://github.com/btcven/locha-mesh-app/blob/master/LICENSE) en path inicial del proyecto para consultar el texto completo.
+See more about [Harpia](Harpia)
+
+---
+
+### Can locha be installed on other devices?
+
+Sure! we was tested some routers running the OpenWRT OS ,also some ARM MCUs can be a good choice. The firmware has a low RAM footprint and we are trying to keep the "vendor agnostic" rule.
+
+## The Code
+* In this repo you can find the source code for [Turpial](Turpial) and [Harpia](Harpia) (soon).
+* Documents and other stuffs are in [Docs](docs)
+* The mobile App may be located [here](https://)
+
+#### Warning
+We are delighted if you read the code and share your ideas but somethings in this repo are in a early stage, we strongly recommend that you wait for future releases.
+
+## License
+Copyright (c) 2019 locha.io developers.
+
+This software is under a [MIT](LICENSE) license and you can read the full text in the LICENSE file in the root folder.
+
+Readme in: [Español](README_ES.md), [Portugués](README_PT)

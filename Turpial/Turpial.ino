@@ -1,165 +1,265 @@
 /**
-   (c) Copyright 2019 locha.io project developers
-   Licensed under a MIT license, see LICENSE file in the root folder
-   for a full text.
-*/
-#include <Arduino.h> 
-#include <LoRaLib.h>
-#include <Wire.h>
-#include <SSD1306.h>
-#include <string.h>
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
 
+#include <Arduino.h>
+#include <WiFi.h>
+#include <SSD1306.h>
+#include <Time.h>
+#include <TimeLib.h>
 // devices and default settings
-#include "hardware.h"
-#include "screen.h"
+#include "hal/hardware.h"
+#include "lang/language.h"
+#include "memory_def.h"
+#include "general_functions.h"
 #include "packet.h"
 #include "route.h"
-
-
-SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, GEOMETRY_128_32);  // tambien esta GEOMETRY_128_64 pero depende del screen del HELTEC
-//OLEDDisplayUi ui(&display);
+#include "debugging.h"
+#include "fonts/DejaVu_Sans_10.h"
+#include "fonts/DejaVu_Sans_12.h"
+#include "scr_images.h"
+#include "screens.h"
+#include "radio.h"
+#include "bluetooth.h"
+using namespace std;
 
 // variables fijas para este demo
-char* id_node="turpial.0";
-int total_vecinos=1;  // cantidad de vecinos del nodo actual
-int total_rutas=1;  // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
+// ID unico del nodo
+char id_nodo_demo[16] = "TURPIAL.0";   
+
+
+char *id_node;
+
+#if SCR_ENABLED == true
+  SSD1306 display(SCR_ADD, SDA_OLED, SCL_OLED, RST_OLED);
+#endif
 
 // includes internos
-rutas_t routeTable[255];
-nodo_t vecinos[255];
-message_queue_t mensajes_salientes[255];
-int total_mensajes_salientes=0;  
+uint8_t total_vecinos;            // cantidad de vecinos del nodo actual
+uint8_t total_rutas;              // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
+uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
+uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
 
+rutas_t routeTable[MAX_ROUTES];
+nodo_t vecinos[MAX_NODES];
+nodo_t blacklist[MAX_NODES_BLACKLIST];
+message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y outcoming
 
+uint8_t packet_timeout=30;   // expiration time in seconds of packets
 
+unsigned long tiempo;
 
-// funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
-  void iniciar_vecinos_y_rutas(char* id_nodo,nodo_t vecinos[255],rutas_t routeTable[255]){
-    if (id_nodo=="turpial.0"){
-        nodo_t nodo_actual;
-        nodo_t nodo_vecino;
-        nodo_actual.id=id_nodo;
-        nodo_vecino.id="turpial_1";
-        vecinos[1]=nodo_vecino;
-        rutas_t ruta_disponible;
-        ruta_disponible.origen=nodo_actual;
-        ruta_disponible.next_neighbor=nodo_vecino;
-        ruta_disponible.destino=nodo_vecino;
-        ruta_disponible.age=millis();
-        routeTable[1]=ruta_disponible;
-    }
-     if (id_nodo=="turpial.1"){
-        nodo_t nodo_actual;
-        nodo_t nodo_vecino;
-        nodo_t nodo_vecino2;
+// variables para trasmision BLE
+std::string rxValue = "";
+std::string txValue = "";
+char *uid ;
+char *msg;
+double timemsg;
 
-        nodo_actual.id=id_nodo;
-        nodo_vecino.id="turpial_0";
-        nodo_vecino2.id="turpial_2";
-        vecinos[1]=nodo_vecino;
-        vecinos[2]=nodo_vecino2;
-        // ruta T1
-        rutas_t ruta_disponible;
-        ruta_disponible.origen=nodo_actual;
-        ruta_disponible.next_neighbor=nodo_vecino;
-        ruta_disponible.destino=nodo_vecino;
-        ruta_disponible.age=millis();
-        routeTable[1]=ruta_disponible;
-          // ruta T2
-        rutas_t ruta_disponible2;
-        ruta_disponible2.origen=nodo_actual;
-        ruta_disponible2.next_neighbor=nodo_vecino2;
-        ruta_disponible2.destino=nodo_vecino2;
-        ruta_disponible2.age=millis();
-        routeTable[2]=ruta_disponible;
-        
-    }
-     if (id_nodo=="turpial.2"){
-        nodo_t nodo_actual;
-        nodo_t nodo_vecino;
-        nodo_actual.id=id_nodo;
-        nodo_vecino.id="turpial_1";
-        vecinos[1]=nodo_vecino;
-        rutas_t ruta_disponible;
-        ruta_disponible.origen=nodo_actual;
-        ruta_disponible.next_neighbor=nodo_vecino;
-        ruta_disponible.destino=nodo_vecino;
-        ruta_disponible.age=millis();
-        routeTable[1]=ruta_disponible;
-    }
-  }
-  
-  
+// variables para trasmision Lora
+std::string rxValue_Lora = "";
+std::string txValue_Lora = "";
 
 void setup()
 {
-  Serial.begin(BAUDRATE);
+  uint8_t i;
+  
+  bool display_enabled = false;
+  bool lora_enabled = false;
+  bool serial_enabled = false;
+  bool wifi_enabled = false;
+  total_mensajes_salientes=0;
+  total_nodos_blacklist = 0;
+  total_rutas = 0;
+  total_vecinos = 0;
+  // se coloca el id_nodo en mayusculas
+ // id_nodo_demo=char_to_uppercase(id_nodo_demo, 16);
+   //id_node= node_name_char_to_uppercase(id_nodo_demo);
+    id_node = id_nodo_demo;
+    copy_array_locha(id_nodo_demo, id_node, 16);
+    //fin de colocar id_nodo en mayusculas
+    
+#if defined(DEBUG)
+  serial_enabled = true;
+#endif
+  //
   if (SCR_ENABLED)
   {
-    Serial.print("[SRC] Initiating... ");
-    // activar módulo SCR
-    // leer NVS,  verificar si existe registro
-    // si existe aplicar, si no establecer parametros por defecto.
-    if (SCR_Vext)
+    display_enabled = true;
+    if (Vext)
     {
-      pinMode(SCR_Vext, OUTPUT);
-      digitalWrite(SCR_Vext, LOW);
-      delay(50);
+      pinMode(Vext, OUTPUT);
+    }
+    else
+    {
+      display_enabled = false;
+    }
+    if (RAD_ENABLED)
+    {
+      lora_enabled = true;
+    }
+    else
+    {
+      lora_enabled = false;
+    }
+    if (WST_ENABLED)
+    {
+      wifi_enabled = true;
+    }
+    else
+    {
+      wifi_enabled = false;
+    }
+    if (WAP_ENABLED)
+    {
+      wifi_enabled = true;
+    }
+    else
+    {
+      wifi_enabled = false;
     }
 
-    bool SCR_isActive = display.init();
+#ifdef DEBUG
+    DEBUG_BEGIN(BAUDRATE);
+    while (!Serial);
+    Serial.setDebugOutput(true);
+    delay(2000);
+#endif
 
-    if (SCR_isActive)
+    rxValue = "";
+    txValue = "";
+
+    if (SCR_ENABLED)
     {
-      Serial.println("OK");
+      DEBUG_PRINT(MSG_SCR);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
+      // activar módulo SCR
+      // leer NVS,  verificar si existe registro
+      // si existe aplicar, si no establecer parametros por defecto.
+      // se inicializa el display
+      display.init();
       display.flipScreenVertically();
-      display.setTextAlignment(TEXT_ALIGN_LEFT);
-      display.setFont(ArialMT_Plain_10);
-      display.drawString(0, 0, "[SCR] OK");
-      display.display();
     }
-  }
-  if (BLE_ENABLED)
-  {
-    Serial.print("[BLE] Initiating... ");
-    // -- activar módulo ble --
-    // 1.- leer NVS,  verificar si existe registro
-    // 2.- si existe aplicar, si no establecer parametros por defecto.
-    // 3.- activar la tarea
-    // xTaskCreate(task_ble, "task_ble", ...);
-  }
-  if (WAP_ENABLED)
-  {
-    Serial.print("[WAP] Initiating... ");
-    // -- activar módulo wap --
-    // 1.- leer NVS,  verificar si existe registro
-    // 2.- si existe aplicar, si no establecer parametros por defecto.
-    // 3.- iniciar.
-    //
-  }
-  if (WST_ENABLED)
-  {
-    Serial.print("[WST] Initiating... ");
-    // -- activar módulo wst --
-    // 1.- leer NVS,  verificar si existe registro
-    // 2.- si existe aplicar, si no establecer parametros por defecto.
-  }
-  if (RAD_ENABLED)
-  {
-    Serial.print("[RAD] Initiating... ");
-    // -- activar modulo de radio --
-    // 1.- leer NVS,  verificar si existe registro
-    // 2.- si existe aplicar, si no establecer parametros por defecto.
-    // 3.- iniciar.
-    // xTaskCreate(task_rad, "task_rad", ...);
-  }
 
+    if (BLE_ENABLED)
+    {
+     
+      DEBUG_PRINT(MSG_BLE);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
+      xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
+    }
+    if (WAP_ENABLED)
+    {
+      DEBUG_PRINT(MSG_WAP);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
+      // -- activar módulo wap --
+    }
 
-  iniciar_vecinos_y_rutas(id_node,vecinos,routeTable);
- 
-}
+    if (WST_ENABLED)
+    {
+      
+      DEBUG_PRINT(MSG_WST);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
+    }
+
+    if (RAD_ENABLED)
+    {
+      DEBUG_PRINT(MSG_SCR);
+      DEBUG_PRINT(" ");
+      DEBUG_PRINTLN(MSG_START);
+      xTaskCreate(task_radio, "task_radio", 2048, NULL, 5, NULL);
+    }
+
+    // se coloca el cursor en el terminal serial
+              
+    DEBUG_PRINT(MSG_SERIAL);
+    DEBUG_PRINT(" ");
+    DEBUG_PRINTLN(MSG_START);
+    // se genera el node_id solo si no existe
+    if (id_node == "")
+    {
+      create_unique_id(id_node);
+    }
+    DEBUG_PRINT(id_node);
+    DEBUG_PRINT(F(" >"));
+
+    if (LED_ENABLED)
+    {
+      pinMode(LED_PIN, OUTPUT);
+      digitalWrite(LED_PIN, HIGH);
+    }
+
+    // se inicializa el control del tiempo
+    tiempo = millis();
+  }
+} //setup
+
+// con esta variable se lleva el control de cual frame de pantalla se esta mostrando en el momento
+int pantalla_activa = 1;   
+
+//uint8_t rpta_tmp ;
 
 void loop()
 {
+
+  if (millis() - tiempo > SCR_INTERVAL)
+  {
+    display.clear();
+    switch (pantalla_activa)
+    {
+    case 1:
+      drawframe_title_with_2_fields(0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
+      break;
+    case 2:
+      drawframe_table_with_4_fields(0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos) + " bytes", "Size:", (String)sizeof(blacklist) + " bytes");
+      break;
+    case 3:
+      drawframe_title_with_2_fields(0, 0, "Routes Locha Mesh", "Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable) + " bytes");
+      break;
+    case 4:
+      drawframe_title_with_2_fields(0, 0, "Outcoming Queue", "Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes) + " bytes");
+      break;
+    case 5:
+      drawFrame5(0, 0);
+      break;
+    case 6:
+      drawFrame_tech(0, 0);
+      break;
+    default:
+      pantalla_activa = 0; //para que aparezca la primera pantalla
+      break;
+    }
+
+    pantalla_activa++;
+    tiempo = millis();
+
+    if (pantalla_activa > 6)
+    {
+      pantalla_activa = 1;
+    }
+    display.display();
+  }
+
+  if (millis() - tiempo < 0)
+  {
+    tiempo = millis();
+  }
+
+  // se efectua el procesamiento de paquetes salientes
+  packet_processing_outcoming(mensajes_salientes,total_mensajes_salientes);
+
+  // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
+  #ifdef DEBUG
+     uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos);
+  #endif
+  
 
 }

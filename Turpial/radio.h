@@ -9,18 +9,8 @@
 
 #include <Arduino.h>
 
-#define RADIO_ENABLED 1
 
-#ifdef RADIO_ENABLED
-
-#define RAD_SCK   5
-#define RAD_MISO  19
-#define RAD_MOSI  27
-#define RAD_CSS   18
-#define RAD_RST   14
-#define RAD_DIO0  26
-#define RAD_BAND  915.0
-#define PABOOST   true
-#endif
+void radioSend(String _data);
+void task_radio(void *params);
 
 #endif // RADIO_H

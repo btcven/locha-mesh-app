@@ -4,76 +4,58 @@
    for a full text.
 */
 #ifndef ROUTE_H
-#define ROUTE_H 
+#define ROUTE_H
 
 #include <Arduino.h>
+#include "memory_def.h"
 #include "packet.h"
 
 
-typedef struct
+
+typedef struct nodo_t
 {
-    char* id;         // uniqueid
+    char id[16]; // uniqueid
 } nodo_t;
 
-
-typedef struct
+typedef struct message_queue_t
 {
-    packet_t paquete;         // uniqueid
-    uint8_t prioridad;        // numero para asignar la prioridad a cada paquete 
+    packet_t paquete;  // packet completo, incluyendo header y body
+    uint8_t prioridad; // numero para asignar la prioridad a cada paquete
+    uint8_t retries;   // numero de reintentos de envio
+    unsigned long retry_timestamp;   // hora del ultimo reintento
 } message_queue_t;
 
-typedef struct
+typedef struct rutas_t
 {
-    nodo_t origen;  // uniqueid del destinatario
+    nodo_t origen;        // uniqueid del destinatario
     nodo_t next_neighbor; // unique id del vecino mas cercano
-    nodo_t destino; // unique id del vecino mas cercano
-    uint8_t age;  // edad (ultima vez que se recibio/envio algo por esa ruta
+    nodo_t destino;       // unique id del vecino mas cercano
+    uint8_t age;          // edad (ultima vez que se recibio/envio algo por esa ruta)
 } rutas_t;
 
-
-extern message_queue_t mensajes_salientes[255];
-extern int total_mensajes_salientes;  
-extern int total_vecinos;  
-extern int total_rutas;
-extern rutas_t routeTable[255];
-extern nodo_t vecinos[255];
-
-// verifica si el nodo a consultar esta en la tabla de vecinos
-int es_vecino(char* id_nodo){
-  int i;
-  for (i = 1; i <= total_vecinos; i++) {
-      if (vecinos[i].id==id_nodo){
-        return 1;
-      }
-  }
-  return 0;
-}
-
-// se busca en la tabla de rutas si existe una ruta al destino
-int existe_ruta(char* id_nodo_from, char* id_nodo_to){
- int i;
-  for (i = 1; i <= total_rutas; i++) {
-      if ((routeTable[i].origen.id==id_nodo_from)and(routeTable[i].destino.id==id_nodo_to)){
-        return 1;
-      }
-      // el inverso tambien es la misma ruta
-      if ((routeTable[i].origen.id==id_nodo_to)and(routeTable[i].destino.id==id_nodo_from)){
-        return 1;
-      }
-  }
-  return 0;
-  
-}
-
-// coloca el mensaje recibido en Buffer_packet a ka cika de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda
-void packet_to_send(packet_t Buffer_packet){
-  // por ahora solo se agrega a la cola de paquetes salientes
-  message_queue_t nuevo_mensaje_en_cola;
-  nuevo_mensaje_en_cola.paquete=Buffer_packet;
-  nuevo_mensaje_en_cola.prioridad=1;
-  mensajes_salientes[total_mensajes_salientes+1]=nuevo_mensaje_en_cola;
-  total_mensajes_salientes++;
-}
+// definicion de voids
+void packet_processing_outcoming(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE],uint8_t &total_mensajes_salientes);
+uint8_t create_neighbor(String id_node_neighbor, struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t blacklist[MAX_NODES_BLACKLIST], uint8_t total_nodos_blacklist);
+uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp);
+uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino);
+uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16]);
+uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16]);
+uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_route);
+uint8_t pos_ruta(char id_nodo_from[16], char id_nodo_to[16]);
+uint8_t es_vecino(char id_nodo[16]);
+uint8_t delete_neighbor(String id_node_neighbor, struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
+uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16]);
+uint8_t delete_route_by_id(uint8_t id_to_delete);
+void BLE_incoming(char* uid2,char* msg, double timemsg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2);
+uint8_t delete_older_packets();
 
 
+extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+extern rutas_t routeTable[MAX_ROUTES];
+extern nodo_t vecinos[MAX_NODES];
+extern nodo_t blacklist[MAX_NODES_BLACKLIST];
+extern uint8_t total_mensajes_salientes;  
+extern uint8_t total_vecinos;  
+extern uint8_t total_rutas;
+extern uint8_t total_nodos_blacklist;
 #endif // ROUTE_H
