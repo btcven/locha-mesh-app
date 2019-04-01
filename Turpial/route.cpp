@@ -374,13 +374,15 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
 }
 
 // funcion para proesar un mensaje BLE incoming
-void BLE_incoming(char* uid2,char* msg, double timemsg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
+void BLE_incoming(char* uid2,char* msg, double timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
   uint8_t i;
   uint8_t rpta;
   // si es un mensaje tipo broadcast se envia a todos los vecinos 
   DEBUG_PRINTLN(F("Starting BLE_incoming"));
-//  Serial.print("tengo:");
-//  Serial.println(uid2);
+  DEBUG_PRINTLN(F("recibi msg:"));
+  DEBUG_PRINTLN(msg);
+  Serial.print("tengo:");
+  Serial.println(uid2);
     if (String(uid2)=="broadcast"){ 
        DEBUG_PRINTLN(F("its a broadcast"));
        if (total_vecinos>0){ 

@@ -36,6 +36,7 @@ extern std::string rxValue;
 extern char *uid ;
 extern char *msg;
 extern double timemsg;
+extern char *hash_msg ;
     
 
 bool deviceConnected = false;
@@ -74,28 +75,32 @@ class characteristicCB : public BLECharacteristicCallbacks
         // se procesa el ble incoming
         String parametro;
         parametro=String(rxValue.c_str());    // se convierte de string c null terminated a System:String
-        // el siguiente void extrae del String BLE los 3 parametros: uid,msg,time
+        // el siguiente void extrae del String BLE los 4 parametros: uid,msg,time,hash
    
-        json_receive(parametro,uid,msg,timemsg);
-        DEBUG_PRINTLN("Json received: ");
+        json_receive(parametro,uid,msg,timemsg,hash_msg);
+        DEBUG_PRINTLN(F("Json received: "));
         DEBUG_PRINT("uid:");
         DEBUG_PRINTLN(uid);
         DEBUG_PRINT("msg:");
         DEBUG_PRINTLN(msg);
         DEBUG_PRINT("time:");
         DEBUG_PRINTLN(timemsg);
+        DEBUG_PRINT("hash:");
+        DEBUG_PRINTLN(hash_msg);
         // se procesa el comando que se haya recibido por BLE
-        
+        // se valida el hash del msg para ver si esta integro
+        if (is_valid_hash160(msg, hash_msg)){
           if (timemsg>now()){ 
               // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
              setTime(timemsg);  
           }
-         
-        BLE_incoming(uid,msg,timemsg,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
-       
-        
-        Serial.println("BLE process OK");
-        rxValue.clear();
+          BLE_incoming(uid,msg,timemsg,hash_msg,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
+          DEBUG_PRINTLN(F("BLE process OK"));
+        } else { 
+          // no es valido el hash del mensaje
+          DEBUG_PRINTLN(F("Invalid hash received on BLE message"));
+        }
+         rxValue.clear();
         // se vacia el buffer BLE
       }
     }

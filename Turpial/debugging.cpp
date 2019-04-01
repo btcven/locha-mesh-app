@@ -10,6 +10,8 @@
 
 extern std::string txValue;
 extern std::string rxValue;
+extern std::string txValue_Lora;
+extern std::string rxValue_Lora;
 
 #ifdef BLE_ENABLED
   #include "bluetooth.h"
@@ -28,12 +30,24 @@ extern uint8_t total_nodos_blacklist;
 
 
 
-
- #ifdef DEBUG
-   // String mensaje;
-   // char* buffer_serial_received;
-   // int buffer_serial_received_size=0;
-  #endif
+// Esta funcion imprime la salida por el serial y/o por el BLE
+void imprimir_salida(String mensaje, bool mostrar_serial, bool mostrar_BLE){
+  if (mostrar_serial){
+    DEBUG_PRINT(mensaje);
+  }
+  if (mostrar_BLE){
+    txValue=mensaje.c_str();
+  }
+}
+void imprimir_salidaln(String mensaje, bool mostrar_serial, bool mostrar_BLE){
+  imprimir_salida(mensaje, mostrar_serial, mostrar_BLE);
+  if (mostrar_serial){
+    DEBUG_PRINT('\n');
+  }
+  if (mostrar_BLE){
+    txValue='\n';
+  }
+}
 
 
 String getparamValue(String data, char separator, int index)

@@ -5,6 +5,7 @@
 */
 #include <Arduino.h>
 #include <SPI.h>
+#include <string.h>
 #include "radio.h"
 #include "hal/hardware.h"
 #include "lang/language.h"
@@ -13,6 +14,12 @@
 #include "routing_incoming.h"
 #include "debugging.h"
 
+using namespace std;
+
+// para BLE
+extern std::string txValue;
+extern std::string rxValue;
+// para LoRa
 extern std::string txValue_Lora;
 extern std::string rxValue_Lora;
 extern char *id_node;
@@ -27,22 +34,30 @@ bool is_number(const std::string& s)
 
 // recibe un paquete, es invocado via callback 
 void onReceive(int packetSize) {
-  // txValue << packet
-  // pasar a la variable txValue.
+
   char in_process;
   const uint8_t tamano_header = 41;  // tama;o en bytes del packet_t header
+  bool recibido=false;
+  
   for (int i = 0; i < packetSize; i++) {
     in_process=(char)LoRa.read();
    // se coloca en el Buffer Lora
    if (in_process!='|'){
       rxValue_Lora=rxValue_Lora+in_process;  
-      Serial.print(in_process);
-     
-      
+   //   Serial.print(in_process);
+           
    } else {
       // es un fin de mensaje
-      Serial.print("procesar packet recibido por Lora:");
-      Serial.println(rxValue_Lora.c_str());
+      recibido=true;
+      break; // ignoro por ahora el resto del mensaje
+   }
+  }
+   
+   Serial.print(rxValue_Lora.c_str());
+   Serial.print("\n"); 
+      if (recibido){
+          Serial.print(F("procesar packet recibido por LoRa:"));
+          Serial.print(rxValue_Lora.c_str());
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
     if (rxValue_Lora.length()>tamano_header){
@@ -53,6 +68,8 @@ void onReceive(int packetSize) {
       std::string header_from=header_str.substr(1, 16);
       std::string header_to=header_str.substr(17, 16);
       std::string header_timestamp=header_str.substr(33, 8);
+      // ahora el body del mensaje
+      std::string body_payload=header_str.substr(41, rxValue_Lora.length()-41);
       Serial.print("recibi:");
       Serial.print("type:");
       Serial.print(header_type.c_str());
@@ -62,6 +79,9 @@ void onReceive(int packetSize) {
       Serial.print(header_to.c_str());
        Serial.print("timestamp:");
       Serial.println(header_timestamp.c_str());
+      
+       Serial.print("payload:");
+      Serial.println(body_payload.c_str());
         
       if (is_number(header_type)){   
         // se coloca en Buffer_packet
@@ -72,24 +92,30 @@ void onReceive(int packetSize) {
         strncpy(packet_tmp.header.from, header_from.c_str(), sizeof(packet_tmp.header.from));
         strncpy(packet_tmp.header.to, header_to.c_str(), sizeof(packet_tmp.header.to));
         packet_tmp.header.timestamp=std::atoi (header_timestamp.c_str());
-       
+        // se envia al BLE para efectos del demo
+        //String the_body=body_payload.c_str();
+        txValue=body_payload.c_str();
+        // no estoy muy seguro de el siguiente size o si es es size+1
+       // the_body.toCharArray(txValue, the_body.length());
+        
+        // se hace la parte de enrutamiento del packet
         process_received_packet(id_node,packet_tmp);
         
       }
-    }
-      rxValue_Lora.clear();
-   }
     
+      }
+   }
+   rxValue_Lora.clear();
     
   }
-  Serial.print("\n");
-}
+  
+
 
 // envía un paquete.
 void radioSend(String _data) {
   // hay que verificar primero si el canal esta libre Listen before Talk
   Serial.print("voy a enviar el packet:");
-  Serial.println(_data.c_str());
+  Serial.print(_data.c_str());
   LoRa.beginPacket();
   LoRa.print(_data.c_str());
   int done = LoRa.endPacket();

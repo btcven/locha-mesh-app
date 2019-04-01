@@ -10,7 +10,8 @@
 extern char* uid;
 extern char* msg;
 extern double timemsg;
-using namespace std;
+extern char* hash_msg;
+
 
 void create_unique_id(char* &unique_id_created);
 char* string2char_node_name(String command);
@@ -23,7 +24,8 @@ long readVcc();
 String freeRam();
 String random_name(int numBytes);
 void copy_array_locha(char* src, char* dst, int len);
-void json_receive(String message, char* &uid,char* &msg, double &timemsg );
+void json_receive(String message, char* &uid,char* &msg, double &timemsg, char* &hash_msg );
 char* node_name_char_to_uppercase(char array_temp[16]);
+bool is_valid_hash160(char* mensaje, char* hash_recibido);
 
 #endif // GENERAL_FUNCTIONS_H_

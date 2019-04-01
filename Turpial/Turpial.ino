@@ -59,6 +59,7 @@ std::string txValue = "";
 char *uid ;
 char *msg;
 double timemsg;
+char* hash_msg;
 
 // variables para trasmision Lora
 std::string rxValue_Lora = "";

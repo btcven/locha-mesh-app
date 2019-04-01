@@ -28,6 +28,7 @@ typedef struct
   char from[16];
   char to[16];
   unsigned long timestamp;
+  char hash[20];
 } packet_header_t;
 
 typedef struct
