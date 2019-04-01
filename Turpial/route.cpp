@@ -11,6 +11,9 @@
 #include "routing_outcoming.h"
 #include "debugging.h"
 
+extern std::string txValue;
+extern std::string rxValue;
+
 extern char* id_node;
 extern packet_t Buffer_packet;
 
@@ -29,33 +32,40 @@ extern uint8_t packet_timeout;
 uint8_t delete_older_packets(){
   uint8_t i;
   uint8_t j;
-   for (i = 1; i <= total_mensajes_salientes; i++) {
-        unsigned long xx = mensajes_salientes[i].paquete.header.timestamp;
-        if ((xx+packet_timeout)<now()){ 
-          // se devuelve un packet NOT_DELIVERED a origen 
-          // se borra de la cola de mensajes
-            for (j = i; i < total_mensajes_salientes; j++) {
-                mensajes_salientes[i]=mensajes_salientes[i+1];
+  if (total_mensajes_salientes>0){
+       for (i = 1; i <= total_mensajes_salientes; i++) {
+        Serial.print("adentro:");
+        Serial.println(i);
+            unsigned long xx = mensajes_salientes[i].paquete.header.timestamp;
+            if (xx>0){
+              if ((now()-xx)>packet_timeout){ 
+                // se devuelve un packet NOT_DELIVERED a origen 
+                // se borra de la cola de mensajes
+                  for (j = i; i < total_mensajes_salientes; j++) {
+                      mensajes_salientes[i]=mensajes_salientes[i+1];
+                  }
+                  Serial.print("entre con:");
+                  Serial.println((String)(xx+packet_timeout));
+                  Serial.print("y en salientes me quedan:");
+                  Serial.println(total_mensajes_salientes);
+                  total_mensajes_salientes--;
+                  return 1;
+              }
             }
-            total_mensajes_salientes--;
-            return 1;
-        }
-   }
+       }
+  }
    return 0;
 }
 
 
 
-void packet_processing_outcoming(){
+void packet_processing_outcoming(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE],uint8_t &total_mensajes_salientes){
 // aqui se deberia invocar radio_send del primer registro que consiga en el arreglo mensajes_salientes
  uint8_t i;
+ uint8_t j;
  String msg_to_send="";
 bool encontre;
- // se borran los mensajes expirados
- do
-{
-    i=delete_older_packets();
-} while (i>0);
+
 
  
  // se busca el primer mensaje saliente en la cola de mensajes cuyo tiempo de retry sea 0 o sea mayor a 30 seg de diferencia
@@ -64,7 +74,12 @@ bool encontre;
  // se marca en la tabla de salientes como enviado y reintentos++
  message_queue_t el_mensaje_saliente;
  if (total_mensajes_salientes>0){
-  
+  // se borran los mensajes expirados
+
+  //DEBUG_PRINT(F("Deleting older packets ..."));
+   // i=delete_older_packets();
+ //   DEBUG_PRINT(i);
+  DEBUG_PRINT(F("Processing outcoming packets"));
   encontre=false;
     for (i = 1; i <= total_mensajes_salientes; i++) {
       DEBUG_PRINT(F("Sending packet "));
@@ -84,14 +99,23 @@ bool encontre;
           }
           
     }
+    
     if (encontre){
       DEBUG_PRINTLN(F("Sending packet ..."));
         el_mensaje_saliente=mensajes_salientes[i];
         msg_to_send=packet_serialize(mensajes_salientes[i].paquete);
-//        radioSend(msg_to_send);
-        mensajes_salientes[i].retries=mensajes_salientes[i].retries+1;
-        mensajes_salientes[i].retry_timestamp=now();
+        radioSend(msg_to_send);
+        DEBUG_PRINTLN(F("Sended OK"));
+        // se borra de la cola de mensajes
+       for (j = i; j < total_mensajes_salientes; j++) {
+            mensajes_salientes[j]=mensajes_salientes[j+1];
+       }
+       total_mensajes_salientes--;
+       DEBUG_PRINTLN(F("Packet deleted from queue"));
+      //  mensajes_salientes[i].retries=mensajes_salientes[i].retries+1;
+      //  mensajes_salientes[i].retry_timestamp=now();
     }
+   
  }
  
  
@@ -324,7 +348,7 @@ uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
 }
 
 // coloca el mensaje recibido en Buffer_packet a la cola de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda
-uint8_t packet_to_send(packet_t packet_temp){
+uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp){
   // por ahora solo se agrega a la cola de paquetes salientes
   uint8_t rptsx;
   
@@ -333,20 +357,24 @@ uint8_t packet_to_send(packet_t packet_temp){
   nuevo_mensaje_en_cola.prioridad=1;
   nuevo_mensaje_en_cola.retries=0;
   nuevo_mensaje_en_cola.retry_timestamp=0;
-  mensajes_salientes[total_mensajes_salientes+1]=nuevo_mensaje_en_cola;
-  total_mensajes_salientes++;
-   DEBUG_PRINTLN(F("se recibio:"));
-  rptsx=show_packet(packet_temp,false);
-  DEBUG_PRINTLN(F("y se coloco en cola:"));
-  rptsx=show_packet(nuevo_mensaje_en_cola.paquete,false);
-   DEBUG_PRINTLN(F("en la ultima posicion de la cola esta:"));
-  rptsx=show_packet(mensajes_salientes[total_mensajes_salientes].paquete,false);
-  DEBUG_PRINTLN(F("Packet queue succesfully"));
+   if (total_mensajes_salientes_tmp<=MAX_MSG_QUEUE){
+       total_mensajes_salientes_tmp=total_mensajes_salientes_tmp+1;
+       mensajes_salientes_tmp[total_mensajes_salientes_tmp]=nuevo_mensaje_en_cola;
+      
+     
+      DEBUG_PRINTLN(F("y se coloco en cola:"));
+      rptsx=show_packet(nuevo_mensaje_en_cola.paquete,false);
+      DEBUG_PRINTLN(F("Packet queue succesfully"));
+  } else {
+    // esta la cola de mensajes salientes llena, no se puede colocar mas nada alli
+    
+    return 1;
+  }
   return 0;
 }
 
 // funcion para proesar un mensaje BLE incoming
-void BLE_incoming(char* uid2,char* msg, double timemsg){
+void BLE_incoming(char* uid2,char* msg, double timemsg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
   uint8_t i;
   uint8_t rpta;
   // si es un mensaje tipo broadcast se envia a todos los vecinos 
@@ -371,19 +399,25 @@ void BLE_incoming(char* uid2,char* msg, double timemsg){
           DEBUG_PRINTLN(tmp_packet.header.to);
           DEBUG_PRINT("payload:");
           DEBUG_PRINTLN(tmp_packet.body.payload);
+         
           
-          rpta=packet_to_send(tmp_packet);
+          rpta=packet_to_send(tmp_packet,mensajes_salientes,total_mensajes_salientes_tmp2);
+          if (rpta==1){
+            // la cola estaba llena y no se pudo agregar se le manda un mensaje al movil
+            //txValue="{\"uid\":\"broadcast\",\"msg\":\"Gtww\",\"time\":1554012641512\",\"status\":NOT_DELIVERED}";
+            txValue="NOT DELIVERED";
+          }
          }
        } else {
-          DEBUG_PRINTLN(F("this node has no neigbors"));
+          DEBUG_PRINTLN(F("This node has no neigbours"));
        }
     } else {
-       DEBUG_PRINT("its other type of packet:");
+       DEBUG_PRINT(F("its other type of packet:"));
        DEBUG_PRINTLN(String(uid2));
        // por ahora todo lo que origina en BLE es tipo MSG
        if (String(uid2)!=""){
           packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, uid2, msg);
-          rpta=packet_to_send(tmp_packet);
+          rpta=packet_to_send(tmp_packet,mensajes_salientes,total_mensajes_salientes_tmp2);
        }
     }
   DEBUG_PRINTLN(F("ready , packet sent to message queue"));

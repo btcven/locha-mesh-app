@@ -38,7 +38,7 @@ uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]){
       copy_array_locha(mensaje,body.payload, 240);
       Buffer_packet.header=header; 
       Buffer_packet.body=body;
-      packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
+      uint8_t rptax=packet_to_send(Buffer_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
   } else {
     if (existe_ruta(id_node, id_node_destino)){
         // se arma el paquete y se envia por esa ruta 
@@ -50,7 +50,7 @@ uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]){
        copy_array_locha(mensaje,body.payload, 240);
       Buffer_packet.header=header;
       Buffer_packet.body=body;
-      packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
+      uint8_t rptax=packet_to_send(Buffer_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
         
       
     } else {

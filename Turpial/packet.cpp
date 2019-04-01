@@ -63,6 +63,7 @@ packet_t packet_deserialize(String received_text){
 packet_type_e convertir_str_packet_type_e(String type_recibido){
   packet_type_e rpta=EMPTY;
   type_recibido.trim();
+  if (type_recibido==F("EMPTY")) return EMPTY;
   if (type_recibido==F("ACK")) return ACK;
   if (type_recibido==F("JOIN")) return JOIN;
   if (type_recibido==F("BYE")) return BYE;
@@ -76,6 +77,7 @@ packet_type_e convertir_str_packet_type_e(String type_recibido){
 
 String convertir_packet_type_e_str(packet_type_e type_recibido){
   String rpta="";
+  if (type_recibido==EMPTY) rpta=F("EMPTY");
   if (type_recibido==ACK) rpta=F("ACK");
   if (type_recibido==JOIN) rpta=F("JOIN");
   if (type_recibido==BYE) rpta=F("BYE");

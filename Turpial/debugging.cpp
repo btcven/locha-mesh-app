@@ -8,11 +8,6 @@
 #include "blacklist.h"
 
 
-#if defined(__AVR__) 
-  #include "MemoryFree.h"
-#endif
-
-
 extern std::string txValue;
 extern std::string rxValue;
 
@@ -414,19 +409,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
              DEBUG_PRINTLN("");
              DEBUG_PRINT(F("Node ID:"));
              DEBUG_PRINTLN(id_node);
-             #if defined(__AVR__)   // solo aplica para los arduino
-                DEBUG_PRINT(F("Program storage free:"));
-                DEBUG_PRINT(freeMemory());
-                DEBUG_PRINTLN(" bytes");
-                DEBUG_PRINT(F("Memory for local variables:"));
-                DEBUG_PRINT(freeRam());
-                DEBUG_PRINTLN(" bytes");
             
-                DEBUG_PRINT(F("Vcc:"));
-                DEBUG_PRINT(readVcc()/1000);
-                DEBUG_PRINTLN(F(" volts"));
-               DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-            #endif
             str_buffer_serial_received="";
             ejecute=true;
          }
@@ -576,7 +559,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
              
                 Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(id_node),string2char(str_to), string2char(str_payload));
               
-                packet_to_send(Buffer_packet);  // se envia a la cola de mensajes salientes
+                uint8_t rptad=packet_to_send(Buffer_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
                 
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";

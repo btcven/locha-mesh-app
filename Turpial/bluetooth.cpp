@@ -22,6 +22,9 @@
 #include "route.h"
 #include "debugging.h"
 
+extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_salientes; 
+
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
 BLECharacteristic *rx_uart;
@@ -88,7 +91,9 @@ class characteristicCB : public BLECharacteristicCallbacks
              setTime(timemsg);  
           }
          
-        BLE_incoming(uid,msg,timemsg);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
+        BLE_incoming(uid,msg,timemsg,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
+       
+        
         Serial.println("BLE process OK");
         rxValue.clear();
         // se vacia el buffer BLE

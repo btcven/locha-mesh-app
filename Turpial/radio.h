@@ -10,7 +10,7 @@
 #include <Arduino.h>
 
 
-void radioSend(std::string _data);
+void radioSend(String _data);
 void task_radio(void *params);
 
 #endif // RADIO_H

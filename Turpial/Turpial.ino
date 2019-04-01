@@ -38,10 +38,10 @@ char *id_node;
 #endif
 
 // includes internos
-uint8_t total_vecinos = 0;            // cantidad de vecinos del nodo actual
-uint8_t total_rutas = 0;              // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
-uint8_t total_mensajes_salientes = 0; // cantidad de mensajes en la cola
-uint8_t total_nodos_blacklist = 0;    // cantidad de nodos en blacklist
+uint8_t total_vecinos;            // cantidad de vecinos del nodo actual
+uint8_t total_rutas;              // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
+uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
+uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
 
 rutas_t routeTable[MAX_ROUTES];
 nodo_t vecinos[MAX_NODES];
@@ -72,7 +72,10 @@ void setup()
   bool lora_enabled = false;
   bool serial_enabled = false;
   bool wifi_enabled = false;
-  
+  total_mensajes_salientes=0;
+  total_nodos_blacklist = 0;
+  total_rutas = 0;
+  total_vecinos = 0;
   // se coloca el id_nodo en mayusculas
  // id_nodo_demo=char_to_uppercase(id_nodo_demo, 16);
    //id_node= node_name_char_to_uppercase(id_nodo_demo);
@@ -251,7 +254,7 @@ void loop()
   }
 
   // se efectua el procesamiento de paquetes salientes
-  packet_processing_outcoming();
+  packet_processing_outcoming(mensajes_salientes,total_mensajes_salientes);
 
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
   #ifdef DEBUG

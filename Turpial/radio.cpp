@@ -86,7 +86,7 @@ void onReceive(int packetSize) {
 }
 
 // envía un paquete.
-void radioSend(std::string _data) {
+void radioSend(String _data) {
   // hay que verificar primero si el canal esta libre Listen before Talk
   Serial.print("voy a enviar el packet:");
   Serial.println(_data.c_str());

@@ -1,6 +1,10 @@
 #include <Arduino.h>
+
 #include "routing_incoming.h"
+#include "hal/hardware.h"
+#include "memory_def.h"
 #include "general_functions.h"
+#include "boards_def.h"
 #include "debugging.h"
 
 
@@ -46,7 +50,7 @@ if ((String)packet_received.header.to==(String)id_node){
      // new_packet.header=header;
     //  new_packet.body=body;
       new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
-      packet_to_send(new_packet);  // se envia a la cola de mensajes salientes
+      uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
 
       // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
        update_route_age(packet_received.header.from, packet_received.header.to);
@@ -70,7 +74,7 @@ if ((String)packet_received.header.to==(String)id_node){
      // new_packet.header=header;
      // new_packet.body=body;
       new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.from, Buffer_packet.body.payload);
-      packet_to_send(new_packet);  // se envia a la cola de mensajes salientes
+      uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
   } else {
     // si no existe ruta, falta determinar si me voy random por cualquiera de los nodos para intentar
   }
