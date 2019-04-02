@@ -35,25 +35,32 @@ bool is_number(const std::string& s)
 
 // recibe un paquete , es invocado via callback 
 void onReceive(int packetSize) {
+  uint8_t i;
  String mensaje_recibido="";
  char* mensaje_recibido_char;
+// char* mensaje_recibido_temp;
   char in_process;
   bool recibido=false;
   
-  for (int i = 0; i < packetSize; i++) {
+  for (i = 0; i < packetSize; i++) {
     in_process=(char)LoRa.read();
    // se coloca en el Buffer Lora
       rxValue_Lora=rxValue_Lora+in_process;  
+     
   }
-   mensaje_recibido=rxValue_Lora.c_str();
-      
-          Serial.print(F("procesar packet recibido por LoRa:"));
-          Serial.print(mensaje_recibido.c_str());
+  Serial.print(F("procesar packet recibido por LoRa:"));
+  Serial.println(rxValue_Lora.c_str());
+  mensaje_recibido_char=strchr(rxValue_Lora.c_str(),packetSize);
+ //    mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
+         // Serial.print(F("procesar packet recibido por LoRa:"));
+         // Serial.println(mensaje_recibido_char);
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
       Serial.print(F("empiezo ..."));
     // se toma solo el header
-    mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
+ //   mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
+    Serial.print(F("procesar packet recibido por LoRa en char:"));
+          Serial.println(mensaje_recibido_char);
     packet_t packet_received=packet_deserialize(mensaje_recibido_char);
       Serial.print("recibi:");
       Serial.print("type:");
@@ -71,7 +78,7 @@ void onReceive(int packetSize) {
 
         // se envia al BLE para efectos del demo
    txValue=((String)packet_received.body.payload).c_str();
-        //copy_array_locha(packet_received.body.payload, txValue, ((String)packet_received.body.payload).length());
+        
 
         
         // se hace la parte de enrutamiento del packet

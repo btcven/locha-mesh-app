@@ -97,27 +97,41 @@ packet_t packet_deserialize(char* received_text){
   // algo asi 
  // temp_var=received_text.substring(1,1);   //packet.header.type
  // packet_tmp.header.type=(int)temp_var;
+ Serial.print("voy a deserialize con:");
+ Serial.println(received_text);
   while ((str_in_process = strtok_r(received_text, "|", &received_text)) != NULL) {
     switch (i) {
           case 1:
+          Serial.println("entre en la opcion 1:");
+          Serial.println((String)str_in_process);
             packet_tmp.header.type=convertir_str_packet_type_e((String)str_in_process);
             break;
           case 2:
+          Serial.println("entre en la opcion 2:");
+          Serial.println((String)str_in_process);
              copy_array_locha(str_in_process, packet_tmp.header.from, 16);
             break;
              case 3:
+             Serial.println("entre en la opcion 3:");
+             Serial.println((String)str_in_process);
              copy_array_locha(str_in_process, packet_tmp.header.to, 16);
             break;
              case 4:
+             Serial.println("entre en la opcion 4:");
+             Serial.println((String)str_in_process);
              packet_tmp.header.timestamp=convert_str_to_long(str_in_process);
             break;
              case 5:
+             Serial.print("entre en la opcion 5:");
+             Serial.println((String)str_in_process);
              copy_array_locha(str_in_process, packet_tmp.body.payload, ((String)str_in_process).length());
             break;
          
         }
     i++;
   }
+  Serial.print("sali del while con:");
+  Serial.println(packet_tmp.body.payload);
  // packet_from.toCharArray(packet.header.from, 16);
  // packet_to.toCharArray(packet.header.to, 16);
  //packet_type_payload.toCharArray(packet.body.payload;, 240);

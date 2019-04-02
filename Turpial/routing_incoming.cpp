@@ -30,6 +30,7 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
 
 
  // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
+ Serial.println("empezando procesando el packet");
 if ((String)packet_received.header.to==(String)id_node){
   // es un paquete para mi nodo
  // process_received_packet(Buffer_packet);
@@ -37,7 +38,7 @@ if ((String)packet_received.header.to==(String)id_node){
   // se arma un packet_ACK
    // packet_header_t header;
      // packet_body_t body;
-
+Serial.println("t, se devuelve un ACK");
      // header.type=ACK;
       //header.from=id_node;
    //   copy_array(id_node, header.from, 16);
@@ -46,12 +47,14 @@ if ((String)packet_received.header.to==(String)id_node){
    //   header.timestamp=millis();
     //  copy_array(Buffer_packet.body.payload, body.payload, 240);
     //  body.payload=Buffer_packet.body.payload;   // aqui deberia devolver el hash y en base al hash validar que efectivamente cuando se reciba el ACK elimine al que corresponda
-      packet_t new_packet;
+    
      // new_packet.header=header;
     //  new_packet.body=body;
-      new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
+      packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
+      Serial.println("tengo el packet");
+      show_packet(new_packet, true);
       uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
-
+Serial.println("se actualiza el age de la ruta");
       // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
        update_route_age(packet_received.header.from, packet_received.header.to);
 } else {
