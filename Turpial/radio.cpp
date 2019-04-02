@@ -53,9 +53,7 @@ void onReceive(int packetSize) {
    }
   }
    
-   Serial.print(rxValue_Lora.c_str());
-   Serial.print("\n"); 
-      if (recibido){
+      
           Serial.print(F("procesar packet recibido por LoRa:"));
           Serial.print(rxValue_Lora.c_str());
 
@@ -104,7 +102,7 @@ void onReceive(int packetSize) {
       }
     
       }
-   }
+   
    rxValue_Lora.clear();
     
   }

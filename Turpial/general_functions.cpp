@@ -141,8 +141,7 @@ void json_receive(String message, char* &uid,char* &msg, double &timemsg, char* 
       time_in_number=atof(timemsg3);
   } else {
      Serial.println("time recibido no es numerico");
-     timemsg3="12345678"; // cualquier cosa por ahora
-      time_in_number=atof(timemsg3);
+     time_in_number=0;// cualquier cosa por ahora
   }
   
   timemsg=time_in_number;

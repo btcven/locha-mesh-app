@@ -374,13 +374,13 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
 }
 
 // funcion para proesar un mensaje BLE incoming
-void BLE_incoming(char* uid2,char* msg, double timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
+void BLE_incoming(char* uid2,char* msg_ble, double timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
   uint8_t i;
   uint8_t rpta;
   // si es un mensaje tipo broadcast se envia a todos los vecinos 
   DEBUG_PRINTLN(F("Starting BLE_incoming"));
   DEBUG_PRINTLN(F("recibi msg:"));
-  DEBUG_PRINTLN(msg);
+  DEBUG_PRINTLN(msg_ble);
   Serial.print("tengo:");
   Serial.println(uid2);
     if (String(uid2)=="broadcast"){ 
@@ -390,7 +390,7 @@ void BLE_incoming(char* uid2,char* msg, double timemsg, char* hash_msg, message_
           DEBUG_PRINTLN(F("enviando packet al vecino:"));
           DEBUG_PRINTLN(vecinos[i].id);
           // se arma el packet y se envia a cada vecino
-          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, vecinos[i].id, msg);
+          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, vecinos[i].id, msg_ble);
          
           DEBUG_PRINTLN("Packet received:");
           DEBUG_PRINT("type:");

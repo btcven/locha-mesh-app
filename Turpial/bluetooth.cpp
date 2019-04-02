@@ -60,8 +60,10 @@ class characteristicCB : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
-     // char *uid = NULL;
-    //  char *msg = NULL;
+      char* uid_temporal = NULL;
+      char* msg_temporal = NULL;
+      char* hash_temporal = NULL;
+      double time_temporal=0;
     //  double timemsg = 0;
       // movil -> ble_server(Turpial)
       rxValue = pCharacteristic->getValue();
@@ -78,9 +80,13 @@ class characteristicCB : public BLECharacteristicCallbacks
         // el siguiente void extrae del String BLE los 4 parametros: uid,msg,time,hash
    
         json_receive(parametro,uid,msg,timemsg,hash_msg);
+        uid_temporal=uid;
+        msg_temporal=msg;
+        hash_temporal=hash_msg;
+        time_temporal=timemsg;
         DEBUG_PRINTLN(F("Json received: "));
         DEBUG_PRINT("uid:");
-        DEBUG_PRINTLN(uid);
+        DEBUG_PRINTLN(uid_temporal);
         DEBUG_PRINT("msg:");
         DEBUG_PRINTLN(msg);
         DEBUG_PRINT("time:");
@@ -94,7 +100,7 @@ class characteristicCB : public BLECharacteristicCallbacks
               // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
              setTime(timemsg);  
           }
-          BLE_incoming(uid,msg,timemsg,hash_msg,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
+          BLE_incoming(uid_temporal,msg_temporal,time_temporal,hash_temporal,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
           DEBUG_PRINTLN(F("BLE process OK"));
         } else { 
           // no es valido el hash del mensaje
