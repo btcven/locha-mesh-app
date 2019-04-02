@@ -11,6 +11,7 @@
 #include "lang/language.h"
 #include "LoRa.h"
 #include "packet.h"
+#include "general_functions.h"
 #include "routing_incoming.h"
 #include "debugging.h"
 
@@ -32,77 +33,50 @@ bool is_number(const std::string& s)
         s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
 
-// recibe un paquete, es invocado via callback 
+// recibe un paquete , es invocado via callback 
 void onReceive(int packetSize) {
-
+ String mensaje_recibido="";
+ char* mensaje_recibido_char;
   char in_process;
-  const uint8_t tamano_header = 41;  // tama;o en bytes del packet_t header
   bool recibido=false;
   
   for (int i = 0; i < packetSize; i++) {
     in_process=(char)LoRa.read();
    // se coloca en el Buffer Lora
-   if (in_process!='|'){
       rxValue_Lora=rxValue_Lora+in_process;  
-   //   Serial.print(in_process);
-           
-   } else {
-      // es un fin de mensaje
-      recibido=true;
-      break; // ignoro por ahora el resto del mensaje
-   }
   }
-   
+   mensaje_recibido=rxValue_Lora.c_str();
       
           Serial.print(F("procesar packet recibido por LoRa:"));
-          Serial.print(rxValue_Lora.c_str());
+          Serial.print(mensaje_recibido.c_str());
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
-    if (rxValue_Lora.length()>tamano_header){
+      Serial.print(F("empiezo ..."));
     // se toma solo el header
-      std::string header_str=rxValue_Lora.substr(0, tamano_header); 
-      // se verifica si el type es valido
-      std::string header_type=header_str.substr(0, 1);
-      std::string header_from=header_str.substr(1, 16);
-      std::string header_to=header_str.substr(17, 16);
-      std::string header_timestamp=header_str.substr(33, 8);
-      // ahora el body del mensaje
-      std::string body_payload=header_str.substr(41, rxValue_Lora.length()-41);
+    mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
+    packet_t packet_received=packet_deserialize(mensaje_recibido_char);
       Serial.print("recibi:");
       Serial.print("type:");
-      Serial.print(header_type.c_str());
+      Serial.print(convertir_packet_type_e_str(packet_received.header.type));
        Serial.print("from:");
-      Serial.print(header_from.c_str());
+      Serial.print((String)packet_received.header.from);
       Serial.print("to:");
-      Serial.print(header_to.c_str());
+      Serial.print((String)packet_received.header.to);
        Serial.print("timestamp:");
-      Serial.println(header_timestamp.c_str());
+      Serial.println((String)packet_received.header.timestamp);
       
        Serial.print("payload:");
-      Serial.println(body_payload.c_str());
+      Serial.println((String)packet_received.body.payload);
         
-      if (is_number(header_type)){   
-        // se coloca en Buffer_packet
-        char uid_temp[16];
-        
-        packet_t packet_tmp;
-        packet_tmp.header.type=convertir_str_packet_type_e(header_type.c_str());
-        strncpy(packet_tmp.header.from, header_from.c_str(), sizeof(packet_tmp.header.from));
-        strncpy(packet_tmp.header.to, header_to.c_str(), sizeof(packet_tmp.header.to));
-        packet_tmp.header.timestamp=std::atoi (header_timestamp.c_str());
+
         // se envia al BLE para efectos del demo
-        //String the_body=body_payload.c_str();
-        txValue=body_payload.c_str();
-        // no estoy muy seguro de el siguiente size o si es es size+1
-       // the_body.toCharArray(txValue, the_body.length());
+   txValue=((String)packet_received.body.payload).c_str();
+        //copy_array_locha(packet_received.body.payload, txValue, ((String)packet_received.body.payload).length());
+
         
         // se hace la parte de enrutamiento del packet
-        process_received_packet(id_node,packet_tmp);
+        process_received_packet(id_node,packet_received);
         
-      }
-    
-      }
-   
    rxValue_Lora.clear();
     
   }

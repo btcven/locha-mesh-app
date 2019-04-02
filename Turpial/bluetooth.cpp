@@ -63,7 +63,7 @@ class characteristicCB : public BLECharacteristicCallbacks
       char* uid_temporal = NULL;
       char* msg_temporal = NULL;
       char* hash_temporal = NULL;
-      double time_temporal=0;
+      char* time_temporal= NULL;
     //  double timemsg = 0;
       // movil -> ble_server(Turpial)
       rxValue = pCharacteristic->getValue();
@@ -79,27 +79,27 @@ class characteristicCB : public BLECharacteristicCallbacks
         parametro=String(rxValue.c_str());    // se convierte de string c null terminated a System:String
         // el siguiente void extrae del String BLE los 4 parametros: uid,msg,time,hash
    
-        json_receive(parametro,uid,msg,timemsg,hash_msg);
-        uid_temporal=uid;
-        msg_temporal=msg;
-        hash_temporal=hash_msg;
-        time_temporal=timemsg;
-        DEBUG_PRINTLN(F("Json received: "));
+        json_receive(parametro,uid_temporal,msg_temporal,time_temporal,hash_temporal);
+        //uid_temporal=uid;
+        //msg_temporal=msg;
+        //hash_temporal=hash_msg;
+        //time_temporal=timemsg;
+        DEBUG_PRINTLN(F("Json received:"));
         DEBUG_PRINT("uid:");
         DEBUG_PRINTLN(uid_temporal);
         DEBUG_PRINT("msg:");
-        DEBUG_PRINTLN(msg);
+        DEBUG_PRINTLN(msg_temporal);
         DEBUG_PRINT("time:");
-        DEBUG_PRINTLN(timemsg);
+        DEBUG_PRINTLN(time_temporal);
         DEBUG_PRINT("hash:");
-        DEBUG_PRINTLN(hash_msg);
+        DEBUG_PRINTLN(hash_temporal);
         // se procesa el comando que se haya recibido por BLE
         // se valida el hash del msg para ver si esta integro
         if (is_valid_hash160(msg, hash_msg)){
-          if (timemsg>now()){ 
+          //if (timemsg>now()){ 
               // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
-             setTime(timemsg);  
-          }
+            // setTime(timemsg);  
+          //}
           BLE_incoming(uid_temporal,msg_temporal,time_temporal,hash_temporal,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
           DEBUG_PRINTLN(F("BLE process OK"));
         } else { 

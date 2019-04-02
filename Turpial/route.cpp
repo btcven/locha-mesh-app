@@ -374,7 +374,7 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
 }
 
 // funcion para proesar un mensaje BLE incoming
-void BLE_incoming(char* uid2,char* msg_ble, double timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
+void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
   uint8_t i;
   uint8_t rpta;
   // si es un mensaje tipo broadcast se envia a todos los vecinos 

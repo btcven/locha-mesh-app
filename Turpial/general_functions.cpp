@@ -110,7 +110,7 @@ boolean isNumeric(String str)
 
     //char *string;               /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
 //} cJSON;
-void json_receive(String message, char* &uid,char* &msg, double &timemsg, char* &hash_msg ){
+void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &timemsg_intern_str, char* &hash_msg_intern ){
  // this function receives data message in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
  double time_in_number=0;
   int tipo_dato_time_int;
@@ -123,30 +123,21 @@ void json_receive(String message, char* &uid,char* &msg, double &timemsg, char* 
   char mensaje3[message.length()+1];
   message.toCharArray(mensaje3,message.length()+1);
  Serial.print(F("mensaje completo recibido:"));
- Serial.println(message);
- Serial.print(F("convertido:"));
-  Serial.println(mensaje3);
-  cJSON* el_arreglo=cJSON_Parse(mensaje3);
-  uid = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
- Serial.print(F("uid:"));
- Serial.println(uid);
-  msg = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
- Serial.print(F("msg:"));
- Serial.println(msg);
- char* timemsg3 = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuestring;
- hash_msg = cJSON_GetObjectItem(el_arreglo, "hash")->valuestring;
+ Serial.println(mensaje3);
+ cJSON* el_arreglo=cJSON_Parse(mensaje3);
+ uid_intern = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
+ msg_intern = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
+ timemsg_intern_str = cJSON_GetObjectItem(el_arreglo, "time")->valuestring;
+ hash_msg_intern = cJSON_GetObjectItem(el_arreglo, "hash")->valuestring;
+ Serial.print(F("uid dentro de json_receive:"));
+ Serial.println(uid_intern);
+ Serial.print(F("msg dentro de json_receive:"));
+ Serial.println(msg_intern);
+ 
    
-  // se convierte el time recibido en un numero
-  if (isNumeric(timemsg3)){
-      time_in_number=atof(timemsg3);
-  } else {
-     Serial.println("time recibido no es numerico");
-     time_in_number=0;// cualquier cosa por ahora
-  }
-  
-  timemsg=time_in_number;
+ 
  // deletes cJSON from memory
-  cJSON_Delete(el_arreglo);
+//  cJSON_Delete(el_arreglo);
 
 }
 

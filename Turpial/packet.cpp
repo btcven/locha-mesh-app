@@ -34,30 +34,23 @@ radioPacket::~radioPacket()
 
 
 // Funcion en cargada de convertir un packet en una cadana char para ser enviada por Radio
+//  se usa +"|" como separador de campo
 String packet_serialize(packet_t packet){
   String rpta_str="";
-  rpta_str=rpta_str+(String)packet.header.type;
-  rpta_str=rpta_str+(String)packet.header.from;
-  rpta_str=rpta_str+(String)packet.header.to;
-  rpta_str=rpta_str+(String)packet.header.timestamp;
-  rpta_str=rpta_str+(String)packet.body.payload;
+  rpta_str=rpta_str+(String)packet.header.type+"|";
+  rpta_str=rpta_str+(String)packet.header.from+"|";
+  rpta_str=rpta_str+(String)packet.header.to+"|";
+  rpta_str=rpta_str+(String)packet.header.timestamp+"|";
+  rpta_str=rpta_str+(String)packet.body.payload+"|";
   return rpta_str;
 }
 
-// Funcion encargada de convertir una cadena char en un packet 
-packet_t packet_deserialize(String received_text){
-  packet_t packet_tmp;
-//  String temp_var;
-  // algo asi
- // temp_var=received_text.substring(1,1);   //packet.header.type
- // packet_tmp.header.type=(int)temp_var;
-  
- // packet.header.from;
- // rpta_str=rpta_str+(String)packet.header.to;
- // rpta_str=rpta_str+(String)packet.header.timestamp;
- // rpta_str=rpta_str+(String)packet.body.payload;
-  return packet_tmp;
+unsigned long convert_str_to_long(char* time_in_char){
+    unsigned long uil;  
+    uil = strtoul(time_in_char,NULL,10);
+    return uil;
 }
+
 
 
 packet_type_e convertir_str_packet_type_e(String type_recibido){
@@ -88,6 +81,52 @@ String convertir_packet_type_e_str(packet_type_e type_recibido){
   if (type_recibido==NOT_DELIVERED) rpta=F("NOT_DELIVERED");
   return rpta;
 }
+
+
+// Funcion encargada de convertir una cadena char en un packet 
+packet_t packet_deserialize(char* received_text){
+  packet_t packet_tmp;
+  char* str_in_process="";
+ // String packet_type_str="";
+ // String packet_from="";
+ // String packet_to="";
+ // String packet_timestamp="";
+ // String packet_type_payload="";
+  uint8_t i=1;
+//  String temp_var;
+  // algo asi 
+ // temp_var=received_text.substring(1,1);   //packet.header.type
+ // packet_tmp.header.type=(int)temp_var;
+  while ((str_in_process = strtok_r(received_text, "|", &received_text)) != NULL) {
+    switch (i) {
+          case 1:
+            packet_tmp.header.type=convertir_str_packet_type_e((String)str_in_process);
+            break;
+          case 2:
+             copy_array_locha(str_in_process, packet_tmp.header.from, 16);
+            break;
+             case 3:
+             copy_array_locha(str_in_process, packet_tmp.header.to, 16);
+            break;
+             case 4:
+             packet_tmp.header.timestamp=convert_str_to_long(str_in_process);
+            break;
+             case 5:
+             copy_array_locha(str_in_process, packet_tmp.body.payload, ((String)str_in_process).length());
+            break;
+         
+        }
+    i++;
+  }
+ // packet_from.toCharArray(packet.header.from, 16);
+ // packet_to.toCharArray(packet.header.to, 16);
+ //packet_type_payload.toCharArray(packet.body.payload;, 240);
+// falta el timestamp que es un longint y aqui se deberia convertir
+ // rpta_str=rpta_str+(String)packet.header.timestamp;
+
+  return packet_tmp;
+}
+
 
 packet_t create_packet(char* id_node, packet_type_e tipo_packet, char* from, char* to, char* payload){
    
