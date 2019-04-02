@@ -37,10 +37,12 @@ bool is_number(const std::string& s)
 void onReceive(int packetSize) {
   uint8_t i;
  String mensaje_recibido="";
- char* mensaje_recibido_char;
+ char* mensaje_recibido_char2;
+
 // char* mensaje_recibido_temp;
   char in_process;
   bool recibido=false;
+
   
   for (i = 0; i < packetSize; i++) {
     in_process=(char)LoRa.read();
@@ -48,17 +50,18 @@ void onReceive(int packetSize) {
       rxValue_Lora=rxValue_Lora+in_process;  
      
   }
+  mensaje_recibido=rxValue_Lora.c_str();
+ char mensaje_recibido_char[rxValue_Lora.size() + 1];
+ rxValue_Lora.clear();  // se libera el buffer Lora
+ 
   Serial.print(F("procesar packet recibido por LoRa:"));
-  Serial.println(rxValue_Lora.c_str());
-  mensaje_recibido_char=strchr(rxValue_Lora.c_str(),packetSize);
- //    mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
-         // Serial.print(F("procesar packet recibido por LoRa:"));
-         // Serial.println(mensaje_recibido_char);
+  Serial.println(mensaje_recibido);
+  
+   strcpy(mensaje_recibido_char,mensaje_recibido.c_str());
+
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
       Serial.print(F("empiezo ..."));
-    // se toma solo el header
- //   mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
     Serial.print(F("procesar packet recibido por LoRa en char:"));
           Serial.println(mensaje_recibido_char);
     packet_t packet_received=packet_deserialize(mensaje_recibido_char);
@@ -70,7 +73,7 @@ void onReceive(int packetSize) {
       Serial.print("to:");
       Serial.print((String)packet_received.header.to);
        Serial.print("timestamp:");
-      Serial.println((String)packet_received.header.timestamp);
+      Serial.print((String)packet_received.header.timestamp);
       
        Serial.print("payload:");
       Serial.println((String)packet_received.body.payload);
@@ -82,10 +85,10 @@ void onReceive(int packetSize) {
 
         
         // se hace la parte de enrutamiento del packet
-        process_received_packet(id_node,packet_received);
+      //  process_received_packet(id_node,packet_received);
         
-   rxValue_Lora.clear();
-    
+   
+    Serial.println("saliendo...");
   }
   
 

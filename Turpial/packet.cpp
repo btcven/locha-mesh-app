@@ -82,61 +82,64 @@ String convertir_packet_type_e_str(packet_type_e type_recibido){
   return rpta;
 }
 
+// https://stackoverflow.com/questions/9072320/split-string-into-string-array
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.length()-1;
+
+  for(int i=0; i<=maxIndex && found<=index; i++){
+    if(data.charAt(i)==separator || i==maxIndex){
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
 
 // Funcion encargada de convertir una cadena char en un packet 
 packet_t packet_deserialize(char* received_text){
   packet_t packet_tmp;
   char* str_in_process="";
- // String packet_type_str="";
- // String packet_from="";
- // String packet_to="";
- // String packet_timestamp="";
- // String packet_type_payload="";
+ 
   uint8_t i=1;
-//  String temp_var;
-  // algo asi 
- // temp_var=received_text.substring(1,1);   //packet.header.type
- // packet_tmp.header.type=(int)temp_var;
+
  Serial.print("voy a deserialize con:");
  Serial.println(received_text);
   while ((str_in_process = strtok_r(received_text, "|", &received_text)) != NULL) {
     switch (i) {
           case 1:
-          Serial.println("entre en la opcion 1:");
-          Serial.println((String)str_in_process);
+            Serial.print("el tipo es:");
+            Serial.print((String)str_in_process);
             packet_tmp.header.type=convertir_str_packet_type_e((String)str_in_process);
             break;
           case 2:
-          Serial.println("entre en la opcion 2:");
-          Serial.println((String)str_in_process);
+          
              copy_array_locha(str_in_process, packet_tmp.header.from, 16);
             break;
              case 3:
-             Serial.println("entre en la opcion 3:");
-             Serial.println((String)str_in_process);
+             
              copy_array_locha(str_in_process, packet_tmp.header.to, 16);
             break;
              case 4:
-             Serial.println("entre en la opcion 4:");
-             Serial.println((String)str_in_process);
+           
              packet_tmp.header.timestamp=convert_str_to_long(str_in_process);
             break;
              case 5:
-             Serial.print("entre en la opcion 5:");
-             Serial.println((String)str_in_process);
+            
              copy_array_locha(str_in_process, packet_tmp.body.payload, ((String)str_in_process).length());
             break;
          
         }
     i++;
   }
-  Serial.print("sali del while con:");
-  Serial.println(packet_tmp.body.payload);
- // packet_from.toCharArray(packet.header.from, 16);
- // packet_to.toCharArray(packet.header.to, 16);
- //packet_type_payload.toCharArray(packet.body.payload;, 240);
-// falta el timestamp que es un longint y aqui se deberia convertir
- // rpta_str=rpta_str+(String)packet.header.timestamp;
+ // Serial.print("sali del while con:");
+ // Serial.println(packet_tmp.body.payload);
+ 
 
   return packet_tmp;
 }

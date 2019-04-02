@@ -193,6 +193,8 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
   rutas_t nueva_ruta;
   bool ejecute_correctamente=true;
   
+// solo se agregan las rutas si origen y destino son distintos de vacio
+  if ((((String)origen.id).length()>0) and (((String)destino.id).length()>0)){
   // se verifica que no exista previamente la ruta o el inverso de la ruta en las tablas
     for (i = 0; i < total_rutas; i++) {
       if ((routeTable[i].origen.id==origen.id)and(routeTable[i].destino.id==destino.id)and(routeTable[i].next_neighbor.id==next_neighbor.id)){
@@ -205,7 +207,10 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
       }
     }
 
-    
+  } else { 
+    // no se crea ruta cuando no se conoce el origen o el destino
+   ejecute_correctamente=false;
+  }
   if (ejecute_correctamente){
       nueva_ruta.origen=origen;
       nueva_ruta.destino=destino;
