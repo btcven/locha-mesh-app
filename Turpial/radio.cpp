@@ -9,7 +9,7 @@
 #include "radio.h"
 #include "hal/hardware.h"
 #include "lang/language.h"
-#include "LoRa.h"
+#include <LoRa.h>
 #include "packet.h"
 #include "general_functions.h"
 #include "routing_incoming.h"
@@ -21,6 +21,7 @@ using namespace std;
 extern std::string txValue;
 extern std::string rxValue;
 // para LoRa
+extern bool radio_Lora_receiving;
 extern std::string txValue_Lora;
 extern std::string rxValue_Lora;
 extern char *id_node;
@@ -33,41 +34,41 @@ bool is_number(const std::string& s)
         s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
 
-// recibe un paquete , es invocado via callback 
-void onReceive(int packetSize) {
-  uint8_t i;
- String mensaje_recibido="";
+void process_Lora_incoming(){
+  // se encarga de procesar la cadena recibida por Lora
+  // no puede ser invocado desde Onreceive debido a un bug en la libreria Lora.h
+  // https://www.bountysource.com/issues/70601319-calling-any-function-in-the-callback-method
+
+
+
+
+
+String mensaje_recibido="";
  char* mensaje_recibido_char2;
-
-// char* mensaje_recibido_temp;
-  char in_process;
   bool recibido=false;
-
   
-  for (i = 0; i < packetSize; i++) {
-    in_process=(char)LoRa.read();
-   // se coloca en el Buffer Lora
-      rxValue_Lora=rxValue_Lora+in_process;  
-     
-  }
   mensaje_recibido=rxValue_Lora.c_str();
  char mensaje_recibido_char[rxValue_Lora.size() + 1];
  rxValue_Lora.clear();  // se libera el buffer Lora
+ radio_Lora_receiving=false;  //  se habilita para que se pueda recibir otro packet
  
   Serial.print(F("procesar packet recibido por LoRa:"));
   Serial.println(mensaje_recibido);
   
    strcpy(mensaje_recibido_char,mensaje_recibido.c_str());
+packet_t packet_received=packet_deserialize(mensaje_recibido_char);
+
 
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
       Serial.print(F("empiezo ..."));
     Serial.print(F("procesar packet recibido por LoRa en char:"));
           Serial.println(mensaje_recibido_char);
-    packet_t packet_received=packet_deserialize(mensaje_recibido_char);
+    
       Serial.print("recibi:");
       Serial.print("type:");
       Serial.print(convertir_packet_type_e_str(packet_received.header.type));
+      Serial.print((String)packet_received.header.type);
        Serial.print("from:");
       Serial.print((String)packet_received.header.from);
       Serial.print("to:");
@@ -86,12 +87,43 @@ void onReceive(int packetSize) {
         
         // se hace la parte de enrutamiento del packet
       //  process_received_packet(id_node,packet_received);
-        
+  
+}
+
+
+// recibe un paquete , es invocado via callback 
+void onReceive(int packetSize) {
+   // modificaciones para evitar el error de call back
    
+   if (packetSize == 0) return; 
+   
+  
+// char* mensaje_recibido_temp;
+  char in_process;
+uint8_t i;
+if (!radio_Lora_receiving){
+if (packetSize) {
+
+  // se cambio packetsize por -1
+  for (i = 0; i < packetSize-1; i++) {
+    in_process=(char)LoRa.read();
+   // se coloca en el Buffer Lora
+      rxValue_Lora=rxValue_Lora+in_process;  
+     
+  }
+  // se usa la variable boolean radio_Lora_receiving para indicar en el loop main que se puede procesar el contenido de rxValue_Lora
+  // se hace de esta forma porque la libreria Lora.cpp tiene un bug y no permite invocar voids ni funciones dentro de onReceive
+  radio_Lora_receiving=true;  
+  
+ 
+ 
+        
+
     Serial.println("saliendo...");
   }
   
-
+}
+}
 
 // envía un paquete.
 void radioSend(String _data) {

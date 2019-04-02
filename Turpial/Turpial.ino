@@ -51,6 +51,8 @@ packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y o
 
 uint8_t packet_timeout=30;   // expiration time in seconds of packets
 
+bool radio_Lora_receiving;
+
 unsigned long tiempo;
 
 // variables para trasmision BLE
@@ -68,7 +70,7 @@ std::string txValue_Lora = "";
 void setup()
 {
   uint8_t i;
-  
+ radio_Lora_receiving=false; 
   bool display_enabled = false;
   bool lora_enabled = false;
   bool serial_enabled = false;
@@ -261,6 +263,10 @@ void loop()
   #ifdef DEBUG
      uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos);
   #endif
+
+  if (radio_Lora_receiving){
+      process_Lora_incoming();
+  }
   
 
 }
