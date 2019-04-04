@@ -168,7 +168,7 @@ uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received
 
 uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received){
   // si no es para mi se reenvia el paquete a los vecinos por la ruta donde origino
-  
+  Serial.println("se recibio un packet not delivered");
   return 0;
 }
 uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received){

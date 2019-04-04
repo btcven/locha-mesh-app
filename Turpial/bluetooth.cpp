@@ -20,10 +20,13 @@
 #include "bluetooth.h"
 #include "radio.h"
 #include "route.h"
+#include "lang/language.h"
 #include "debugging.h"
 
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_salientes; 
+extern String packet_return_BLE_str;
+
 
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
@@ -33,6 +36,11 @@ std::string server_name = "mesh.locha.io";
 
 extern std::string txValue;
 extern std::string rxValue;
+
+// variables para trasmision Lora
+extern std::string rxValue_Lora;
+extern std::string txValue_Lora;
+
 extern char *uid ;
 extern char *msg;
 extern double timemsg;
@@ -118,6 +126,12 @@ class characteristicCB : public BLECharacteristicCallbacks
 
 void task_bluetooth(void *params)
 {
+
+    String packet_in_process_str;
+    String text_to_send;
+    uint8_t jj;
+  //  char* packet_str_tmp;
+        
   // asignamos el nombre al servidor
   // este será el que se mostrará en la app movil al escanear
   // dispositivos cercanos.
@@ -151,33 +165,48 @@ void task_bluetooth(void *params)
   // loop
   while (1)
   {
-    //
+    // codigo parte 2
     if (deviceConnected)
     {
-      // hay un movil conectado, notificamos y enviamos los datos
-      if (txValue.size() > 0)
-      {
-        Serial.print("[BLE] Sending: ");
-        Serial.println(txValue.c_str());
-        tx_uart->setValue(txValue);
-        tx_uart->notify();
-        txValue.clear();
-      }
-      delay(10);
+
+        if (txValue.size() > 0)
+        {
+            Serial.print("[BLE] Sending: ");
+            packet_in_process_str=txValue.c_str();
+            if (packet_in_process_str.length()>0){ 
+                 if(packet_in_process_str.indexOf("|") > 0){ 
+                  
+                   //    packet_in_process_str.toCharArray(packet_str_tmp, packet_in_process_str.length());
+                   //    packet_t paquet_in_process=packet_deserialize(packet_str_tmp);
+                        // se devuelve a una variable global el packet a retornar
+                        if (packet_return_BLE_str.length()>0){ 
+                          // se da un delay para esperar que sea procesado otro paquete saliente que esta pendiente
+                           for (jj = 0; jj <= 100; jj++) {
+                              delay(20);
+                              if (packet_return_BLE_str.length()==0){       
+                                break;
+                              }
+                           }
+                        }
+                        packet_return_BLE_str=packet_in_process_str;      
+                      // text_to_send=(String)paquet_in_process.body.payload;
+                 }  else {
+                      text_to_send=txValue.c_str();
+                      tx_uart->setValue(text_to_send.c_str());
+                      tx_uart->notify();
+                 }
+                 txValue.clear();
+                 text_to_send="";
+                
+            }
+            
+            
+        }
     }
-    else
-    {
-      // no hay movil conectado pero hay datos pendientes de entregar.
-      // aqui podemos enlazar la funcion para el guardado
-      // de mensajes pendientes de entrega.
-      if (txValue.size() > 0)
-      {
-        Serial.println("Device not connected to BLE interface");
-        // - ToDo: guardamos los mensajes
-        // - limpiamos la variable
-        txValue.clear();
-      }
-      delay(10);
-    }
+    
+      
+      delay(40);
+    
   } // WHILE
-};
+
+}

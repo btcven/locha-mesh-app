@@ -52,8 +52,6 @@ String mensaje_recibido="";
  rxValue_Lora.clear();  // se libera el buffer Lora
  radio_Lora_receiving=false;  //  se habilita para que se pueda recibir otro packet
  
-  Serial.print(F("procesar packet recibido por LoRa:"));
-  Serial.println(mensaje_recibido);
   
    strcpy(mensaje_recibido_char,mensaje_recibido.c_str());
 packet_t packet_received=packet_deserialize(mensaje_recibido_char);
@@ -61,12 +59,13 @@ packet_t packet_received=packet_deserialize(mensaje_recibido_char);
 
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
-      Serial.print(F("empiezo ..."));
-    Serial.print(F("procesar packet recibido por LoRa en char:"));
-          Serial.println(mensaje_recibido_char);
+      
+     Serial.print(F("procesar packet recibido por LoRa:"));
+     Serial.println(mensaje_recibido_char);
     
       Serial.print("recibi:");
       Serial.print("type:");
+      
       Serial.print(convertir_packet_type_e_str(packet_received.header.type));
       Serial.print((String)packet_received.header.type);
        Serial.print("from:");
@@ -78,10 +77,21 @@ packet_t packet_received=packet_deserialize(mensaje_recibido_char);
       
        Serial.print("payload:");
       Serial.println((String)packet_received.body.payload);
-        
 
-        // se envia al BLE para efectos del demo
-   txValue=((String)packet_received.body.payload).c_str();
+        // si no existe la ruta previamente se agrega la nueva ruta, si existe la ruta se actualiza el age de esa ruta
+        
+  if (!existe_ruta(id_node, packet_received.header.from,true)){
+      nodo_t origen;
+      nodo_t vecino;
+      
+      copy_array_locha(id_node, origen.id, 16);
+      copy_array_locha(packet_received.header.from, vecino.id, 16);
+      uint8_t rptass= create_route(origen, vecino, vecino);  
+  } 
+
+        // se envia al BLE para efectos del demo, se arma en forma de packet
+        
+   txValue=((String)mensaje_recibido_char).c_str();
         
 
         
@@ -104,8 +114,8 @@ uint8_t i;
 if (!radio_Lora_receiving){
 if (packetSize) {
 
-  // se cambio packetsize por -1
-  for (i = 0; i < packetSize-1; i++) {
+  // estaba packesize-1 y se cambio packetsize 
+  for (i = 0; i < packetSize; i++) {
     in_process=(char)LoRa.read();
    // se coloca en el Buffer Lora
       rxValue_Lora=rxValue_Lora+in_process;  
@@ -179,6 +189,6 @@ void task_radio(void *params) {
       DEBUG_PRINTLN(txValue_Lora.c_str());
 
     }
-    delay(10);
+    delay(40);
   }
 }

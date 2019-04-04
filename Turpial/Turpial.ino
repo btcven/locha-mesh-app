@@ -48,7 +48,7 @@ nodo_t vecinos[MAX_NODES];
 nodo_t blacklist[MAX_NODES_BLACKLIST];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y outcoming
-
+String packet_return_BLE_str="";  // se usa en los callback para devolver valores hacia el main loop
 uint8_t packet_timeout=30;   // expiration time in seconds of packets
 
 bool radio_Lora_receiving;
@@ -155,7 +155,7 @@ void setup()
       DEBUG_PRINT(MSG_BLE);
       DEBUG_PRINT(" ");
       DEBUG_PRINTLN(MSG_START);
-      xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
+     xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 3, NULL);
     }
     if (WAP_ENABLED)
     {
@@ -178,7 +178,7 @@ void setup()
       DEBUG_PRINT(MSG_SCR);
       DEBUG_PRINT(" ");
       DEBUG_PRINTLN(MSG_START);
-      xTaskCreate(task_radio, "task_radio", 2048, NULL, 5, NULL);
+      xTaskCreate(task_radio, "task_radio", 2048, NULL, 4, NULL);
     }
 
     // se coloca el cursor en el terminal serial
@@ -187,7 +187,7 @@ void setup()
     DEBUG_PRINT(" ");
     DEBUG_PRINTLN(MSG_START);
     // se genera el node_id solo si no existe
-    if (id_node == "")
+    if ((String)id_node == "")
     {
       create_unique_id(id_node);
     }
@@ -203,6 +203,7 @@ void setup()
     // se inicializa el control del tiempo
     tiempo = millis();
   }
+ 
 } //setup
 
 // con esta variable se lleva el control de cual frame de pantalla se esta mostrando en el momento
@@ -212,7 +213,9 @@ int pantalla_activa = 1;
 
 void loop()
 {
-
+  char* packet_str_tmp;
+  char remitente[16];
+  
   if (millis() - tiempo > SCR_INTERVAL)
   {
     display.clear();
@@ -267,6 +270,20 @@ void loop()
   if (radio_Lora_receiving){
       process_Lora_incoming();
   }
-  
+
+  // se verifica si hay que devolver via BLE algun packet no entregado 
+  if (packet_return_BLE_str.length()>0){ 
+    packet_return_BLE_str.toCharArray(packet_str_tmp, packet_return_BLE_str.length());
+    packet_t paquet_in_process=packet_deserialize(packet_str_tmp);
+    paquet_in_process.header.type=NOT_DELIVERED;
+    // se invierte el remitente con el destinatario
+    copy_array_locha(paquet_in_process.header.from, remitente, 16);
+    copy_array_locha(paquet_in_process.header.to, paquet_in_process.header.from, 16);
+    copy_array_locha(remitente, paquet_in_process.header.to, 16);
+   // se manda por el radio Lora
+   packet_return_BLE_str=packet_serialize(paquet_in_process);
+   radioSend(packet_return_BLE_str);
+   packet_return_BLE_str="";
+  }
 
 }
