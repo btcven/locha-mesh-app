@@ -31,6 +31,7 @@ typedef struct rutas_t
     nodo_t next_neighbor; // unique id del vecino mas cercano
     nodo_t destino;       // unique id del vecino mas cercano
     uint8_t age;          // edad (ultima vez que se recibio/envio algo por esa ruta)
+    uint8_t hops;         // cantidad de saltos entre origen y destino
 } rutas_t;
 
 // definicion de voids

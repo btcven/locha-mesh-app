@@ -48,20 +48,24 @@ String mensaje_recibido="";
   bool recibido=false;
   
   mensaje_recibido=rxValue_Lora.c_str();
- char mensaje_recibido_char[rxValue_Lora.size() + 1];
+ char* mensaje_recibido_char;
  rxValue_Lora.clear();  // se libera el buffer Lora
  radio_Lora_receiving=false;  //  se habilita para que se pueda recibir otro packet
  
-  
-   strcpy(mensaje_recibido_char,mensaje_recibido.c_str());
-packet_t packet_received=packet_deserialize(mensaje_recibido_char);
+ // mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
+   mensaje_recibido_char=string2char(mensaje_recibido);
+packet_t packet_received=packet_deserialize_str(mensaje_recibido);
 
 
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
-      
-     Serial.print(F("procesar packet recibido por LoRa:"));
-     Serial.println(mensaje_recibido_char);
+      Serial.print(F("largo recibido:"));
+      Serial.println((String)mensaje_recibido.length());
+ 
+      Serial.print(F("procesar packet recibido por LoRa1:"));
+      Serial.println((String)mensaje_recibido);
+    // Serial.print(F("procesar packet recibido por LoRa2:"));
+    // Serial.println((String)mensaje_recibido_char);
     
       Serial.print("recibi:");
       Serial.print("type:");
@@ -86,6 +90,11 @@ packet_t packet_received=packet_deserialize(mensaje_recibido_char);
       
       copy_array_locha(id_node, origen.id, 16);
       copy_array_locha(packet_received.header.from, vecino.id, 16);
+      // se agrega el nuevo vecino
+      if (!es_vecino(vecino.id)){ 
+          create_neighbor(vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+      }
+      // se crea la nueva ruta
       uint8_t rptass= create_route(origen, vecino, vecino);  
   } 
 

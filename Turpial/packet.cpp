@@ -68,6 +68,21 @@ packet_type_e convertir_str_packet_type_e(String type_recibido){
   return rpta;
 }
 
+packet_type_e convertir_int_packet_type_e(uint8_t type_recibido){
+  packet_type_e rpta=EMPTY;
+  
+  if (type_recibido==0) return EMPTY;
+  if (type_recibido==4) return ACK;
+  if (type_recibido==1) return JOIN;
+  if (type_recibido==2) return BYE;
+  if (type_recibido==5) return MSG;
+  if (type_recibido==3) return ROUTE;
+  if (type_recibido==6) return HELLO;
+  if (type_recibido==7) return GOSSIP;
+  if (type_recibido==8) return NOT_DELIVERED;
+  return rpta;
+}
+
 String convertir_packet_type_e_str(packet_type_e type_recibido){
   String rpta="";
   if (type_recibido==EMPTY) rpta=F("EMPTY");
@@ -100,16 +115,50 @@ String getValue(String data, char separator, int index)
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+// Funcion encargada de convertir un string en un packet 
+packet_t packet_deserialize_str(String received_text){
+   uint8_t ind1;
+   uint8_t ind2;
+   uint8_t ind3;
+   uint8_t ind4;
+      uint8_t ind5;
+   String str_in_process;
+   packet_t packet_tmp;
+   
+   if (received_text.length()>0){
+       ind1 = received_text.indexOf('|');  //finds location of first ,
+       str_in_process = received_text.substring(0, ind1);  
+            if (isNumeric(str_in_process)){
+                packet_tmp.header.type=convertir_int_packet_type_e(convert_str_to_uint8(str_in_process));
+            }
+      ind2 = received_text.indexOf('|', ind1+1 );   //finds location of second ,
+      str_in_process = received_text.substring(ind1+1, ind2);   //captures second data String
+      str_in_process.toCharArray(packet_tmp.header.from,16);
+      ind3 = received_text.indexOf('|', ind2+1 );
+      str_in_process = received_text.substring(ind2+1, ind3);
+      str_in_process.toCharArray(packet_tmp.header.to,16);
+      ind4 = received_text.indexOf('|', ind3+1 );
+      str_in_process = received_text.substring(ind3+1, ind4);
+            if (isNumeric(str_in_process)){
+                    packet_tmp.header.timestamp=char2LL(string2char(str_in_process));
+            }
+      ind5 = received_text.indexOf('|', ind4+1);
+      str_in_process = received_text.substring( ind5,received_text.length()-ind5 );
+      str_in_process.toCharArray(packet_tmp.body.payload,str_in_process.length()+1);
+     
+   } 
+   return packet_tmp;
+}
 
 // Funcion encargada de convertir una cadena char en un packet 
 packet_t packet_deserialize(char* received_text){
   packet_t packet_tmp;
-  char* str_in_process="";
+  char* str_in_process=NULL;
  
   uint8_t i=1;
 
  Serial.print("voy a deserialize con:");
- Serial.println(received_text);
+ Serial.println((String)received_text);
   while ((str_in_process = strtok_r(received_text, "|", &received_text)) != NULL) {
     switch (i) {
           case 1:

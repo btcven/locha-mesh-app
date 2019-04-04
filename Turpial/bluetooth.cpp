@@ -202,7 +202,15 @@ void task_bluetooth(void *params)
             
             
         }
+    } else {
+      // si hay algo para envio pero no esta el dispositivo conectado
+      if (((String)txValue.c_str()).length()>0){ 
+        // solo si hay algo para mandar al BLE pero no hay cliente conectado
+          Serial.println(F("No hay dispositivo BLE conectado"));
+      }
+      
     }
+    
     
       
       delay(40);

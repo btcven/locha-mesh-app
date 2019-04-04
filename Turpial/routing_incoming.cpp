@@ -162,28 +162,28 @@ uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received){
 uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received){
   // este tipo de paquete permite adicionar nuevas rutas a la tabla de rutas
   
-  
+  Serial.println(F("se recibio un packet route"));
   return 0;
 }
 
 uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received){
   // si no es para mi se reenvia el paquete a los vecinos por la ruta donde origino
-  Serial.println("se recibio un packet not delivered");
+  Serial.println(F("se recibio un packet not delivered"));
   return 0;
 }
 uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received){
   // 
-  
+  Serial.println(F("se recibio un packet gossip"));
   return 0;
 }
 uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received){
   // 
-  
+  Serial.println(F("se recibio un packet txn"));
   return 0;
 }
 uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received){
   // 
-  
+  Serial.println(F("se recibio un packet hello"));
   return 0;
 }
 
@@ -219,9 +219,18 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
 // esta funcion procesa el paquete recibido 
 void process_received_packet(char id_node[16], packet_t packet_temporal){
   uint8_t rpta;
+
+  DEBUG_PRINT(F("A new packet incoming, type:"));
+  DEBUG_PRINTLN(convertir_packet_type_e_str(packet_temporal.header.type));
   switch (packet_temporal.header.type)
   {
   case EMPTY:
+        DEBUG_PRINT("Node:");
+        DEBUG_PRINT((String)packet_temporal.header.from);
+        DEBUG_PRINT(" is sending ");
+        DEBUG_PRINT(convertir_packet_type_e_str(EMPTY));
+        DEBUG_PRINTLN(" packets, review it.");
+    break;
   case JOIN:
       routing_incoming_PACKET_JOIN(id_node, packet_temporal);
       break;

@@ -215,6 +215,12 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
       nueva_ruta.origen=origen;
       nueva_ruta.destino=destino;
       nueva_ruta.next_neighbor=next_neighbor;
+      if(strcmp(nueva_ruta.destino.id, nueva_ruta.next_neighbor.id) == 0){
+        nueva_ruta.hops=1;  // es un vecino inmediato
+      } else {
+        nueva_ruta.hops=1;  // se desconoce la cantidad de saltos
+      }
+      
       nueva_ruta.age=millis();
       routeTable[total_rutas+1]=nueva_ruta;
       total_rutas++;

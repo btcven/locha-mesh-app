@@ -14,6 +14,27 @@ extern double timemsg;
 extern char* hash_msg;
 
 
+long long char2LL(char *str)
+{
+  long long result = 0; // Initialize result
+  // Iterate through all characters of input string and update result
+  for (int i = 0; str[i] != '\0'; ++i)
+    result = result*10 + str[i] - '0';
+  return result;
+}
+
+uint8_t convert_str_to_uint8(String texto){
+ 
+ unsigned long long y = 0;
+for (int i = 0; i < texto.length(); i++) {
+    char c = texto.charAt(i);
+   if (c < '0' || c > '9') break;
+   y *= 10;
+   y += (c - '0');
+}
+
+  return y;
+}
 
 char *string2char(String command)
 {

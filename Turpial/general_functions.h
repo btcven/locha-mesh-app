@@ -12,12 +12,13 @@ extern char* msg;
 extern double timemsg;
 extern char* hash_msg;
 
-
+uint8_t convert_str_to_uint8(String texto);
 void create_unique_id(char* &unique_id_created);
 char* string2char_node_name(String command);
 void string2char_node_name_v2(String command, char* &respuesta);
 char* string2char(String command);
 boolean isNumeric(String str);
+long long char2LL(char *str);
 
 
 long readVcc();
