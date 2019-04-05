@@ -24,6 +24,7 @@
 #include "screens.h"
 #include "radio.h"
 #include "bluetooth.h"
+#include "update_older_records.h"
 using namespace std;
 
 // variables fijas para este demo
@@ -41,14 +42,19 @@ char *id_node;
 uint8_t total_vecinos;            // cantidad de vecinos del nodo actual
 uint8_t total_rutas;              // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
+uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
 
 rutas_t routeTable[MAX_ROUTES];
 nodo_t vecinos[MAX_NODES];
 nodo_t blacklist[MAX_NODES_BLACKLIST];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+message_queue_t mensajes_waiting[MAX_MSG_QUEUE_WAITING];
+
 packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y outcoming
 String packet_return_BLE_str="";  // se usa en los callback para devolver valores hacia el main loop
+String packet_return_Lora_str="";  // se usa en los callback para devolver valores hacia el main loop
+
 uint8_t packet_timeout=30;   // expiration time in seconds of packets
 
 bool radio_Lora_receiving;
@@ -77,6 +83,7 @@ void setup()
   bool wifi_enabled = false;
   total_mensajes_salientes=0;
   total_nodos_blacklist = 0;
+  total_mensajes_waiting=0;
   total_rutas = 0;
   total_vecinos = 0;
   // se coloca el id_nodo en mayusculas
@@ -199,7 +206,9 @@ void setup()
       pinMode(LED_PIN, OUTPUT);
       digitalWrite(LED_PIN, HIGH);
     }
-
+    // se crea un task para las tareas de baja prioridad tipo garbage collector  (prioridad 2 por debajo de las otras task)
+    // que chequea rutas viejas, paquetes en espera,  vecinos no reportados desde hace mucho tiempo
+    xTaskCreate(task_update_older_records, "task_update_older_records", 2048, NULL, 2, NULL);
     // se inicializa el control del tiempo
     tiempo = millis();
   }

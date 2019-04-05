@@ -26,6 +26,7 @@
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_salientes; 
 extern String packet_return_BLE_str;
+extern String packet_return_Lora_str;
 
 
 BLEServer *ble_server = NULL;
@@ -207,6 +208,9 @@ void task_bluetooth(void *params)
       if (((String)txValue.c_str()).length()>0){ 
         // solo si hay algo para mandar al BLE pero no hay cliente conectado
           Serial.println(F("No hay dispositivo BLE conectado"));
+          
+          // se devuelve el packet como not delivered
+          
       }
       
     }

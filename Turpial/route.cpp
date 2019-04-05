@@ -21,7 +21,9 @@ extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern nodo_t blacklist[MAX_NODES_BLACKLIST];
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE_WAITING];
 extern uint8_t total_mensajes_salientes;  
+extern uint8_t total_mensajes_waiting; 
 extern uint8_t total_vecinos;  
 extern uint8_t total_rutas;
 extern uint8_t total_nodos_blacklist;
@@ -105,6 +107,14 @@ bool encontre;
         el_mensaje_saliente=mensajes_salientes[i];
         msg_to_send=packet_serialize(mensajes_salientes[i].paquete);
         radioSend(msg_to_send);
+        // se colcoa el packet como waiting si el tipo de packet es MSG
+        if (total_mensajes_waiting<MAX_MSG_QUEUE_WAITING){
+            total_mensajes_waiting++;
+            mensajes_waiting[total_mensajes_waiting].paquete=mensajes_salientes[i].paquete;
+            mensajes_waiting[total_mensajes_waiting].retries=1;
+            mensajes_waiting[total_mensajes_waiting].prioridad=1;
+            mensajes_waiting[total_mensajes_waiting].retry_timestamp=millis();
+        }
         DEBUG_PRINTLN(F("Sended OK"));
         // se borra de la cola de mensajes
        for (j = i; j < total_mensajes_salientes; j++) {
@@ -367,7 +377,7 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
   nuevo_mensaje_en_cola.paquete=packet_temp;
   nuevo_mensaje_en_cola.prioridad=1;
   nuevo_mensaje_en_cola.retries=0;
-  nuevo_mensaje_en_cola.retry_timestamp=0;
+  nuevo_mensaje_en_cola.retry_timestamp=millis();
    if (total_mensajes_salientes_tmp<=MAX_MSG_QUEUE){
        total_mensajes_salientes_tmp=total_mensajes_salientes_tmp+1;
        mensajes_salientes_tmp[total_mensajes_salientes_tmp]=nuevo_mensaje_en_cola;
@@ -412,6 +422,8 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
           DEBUG_PRINTLN(tmp_packet.header.to);
           DEBUG_PRINT("payload:");
           DEBUG_PRINTLN(tmp_packet.body.payload);
+         DEBUG_PRINT("timestamp:");
+          DEBUG_PRINTLN(tmp_packet.header.timestamp);
          
           
           rpta=packet_to_send(tmp_packet,mensajes_salientes,total_mensajes_salientes_tmp2);
