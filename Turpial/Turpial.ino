@@ -281,10 +281,11 @@ void loop()
   #endif
 
   if (radio_Lora_receiving){
+    delay(20);
       process_Lora_incoming();
   }
 
-  // se verifica si hay que devolver via BLE algun packet no entregado 
+  // se verifica si hay que devolver via BLE algun packet 
   if (packet_return_BLE_str.length()>0){ 
     delay(500);  // se hace una pausa antes de devolver para liberar el radio o cualquier otro recurso de menos prioridad que necesite ejecutarse
     Serial.println("devolviendo packet ...");
@@ -296,28 +297,31 @@ void loop()
   //  packet_return_BLE_str.toCharArray(packet_str_tmp, packet_return_BLE_str.length());
     
     packet_t paquet_in_process2=packet_deserialize_str(packet_return_BLE_str.c_str());
-    paquet_in_process2.header.type=NOT_DELIVERED;
+ //   paquet_in_process2.header.type=NOT_DELIVERED;
     // se invierte el remitente con el destinatario
     copy_array_locha(paquet_in_process2.header.from, remitente, 16);
     copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, 16);
     copy_array_locha(remitente, paquet_in_process2.header.to, 16);
+
+    // se manda por el BLE
+    txValue=paquet_in_process2.body.payload;
    // se manda por el radio Lora
-   packet_return_BLE_str=packet_serialize(paquet_in_process2);
-   Serial.print("serializado para enviar por Lora como devolucion:");
-   Serial.println(packet_return_BLE_str);
-   uint8_t rpta_rad=radioSend(packet_return_BLE_str);
-   if (rpta_rad==0) { 
+//   packet_return_BLE_str=packet_serialize(paquet_in_process2);
+ //  Serial.print("serializado para enviar por Lora como devolucion:");
+ //  Serial.println(packet_return_BLE_str);
+  // uint8_t rpta_rad=radioSend(packet_return_BLE_str);
+ //  if (rpta_rad==0) { 
     // si no se pudo enviar se reintenta unos segundos
-    for (int ii = 0; ii<5; ++ii){
-      rpta_rad=radioSend(packet_return_BLE_str);
-      if (rpta_rad==1){ 
-        break;
-      }
-    }
+  //  for (int ii = 0; ii<5; ++ii){
+  //    rpta_rad=radioSend(packet_return_BLE_str);
+  //    if (rpta_rad==1){ 
+   //     break;
+   //   }
+  //  }
     
-   }
+ //  }
    packet_return_BLE_str="";
-  Serial.println("seliendo de la devolucion");
+  Serial.println("seliendo del envio hacia el BLE");
   }
 
 }

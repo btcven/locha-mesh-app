@@ -52,8 +52,10 @@ Serial.println("t, se devuelve un ACK");
     
      // new_packet.header=header;
     //  new_packet.body=body;
-      packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
-      Serial.println("tengo el packet");
+      //packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
+      
+      packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.body.payload);
+      Serial.println("tengo el packet en routing_incoming_PACKET_MSG:");
       show_packet(new_packet, true);
       uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
 Serial.println("se actualiza el age de la ruta");
@@ -78,7 +80,7 @@ Serial.println("se actualiza el age de la ruta");
       packet_t new_packet;
      // new_packet.header=header;
      // new_packet.body=body;
-      new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.from, Buffer_packet.body.payload);
+      new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to, Buffer_packet.body.payload);
       uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
   } else {
     // si no existe ruta, falta determinar si me voy random por cualquiera de los nodos para intentar

@@ -173,7 +173,7 @@ bool encontre;
 uint8_t es_vecino(char id_nodo[16]){
   uint8_t i;
   for (i = 1; i <= total_vecinos; i++) {
-      if (vecinos[i].id==id_nodo){
+      if ((String)vecinos[i].id==(String)id_nodo){
         return 1;
       }
   }
@@ -184,11 +184,11 @@ uint8_t es_vecino(char id_nodo[16]){
 uint8_t pos_ruta(char id_nodo_from[16], char id_nodo_to[16]){
   uint8_t i;
   for (i = 1; i <= total_rutas; i++) {
-      if ((routeTable[i].origen.id==id_nodo_from)and(routeTable[i].destino.id==id_nodo_to)){
+      if (((String)routeTable[i].origen.id==(String)id_nodo_from)and((String)routeTable[i].destino.id==(String)id_nodo_to)){
         return i;
       }
       // el inverso tambien es la misma ruta
-      if ((routeTable[i].origen.id==id_nodo_to)and(routeTable[i].destino.id==id_nodo_from)){
+      if (((String)routeTable[i].origen.id==(String)id_nodo_to)and((String)routeTable[i].destino.id==(String)id_nodo_from)){
         return i;
       }
   }

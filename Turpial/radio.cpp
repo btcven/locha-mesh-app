@@ -108,9 +108,9 @@ packet_t packet_received=packet_deserialize_str(mensaje_recibido);
    txValue=mensaje_recibido.c_str();
         
 
-          Serial.print("se va a enrutar  lo recibido:");
+          Serial.print("se va a enrutar lo recibido:");
         // se hace la parte de enrutamiento del packet
-      //  process_received_packet(id_node,packet_received);
+        process_received_packet(id_node,packet_received);
   
 }
 

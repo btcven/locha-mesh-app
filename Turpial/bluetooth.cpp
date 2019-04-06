@@ -125,7 +125,13 @@ class characteristicCB : public BLECharacteristicCallbacks
     void onRead(BLECharacteristic *pCharacteristic)
     {
       // hay que hacer algo cuando el flujo de datos es: ble_server(Turpial) -> movil
+   if (txValue.size() > 0){
+      Serial.println("enviando al BLE");
+      pCharacteristic->setValue(txValue);
+      Serial.println("listo el envio al BLE");
+       txValue.clear();
     }
+}
 };
 
 void task_bluetooth(void *params)
