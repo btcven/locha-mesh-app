@@ -13,6 +13,8 @@
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_waiting; 
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 

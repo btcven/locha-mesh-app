@@ -20,10 +20,11 @@ extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern nodo_t blacklist[MAX_NODES_BLACKLIST];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern uint8_t total_mensajes_salientes;
-
+extern uint8_t total_mensajes_waiting;
 
 // la siguiente linea se comenta para produccion, solo es para hacer debugging en desarrollo
 #define DEBUG true

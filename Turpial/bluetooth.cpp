@@ -25,6 +25,9 @@
 
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_salientes; 
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_waiting;
+
 extern String packet_return_BLE_str;
 extern String packet_return_Lora_str;
 
@@ -210,7 +213,9 @@ void task_bluetooth(void *params)
           Serial.println(F("No hay dispositivo BLE conectado"));
           
           // se devuelve el packet como not delivered
-          
+          packet_return_BLE_str=(String)txValue.c_str();
+          txValue.clear();
+          text_to_send="";
       }
       
     }

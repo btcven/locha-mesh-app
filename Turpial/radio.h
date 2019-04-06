@@ -9,7 +9,7 @@
 #include <Arduino.h>
 
 
-void radioSend(String _data);
+uint8_t radioSend(String _data);
 void task_radio(void *params);
 
 extern void process_Lora_incoming();

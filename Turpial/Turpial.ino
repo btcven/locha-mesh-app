@@ -49,7 +49,7 @@ rutas_t routeTable[MAX_ROUTES];
 nodo_t vecinos[MAX_NODES];
 nodo_t blacklist[MAX_NODES_BLACKLIST];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
-message_queue_t mensajes_waiting[MAX_MSG_QUEUE_WAITING];
+message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 
 packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y outcoming
 String packet_return_BLE_str="";  // se usa en los callback para devolver valores hacia el main loop
@@ -269,8 +269,12 @@ void loop()
   }
 
   // se efectua el procesamiento de paquetes salientes
-  packet_processing_outcoming(mensajes_salientes,total_mensajes_salientes);
-
+ // DEBUG_PRINT("antes de entrar tengo:");
+ // DEBUG_PRINTLN((String)total_mensajes_waiting);
+  packet_processing_outcoming(mensajes_salientes,total_mensajes_salientes,mensajes_waiting,total_mensajes_waiting);
+//DEBUG_PRINT("al salir tengo:");
+//DEBUG_PRINTLN((String)total_mensajes_waiting);
+//delay(10000);
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
   #ifdef DEBUG
      uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos);
@@ -282,17 +286,38 @@ void loop()
 
   // se verifica si hay que devolver via BLE algun packet no entregado 
   if (packet_return_BLE_str.length()>0){ 
-    packet_return_BLE_str.toCharArray(packet_str_tmp, packet_return_BLE_str.length());
-    packet_t paquet_in_process=packet_deserialize(packet_str_tmp);
-    paquet_in_process.header.type=NOT_DELIVERED;
+    delay(500);  // se hace una pausa antes de devolver para liberar el radio o cualquier otro recurso de menos prioridad que necesite ejecutarse
+    Serial.println("devolviendo packet ...");
+    Serial.print("recibi:");
+    Serial.println(packet_return_BLE_str);
+    
+    
+    
+  //  packet_return_BLE_str.toCharArray(packet_str_tmp, packet_return_BLE_str.length());
+    
+    packet_t paquet_in_process2=packet_deserialize_str(packet_return_BLE_str.c_str());
+    paquet_in_process2.header.type=NOT_DELIVERED;
     // se invierte el remitente con el destinatario
-    copy_array_locha(paquet_in_process.header.from, remitente, 16);
-    copy_array_locha(paquet_in_process.header.to, paquet_in_process.header.from, 16);
-    copy_array_locha(remitente, paquet_in_process.header.to, 16);
+    copy_array_locha(paquet_in_process2.header.from, remitente, 16);
+    copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, 16);
+    copy_array_locha(remitente, paquet_in_process2.header.to, 16);
    // se manda por el radio Lora
-   packet_return_BLE_str=packet_serialize(paquet_in_process);
-   radioSend(packet_return_BLE_str);
+   packet_return_BLE_str=packet_serialize(paquet_in_process2);
+   Serial.print("serializado para enviar por Lora como devolucion:");
+   Serial.println(packet_return_BLE_str);
+   uint8_t rpta_rad=radioSend(packet_return_BLE_str);
+   if (rpta_rad==0) { 
+    // si no se pudo enviar se reintenta unos segundos
+    for (int ii = 0; ii<5; ++ii){
+      rpta_rad=radioSend(packet_return_BLE_str);
+      if (rpta_rad==1){ 
+        break;
+      }
+    }
+    
+   }
    packet_return_BLE_str="";
+  Serial.println("seliendo de la devolucion");
   }
 
 }

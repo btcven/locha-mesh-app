@@ -3,7 +3,9 @@
 #include <WiFi.h>
 #include <cJSON.h>
 #include <iostream>
+#include "esp_system.h"
 #include "general_functions.h"
+#include "debugging.h"
 
 
 
@@ -34,6 +36,27 @@ for (int i = 0; i < texto.length(); i++) {
 }
 
   return y;
+}
+
+
+String getMacAddress() {
+
+  union
+  {
+    uint64_t  llmac;
+    uint8_t   mac[6];
+  } mac_t;
+
+  ESP_ERROR_CHECK(esp_efuse_mac_get_default(mac_t.mac));
+  char szMac[21];
+  snprintf(szMac, sizeof(szMac), "%" PRIu64, mac_t.llmac);
+  Serial.println("continuo al otro tipo de Mac address:");
+  uint8_t baseMac[6];
+  // Get MAC address for WiFi station
+  esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
+  char baseMacChr[18] = {0};
+  sprintf(baseMacChr, "%02X:%02X:%02X:%02X:%02X:%02X", baseMac[0], baseMac[1], baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
+  return String(baseMacChr);
 }
 
 char *string2char(String command)
@@ -162,6 +185,17 @@ void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &ti
 
 }
 
+String get_id_mac() {
+  char uniqueid_mac[16];
+  uint32_t uChipId;
+  uChipId = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
+  snprintf(uniqueid_mac, 25, "%08X", uChipId);
+  Serial.printf("ESP Chip ID = %04X",(uint16_t)(uChipId>>32));//print High 2 bytes
+  return (String)uniqueid_mac;
+
+  Serial.println("y usan la otra funciona ongob");
+  Serial.println(getMacAddress());
+}
 
 void create_unique_id(char *&unique_id_created) {
   // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom

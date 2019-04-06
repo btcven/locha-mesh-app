@@ -22,7 +22,7 @@ extern std::string rxValue;
 extern std::string rxValue_Lora;
 extern std::string txValue_Lora;
 
-extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE_WAITING];
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_waiting;
 extern uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
@@ -31,11 +31,12 @@ extern uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
 void task_update_older_records(void *params) {
 uint8_t xx;
 uint8_t jj;
-//  DEBUG_PRINT(F("task_update_older_records Started"));
+
  while (1) {
     // 1) paquetes en espera: tiempo delayed o si tienen que reintentar
     // se recorre la tabla de mensajes_waiting
     if (total_mensajes_waiting>0){
+     //  DEBUG_PRINT(F("Waiting MSG present"));
       for ( xx = 0; xx <= total_mensajes_waiting; xx++) {
           if ((mensajes_waiting[xx].retry_timestamp+MSG_QUEUE_WAITING_MAX_AGE)>millis()){
             // el paquete vencio se vuelve a hacer un retry
@@ -43,22 +44,22 @@ uint8_t jj;
                 // no pudo ser entregado
                 txValue="NOT DELIVERED";
                 //  se borra de la cola de espera
-                  for ( jj = xx; jj < total_mensajes_waiting; jj++) {
-                      mensajes_waiting[jj]=mensajes_waiting[jj+1];                       
-                  }
-                  total_mensajes_waiting--;
+                //  for ( jj = xx; jj < total_mensajes_waiting; jj++) {
+                //      mensajes_waiting[jj]=mensajes_waiting[jj+1];                       
+                //  }
+                //  total_mensajes_waiting--;
                 break;    
               } else {
                 // se hace un retry de envio
                 if (total_mensajes_salientes<MAX_MSG_QUEUE){ 
-                    mensajes_waiting[xx].retries++;
-                    mensajes_waiting[xx].retry_timestamp=millis();
+                  //  mensajes_waiting[xx].retries++;
+                  //  mensajes_waiting[xx].retry_timestamp=millis();
                     
-                    mensajes_salientes[total_mensajes_salientes+1]=mensajes_waiting[xx];
-                    for ( jj = xx; jj < total_mensajes_waiting; jj++) {
-                      mensajes_waiting[jj]=mensajes_waiting[jj+1];                       
-                  }
-                  total_mensajes_waiting--;
+                  //  mensajes_salientes[total_mensajes_salientes+1]=mensajes_waiting[xx];
+                    //for ( jj = xx; jj < total_mensajes_waiting; jj++) {
+                  //    mensajes_waiting[jj]=mensajes_waiting[jj+1];                       
+                  //}
+                 // total_mensajes_waiting--;
                 } else {
                   // no se puede reenviar esta full la cola de mensajes, se debe esperar un poco mas para reintentar
                   // se actualiza el retry_timestamp para que tenga otro ciclo mas de tiempo mientras se libra la cola

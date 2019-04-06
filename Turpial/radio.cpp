@@ -87,7 +87,7 @@ packet_t packet_received=packet_deserialize_str(mensaje_recibido);
   if (!existe_ruta(id_node, packet_received.header.from,true)){
       nodo_t origen;
       nodo_t vecino;
-      
+        Serial.print("se agrega una nueva ruta porque no existe previamente la ruta de lo recibido");
       copy_array_locha(id_node, origen.id, 16);
       copy_array_locha(packet_received.header.from, vecino.id, 16);
       // se agrega el nuevo vecino
@@ -99,11 +99,16 @@ packet_t packet_received=packet_deserialize_str(mensaje_recibido);
   } 
 
         // se envia al BLE para efectos del demo, se arma en forma de packet
-        
-   txValue=((String)mensaje_recibido_char).c_str();
+         Serial.print("se envia al BLE:");
+         
+         Serial.println(mensaje_recibido);
+         Serial.print("---");
+         Serial.println(mensaje_recibido.c_str());
+   //txValue=msg_will_send;
+   txValue=mensaje_recibido.c_str();
         
 
-        
+          Serial.print("se va a enrutar  lo recibido:");
         // se hace la parte de enrutamiento del packet
       //  process_received_packet(id_node,packet_received);
   
@@ -145,28 +150,49 @@ if (packetSize) {
 }
 
 // envía un paquete.
-void radioSend(String _data) {
+uint8_t radioSend(String _data) {
+  int done =0;
+  int rpta;
+  int delay_time=500;
   // hay que verificar primero si el canal esta libre Listen before Talk
   Serial.print("voy a enviar el packet:");
   Serial.print(_data.c_str());
-  LoRa.beginPacket();
-  LoRa.print(_data.c_str());
-  int done = LoRa.endPacket();
+   for (int ii = 0; ii<5; ++ii){
+      rpta= LoRa.beginPacket();
+      if (rpta==1){ 
+        break;
+      }
+      Serial.print("radio busy, reintentando ...");
+      delay(delay_time);
+      delay_time=500+delay_time;
+   }
+   LoRa.print(_data.c_str());
+  done = LoRa.endPacket();
+ if (rpta==1){ 
+  if (done){
   Serial.print("enviado OK");
-  if (done) {
-    
-    //LoRa.onReceive(onReceive);
-    LoRa.receive();
-  }
+  // se coloca en modo receive para que siga escuchando packets
+  
+ 
+  
   // ..::HEADER::..
   // from:
   // to: from_phone
   // time: from_phone
   // ..::BODY::..
   // payload
+
+
+
+    LoRa.receive();
+    
+    return 1;
+  }
+  }
+ // cualquier otro escenario devuelve 0, packet no enviado
+ LoRa.receive();
+ return 0;
 }
-
-
 // declaracion del radio Lora y su vinculacion via SPI
 void task_radio(void *params) {
 

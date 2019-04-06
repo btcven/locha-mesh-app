@@ -15,9 +15,6 @@ extern char* id_node;
 extern packet_t Buffer_packet;
 
 
-
-
-
 radioPacket::radioPacket(packet_t packet)
 {
   packet = packet;
@@ -124,12 +121,14 @@ packet_t packet_deserialize_str(String received_text){
       uint8_t ind5;
    String str_in_process;
    packet_t packet_tmp;
-   
+  
    if (received_text.length()>0){
        ind1 = received_text.indexOf('|');  //finds location of first ,
        str_in_process = received_text.substring(0, ind1);  
             if (isNumeric(str_in_process)){
+               
                 packet_tmp.header.type=convertir_int_packet_type_e(convert_str_to_uint8(str_in_process));
+                
             }
       ind2 = received_text.indexOf('|', ind1+1 );   //finds location of second ,
       str_in_process = received_text.substring(ind1+1, ind2);   //captures second data String
@@ -141,12 +140,24 @@ packet_t packet_deserialize_str(String received_text){
       str_in_process = received_text.substring(ind3+1, ind4);
             if (isNumeric(str_in_process)){
                     packet_tmp.header.timestamp=char2LL(string2char(str_in_process));
+            } else { 
+              packet_tmp.header.timestamp=0;
             }
+       
       ind5 = received_text.indexOf('|', ind4+1);
-      str_in_process = received_text.substring( ind5,received_text.length()-ind5 );
+      if (ind5>0){   // si venia al final con |
+          str_in_process = received_text.substring( ind4+1,ind5 );
+         
+      } else {
+        // no trae | al final
+        str_in_process = received_text.substring( ind4+1,received_text.length()-ind4-1 );
+        
+      }
+      
       str_in_process.toCharArray(packet_tmp.body.payload,str_in_process.length()+1);
-     
+    
    } 
+   
    return packet_tmp;
 }
 
