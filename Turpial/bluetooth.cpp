@@ -30,7 +30,7 @@ extern uint8_t total_mensajes_waiting;
 
 extern String packet_return_BLE_str;
 extern String packet_return_Lora_str;
-
+extern String remote_debugging;
 
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
@@ -106,14 +106,30 @@ class characteristicCB : public BLECharacteristicCallbacks
         DEBUG_PRINT("hash:");
         DEBUG_PRINTLN(hash_temporal);
         // se procesa el comando que se haya recibido por BLE
+
+      
+        
         // se valida el hash del msg para ver si esta integro
         if (is_valid_hash160(msg, hash_msg)){
           //if (timemsg>now()){ 
               // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
             // setTime(timemsg);  
           //}
-          BLE_incoming(uid_temporal,msg_temporal,time_temporal,hash_temporal,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
-          DEBUG_PRINTLN(F("BLE process OK"));
+
+          // se verifica si viene un comando remoto para el turpial por BLE
+          int pos_remote=remote_debugging.indexOf("remote:");
+          if(pos_remote > 0){
+              //  msg=msg.substring(pos_remote+7);
+                DEBUG_PRINT(F("Remote command received:"));
+                DEBUG_PRINTLN(msg);
+                remote_debugging=(String)msg;
+               // txValue=("OK").c_str();
+          } else {
+
+          
+                BLE_incoming(uid_temporal,msg_temporal,time_temporal,hash_temporal,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
+                DEBUG_PRINTLN(F("BLE process OK"));
+          }
         } else { 
           // no es valido el hash del mensaje
           DEBUG_PRINTLN(F("Invalid hash received on BLE message"));

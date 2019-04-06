@@ -25,6 +25,7 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern uint8_t total_mensajes_salientes;
 extern uint8_t total_mensajes_waiting;
+extern String remote_debugging;
 
 // la siguiente linea se comenta para produccion, solo es para hacer debugging en desarrollo
 #define DEBUG true
@@ -50,7 +51,7 @@ extern uint8_t total_mensajes_waiting;
   #define DEBUG_PRINTLN_STR(x)
 #endif
 
-uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
+uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, String &remote_debugging);
 uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes);
 uint8_t show_packet(packet_t el_packet, bool show_size);
 

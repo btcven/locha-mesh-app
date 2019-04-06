@@ -54,6 +54,7 @@ message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y outcoming
 String packet_return_BLE_str="";  // se usa en los callback para devolver valores hacia el main loop
 String packet_return_Lora_str="";  // se usa en los callback para devolver valores hacia el main loop
+String remote_debugging="";      // se usa para recibir comandos de debugging remote de la app movil via BLE al equipo
 
 uint8_t packet_timeout=30;   // expiration time in seconds of packets
 
@@ -277,7 +278,7 @@ void loop()
 //delay(10000);
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
   #ifdef DEBUG
-     uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos);
+     uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos,remote_debugging);
   #endif
 
   if (radio_Lora_receiving){

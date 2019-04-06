@@ -20,7 +20,9 @@ typedef enum
   MSG=5,
   HELLO=6,
   GOSSIP=7,
-  NOT_DELIVERED=8
+  NOT_DELIVERED=8,
+  TXN=9
+  //BIN=10 // binarios para el caso de audios, fotos
 } packet_type_e;
 
 typedef struct
