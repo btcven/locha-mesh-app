@@ -31,10 +31,11 @@ typedef struct rutas_t
     nodo_t next_neighbor; // unique id del vecino mas cercano
     nodo_t destino;       // unique id del vecino mas cercano
     uint8_t age;          // edad (ultima vez que se recibio/envio algo por esa ruta)
+    uint8_t hops;         // cantidad de saltos entre origen y destino
 } rutas_t;
 
 // definicion de voids
-void packet_processing_outcoming(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE],uint8_t &total_mensajes_salientes);
+void packet_processing_outcoming(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE],uint8_t &total_mensajes_salientes,message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE],uint8_t &total_mensajes_waiting);
 uint8_t create_neighbor(String id_node_neighbor, struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t blacklist[MAX_NODES_BLACKLIST], uint8_t total_nodos_blacklist);
 uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp);
 uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino);
@@ -46,7 +47,7 @@ uint8_t es_vecino(char id_nodo[16]);
 uint8_t delete_neighbor(String id_node_neighbor, struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
 uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16]);
 uint8_t delete_route_by_id(uint8_t id_to_delete);
-void BLE_incoming(char* uid2,char* msg, double timemsg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2);
+void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2);
 uint8_t delete_older_packets();
 
 
@@ -54,6 +55,8 @@ extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern nodo_t blacklist[MAX_NODES_BLACKLIST];
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_waiting; 
 extern uint8_t total_mensajes_salientes;  
 extern uint8_t total_vecinos;  
 extern uint8_t total_rutas;

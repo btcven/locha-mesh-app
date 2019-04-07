@@ -3,15 +3,58 @@
 #include <WiFi.h>
 #include <cJSON.h>
 #include <iostream>
+#include "esp_system.h"
 #include "general_functions.h"
-
-
-
+#include "debugging.h"
 
 extern char* uid;
 extern char* msg;
 extern double timemsg;
+extern char* hash_msg;
 
+
+long long char2LL(char *str)
+{
+  long long result = 0; // Initialize result
+  // Iterate through all characters of input string and update result
+  for (int i = 0; str[i] != '\0'; ++i)
+    result = result*10 + str[i] - '0';
+  return result;
+}
+
+uint8_t convert_str_to_uint8(String texto){
+ 
+ unsigned long long y = 0;
+for (int i = 0; i < texto.length(); i++) {
+    char c = texto.charAt(i);
+   if (c < '0' || c > '9') break;
+   y *= 10;
+   y += (c - '0');
+}
+
+  return y;
+}
+
+
+String getMacAddress() {
+
+  union
+  {
+    uint64_t  llmac;
+    uint8_t   mac[6];
+  } mac_t;
+
+  ESP_ERROR_CHECK(esp_efuse_mac_get_default(mac_t.mac));
+  char szMac[21];
+  snprintf(szMac, sizeof(szMac), "%" PRIu64, mac_t.llmac);
+  Serial.println("continuo al otro tipo de Mac address:");
+  uint8_t baseMac[6];
+  // Get MAC address for WiFi station
+  esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
+  char baseMacChr[18] = {0};
+  sprintf(baseMacChr, "%02X:%02X:%02X:%02X:%02X:%02X", baseMac[0], baseMac[1], baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
+  return String(baseMacChr);
+}
 
 
 char *string2char(String command)

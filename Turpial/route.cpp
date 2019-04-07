@@ -21,7 +21,9 @@ extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern nodo_t blacklist[MAX_NODES_BLACKLIST];
-extern uint8_t total_mensajes_salientes;  
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_waiting; 
+extern uint8_t total_mensajes_salientes;
 extern uint8_t total_vecinos;  
 extern uint8_t total_rutas;
 extern uint8_t total_nodos_blacklist;
@@ -59,7 +61,7 @@ uint8_t delete_older_packets(){
 
 
 
-void packet_processing_outcoming(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE],uint8_t &total_mensajes_salientes){
+void packet_processing_outcoming(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE],uint8_t &total_mensajes_salientes,message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE],uint8_t &total_mensajes_waiting){
 // aqui se deberia invocar radio_send del primer registro que consiga en el arreglo mensajes_salientes
  uint8_t i;
  uint8_t j;
@@ -79,7 +81,7 @@ bool encontre;
   //DEBUG_PRINT(F("Deleting older packets ..."));
    // i=delete_older_packets();
  //   DEBUG_PRINT(i);
-  DEBUG_PRINT(F("Processing outcoming packets"));
+  //DEBUG_PRINT(F("Processing outcoming packets"));
   encontre=false;
     for (i = 1; i <= total_mensajes_salientes; i++) {
       DEBUG_PRINT(F("Sending packet "));
@@ -90,12 +92,17 @@ bool encontre;
                 encontre=true;
                 break;
           } else {
-            if (mensajes_salientes[i].retry_timestamp>0){
-                if ((mensajes_salientes[i].retry_timestamp+packet_timeout)<now()){
+            
+                if ((mensajes_salientes[i].retry_timestamp+packet_timeout)>now()){
                   encontre=true;
                   break;
+                } else {
+                  // es un packet que vencio el tiempo de espera
+                  DEBUG_PRINT(F("Hay packets en cola pero estan pendientes por reintentar en "));
+                  DEBUG_PRINT(packet_timeout/1000);
+                  DEBUG_PRINT(" segundos");
                 }
-            }
+            
           }
           
     }
@@ -104,14 +111,53 @@ bool encontre;
       DEBUG_PRINTLN(F("Sending packet ..."));
         el_mensaje_saliente=mensajes_salientes[i];
         msg_to_send=packet_serialize(mensajes_salientes[i].paquete);
-        radioSend(msg_to_send);
+        uint8_t rpta_rad=radioSend(msg_to_send);
+        if (rpta_rad==0){ 
+          // no se transmitio se hace un reintento 
+          delay(500);
+          rpta_rad=radioSend(msg_to_send);
+        }
+        DEBUG_PRINTLN(F("Return to processing outcoming ..."));
+        // se colcoa el packet como waiting si el tipo de packet es MSG
+        if (total_mensajes_waiting<MAX_MSG_QUEUE){
+            DEBUG_PRINTLN(F("Packet marked waiting ACK ..."));
+            total_mensajes_waiting++;
+            mensajes_waiting[total_mensajes_waiting].paquete=mensajes_salientes[i].paquete;
+            mensajes_waiting[total_mensajes_waiting].retries=1;
+            mensajes_waiting[total_mensajes_waiting].prioridad=1;
+            mensajes_waiting[total_mensajes_waiting].retry_timestamp=millis();
+  DEBUG_PRINT(F("Tengo mensajes waiting:"));
+           DEBUG_PRINTLN((String)total_mensajes_waiting);
+        }
+        DEBUG_PRINT("total waiting pos1:");
+            
+            DEBUG_PRINTLN((String)total_mensajes_waiting);
         DEBUG_PRINTLN(F("Sended OK"));
+        DEBUG_PRINT("total waiting pos1:");
+            
+            DEBUG_PRINTLN((String)total_mensajes_waiting);
         // se borra de la cola de mensajes
        for (j = i; j < total_mensajes_salientes; j++) {
             mensajes_salientes[j]=mensajes_salientes[j+1];
        }
        total_mensajes_salientes--;
+       DEBUG_PRINT("total waiting pos1:");
+            
+            DEBUG_PRINTLN((String)total_mensajes_waiting);
        DEBUG_PRINTLN(F("Packet deleted from queue"));
+ // se muestra el packet a ver si es el contenido deseado
+            DEBUG_PRINTLN(F("Tengo el packet waiting:"));
+            DEBUG_PRINT("FROM:");
+            DEBUG_PRINTLN((String)mensajes_waiting[total_mensajes_waiting].paquete.header.from);
+            DEBUG_PRINT("TO:");
+            DEBUG_PRINTLN((String)mensajes_waiting[total_mensajes_waiting].paquete.header.to);
+            DEBUG_PRINT("PAYLOAD:");
+            DEBUG_PRINTLN((String)mensajes_waiting[total_mensajes_waiting].paquete.body.payload);
+            DEBUG_PRINT("total final:");
+            
+            DEBUG_PRINTLN((String)total_mensajes_waiting);
+
+      
       //  mensajes_salientes[i].retries=mensajes_salientes[i].retries+1;
       //  mensajes_salientes[i].retry_timestamp=now();
     }
@@ -127,7 +173,7 @@ bool encontre;
 uint8_t es_vecino(char id_nodo[16]){
   uint8_t i;
   for (i = 1; i <= total_vecinos; i++) {
-      if (vecinos[i].id==id_nodo){
+      if ((String)vecinos[i].id==(String)id_nodo){
         return 1;
       }
   }
@@ -138,11 +184,11 @@ uint8_t es_vecino(char id_nodo[16]){
 uint8_t pos_ruta(char id_nodo_from[16], char id_nodo_to[16]){
   uint8_t i;
   for (i = 1; i <= total_rutas; i++) {
-      if ((routeTable[i].origen.id==id_nodo_from)and(routeTable[i].destino.id==id_nodo_to)){
+      if (((String)routeTable[i].origen.id==(String)id_nodo_from)and((String)routeTable[i].destino.id==(String)id_nodo_to)){
         return i;
       }
       // el inverso tambien es la misma ruta
-      if ((routeTable[i].origen.id==id_nodo_to)and(routeTable[i].destino.id==id_nodo_from)){
+      if (((String)routeTable[i].origen.id==(String)id_nodo_to)and((String)routeTable[i].destino.id==(String)id_nodo_from)){
         return i;
       }
   }
@@ -193,23 +239,34 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
   rutas_t nueva_ruta;
   bool ejecute_correctamente=true;
   
+// solo se agregan las rutas si origen y destino son distintos de vacio
+  if ((((String)origen.id).length()>0) and (((String)destino.id).length()>0)){
   // se verifica que no exista previamente la ruta o el inverso de la ruta en las tablas
     for (i = 0; i < total_rutas; i++) {
-      if ((routeTable[i].origen.id==origen.id)and(routeTable[i].destino.id==destino.id)and(routeTable[i].next_neighbor.id==next_neighbor.id)){
+      if (((String)routeTable[i].origen.id==(String)origen.id)and((String)routeTable[i].destino.id==(String)destino.id)and((String)routeTable[i].next_neighbor.id==(String)next_neighbor.id)){
           ejecute_correctamente=false;
           break;
       }
-      if ((routeTable[i].origen.id==destino.id)and(routeTable[i].destino.id==origen.id)and(routeTable[i].next_neighbor.id==next_neighbor.id)){
+      if (((String)routeTable[i].origen.id==(String)destino.id)and((String)routeTable[i].destino.id==(String)origen.id)and((String)routeTable[i].next_neighbor.id==(String)next_neighbor.id)){
           ejecute_correctamente=false;
           break;
       }
     }
 
-    
+  } else { 
+    // no se crea ruta cuando no se conoce el origen o el destino
+   ejecute_correctamente=false;
+  }
   if (ejecute_correctamente){
       nueva_ruta.origen=origen;
       nueva_ruta.destino=destino;
       nueva_ruta.next_neighbor=next_neighbor;
+      if(strcmp(nueva_ruta.destino.id, nueva_ruta.next_neighbor.id) == 0){
+        nueva_ruta.hops=1;  // es un vecino inmediato
+      } else {
+        nueva_ruta.hops=1;  // se desconoce la cantidad de saltos
+      }
+      
       nueva_ruta.age=millis();
       routeTable[total_rutas+1]=nueva_ruta;
       total_rutas++;
@@ -356,7 +413,7 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
   nuevo_mensaje_en_cola.paquete=packet_temp;
   nuevo_mensaje_en_cola.prioridad=1;
   nuevo_mensaje_en_cola.retries=0;
-  nuevo_mensaje_en_cola.retry_timestamp=0;
+  nuevo_mensaje_en_cola.retry_timestamp=millis();
    if (total_mensajes_salientes_tmp<=MAX_MSG_QUEUE){
        total_mensajes_salientes_tmp=total_mensajes_salientes_tmp+1;
        mensajes_salientes_tmp[total_mensajes_salientes_tmp]=nuevo_mensaje_en_cola;
@@ -374,13 +431,15 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
 }
 
 // funcion para proesar un mensaje BLE incoming
-void BLE_incoming(char* uid2,char* msg, double timemsg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
+void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
   uint8_t i;
   uint8_t rpta;
   // si es un mensaje tipo broadcast se envia a todos los vecinos 
   DEBUG_PRINTLN(F("Starting BLE_incoming"));
-//  Serial.print("tengo:");
-//  Serial.println(uid2);
+  DEBUG_PRINTLN(F("recibi msg:"));
+  DEBUG_PRINTLN(msg_ble);
+  Serial.print("tengo:");
+  Serial.println(uid2);
     if (String(uid2)=="broadcast"){ 
        DEBUG_PRINTLN(F("its a broadcast"));
        if (total_vecinos>0){ 
@@ -388,7 +447,7 @@ void BLE_incoming(char* uid2,char* msg, double timemsg, message_queue_t (&mensaj
           DEBUG_PRINTLN(F("enviando packet al vecino:"));
           DEBUG_PRINTLN(vecinos[i].id);
           // se arma el packet y se envia a cada vecino
-          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, vecinos[i].id, msg);
+          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, vecinos[i].id, msg_ble);
          
           DEBUG_PRINTLN("Packet received:");
           DEBUG_PRINT("type:");
@@ -399,6 +458,8 @@ void BLE_incoming(char* uid2,char* msg, double timemsg, message_queue_t (&mensaj
           DEBUG_PRINTLN(tmp_packet.header.to);
           DEBUG_PRINT("payload:");
           DEBUG_PRINTLN(tmp_packet.body.payload);
+         DEBUG_PRINT("timestamp:");
+          DEBUG_PRINTLN(tmp_packet.header.timestamp);
          
           
           rpta=packet_to_send(tmp_packet,mensajes_salientes,total_mensajes_salientes_tmp2);
