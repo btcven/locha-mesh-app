@@ -24,6 +24,7 @@
 #include "screens.h"
 #include "radio.h"
 #include "bluetooth.h"
+#include "update_older_records.h"
 using namespace std;
 
 // variables fijas para este demo
@@ -41,15 +42,23 @@ char *id_node;
 uint8_t total_vecinos;            // cantidad de vecinos del nodo actual
 uint8_t total_rutas;              // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
+uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
 
 rutas_t routeTable[MAX_ROUTES];
 nodo_t vecinos[MAX_NODES];
 nodo_t blacklist[MAX_NODES_BLACKLIST];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+
 packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y outcoming
+String packet_return_BLE_str="";  // se usa en los callback para devolver valores hacia el main loop
+String packet_return_Lora_str="";  // se usa en los callback para devolver valores hacia el main loop
+String remote_debugging="";      // se usa para recibir comandos de debugging remote de la app movil via BLE al equipo
 
 uint8_t packet_timeout=30;   // expiration time in seconds of packets
+
+bool radio_Lora_receiving;
 
 unsigned long tiempo;
 
@@ -59,6 +68,7 @@ std::string txValue = "";
 char *uid ;
 char *msg;
 double timemsg;
+char* hash_msg;
 
 // variables para trasmision Lora
 std::string rxValue_Lora = "";
@@ -67,13 +77,14 @@ std::string txValue_Lora = "";
 void setup()
 {
   uint8_t i;
-  
+ radio_Lora_receiving=false; 
   bool display_enabled = false;
   bool lora_enabled = false;
   bool serial_enabled = false;
   bool wifi_enabled = false;
   total_mensajes_salientes=0;
   total_nodos_blacklist = 0;
+  total_mensajes_waiting=0;
   total_rutas = 0;
   total_vecinos = 0;
   // se coloca el id_nodo en mayusculas
@@ -152,7 +163,7 @@ void setup()
       DEBUG_PRINT(MSG_BLE);
       DEBUG_PRINT(" ");
       DEBUG_PRINTLN(MSG_START);
-      xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
+     xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 3, NULL);
     }
     if (WAP_ENABLED)
     {
@@ -175,7 +186,7 @@ void setup()
       DEBUG_PRINT(MSG_SCR);
       DEBUG_PRINT(" ");
       DEBUG_PRINTLN(MSG_START);
-      xTaskCreate(task_radio, "task_radio", 2048, NULL, 5, NULL);
+      xTaskCreate(task_radio, "task_radio", 2048, NULL, 4, NULL);
     }
 
     // se coloca el cursor en el terminal serial
@@ -184,7 +195,7 @@ void setup()
     DEBUG_PRINT(" ");
     DEBUG_PRINTLN(MSG_START);
     // se genera el node_id solo si no existe
-    if (id_node == "")
+    if ((String)id_node == "")
     {
       create_unique_id(id_node);
     }
@@ -196,10 +207,13 @@ void setup()
       pinMode(LED_PIN, OUTPUT);
       digitalWrite(LED_PIN, HIGH);
     }
-
+    // se crea un task para las tareas de baja prioridad tipo garbage collector  (prioridad 2 por debajo de las otras task)
+    // que chequea rutas viejas, paquetes en espera,  vecinos no reportados desde hace mucho tiempo
+    xTaskCreate(task_update_older_records, "task_update_older_records", 2048, NULL, 2, NULL);
     // se inicializa el control del tiempo
     tiempo = millis();
   }
+ 
 } //setup
 
 // con esta variable se lleva el control de cual frame de pantalla se esta mostrando en el momento
@@ -209,7 +223,9 @@ int pantalla_activa = 1;
 
 void loop()
 {
-
+  char* packet_str_tmp;
+  char remitente[16];
+  
   if (millis() - tiempo > SCR_INTERVAL)
   {
     display.clear();
@@ -254,12 +270,59 @@ void loop()
   }
 
   // se efectua el procesamiento de paquetes salientes
-  packet_processing_outcoming(mensajes_salientes,total_mensajes_salientes);
-
+ // DEBUG_PRINT("antes de entrar tengo:");
+ // DEBUG_PRINTLN((String)total_mensajes_waiting);
+  packet_processing_outcoming(mensajes_salientes,total_mensajes_salientes,mensajes_waiting,total_mensajes_waiting);
+//DEBUG_PRINT("al salir tengo:");
+//DEBUG_PRINTLN((String)total_mensajes_waiting);
+//delay(10000);
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
   #ifdef DEBUG
-     uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos);
+     uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos,remote_debugging);
   #endif
-  
+
+  if (radio_Lora_receiving){
+    delay(20);
+      process_Lora_incoming();
+  }
+
+  // se verifica si hay que devolver via BLE algun packet 
+  if (packet_return_BLE_str.length()>0){ 
+    delay(500);  // se hace una pausa antes de devolver para liberar el radio o cualquier otro recurso de menos prioridad que necesite ejecutarse
+    Serial.println("devolviendo packet ...");
+    Serial.print("recibi:");
+    Serial.println(packet_return_BLE_str);
+    
+    
+    
+  //  packet_return_BLE_str.toCharArray(packet_str_tmp, packet_return_BLE_str.length());
+    
+    packet_t paquet_in_process2=packet_deserialize_str(packet_return_BLE_str.c_str());
+ //   paquet_in_process2.header.type=NOT_DELIVERED;
+    // se invierte el remitente con el destinatario
+    copy_array_locha(paquet_in_process2.header.from, remitente, 16);
+    copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, 16);
+    copy_array_locha(remitente, paquet_in_process2.header.to, 16);
+
+    // se manda por el BLE
+    txValue=paquet_in_process2.body.payload;
+   // se manda por el radio Lora
+//   packet_return_BLE_str=packet_serialize(paquet_in_process2);
+ //  Serial.print("serializado para enviar por Lora como devolucion:");
+ //  Serial.println(packet_return_BLE_str);
+  // uint8_t rpta_rad=radioSend(packet_return_BLE_str);
+ //  if (rpta_rad==0) { 
+    // si no se pudo enviar se reintenta unos segundos
+  //  for (int ii = 0; ii<5; ++ii){
+  //    rpta_rad=radioSend(packet_return_BLE_str);
+  //    if (rpta_rad==1){ 
+   //     break;
+   //   }
+  //  }
+    
+ //  }
+   packet_return_BLE_str="";
+  Serial.println("seliendo del envio hacia el BLE");
+  }
 
 }

@@ -25,6 +25,8 @@
 #define MSG_ENABLED         "Activado"
 #define MSG_DISABLED        "Desactivado"
 
+#define MSG_BLE_NOT_CONNECTED "Dispositivo no conectado a interface BLE"
+
 #define MSG_SPACE           " "
 #define MSG_CR              "\n"
 #define MSG_LF              "\r"

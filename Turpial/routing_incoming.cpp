@@ -13,6 +13,8 @@
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_waiting; 
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
@@ -30,6 +32,7 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
 
 
  // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
+ Serial.println("empezando procesando el packet");
 if ((String)packet_received.header.to==(String)id_node){
   // es un paquete para mi nodo
  // process_received_packet(Buffer_packet);
@@ -37,7 +40,7 @@ if ((String)packet_received.header.to==(String)id_node){
   // se arma un packet_ACK
    // packet_header_t header;
      // packet_body_t body;
-
+Serial.println("t, se devuelve un ACK");
      // header.type=ACK;
       //header.from=id_node;
    //   copy_array(id_node, header.from, 16);
@@ -46,12 +49,16 @@ if ((String)packet_received.header.to==(String)id_node){
    //   header.timestamp=millis();
     //  copy_array(Buffer_packet.body.payload, body.payload, 240);
     //  body.payload=Buffer_packet.body.payload;   // aqui deberia devolver el hash y en base al hash validar que efectivamente cuando se reciba el ACK elimine al que corresponda
-      packet_t new_packet;
+    
      // new_packet.header=header;
     //  new_packet.body=body;
-      new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
+      //packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
+      
+      packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.body.payload);
+      Serial.println("tengo el packet en routing_incoming_PACKET_MSG:");
+      show_packet(new_packet, true);
       uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
-
+Serial.println("se actualiza el age de la ruta");
       // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
        update_route_age(packet_received.header.from, packet_received.header.to);
 } else {
@@ -73,7 +80,7 @@ if ((String)packet_received.header.to==(String)id_node){
       packet_t new_packet;
      // new_packet.header=header;
      // new_packet.body=body;
-      new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.from, Buffer_packet.body.payload);
+      new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to, Buffer_packet.body.payload);
       uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
   } else {
     // si no existe ruta, falta determinar si me voy random por cualquiera de los nodos para intentar
@@ -159,28 +166,28 @@ uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received){
 uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received){
   // este tipo de paquete permite adicionar nuevas rutas a la tabla de rutas
   
-  
+  Serial.println(F("se recibio un packet route"));
   return 0;
 }
 
 uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received){
   // si no es para mi se reenvia el paquete a los vecinos por la ruta donde origino
-  
+  Serial.println(F("se recibio un packet not delivered"));
   return 0;
 }
 uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received){
   // 
-  
+  Serial.println(F("se recibio un packet gossip"));
   return 0;
 }
 uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received){
   // 
-  
+  Serial.println(F("se recibio un packet txn"));
   return 0;
 }
 uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received){
   // 
-  
+  Serial.println(F("se recibio un packet hello"));
   return 0;
 }
 
@@ -216,9 +223,18 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
 // esta funcion procesa el paquete recibido 
 void process_received_packet(char id_node[16], packet_t packet_temporal){
   uint8_t rpta;
+
+  DEBUG_PRINT(F("A new packet incoming, type:"));
+  DEBUG_PRINTLN(convertir_packet_type_e_str(packet_temporal.header.type));
   switch (packet_temporal.header.type)
   {
   case EMPTY:
+        DEBUG_PRINT("Node:");
+        DEBUG_PRINT((String)packet_temporal.header.from);
+        DEBUG_PRINT(" is sending ");
+        DEBUG_PRINT(convertir_packet_type_e_str(EMPTY));
+        DEBUG_PRINTLN(" packets, review it.");
+    break;
   case JOIN:
       routing_incoming_PACKET_JOIN(id_node, packet_temporal);
       break;

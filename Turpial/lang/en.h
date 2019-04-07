@@ -25,7 +25,7 @@
 #define MSG_COMMAND_LINE    "CMD>"
 #define MSG_ENABLED         "Enabled"
 #define MSG_DISABLED        "Disabled"
-
+#define MSG_BLE_NOT_CONNECTED "Device not connected to BLE interface"
 
 #define MSG_SPACE           " "
 #define MSG_CR              "\n"

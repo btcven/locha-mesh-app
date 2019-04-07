@@ -20,10 +20,17 @@
 #include "bluetooth.h"
 #include "radio.h"
 #include "route.h"
+#include "lang/language.h"
 #include "debugging.h"
 
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_salientes; 
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_waiting;
+
+extern String packet_return_BLE_str;
+extern String packet_return_Lora_str;
+extern String remote_debugging;
 
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
@@ -33,9 +40,15 @@ std::string server_name = "mesh.locha.io";
 
 extern std::string txValue;
 extern std::string rxValue;
+
+// variables para trasmision Lora
+extern std::string rxValue_Lora;
+extern std::string txValue_Lora;
+
 extern char *uid ;
 extern char *msg;
 extern double timemsg;
+extern char *hash_msg ;
     
 
 bool deviceConnected = false;
@@ -59,8 +72,10 @@ class characteristicCB : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
-     // char *uid = NULL;
-    //  char *msg = NULL;
+      char* uid_temporal = NULL;
+      char* msg_temporal = NULL;
+      char* hash_temporal = NULL;
+      char* time_temporal= NULL;
     //  double timemsg = 0;
       // movil -> ble_server(Turpial)
       rxValue = pCharacteristic->getValue();
@@ -74,39 +89,75 @@ class characteristicCB : public BLECharacteristicCallbacks
         // se procesa el ble incoming
         String parametro;
         parametro=String(rxValue.c_str());    // se convierte de string c null terminated a System:String
-        // el siguiente void extrae del String BLE los 3 parametros: uid,msg,time
+        // el siguiente void extrae del String BLE los 4 parametros: uid,msg,time,hash
    
-        json_receive(parametro,uid,msg,timemsg);
-        DEBUG_PRINTLN("Json received: ");
+        json_receive(parametro,uid_temporal,msg_temporal,time_temporal,hash_temporal);
+        //uid_temporal=uid;
+        //msg_temporal=msg;
+        //hash_temporal=hash_msg;
+        //time_temporal=timemsg;
+        DEBUG_PRINTLN(F("Json received:"));
         DEBUG_PRINT("uid:");
-        DEBUG_PRINTLN(uid);
+        DEBUG_PRINTLN(uid_temporal);
         DEBUG_PRINT("msg:");
-        DEBUG_PRINTLN(msg);
+        DEBUG_PRINTLN(msg_temporal);
         DEBUG_PRINT("time:");
-        DEBUG_PRINTLN(timemsg);
+        DEBUG_PRINTLN(time_temporal);
+        DEBUG_PRINT("hash:");
+        DEBUG_PRINTLN(hash_temporal);
         // se procesa el comando que se haya recibido por BLE
+
+      
         
-          if (timemsg>now()){ 
+        // se valida el hash del msg para ver si esta integro
+        if (is_valid_hash160(msg, hash_msg)){
+          //if (timemsg>now()){ 
               // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
-             setTime(timemsg);  
+            // setTime(timemsg);  
+          //}
+
+          // se verifica si viene un comando remoto para el turpial por BLE
+          int pos_remote=remote_debugging.indexOf("remote:");
+          if(pos_remote > 0){
+              //  msg=msg.substring(pos_remote+7);
+                DEBUG_PRINT(F("Remote command received:"));
+                DEBUG_PRINTLN(msg);
+                remote_debugging=(String)msg;
+               // txValue=("OK").c_str();
+          } else {
+
+          
+                BLE_incoming(uid_temporal,msg_temporal,time_temporal,hash_temporal,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
+                DEBUG_PRINTLN(F("BLE process OK"));
           }
-         
-        BLE_incoming(uid,msg,timemsg,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
-       
-        
-        Serial.println("BLE process OK");
-        rxValue.clear();
+        } else { 
+          // no es valido el hash del mensaje
+          DEBUG_PRINTLN(F("Invalid hash received on BLE message"));
+        }
+         rxValue.clear();
         // se vacia el buffer BLE
       }
     }
     void onRead(BLECharacteristic *pCharacteristic)
     {
       // hay que hacer algo cuando el flujo de datos es: ble_server(Turpial) -> movil
+   if (txValue.size() > 0){
+      Serial.println("enviando al BLE");
+      pCharacteristic->setValue(txValue);
+      Serial.println("listo el envio al BLE");
+       txValue.clear();
     }
+}
 };
 
 void task_bluetooth(void *params)
 {
+
+    String packet_in_process_str;
+    String text_to_send;
+    uint8_t jj;
+  //  char* packet_str_tmp;
+        
   // asignamos el nombre al servidor
   // este será el que se mostrará en la app movil al escanear
   // dispositivos cercanos.
@@ -140,33 +191,61 @@ void task_bluetooth(void *params)
   // loop
   while (1)
   {
-    //
+    // codigo parte 2
     if (deviceConnected)
     {
-      // hay un movil conectado, notificamos y enviamos los datos
-      if (txValue.size() > 0)
-      {
-        Serial.print("[BLE] Sending: ");
-        Serial.println(txValue.c_str());
-        tx_uart->setValue(txValue);
-        tx_uart->notify();
-        txValue.clear();
+
+        if (txValue.size() > 0)
+        {
+            Serial.print("[BLE] Sending: ");
+            packet_in_process_str=txValue.c_str();
+            if (packet_in_process_str.length()>0){ 
+                 if(packet_in_process_str.indexOf("|") > 0){ 
+                  
+                   //    packet_in_process_str.toCharArray(packet_str_tmp, packet_in_process_str.length());
+                   //    packet_t paquet_in_process=packet_deserialize(packet_str_tmp);
+                        // se devuelve a una variable global el packet a retornar
+                        if (packet_return_BLE_str.length()>0){ 
+                          // se da un delay para esperar que sea procesado otro paquete saliente que esta pendiente
+                           for (jj = 0; jj <= 100; jj++) {
+                              delay(20);
+                              if (packet_return_BLE_str.length()==0){       
+                                break;
+                              }
+                           }
+                        }
+                        packet_return_BLE_str=packet_in_process_str;      
+                      // text_to_send=(String)paquet_in_process.body.payload;
+                 }  else {
+                      text_to_send=txValue.c_str();
+                      tx_uart->setValue(text_to_send.c_str());
+                      tx_uart->notify();
+                 }
+                 txValue.clear();
+                 text_to_send="";
+                
+            }
+            
+            
+        }
+    } else {
+      // si hay algo para envio pero no esta el dispositivo conectado
+      if (((String)txValue.c_str()).length()>0){ 
+        // solo si hay algo para mandar al BLE pero no hay cliente conectado
+          Serial.println(F("No hay dispositivo BLE conectado"));
+          
+          // se devuelve el packet como not delivered
+          packet_return_BLE_str=(String)txValue.c_str();
+          txValue.clear();
+          text_to_send="";
       }
-      delay(10);
+      
     }
-    else
-    {
-      // no hay movil conectado pero hay datos pendientes de entregar.
-      // aqui podemos enlazar la funcion para el guardado
-      // de mensajes pendientes de entrega.
-      if (txValue.size() > 0)
-      {
-        Serial.println("Device not connected to BLE interface");
-        // - ToDo: guardamos los mensajes
-        // - limpiamos la variable
-        txValue.clear();
-      }
-      delay(10);
-    }
+    
+    
+      
+      delay(40);
+    
   } // WHILE
-};
+
+}

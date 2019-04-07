@@ -3,15 +3,11 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
+#ifndef UPDATE_OLDER_RECORDS_H 
+#define UPDATE_OLDER_RECORDS_H
 
-#ifndef RADIO_H 
-#define RADIO_H
 #include <Arduino.h>
 
+void task_update_older_records(void *params);
 
-uint8_t radioSend(String _data);
-void task_radio(void *params);
-
-extern void process_Lora_incoming();
-
-#endif // RADIO_H
+#endif

@@ -9,17 +9,20 @@
 #include <Arduino.h>
 
 
+
 typedef enum
 {
-  EMPTY,
-  JOIN,
-  BYE,
-  ROUTE,
-  ACK,
-  MSG,
-  HELLO,
-  GOSSIP,
-  NOT_DELIVERED
+  EMPTY=0,
+  JOIN=1,
+  BYE=2,
+  ROUTE=3,
+  ACK=4,
+  MSG=5,
+  HELLO=6,
+  GOSSIP=7,
+  NOT_DELIVERED=8,
+  TXN=9
+  //BIN=10 // binarios para el caso de audios, fotos
 } packet_type_e;
 
 typedef struct
@@ -28,6 +31,7 @@ typedef struct
   char from[16];
   char to[16];
   unsigned long timestamp;
+  char hash[20];
 } packet_header_t;
 
 typedef struct
@@ -60,7 +64,10 @@ private:
 packet_t create_packet(char* id_node, packet_type_e type, char* from, char* to, char* payload);
 packet_type_e convertir_str_packet_type_e(String type_recibido);
 String convertir_packet_type_e_str(packet_type_e type_recibido);
+packet_type_e convertir_int_packet_type_e(uint8_t type_recibido);
 String packet_serialize(packet_t packet);
+packet_t packet_deserialize_str(String received_text);
+packet_t packet_deserialize(char* received_text);
 
 
 
