@@ -11,8 +11,6 @@
 // #define HELTEC_V1
 #define HELTEC_V2
 
-#define DEBUG
-
 // Serial Baudrate
 #define BAUDRATE 115200
 

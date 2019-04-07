@@ -33,9 +33,10 @@ char id_nodo_demo[16] = "TURPIAL.0";
 
 char *id_node;
 
-#if SCR_ENABLED == true
-  SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
-#endif
+//#if SCR_ENABLED == true
+//  SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
+  
+//#endif
 
 // includes internos
 uint8_t total_vecinos;            // cantidad de vecinos del nodo actual
@@ -83,7 +84,7 @@ void setup()
   bool wifi_enabled = false;
   total_mensajes_salientes=0;
   total_nodos_blacklist = 0;
-    total_mensajes_waiting=0;
+  total_mensajes_waiting=0;
   total_rutas = 0;
   total_vecinos = 0;
   // se coloca el id_nodo en mayusculas

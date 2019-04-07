@@ -70,9 +70,11 @@ class characteristicCB : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
-     // char *uid = NULL;
-    //  char *msg = NULL;
-    //  double timemsg = 0;
+     char* uid_temporal = NULL;
+      char* msg_temporal = NULL;
+      char* hash_temporal = NULL;
+      char* time_temporal= NULL;
+      
       // movil -> ble_server(Turpial)
       rxValue = pCharacteristic->getValue();
       // si tenemos datos podemos enviarlos via radio desde aqui.
