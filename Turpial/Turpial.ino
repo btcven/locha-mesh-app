@@ -269,7 +269,7 @@ void loop()
 
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
   #ifdef DEBUG
-     uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos);
+          uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos,remote_debugging);
   #endif
 
   if (radio_Lora_receiving){

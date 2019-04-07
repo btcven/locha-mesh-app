@@ -20,6 +20,7 @@ boolean isNumeric(String str);
 
 
 long readVcc();
+String get_id_mac();
 String freeRam();
 String random_name(int numBytes);
 void copy_array_locha(char* src, char* dst, int len);

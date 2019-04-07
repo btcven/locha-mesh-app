@@ -7,6 +7,9 @@
 #include "general_functions.h"
 #include "debugging.h"
 
+
+
+
 extern char* uid;
 extern char* msg;
 extern double timemsg;
@@ -56,7 +59,6 @@ String getMacAddress() {
   return String(baseMacChr);
 }
 
-
 char *string2char(String command)
 {
   if (command.length() != 0)
@@ -103,6 +105,41 @@ char* node_name_char_to_uppercase(char array_temp[16]){
     return string2char(chars_temp);
 }
 
+
+boolean isNumeric(String str)
+{
+  unsigned int stringLength = str.length();
+
+  if (stringLength == 0)
+  {
+    return false;
+  }
+
+  boolean seenDecimal = false;
+
+  for (unsigned int i = 0; i < stringLength; ++i)
+  {
+    if (isDigit(str.charAt(i)))
+    {
+      continue;
+    }
+
+    if (str.charAt(i) == '.')
+    {
+      if (seenDecimal)
+      {
+        return false;
+      }
+      seenDecimal = true;
+      continue;
+    }
+    return false;
+  }
+  return true;
+}
+
+
+
 // use cJson integrated into espressif esp32 sdk 
 /* The cJSON structure: */
 //typedef struct cJSON {
@@ -117,29 +154,48 @@ char* node_name_char_to_uppercase(char array_temp[16]){
 
     //char *string;               /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
 //} cJSON;
-void json_receive(String message, char* &uid2,char* &msg2, double &timemsg2 ){
+void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &timemsg_intern_str, char* &hash_msg_intern ){
  // this function receives data message in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
+ double time_in_number=0;
+  int tipo_dato_time_int;
+  int tipo_dato_time_dbl;
+  int tipo_dato_time_type;
+  char* nombre_del_dato;
+  
   message.replace("'","\"");
   message=message.c_str();
   char mensaje3[message.length()+1];
   message.toCharArray(mensaje3,message.length()+1);
+ Serial.print(F("mensaje completo recibido:"));
+ Serial.println(mensaje3);
+ cJSON* el_arreglo=cJSON_Parse(mensaje3);
+ uid_intern = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
+ msg_intern = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
+ timemsg_intern_str = cJSON_GetObjectItem(el_arreglo, "time")->valuestring;
+ hash_msg_intern = cJSON_GetObjectItem(el_arreglo, "hash")->valuestring;
+ Serial.print(F("uid dentro de json_receive:"));
+ Serial.println(uid_intern);
+ Serial.print(F("msg dentro de json_receive:"));
+ Serial.println(msg_intern);
  
-  cJSON* el_arreglo=cJSON_Parse(mensaje3);
-  uid2 = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
+   
  
-  msg2 = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
- 
-  timemsg2 = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuedouble;
-   char* timemsg3 = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuestring;
-   Serial.print("recibi time:");
-   Serial.print((String)timemsg2);
-   Serial.print("-");
-   Serial.println((String)timemsg3);
  // deletes cJSON from memory
-  cJSON_Delete(el_arreglo);
+//  cJSON_Delete(el_arreglo);
 
 }
 
+String get_id_mac() {
+  char uniqueid_mac[16];
+  uint32_t uChipId;
+  uChipId = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
+  snprintf(uniqueid_mac, 25, "%08X", uChipId);
+  Serial.printf("ESP Chip ID = %04X",(uint16_t)(uChipId>>32));//print High 2 bytes
+  return (String)uniqueid_mac;
+
+  Serial.println("y usan la otra funciona ongob");
+  Serial.println(getMacAddress());
+}
 
 void create_unique_id(char *&unique_id_created) {
   // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
@@ -171,35 +227,10 @@ void create_unique_id(char *&unique_id_created) {
   //  return uniqueid3;
 }
 
-boolean isNumeric(String str)
-{
-  unsigned int stringLength = str.length();
+// esta funcion verifica si el hash del mensaje es valido
+bool is_valid_hash160(char* mensaje, char* hash_recibido){
+// aqui se debe adicionar las libs para hash160
 
-  if (stringLength == 0)
-  {
-    return false;
-  }
-
-  boolean seenDecimal = false;
-
-  for (unsigned int i = 0; i < stringLength; ++i)
-  {
-    if (isDigit(str.charAt(i)))
-    {
-      continue;
-    }
-
-    if (str.charAt(i) == '.')
-    {
-      if (seenDecimal)
-      {
-        return false;
-      }
-      seenDecimal = true;
-      continue;
-    }
-    return false;
-  }
   return true;
 }
 

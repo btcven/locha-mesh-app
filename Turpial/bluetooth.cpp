@@ -37,6 +37,8 @@ BLECharacteristic *rx_uart;
 
 std::string server_name = "mesh.locha.io";
 
+extern std::string txValue;
+extern std::string rxValue;
 
 // variables para trasmision Lora
 extern std::string rxValue_Lora;
@@ -138,6 +140,10 @@ class characteristicCB : public BLECharacteristicCallbacks
 
 void task_bluetooth(void *params)
 {
+   String packet_in_process_str;
+    String text_to_send;
+    uint8_t jj;
+    
   // asignamos el nombre al servidor
   // este será el que se mostrará en la app movil al escanear
   // dispositivos cercanos.
