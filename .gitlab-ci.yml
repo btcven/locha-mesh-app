@@ -33,5 +33,6 @@ build:init:
    only:
     - /^sprint.*-/
     - devel
+    - integration
     - master
    when: always
