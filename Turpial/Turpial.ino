@@ -34,7 +34,7 @@ char id_nodo_demo[16] = "TURPIAL.0";
 char *id_node;
 
 #if SCR_ENABLED == true
-  SSD1306 display(SCR_ADD, SDA_OLED, SCL_OLED, RST_OLED);
+  SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 #endif
 
 // includes internos
