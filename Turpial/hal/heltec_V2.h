@@ -46,4 +46,9 @@
     #define LED_PIN 25
 #endif
 
+// On Board Button
+#if BTN_ENABLED
+    #define BTN_GPIO 0
+#endif // BTN
+
 #endif // HELTEC_V2_H
