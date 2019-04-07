@@ -42,16 +42,24 @@ uint8_t total_vecinos;            // cantidad de vecinos del nodo actual
 uint8_t total_rutas;              // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
+uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
 
 rutas_t routeTable[MAX_ROUTES];
 nodo_t vecinos[MAX_NODES];
 nodo_t blacklist[MAX_NODES_BLACKLIST];
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+
 packet_t Buffer_packet; // packet_t usado como buffer para mensajes incoming y outcoming
+String packet_return_BLE_str="";  // se usa en los callback para devolver valores hacia el main loop
+String packet_return_Lora_str="";  // se usa en los callback para devolver valores hacia el main loop
+String remote_debugging="";      // se usa para recibir comandos de debugging remote de la app movil via BLE al equipo
 
 uint8_t packet_timeout=30;   // expiration time in seconds of packets
 
 unsigned long tiempo;
+
+bool radio_Lora_receiving;
 
 // variables para trasmision BLE
 std::string rxValue = "";
@@ -59,6 +67,7 @@ std::string txValue = "";
 char *uid ;
 char *msg;
 double timemsg;
+char* hash_msg;
 
 // variables para trasmision Lora
 std::string rxValue_Lora = "";
@@ -67,13 +76,14 @@ std::string txValue_Lora = "";
 void setup()
 {
   uint8_t i;
-  
+  radio_Lora_receiving=false; 
   bool display_enabled = false;
   bool lora_enabled = false;
   bool serial_enabled = false;
   bool wifi_enabled = false;
   total_mensajes_salientes=0;
   total_nodos_blacklist = 0;
+    total_mensajes_waiting=0;
   total_rutas = 0;
   total_vecinos = 0;
   // se coloca el id_nodo en mayusculas
@@ -205,11 +215,12 @@ void setup()
 // con esta variable se lleva el control de cual frame de pantalla se esta mostrando en el momento
 int pantalla_activa = 1;   
 
-//uint8_t rpta_tmp ;
 
 void loop()
 {
-
+  char* packet_str_tmp;
+  char remitente[16];
+  
   if (millis() - tiempo > SCR_INTERVAL)
   {
     display.clear();
@@ -254,12 +265,41 @@ void loop()
   }
 
   // se efectua el procesamiento de paquetes salientes
-  packet_processing_outcoming(mensajes_salientes,total_mensajes_salientes);
+  packet_processing_outcoming(mensajes_salientes,total_mensajes_salientes,mensajes_waiting,total_mensajes_waiting);
 
   // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
   #ifdef DEBUG
      uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos);
   #endif
+
+  if (radio_Lora_receiving){
+    delay(20);
+      process_Lora_incoming();
+  }
+
+  // se verifica si hay que devolver via BLE algun packet 
+  if (packet_return_BLE_str.length()>0){ 
+    delay(500);  // se hace una pausa antes de devolver para liberar el radio o cualquier otro recurso de menos prioridad que necesite ejecutarse
+    Serial.println("devolviendo packet ...");
+    Serial.print("recibi:");
+    Serial.println(packet_return_BLE_str);
+    
+    
+    
+  //  packet_return_BLE_str.toCharArray(packet_str_tmp, packet_return_BLE_str.length());
+    
+    packet_t paquet_in_process2=packet_deserialize_str(packet_return_BLE_str.c_str());
+ //   paquet_in_process2.header.type=NOT_DELIVERED;
+    // se invierte el remitente con el destinatario
+    copy_array_locha(paquet_in_process2.header.from, remitente, 16);
+    copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, 16);
+    copy_array_locha(remitente, paquet_in_process2.header.to, 16);
+
+    // se manda por el BLE
+    txValue=paquet_in_process2.body.payload;
   
+   packet_return_BLE_str="";
+  Serial.println("seliendo del envio hacia el BLE");
+  }
 
 }
