@@ -291,6 +291,8 @@ void loop()
     process_Lora_incoming();
   }
 
+
+
   // se verifica si hay que devolver via BLE algun packet
   if (packet_return_BLE_str.length() > 0)
   {

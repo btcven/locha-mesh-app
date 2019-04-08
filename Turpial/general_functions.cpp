@@ -246,13 +246,13 @@ bool is_valid_hash160(char* mensaje, char* hash_recibido){
 
     byte hash[20] = {0};
     
-    hash160(mensaje, strlen(mensaje), hash);
+   // hash160(mensaje, strlen(mensaje), hash);
     Serial.print("Hash recibido:");
     Serial.println(hash_recibido);
     Serial.print("Hash del mensaje:");
     Serial.print((String)mensaje);
     Serial.print("-----hash:");
-    printHex(hash, sizeof(hash));
+ //   printHex(hash, sizeof(hash));
 
   return true;
 }

@@ -372,7 +372,9 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
 }
 
 
-void process_debugging_command(String str_buffer_serial_received, bool &ejecute){
+uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecute){
+  Serial.print("entre a debugging:");
+  Serial.println(str_buffer_serial_received);
        String mensaje="";
         mensaje=F("SHOW ROUTES");
         if (str_buffer_serial_received==mensaje){
@@ -482,34 +484,9 @@ void process_debugging_command(String str_buffer_serial_received, bool &ejecute)
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
          }
-         
-}
 
 
-uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, String &remote_debugging){
-
- // #ifdef DEBUG
-    uint8_t rpta;
-    String str_buffer_serial_received="";
-    String mensaje="";
-    bool ejecute=false;
-
-    // tambien puedo recibir un comando por la variable: remote_debugging
-    
-    if (Serial.available()) {
-      
-      str_buffer_serial_received=Serial.readStringUntil('\n');
-      str_buffer_serial_received.toUpperCase();
-      str_buffer_serial_received.replace("  "," ");  // se elimina cualquier doble espacio en el input
-      str_buffer_serial_received.trim();
-
-
-      process_debugging_command(str_buffer_serial_received,ejecute);
-           
-        
-        
-        
-        mensaje=F("LOAD DEMO");
+          mensaje=F("LOAD DEMO");
         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -605,10 +582,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                 return 1;
          } 
               
-         
-         
-
-         mensaje=F("PACKET CREATE INCOMING");   // formato: CREATE PACKET INCOMING TYPE FROM PAYLOAD 
+  mensaje=F("PACKET CREATE INCOMING");   // formato: CREATE PACKET INCOMING TYPE FROM PAYLOAD 
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
                 String str_type = getparamValue(str_buffer_serial_received, ' ', 3);  
@@ -685,9 +659,45 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
          }
-        } 
+
+         
+}
+
+
+uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, String &remote_debugging){
+
+ 
+    uint8_t rpta=0;
+    String str_buffer_serial_received="";
+    String mensaje="";
+    bool ejecute=false;
+Serial.print("entre al modulo show_debugging_info");
+    
+    if (Serial.available()) {
+      
+      str_buffer_serial_received=Serial.readStringUntil('\n');
+      str_buffer_serial_received.toUpperCase();
+      str_buffer_serial_received.replace("  "," ");  // se elimina cualquier doble espacio en el input
+      str_buffer_serial_received.trim();
+
+
+      rpta=process_debugging_command(str_buffer_serial_received,ejecute);
+     } 
+    // tambien puedo recibir un comando por la variable: remote_debugging
+    if (remote_debugging.length()>0){
+      Serial.println("comando remote_debugging detectado");
+      int pos_remote=remote_debugging.indexOf("remote:");
+          if(pos_remote >= 0){
+              // es un comando remoto, se filtra y se manda a ejecutar
+                      remote_debugging=remote_debugging.substring(pos_remote+7,remote_debugging.length());
+                      Serial.print("comando remoto recibido:");
+                      Serial.println(remote_debugging);
+                      rpta=process_debugging_command(remote_debugging,ejecute);  
+                      return rpta;              
+          }
+    }
            
-        // Serial.println("sali de la funcion debugging");
+    
          if (ejecute){
             DEBUG_PRINTLN(">");
          } else{
@@ -696,9 +706,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
           }
          }
 
-    
-      //     #endif   // del #ifdef DEBUG
-         return 0;
+         return rpta;
          }
         
   
