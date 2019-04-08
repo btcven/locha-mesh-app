@@ -46,7 +46,7 @@ uint8_t total_rutas;              // cantidad de rutas del nodo actual (en inici
 uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
 uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
-uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
+//uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
 
 rutas_t routeTable[MAX_ROUTES];
 nodo_t vecinos[MAX_NODES];
