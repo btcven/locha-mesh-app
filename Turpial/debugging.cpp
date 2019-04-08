@@ -373,8 +373,7 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
 
 
 uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecute){
-  Serial.print("entre a debugging:");
-  Serial.println(str_buffer_serial_received);
+  
        String mensaje="";
         mensaje=F("SHOW ROUTES");
         if (str_buffer_serial_received==mensaje){
@@ -671,7 +670,6 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
     String str_buffer_serial_received="";
     String mensaje="";
     bool ejecute=false;
-Serial.print("entre al modulo show_debugging_info");
     
     if (Serial.available()) {
       
@@ -685,16 +683,16 @@ Serial.print("entre al modulo show_debugging_info");
      } 
     // tambien puedo recibir un comando por la variable: remote_debugging
     if (remote_debugging.length()>0){
-      Serial.println("comando remote_debugging detectado");
-      int pos_remote=remote_debugging.indexOf("remote:");
+      int pos_remote=remote_debugging.indexOf("REMOTE:");
           if(pos_remote >= 0){
               // es un comando remoto, se filtra y se manda a ejecutar
                       remote_debugging=remote_debugging.substring(pos_remote+7,remote_debugging.length());
-                      Serial.print("comando remoto recibido:");
-                      Serial.println(remote_debugging);
                       rpta=process_debugging_command(remote_debugging,ejecute);  
+                      // se vaia el comando remoto una vez efectuado
+                      remote_debugging="";
                       return rpta;              
           }
+        remote_debugging="";
     }
            
     

@@ -436,12 +436,13 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
   uint8_t rpta;
   // si es un mensaje tipo broadcast se envia a todos los vecinos 
   DEBUG_PRINTLN(F("Starting BLE_incoming"));
-  DEBUG_PRINTLN(F("recibi msg:"));
-  DEBUG_PRINTLN(msg_ble);
-  Serial.print("tengo:");
-  Serial.println(uid2);
+  //DEBUG_PRINTLN(F("recibi msg:"));
+ // DEBUG_PRINTLN(msg_ble);
+  //Serial.print("tengo:");
+  //Serial.println(uid2);
     if (String(uid2)=="broadcast"){ 
        DEBUG_PRINTLN(F("its a broadcast"));
+       // se envia el packet a todos los vecinos
        if (total_vecinos>0){ 
          for (i = 1; i <= total_vecinos; i++) {
           DEBUG_PRINTLN(F("enviando packet al vecino:"));
@@ -449,17 +450,17 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
           // se arma el packet y se envia a cada vecino
           packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, vecinos[i].id, msg_ble);
          
-          DEBUG_PRINTLN("Packet received:");
-          DEBUG_PRINT("type:");
-          DEBUG_PRINTLN(convertir_packet_type_e_str(tmp_packet.header.type));
-          DEBUG_PRINT("from:");
-          DEBUG_PRINTLN(tmp_packet.header.from);
-          DEBUG_PRINT("to:");
-          DEBUG_PRINTLN(tmp_packet.header.to);
-          DEBUG_PRINT("payload:");
-          DEBUG_PRINTLN(tmp_packet.body.payload);
-         DEBUG_PRINT("timestamp:");
-          DEBUG_PRINTLN(tmp_packet.header.timestamp);
+          //DEBUG_PRINTLN("Packet received:");
+          //DEBUG_PRINT("type:");
+          //DEBUG_PRINTLN(convertir_packet_type_e_str(tmp_packet.header.type));
+          //DEBUG_PRINT("from:");
+          //DEBUG_PRINTLN(tmp_packet.header.from);
+          //DEBUG_PRINT("to:");
+          //DEBUG_PRINTLN(tmp_packet.header.to);
+          //DEBUG_PRINT("payload:");
+          //DEBUG_PRINTLN(tmp_packet.body.payload);
+          //DEBUG_PRINT("timestamp:");
+          //DEBUG_PRINTLN(tmp_packet.header.timestamp);
          
           
           rpta=packet_to_send(tmp_packet,mensajes_salientes,total_mensajes_salientes_tmp2);
@@ -473,7 +474,7 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
           DEBUG_PRINTLN(F("This node has no neigbours"));
        }
     } else {
-       DEBUG_PRINT(F("its other type of packet:"));
+       DEBUG_PRINT(F("type of packet received:"));
        DEBUG_PRINTLN(String(uid2));
        // por ahora todo lo que origina en BLE es tipo MSG
        if (String(uid2)!=""){
