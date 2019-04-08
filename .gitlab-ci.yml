@@ -34,4 +34,5 @@ build:init:
     - /^sprint.*-/
     - devel
     - master
+    - integration
    when: always
