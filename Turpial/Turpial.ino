@@ -75,6 +75,8 @@ char *hash_msg;
 // variables para trasmision Lora
 std::string rxValue_Lora = "";
 std::string txValue_Lora = "";
+int Lora_RSSI;
+int Lora_SNR;
 
 void setup()
 {
@@ -307,7 +309,12 @@ void loop()
     copy_array_locha(remitente, paquet_in_process2.header.to, 16);
 
     // se manda por el BLE
-    txValue = paquet_in_process2.body.payload;
+    // los type=MSG se pasa solo el payload al BLE, mientras que los demas type se convierte a Json y se devuelve al app para su procesamiento
+    if (paquet_in_process2.header.type=MSG){
+      txValue = paquet_in_process2.body.payload;
+    } else {
+      txValue = packet_into_json(paquet_in_process2).c_str();
+    }
 
     packet_return_BLE_str = "";
     Serial.println("seliendo del envio hacia el BLE");

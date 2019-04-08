@@ -19,7 +19,8 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 
-
+extern int Lora_RSSI;
+extern int Lora_SNR;
 
 
 uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
@@ -196,12 +197,12 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
   // se verifica si en los mensajes enviados hay uno que tenga el mismo payload para borrarlo
   uint8_t i;
   uint8_t is_MSG=0;
-   for (i = 1; i <= total_mensajes_salientes; i++) {
-      if ((strcmp(mensajes_salientes[i].paquete.header.to,id_node)==0)and(strcmp(mensajes_salientes[i].paquete.header.from,packet_received.header.to)==0)){
+   for (i = 1; i <= total_mensajes_waiting; i++) {
+      if ((strcmp(mensajes_waiting[i].paquete.header.to,id_node)==0)and(strcmp(mensajes_waiting[i].paquete.header.from,packet_received.header.to)==0)){
           // se verifica que sea un ACK de un mensaje tipo MSG
-          if (mensajes_salientes[i].paquete.header.type=MSG){
+          if (mensajes_waiting[i].paquete.header.type=MSG){
                   // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)
-                if (strcmp(mensajes_salientes[i].paquete.body.payload,packet_received.body.payload)==0){
+                if (strcmp(mensajes_waiting[i].paquete.body.payload,packet_received.body.payload)==0){
                   // se recibio el ACK de que el mensaje MSG fue recibido correctamente
                   is_MSG=i;
                   break;
@@ -209,14 +210,26 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
            }
           if (is_MSG>0){
              // se borra el mensaje de la tabla de mensajes_salientes
-              for (i = is_MSG; i <= total_mensajes_salientes-1; i++) {
-                  mensajes_salientes[i]=mensajes_salientes[i+1];
+              for (i = is_MSG; i <= total_mensajes_waiting-1; i++) {
+                  mensajes_waiting[i]=mensajes_waiting[i+1];
               }
-              total_mensajes_salientes=total_mensajes_salientes-1;
+              total_mensajes_waiting=total_mensajes_waiting-1;
               DEBUG_PRINTLN(F("ACK del packet recibido exitosamente"));
           }
       }
    }
+}
+
+void update_rssi_snr(char route_from[16], char route_to[16], int RSSI_received, int SNR_received){
+  uint8_t xx;
+  for (xx = 1; xx <= total_rutas; xx++) {
+      if (((String)routeTable[xx].origen.id==(String)route_from)and((String)routeTable[xx].next_neighbor.id==(String)route_to)){
+        routeTable[xx].RSSI_packet=RSSI_received;
+        routeTable[xx].SNR_packet=SNR_received;
+        break;
+      }
+    
+  }
 }
 
 
@@ -262,4 +275,7 @@ void process_received_packet(char id_node[16], packet_t packet_temporal){
   default:
     break;
   }
+
+  // todo packet incoming actualiza el RSSI y el SNR de la ruta que le corresponda
+  update_rssi_snr(packet_temporal.header.from, packet_temporal.header.to, Lora_RSSI, Lora_SNR);
 }

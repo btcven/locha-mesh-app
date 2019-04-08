@@ -15,6 +15,8 @@ boolean screen_on = true;
 unsigned int scr_timeToPoweroff = 15000;
 unsigned long scr_timeStart;
 unsigned long scr_elapsedTime;
+extern int Lora_RSSI;
+extern int Lora_SNR;
 
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 OLEDDisplayUi ui(&display);
@@ -107,9 +109,9 @@ void frame_RAD(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, i
     // values for rssi & snr are right aligned
     display->setTextAlignment(TEXT_ALIGN_RIGHT);
     // radio iface last rssi value.
-    display->drawString(x + 80, y + 24, "-00");
+    display->drawString(x + 80, y + 24, (String)Lora_RSSI);
     // radio iface last snr value.
-    display->drawString(x + 80, y + 42, "000");
+    display->drawString(x + 80, y + 42, (String)Lora_SNR);
 }
 void frame_WIFI(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
 {

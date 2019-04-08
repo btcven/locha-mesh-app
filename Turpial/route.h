@@ -23,6 +23,7 @@ typedef struct message_queue_t
     uint8_t prioridad; // numero para asignar la prioridad a cada paquete
     uint8_t retries;   // numero de reintentos de envio
     unsigned long retry_timestamp;   // hora del ultimo reintento
+    
 } message_queue_t;
 
 typedef struct rutas_t
@@ -32,6 +33,8 @@ typedef struct rutas_t
     nodo_t destino;       // unique id del vecino mas cercano
     uint8_t age;          // edad (ultima vez que se recibio/envio algo por esa ruta)
     uint8_t hops;         // cantidad de saltos entre origen y destino
+    int RSSI_packet;   //  RSSI de este paquete 
+    int SNR_packet;    // SNR del este paquete
 } rutas_t;
 
 // definicion de voids

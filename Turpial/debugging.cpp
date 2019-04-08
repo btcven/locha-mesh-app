@@ -228,6 +228,10 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
      DEBUG_PRINT(F("\t"));
      DEBUG_PRINT(F("Age: "));
      DEBUG_PRINTLN((String)routeTable[i].age);
+    DEBUG_PRINT(F("RSSI: "));
+     DEBUG_PRINTLN((String)routeTable[i].RSSI_packet);
+    DEBUG_PRINT(F("SNR: "));
+     DEBUG_PRINTLN((String)routeTable[i].SNR_packet); 
     }
     DEBUG_PRINT(F("Tamaño de la tabla de rutas :"));
     DEBUG_PRINT(tamano_arreglo);

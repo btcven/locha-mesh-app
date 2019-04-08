@@ -6,6 +6,7 @@
 #ifndef GENERAL_FUNCTIONS_H_
 #define GENERAL_FUNCTIONS_H_
 #include <Arduino.h>
+#include "packet.h"
 
 extern char* uid;
 extern char* msg;
@@ -17,6 +18,7 @@ char* string2char_node_name(String command);
 void string2char_node_name_v2(String command, char* &respuesta);
 char* string2char(String command);
 boolean isNumeric(String str);
+String packet_into_json(packet_t packet_to_convert);
 
 
 long readVcc();

@@ -3,8 +3,10 @@
 #include <WiFi.h>
 #include <cJSON.h>
 #include <iostream>
+#include <Hash.h>   // de la libreria uBitcoin https://gitlab.com/btcven/locha/uBitcoin/tree/master
 #include "esp_system.h"
 #include "general_functions.h"
+
 #include "debugging.h"
 
 
@@ -40,17 +42,6 @@ for (int i = 0; i < texto.length(); i++) {
 
 
 String getMacAddress() {
-
-  union
-  {
-    uint64_t  llmac;
-    uint8_t   mac[6];
-  } mac_t;
-
-  ESP_ERROR_CHECK(esp_efuse_mac_get_default(mac_t.mac));
-  char szMac[21];
-  snprintf(szMac, sizeof(szMac), "%" PRIu64, mac_t.llmac);
-  Serial.println("continuo al otro tipo de Mac address:");
   uint8_t baseMac[6];
   // Get MAC address for WiFi station
   esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
@@ -166,17 +157,18 @@ void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &ti
   message=message.c_str();
   char mensaje3[message.length()+1];
   message.toCharArray(mensaje3,message.length()+1);
- Serial.print(F("mensaje completo recibido:"));
+ Serial.print(F("mensaje completo Json recibido:"));
  Serial.println(mensaje3);
  cJSON* el_arreglo=cJSON_Parse(mensaje3);
  uid_intern = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
  msg_intern = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
  timemsg_intern_str = cJSON_GetObjectItem(el_arreglo, "time")->valuestring;
  hash_msg_intern = cJSON_GetObjectItem(el_arreglo, "hash")->valuestring;
- Serial.print(F("uid dentro de json_receive:"));
- Serial.println(uid_intern);
- Serial.print(F("msg dentro de json_receive:"));
- Serial.println(msg_intern);
+ //Serial.print(F("uid dentro de json_receive:"));
+ //Serial.println(uid_intern);
+ //Serial.print(F("msg dentro de json_receive:"));
+ //Serial.println(msg_intern);
+ 
  
    
  
@@ -185,16 +177,38 @@ void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &ti
 
 }
 
-String get_id_mac() {
-  char uniqueid_mac[16];
-  uint32_t uChipId;
-  uChipId = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
-  snprintf(uniqueid_mac, 25, "%08X", uChipId);
-  Serial.printf("ESP Chip ID = %04X",(uint16_t)(uChipId>>32));//print High 2 bytes
-  return (String)uniqueid_mac;
+// procedimiento inverso a Json_receive para devolver valores al BLE (toma un packet y lo transforma en un json)
+String packet_into_json(packet_t packet_to_convert){
+   // this function convert [acket data in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
+  String rpta;
+  String tipo_packet=convertir_packet_type_e_str(packet_to_convert.header.type);
+  tipo_packet.toLowerCase();
+  if (packet_to_convert.header.type!=EMPTY){
+      rpta="{";
+      rpta=rpta+"'uid':'"+(String)packet_to_convert.header.from+"',";
+      rpta=rpta+"'"+tipo_packet+"':'"+(String)packet_to_convert.body.payload+"',";
+      rpta=rpta+"'time':"+(String)packet_to_convert.header.timestamp+",";
+      rpta=rpta+"'hash':'"+(String)packet_to_convert.header.hash+"',";
+      rpta=rpta+"}";
+  }
+  return rpta;
+}
 
-  Serial.println("y usan la otra funciona ongob");
-  Serial.println(getMacAddress());
+String get_id_mac() {
+  String result=getMacAddress();
+  result.replace(":","");
+  return result;
+}
+
+// funcion usada para imprimir valores hexadecimales (tipo hash160)
+void printHex(byte * data, int len){
+    for(int i=0; i<len; i++){
+        if(data[i] < 0x10){
+            Serial.print("0");
+        }
+        Serial.print(data[i], HEX);
+    }
+    Serial.println();
 }
 
 void create_unique_id(char *&unique_id_created) {
@@ -227,9 +241,18 @@ void create_unique_id(char *&unique_id_created) {
   //  return uniqueid3;
 }
 
-// esta funcion verifica si el hash del mensaje es valido
+// esta funcion verifica si el hash del mensaje es valido comparando el hash160
 bool is_valid_hash160(char* mensaje, char* hash_recibido){
-// aqui se debe adicionar las libs para hash160
+
+    byte hash[20] = {0};
+    
+    hash160(mensaje, strlen(mensaje), hash);
+    Serial.print("Hash recibido:");
+    Serial.println(hash_recibido);
+    Serial.print("Hash del mensaje:");
+    Serial.print((String)mensaje);
+    Serial.print("-----hash:");
+    printHex(hash, sizeof(hash));
 
   return true;
 }

@@ -26,7 +26,8 @@
 #include "lang/language.h"
 
 
-
+extern int Lora_RSSI;
+extern int Lora_SNR;
 extern SSD1306 display;
 
 void drawframe_title_with_2_fields(int16_t x, int16_t y, String title, String sub_title1, String field1, String sub_title2, String field2)
