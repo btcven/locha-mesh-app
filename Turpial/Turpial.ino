@@ -7,7 +7,6 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <SSD1306.h>
 #include <Time.h>
 #include <TimeLib.h>
 // devices and default settings
@@ -18,10 +17,6 @@
 #include "packet.h"
 #include "route.h"
 #include "debugging.h"
-//#include "fonts/DejaVu_Sans_10.h"
-//#include "fonts/DejaVu_Sans_12.h"
-//#include "scr_images.h"
-//#include "screens.h"
 #include "button.h"
 #include "screen.h"
 #include "radio.h"
@@ -35,21 +30,23 @@ char id_nodo_demo[16] = "TURPIAL.0";
 
 char *id_node;
 
-//#if SCR_ENABLED == true
-//  SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
-
-//#endif
-
 // includes internos
 uint8_t total_vecinos;            // cantidad de vecinos del nodo actual
 uint8_t total_rutas;              // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
+uint32_t outcoming_msgs_size;     // tamaño de la cola de mensajes salientes en bytes.
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
 uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
 
 rutas_t routeTable[MAX_ROUTES];
+uint32_t route_table_size = 0;      // tamaño de la tabla de rutas en bytes
+
 nodo_t vecinos[MAX_NODES];
+uint32_t vecinos_table_size = 0;    // size of neigbours table
+
 nodo_t blacklist[MAX_NODES_BLACKLIST];
+uint32_t blacklist_table_size = 0;  // size of blacklisted nodes table
+
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 
@@ -93,54 +90,15 @@ void setup()
   total_vecinos = 0;
   // se coloca el id_nodo en mayusculas
   // id_nodo_demo=char_to_uppercase(id_nodo_demo, 16);
-  //id_node= node_name_char_to_uppercase(id_nodo_demo);
+  // id_node= node_name_char_to_uppercase(id_nodo_demo);
   id_node = id_nodo_demo;
   copy_array_locha(id_nodo_demo, id_node, 16);
-  //fin de colocar id_nodo en mayusculas
+  // fin de colocar id_nodo en mayusculas
 
 #if defined(DEBUG)
   serial_enabled = true;
 #endif
-  /*
-  if (SCR_ENABLED)
-  {
-    display_enabled = true;
-    if (Vext)
-    {
-      pinMode(Vext, OUTPUT);
-    }
-
-    else
-    {
-      display_enabled = false;
-    }
-
-    if (RAD_ENABLED)
-    {
-      lora_enabled = true;
-    }
-    else
-    {
-      lora_enabled = false;
-    }
-    if (WST_ENABLED)
-    {
-      wifi_enabled = true;
-    }
-    else
-    {
-      wifi_enabled = false;
-    }
-    if (WAP_ENABLED)
-    {
-      wifi_enabled = true;
-    }
-    else
-    {
-      wifi_enabled = false;
-    }
-  }
-*/
+  
 #ifdef DEBUG
   DEBUG_BEGIN(BAUDRATE);
   while (!Serial)
@@ -149,10 +107,6 @@ void setup()
   delay(2000);
 #endif
 
-  // atencion: previamente definidas y asignado valor!!-----
-  rxValue = "";
-  txValue = "";
-  // -------------------------------------------------------
   // On board led (LED) is enabled??
   if (LED_ENABLED)
   {
