@@ -12,7 +12,7 @@
 #include "graphics.h"
 
 boolean screen_on = true;
-unsigned int scr_timeToFadeOut = 15000;
+unsigned int scr_timeToPoweroff = 15000;
 unsigned long scr_timeStart;
 unsigned long scr_elapsedTime;
 
@@ -245,7 +245,7 @@ void task_screen(void *params)
     {
         scr_elapsedTime = millis() - scr_timeStart;
 
-        if (scr_elapsedTime >= scr_timeToFadeOut && screen_on == true)
+        if (scr_elapsedTime >= scr_timeToPoweroff && screen_on == true)
         {
             Serial.printf("[SCR] Entering in sleep mode\n");
             screen_on = false;
