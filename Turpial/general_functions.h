@@ -22,13 +22,14 @@ long long char2LL(char *str);
 
 
 long readVcc();
+String get_id_mac();
 String freeRam();
 String random_name(int numBytes);
 void copy_array_locha(char* src, char* dst, int len);
 void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &timemsg_intern_str, char* &hash_msg_intern );
 char* node_name_char_to_uppercase(char array_temp[16]);
+uint8_t convert_str_to_uint8(String texto);
 bool is_valid_hash160(char* mensaje, char* hash_recibido);
-String get_id_mac();
-String getMacAddress();
+long long char2LL(char *str);
 
 #endif // GENERAL_FUNCTIONS_H_

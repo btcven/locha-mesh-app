@@ -7,13 +7,14 @@
 
 #include <SSD1306.h>
 #include <OLEDDisplayUi.h>
-#include "hal/hardware.h"
 #include "screen.h"
+#include "hal/hardware.h"
+#include "graphics.h"
 
-boolean screen_on;
-unsigned int scr_timeToFadeOut = 15000;
-unsigned int scr_elapsedTime;
+boolean screen_on = true;
+unsigned int scr_timeToPoweroff = 15000;
 unsigned long scr_timeStart;
+unsigned long scr_elapsedTime;
 
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 OLEDDisplayUi ui(&display);
@@ -28,51 +29,230 @@ void cb_next_option()
     else
     {
         scr_timeStart = millis();
-        //display.wakeup();
+        // display.wakeup();
         Serial.printf("[SCR] Wake up\n");
         screen_on = true;
     }
 }
+
 void cb_confirm_option()
 {
     Serial.printf("confirm option/frame\n");
 }
-void frame_00(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
+
+void splash_screen(OLEDDisplay *scr)
 {
-}
-void frame_01(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
-{
+    scr->drawXbm(10, 0, splashScreen_width, splashScreen_height, splashScreen_bits);
+    scr->setFont(ArialMT_Plain_24);
+    scr->setTextAlignment(TEXT_ALIGN_CENTER);
+    scr->drawString(64, 40, "Turpial");
+    scr->display();
+    delay(5000);
+    scr->clear();
+    scr->display();
 }
 
-FrameCallback frames[] = {frame_00, frame_01};
+void frame_RAD(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
+{
+    // show battery level or battery + bolt.
+
+    // @param battery_level: percent level
+    int16_t battery_level = -1;
+    // battery pos. coord.
+    int16_t batPosX = x + 108;
+    int16_t batPosY = y;
+    // if param battery_level = -1 then the battery is charging.
+    if (battery_level >= 0)
+    {
+        int16_t level = floor(battery_level * 0.14);
+        display->drawXbm(batPosX, batPosY, BAT_width, BAT_height, BAT_bits);
+        display->fillRect(batPosX + 2, batPosY + 2, level, 5);
+    }
+    else
+    {
+        display->drawXbm(batPosX, batPosY, BAT_B_width, BAT_B_height, BAT_B_bits);
+    }
+    // show Ble logo if connection active.
+    int16_t BLE_xPos = x + 120;
+    int16_t BLE_yPos = y + 16;
+    display->drawXbm(BLE_xPos, BLE_yPos, BLE_width, BLE_height, BLE_bits);
+
+    // show Wifi AP logo if AP is Enabled
+    int16_t WAP_xPos = x + 114;
+    int16_t WAP_yPos = y + 36;
+    display->drawXbm(WAP_xPos, WAP_yPos, WIFI_width, WIFI_height, WIFI_bits);
+
+    // show WIFI ST logo if is connected.
+    int16_t WST_xPos = x + 106;
+    int16_t WST_yPos = y + 52;
+    display->drawXbm(WST_xPos, WST_yPos, WST_width, WST_height, WST_bits);
+    display->setFont(ArialMT_Plain_10);
+    display->setTextAlignment(TEXT_ALIGN_LEFT);
+    display->drawString(WST_xPos + 9, WST_yPos, "ST");
+
+    /*
+    int16_t RAD_xPos = 0;
+    int16_t RAD_yPos = 0;
+    display->drawXbm(RAD_xPos, RAD_yPos, RAD_width, RAD_height, RAD_bits);
+    */
+
+    display->setFont(ArialMT_Plain_10);
+    display->setTextAlignment(TEXT_ALIGN_LEFT);
+    display->drawString(x + 20, y + 0, "__ RADIO __");
+
+    display->setFont(ArialMT_Plain_16);
+    display->drawString(x + 8, y + 24, "RSSI");
+    display->drawString(x + 8, y + 42, "SNR");
+
+    // values for rssi & snr are right aligned
+    display->setTextAlignment(TEXT_ALIGN_RIGHT);
+    // radio iface last rssi value.
+    display->drawString(x + 80, y + 24, "-00");
+    // radio iface last snr value.
+    display->drawString(x + 80, y + 42, "000");
+}
+void frame_WIFI(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
+{
+    // @param battery_level: percent level
+    int16_t battery_level = -1;
+    // battery pos. coord.
+    int16_t batPosX = x + 108;
+    int16_t batPosY = y;
+    // if param battery_level = -1 then the battery is charging.
+    if (battery_level >= 0)
+    {
+        int16_t level = floor(battery_level * 0.14);
+        display->drawXbm(batPosX, batPosY, BAT_width, BAT_height, BAT_bits);
+        display->fillRect(batPosX + 2, batPosY + 2, level, 5);
+    }
+    else
+    {
+        display->drawXbm(batPosX, batPosY, BAT_B_width, BAT_B_height, BAT_B_bits);
+    }
+
+    // show Ble logo if connection active.
+    int16_t BLE_xPos = x + 120;
+    int16_t BLE_yPos = y + 16;
+    display->drawXbm(BLE_xPos, BLE_yPos, BLE_width, BLE_height, BLE_bits);
+    // show RAD logo if enabled.
+    int16_t RAD_xPos = x + 113;
+    int16_t RAD_yPos = y + 32;
+    display->drawXbm(RAD_xPos, RAD_yPos, RAD_width, RAD_height, RAD_bits);
+
+    // title
+    display->setFont(ArialMT_Plain_10);
+    display->setTextAlignment(TEXT_ALIGN_LEFT);
+    display->drawString(x + 20, y + 0, "__ WIFI __");
+
+    // Wifi station, active?
+    display->drawString(x + 8, y + 16, "WST");
+    display->drawString(x + 48, y + 16, "on");
+
+    // Wifi AP?
+    display->drawString(x + 8, y + 28, "WAP");
+    display->drawString(x + 48, y + 28, "on");
+
+    display->drawString(x + 8, y + 40, "Clients");
+    display->setTextAlignment(TEXT_ALIGN_RIGHT);
+    display->drawString(x + 60, y + 40, "0");
+}
+
+void frame_SYS(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
+{
+    // @param battery_level: percent level
+    int16_t battery_level = -1;
+    // battery pos. coord.
+    int16_t batPosX = x + 108;
+    int16_t batPosY = y;
+    // if param battery_level = -1 then the battery is charging.
+    if (battery_level >= 0)
+    {
+        int16_t level = floor(battery_level * 0.14);
+        display->drawXbm(batPosX, batPosY, BAT_width, BAT_height, BAT_bits);
+        display->fillRect(batPosX + 2, batPosY + 2, level, 5);
+    }
+    else
+    {
+        display->drawXbm(batPosX, batPosY, BAT_B_width, BAT_B_height, BAT_B_bits);
+    }
+
+    // show Ble logo if connection active.
+    int16_t BLE_xPos = x + 120;
+    int16_t BLE_yPos = y + 16;
+    display->drawXbm(BLE_xPos, BLE_yPos, BLE_width, BLE_height, BLE_bits);
+
+    // show Wifi AP logo if AP is Enabled
+    int16_t WAP_xPos = x + 114;
+    int16_t WAP_yPos = y + 28;
+    display->drawXbm(WAP_xPos, WAP_yPos, WIFI_width, WIFI_height, WIFI_bits);
+
+    // show WIFI ST logo if is connected.
+    int16_t WST_xPos = x + 106;
+    int16_t WST_yPos = y + 38;
+    display->drawXbm(WST_xPos, WST_yPos, WST_width, WST_height, WST_bits);
+    display->setFont(ArialMT_Plain_10);
+    display->setTextAlignment(TEXT_ALIGN_LEFT);
+    display->drawString(WST_xPos + 9, WST_yPos, "ST");
+
+    // show RAD logo if enabled.
+    int16_t RAD_xPos = x + 113;
+    int16_t RAD_yPos = y + 53;
+    display->drawXbm(RAD_xPos, RAD_yPos, RAD_width, RAD_height, RAD_bits);
+
+    // title
+    display->setFont(ArialMT_Plain_10);
+    display->setTextAlignment(TEXT_ALIGN_LEFT);
+    display->drawString(x + 20, y + 0, "__ SYSTEM __");
+
+    // free RAM
+    display->drawString(x + 0, y + 18, "Free RAM");
+    display->drawProgressBar(x + 8, y + 32, 64, 5, 60);
+
+    // free Disk
+    display->drawString(x + 0, y + 42, "Free Disk");
+    display->drawProgressBar(x + 8, y + 56, 64, 5, 60);
+
+
+}
+
+
+FrameCallback frames[] = {frame_RAD, frame_WIFI, frame_SYS}; //
 
 void task_screen(void *params)
 {
-#if defined(HELTEC_V2)
+    // if v2
     pinMode(Vext, OUTPUT);
-    digitalWrite(Vext, LOW);
+    digitalWrite(Vext, LOW); // OLED USE Vext as power supply, must turn ON Vext before OLED init
     delay(100);
-#endif
 
-    ui.setTargetFPS(25);
+    // end if v2
+    ui.setTargetFPS(30);
+
     ui.disableAutoTransition();
     ui.disableAllIndicators();
-    ui.setFrames(frames, sizeof(frames));
+    //ui.setFrameAnimation(SLIDE_LEFT);
 
+    // Add frames
+    ui.setFrames(frames, 3);
+
+    // Initialising the UI will init the display too.
     ui.init();
     display.flipScreenVertically();
+
+    splash_screen(&display);
 
     for (;;)
     {
         scr_elapsedTime = millis() - scr_timeStart;
 
-        if (scr_elapsedTime >= scr_timeToFadeOut && screen_on == true)
+        if (scr_elapsedTime >= scr_timeToPoweroff && screen_on == true)
         {
             Serial.printf("[SCR] Entering in sleep mode\n");
             screen_on = false;
         }
 
         int remainingTimeBudget = ui.update();
-        delay(15);
+        delay(15 + remainingTimeBudget);
     }
+    vTaskDelete(NULL);
 }

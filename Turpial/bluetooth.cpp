@@ -49,7 +49,6 @@ extern char *uid ;
 extern char *msg;
 extern double timemsg;
 extern char *hash_msg ;
-    
 
 bool deviceConnected = false;
 
@@ -72,11 +71,11 @@ class characteristicCB : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
-      char* uid_temporal = NULL;
+     char* uid_temporal = NULL;
       char* msg_temporal = NULL;
       char* hash_temporal = NULL;
       char* time_temporal= NULL;
-    //  double timemsg = 0;
+      
       // movil -> ble_server(Turpial)
       rxValue = pCharacteristic->getValue();
       // si tenemos datos podemos enviarlos via radio desde aqui.
@@ -91,11 +90,7 @@ class characteristicCB : public BLECharacteristicCallbacks
         parametro=String(rxValue.c_str());    // se convierte de string c null terminated a System:String
         // el siguiente void extrae del String BLE los 4 parametros: uid,msg,time,hash
    
-        json_receive(parametro,uid_temporal,msg_temporal,time_temporal,hash_temporal);
-        //uid_temporal=uid;
-        //msg_temporal=msg;
-        //hash_temporal=hash_msg;
-        //time_temporal=timemsg;
+   json_receive(parametro,uid_temporal,msg_temporal,time_temporal,hash_temporal);
         DEBUG_PRINTLN(F("Json received:"));
         DEBUG_PRINT("uid:");
         DEBUG_PRINTLN(uid_temporal);
@@ -109,7 +104,7 @@ class characteristicCB : public BLECharacteristicCallbacks
 
       
         
-        // se valida el hash del msg para ver si esta integro
+         // se valida el hash del msg para ver si esta integro
         if (is_valid_hash160(msg, hash_msg)){
           //if (timemsg>now()){ 
               // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
@@ -119,7 +114,6 @@ class characteristicCB : public BLECharacteristicCallbacks
           // se verifica si viene un comando remoto para el turpial por BLE
           int pos_remote=remote_debugging.indexOf("remote:");
           if(pos_remote > 0){
-              //  msg=msg.substring(pos_remote+7);
                 DEBUG_PRINT(F("Remote command received:"));
                 DEBUG_PRINTLN(msg);
                 remote_debugging=(String)msg;
@@ -140,24 +134,22 @@ class characteristicCB : public BLECharacteristicCallbacks
     }
     void onRead(BLECharacteristic *pCharacteristic)
     {
-      // hay que hacer algo cuando el flujo de datos es: ble_server(Turpial) -> movil
-   if (txValue.size() > 0){
+        if (txValue.size() > 0){
       Serial.println("enviando al BLE");
       pCharacteristic->setValue(txValue);
       Serial.println("listo el envio al BLE");
        txValue.clear();
+    }
     }
 }
 };
 
 void task_bluetooth(void *params)
 {
-
-    String packet_in_process_str;
+   String packet_in_process_str;
     String text_to_send;
     uint8_t jj;
-  //  char* packet_str_tmp;
-        
+    
   // asignamos el nombre al servidor
   // este será el que se mostrará en la app movil al escanear
   // dispositivos cercanos.
@@ -188,6 +180,7 @@ void task_bluetooth(void *params)
   server_service->start();
   ble_server->getAdvertising()->start();
 
+ 
   // loop
   while (1)
   {
@@ -248,4 +241,4 @@ void task_bluetooth(void *params)
     
   } // WHILE
 
-}
+};

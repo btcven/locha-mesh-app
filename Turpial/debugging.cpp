@@ -509,10 +509,10 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-            DEBUG_PRINTLN("entre");
+           
             // primero se vacian las tablas para que el ambiente quede solo para el demo
              uint8_t rpta=vaciar_tablas();
-            DEBUG_PRINTLN("entre");
+          
             rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);

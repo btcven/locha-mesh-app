@@ -11,6 +11,9 @@
 
 unsigned long timerButton;
 
+extern void cb_next_option(void);
+extern void cb_confirm_option(void);
+
 void irq_button(void)
 {
     int currentButtonState = digitalRead(BTN_GPIO);
