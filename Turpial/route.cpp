@@ -471,7 +471,10 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
           }
          }
        } else {
-          DEBUG_PRINTLN(F("This node has no neigbours"));
+        String rpta_str="This node has no neigbours";
+          DEBUG_PRINTLN(rpta_str);
+          // enviar un mensaje via BLE a los clientes conectados
+          txValue=rpta_str.c_str();
        }
     } else {
        DEBUG_PRINT(F("type of packet received:"));
