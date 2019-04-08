@@ -21,7 +21,7 @@ extern int Lora_RSSI;
 extern int Lora_SNR;
 
 // node id
-extern char id_node;
+extern char *id_node;
 // Queues
 extern uint8_t total_mensajes_salientes;
 extern uint32_t outcoming_msgs_size;
