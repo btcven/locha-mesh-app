@@ -50,7 +50,9 @@ void process_Lora_incoming(){
   int SNR_packet_actual=Lora_SNR;
   
  mensaje_recibido=rxValue_Lora.c_str();
- 
+  Lora_RSSI=LoRa.packetRssi();
+  Lora_SNR=LoRa.packetSnr();
+ Serial.println("recibiendo mensaje via LoRa");
  rxValue_Lora.clear();  // se libera el buffer Lora
  radio_Lora_receiving=false;  //  se habilita para que se pueda recibir otro packet
  
@@ -142,8 +144,7 @@ if (packetSize) {
   }
   // se usa la variable boolean radio_Lora_receiving para indicar en el loop main que se puede procesar el contenido de rxValue_Lora
   // se hace de esta forma porque la libreria Lora.cpp tiene un bug y no permite invocar voids ni funciones dentro de onReceive
-  Lora_RSSI=LoRa.packetRssi();
-  Lora_SNR=LoRa.packetSnr();
+ 
   radio_Lora_receiving=true;  
   
  
