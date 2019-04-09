@@ -197,27 +197,33 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
   // se verifica si en los mensajes enviados hay uno que tenga el mismo payload para borrarlo
   uint8_t i;
   uint8_t is_MSG=0;
+  Serial.println(F("Packet ACK recibido , se procesa ..."));
    for (i = 1; i <= total_mensajes_waiting; i++) {
-      if ((strcmp(mensajes_waiting[i].paquete.header.to,id_node)==0)and(strcmp(mensajes_waiting[i].paquete.header.from,packet_received.header.to)==0)){
+      if (((String)mensajes_waiting[i].paquete.header.to==(String)id_node)and((String)mensajes_waiting[i].paquete.header.from==(String)packet_received.header.to)){
           // se verifica que sea un ACK de un mensaje tipo MSG
           if (mensajes_waiting[i].paquete.header.type=MSG){
                   // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)
-                if (strcmp(mensajes_waiting[i].paquete.body.payload,packet_received.body.payload)==0){
+                if ((String)mensajes_waiting[i].paquete.body.payload==(String)packet_received.body.payload){
                   // se recibio el ACK de que el mensaje MSG fue recibido correctamente
                   is_MSG=i;
                   break;
                 }
            }
+        }
+        }
           if (is_MSG>0){
+            Serial.println(F("Procedo a eliminar el packet de la cola waiting..."));
              // se borra el mensaje de la tabla de mensajes_salientes
-              for (i = is_MSG; i <= total_mensajes_waiting-1; i++) {
+              for (i = is_MSG; i < total_mensajes_waiting; i++) {
                   mensajes_waiting[i]=mensajes_waiting[i+1];
               }
-              total_mensajes_waiting=total_mensajes_waiting-1;
-              DEBUG_PRINTLN(F("ACK del packet recibido exitosamente"));
+              total_mensajes_waiting--;
+              
+          } else {
+            Serial.println(F("No se elimino nada de la cola waiting"));
           }
-      }
-   }
+      DEBUG_PRINTLN(F("ACK del packet recibido exitosamente"));
+   
 }
 
 void update_rssi_snr(char route_from[16], char route_to[16], int RSSI_received, int SNR_received){

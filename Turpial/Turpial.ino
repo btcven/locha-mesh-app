@@ -21,6 +21,7 @@
 #include "screen.h"
 #include "radio.h"
 #include "bluetooth.h"
+#include "update_older_records.h"
 
 using namespace std;
 
@@ -37,6 +38,7 @@ uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
 uint32_t outcoming_msgs_size;     // tamaño de la cola de mensajes salientes en bytes.
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
 uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
+uint8_t mensaje_waiting_to_send;   // id del mensaje_waiting para ser reenviado
 
 rutas_t routeTable[MAX_ROUTES];
 uint32_t route_table_size = 0;      // tamaño de la tabla de rutas en bytes
@@ -172,6 +174,14 @@ void setup()
   {
     create_unique_id(id_node);
   }
+
+  
+  
+    // se crea un task para las tareas de baja prioridad tipo garbage collector  (prioridad 2 por debajo de las otras task)
+    // que chequea rutas viejas, paquetes en espera,  vecinos no reportados desde hace mucho tiempo
+    xTaskCreate(task_update_older_records, "task_update_older_records", 2048, NULL, 2, NULL);
+
+  
   DEBUG_PRINT(id_node);
   DEBUG_PRINT(F(" >"));
 
@@ -266,11 +276,15 @@ void loop()
 
     // se manda por el BLE
     // los type=MSG se pasa solo el payload al BLE, mientras que los demas type se convierte a Json y se devuelve al app para su procesamiento
-    if (paquet_in_process2.header.type=MSG){
-      txValue = paquet_in_process2.body.payload;
-    } else {
+   // if (paquet_in_process2.header.type=MSG){
+   //   txValue = paquet_in_process2.body.payload;
+   // } else {
       txValue = packet_into_json(paquet_in_process2).c_str();
-    }
+   // }
+
+if (mensaje_waiting_to_send>0){
+  void update_older_record();
+}
 
     packet_return_BLE_str = "";
     Serial.println("seliendo del envio hacia el BLE");

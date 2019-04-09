@@ -186,7 +186,8 @@ String packet_into_json(packet_t packet_to_convert){
   if (packet_to_convert.header.type!=EMPTY){
       rpta="{";
       rpta=rpta+"'uid':'"+(String)packet_to_convert.header.from+"',";
-      rpta=rpta+"'"+tipo_packet+"':'"+(String)packet_to_convert.body.payload+"',";
+      rpta=rpta+"'msg':'"+(String)packet_to_convert.body.payload+"',";
+      rpta=rpta+"'type':"+convertir_str_packet_type_e(tipo_packet)+",";
       rpta=rpta+"'time':"+(String)packet_to_convert.header.timestamp+",";
       rpta=rpta+"'hash':'"+(String)packet_to_convert.header.hash+"',";
       rpta=rpta+"}";
