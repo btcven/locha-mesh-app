@@ -27,7 +27,7 @@ using namespace std;
 
 // variables fijas para este demo
 // ID unico del nodo
-char id_nodo_demo[16] = "TURPIAL.0";
+char id_nodo_demo[16] = "";
 
 
 char *id_node;
@@ -271,32 +271,28 @@ void loop()
   // se verifica si hay que devolver via BLE algun packet
   if (packet_return_BLE_str.length() > 0)
   {
+    
+    packet_t paquet_in_process2 = packet_deserialize_str(packet_return_BLE_str.c_str());
+   
+
+   if ((paquet_in_process2.header.type==MSG)or(paquet_in_process2.header.type==TXN)){
     delay(500); // se hace una pausa antes de devolver para liberar el radio o cualquier otro recurso de menos prioridad que necesite ejecutarse
     Serial.println("devolviendo packet ...");
     Serial.print("recibi:");
     Serial.println(packet_return_BLE_str);
-
-    //  packet_return_BLE_str.toCharArray(packet_str_tmp, packet_return_BLE_str.length());
-
-    packet_t paquet_in_process2 = packet_deserialize_str(packet_return_BLE_str.c_str());
-    //   paquet_in_process2.header.type=NOT_DELIVERED;
+     //   paquet_in_process2.header.type=NOT_DELIVERED;
     // se invierte el remitente con el destinatario
     copy_array_locha(paquet_in_process2.header.from, remitente, 16);
     copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, 16);
     copy_array_locha(remitente, paquet_in_process2.header.to, 16);
-
-    // se manda por el BLE
-    // los type=MSG se pasa solo el payload al BLE, mientras que los demas type se convierte a Json y se devuelve al app para su procesamiento
-   // if (paquet_in_process2.header.type=MSG){
-   //   txValue = paquet_in_process2.body.payload;
-   // } else {
-   String text_to_send_to_ble=packet_into_json(paquet_in_process2);
+      String text_to_send_to_ble=packet_into_json(paquet_in_process2);
       txValue = text_to_send_to_ble.c_str();
+      
       Serial.print(F("enviado al BLE:"));
       Serial.println(text_to_send_to_ble);
       Serial.print("Largo de la cadena enviada al BLE:");
       Serial.println((String)text_to_send_to_ble.length());
-   // }
+    }
 
 if (mensaje_waiting_to_send>0){
   void update_older_record();

@@ -70,5 +70,6 @@ packet_t packet_deserialize_str(String received_text);
 packet_t packet_deserialize(char* received_text);
 packet_t construct_packet_HELLO(char* from);
 String Json_return_error(String mensaje);
+String Json_return_msg(String mensaje);
 
 #endif // PACKET_H

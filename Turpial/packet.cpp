@@ -238,3 +238,9 @@ String Json_return_error(String mensaje){
     msg_to_return="{\"uid\":\"broadcast\",\"ERR\":\""+mensaje+"\",\"time\":"+(String)millis()+"\",\"status\":NOT_DELIVERED}";  
     return msg_to_return;
 }
+// funcion que construye un mensaje son para devolver al bluetooth en formato MSG
+String Json_return_msg(String mensaje){
+    String msg_to_return;
+    msg_to_return="{\"uid\":\"broadcast\",\"msg\":\""+mensaje+"\",\"time\":"+(String)millis()+"\",\"status\":OK}";  
+    return msg_to_return;
+}

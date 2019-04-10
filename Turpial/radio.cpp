@@ -102,6 +102,8 @@ packet_t packet_received=packet_deserialize_str(mensaje_recibido);
       uint8_t rptass= create_route(origen, vecino, vecino);  
   } 
 
+// solo se envian al BLE los packets Lora incoming MSG o TXN
+if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
         // se envia al BLE para efectos del demo, se arma en forma de packet
          Serial.print("se envia al BLE:");
          
@@ -112,9 +114,10 @@ packet_t packet_received=packet_deserialize_str(mensaje_recibido);
 
    // se verifica que tipo de mensaje es para mandarlo al movil
    
+   mensaje_recibido= Json_return_msg(packet_received.body.payload);
    txValue=mensaje_recibido.c_str();
         
-
+} 
           Serial.print("se va a enrutar lo recibido:");
         // se hace la parte de enrutamiento del packet
         process_received_packet(id_node,packet_received);

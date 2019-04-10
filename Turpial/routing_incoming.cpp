@@ -98,12 +98,12 @@ Serial.println("se actualiza el age de la ruta");
 uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received){
   // nuevo vecino de la tabla de vecinos
  // si no existe previamente
- if (!es_vecino(packet_received.header.from)){
-  copy_array_locha(packet_received.header.from, vecinos[total_vecinos+1].id, 16);
+ //if (!es_vecino(packet_received.header.from)){
+ // copy_array_locha(packet_received.header.from, vecinos[total_vecinos+1].id, 16);
   //vecinos[total_vecinos+1]=packet_received.header.from;
-  total_vecinos++;
- }
-  //uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+//  total_vecinos++;
+ //}
+  uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
   // nueva ruta en la tabla de rutas
   nodo_t nodo1;
   nodo_t nodo2;
@@ -195,12 +195,15 @@ uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received){
 }
 uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received){
   // 
+  nodo_t nodo1;
+  nodo_t nodo2;
   Serial.println(F("se recibio un packet hello"));
   // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
    // nueva ruta en la tabla de rutas
-  nodo_t nodo1;
-  nodo_t nodo2;
+   uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+  
   rutas_t nueva_ruta;
+  
  // nodo1.id=packet_received.header.to;
   copy_array_locha(packet_received.header.from,packet_received.header.to, 16);
  // nodo2.id=packet_received.header.from;

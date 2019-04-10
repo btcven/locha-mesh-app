@@ -365,45 +365,53 @@ uint8_t delete_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
 
 // create a new neighbor on memory  
 uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t blacklist[MAX_NODES_BLACKLIST], uint8_t total_nodos_blacklist ){
-   nodo_t nodo_vecino;
-   
+                  nodo_t nodo_vecino;
                   char nombre_temporal[16];
                   uint8_t i;
                   bool permitir_agregar=true;
+
+                  id_node_neighbor.trim();
                   id_node_neighbor.toCharArray(nombre_temporal, 16);
-            
-                 // se verifica que no exista previamente
-                 for (i = 1; i <= total_vecinos; i++) {
-                     if ((String)vecinos[i].id==(String)nombre_temporal){
-                          // existe previamente, no se crea de nuevo
+                  // no se permiten vecinos sin id
+                  if (id_node_neighbor.length()>0){
+                        if (id_node_neighbor!=""){
+                       // se verifica que no exista previamente
+                       for (i = 1; i <= total_vecinos; i++) {
+                           if ((String)vecinos[i].id==(String)nombre_temporal){
+                                // existe previamente, no se crea de nuevo
+                                permitir_agregar=false;
+                                break;
+                            }
+                       }
+                        // se verifica que no exista en blacklist de nodos 
+                       for (i = 1; i <= total_nodos_blacklist; i++) {
+                            if ((String)blacklist[i].id==(String)nombre_temporal){
+                                // como esta en blacklist no se le permite agregar como un vecino valido
+                                permitir_agregar=false;
+                                break;
+                            }
+                       }
+                        } else {
                           permitir_agregar=false;
-                          break;
-                      }
-                 }
-                 // se verifica que no exista en blacklist de nodos 
-                 for (i = 1; i <= total_nodos_blacklist; i++) {
-                      if (blacklist[i].id==nombre_temporal){
-                          // como esta en blacklist no se le permite agregar como un vecino valido
-                          permitir_agregar=false;
-                          break;
-                      }
-                 }
+                        }
+                  } else {
+                    permitir_agregar=false;
+                  }
                  if (permitir_agregar){
                       // usamos memcpy ocupando la misma direccion de memoria
                       memcpy(nodo_vecino.id, nombre_temporal, 16);
                       // ***
-                     
-                      vecinos[total_vecinos] = nodo_vecino;
-                      total_vecinos++;
-                      
-    return 0;
+                      String compares_str=(String)nodo_vecino.id;
+                     if (compares_str!=""){
+                        vecinos[total_vecinos] = nodo_vecino;
+                        total_vecinos++;
+                     }
+                    return 0;
                  } else {
                   
-    return 1;
+                    return 1;
                  }
-                  
- 
-}
+     }
 
 // coloca el mensaje recibido en Buffer_packet a la cola de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda
 uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp){
@@ -466,10 +474,15 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
           
           rpta=packet_to_send(tmp_packet,mensajes_salientes,total_mensajes_salientes_tmp2);
           if (rpta==1){
-            // la cola estaba llena y no se pudo agregar se le manda un mensaje al movil
-            //txValue="{\"uid\":\"broadcast\",\"msg\":\"Gtww\",\"time\":1554012641512\",\"status\":NOT_DELIVERED}";
-            txValue="NOT DELIVERED";
-          }
+                // la cola estaba llena y no se pudo agregar se le manda un mensaje al movil
+                //txValue="{\"uid\":\"broadcast\",\"msg\":\"Gtww\",\"time\":1554012641512\",\"status\":NOT_DELIVERED}";
+                
+                String rpta_str="NOT DELIVERED";
+                rpta_str=Json_return_error(rpta_str);
+                DEBUG_PRINTLN(rpta_str);
+                // enviar un mensaje via BLE a los clientes conectados
+                txValue=rpta_str.c_str();
+              } 
          }
        } else {
         String rpta_str="This node has no neigbours";
