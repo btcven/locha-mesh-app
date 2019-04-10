@@ -134,11 +134,13 @@ class characteristicCB : public BLECharacteristicCallbacks
     void onRead(BLECharacteristic *pCharacteristic)
     {
         if (txValue.size() > 0){
-      Serial.println("enviando al BLE");
-      pCharacteristic->setValue(txValue);
-      Serial.println("listo el envio al BLE");
-       txValue.clear();
-    }
+            Serial.println(F("enviando al BLE"));
+            pCharacteristic->setValue(txValue);
+            Serial.print(F("listo el envio al BLE, texto enviado:"));
+            Serial.println(txValue.c_str());
+            delay(1000);
+            txValue.clear();
+        }
     }
 };
 
@@ -212,6 +214,8 @@ void task_bluetooth(void *params)
                       tx_uart->setValue(text_to_send.c_str());
                       tx_uart->notify();
                  }
+                 // se coloca un delay antes de borrar la variable para que pueda llegar el ack del BLE
+                 delay(100);
                  txValue.clear();
                  text_to_send="";
                 
@@ -227,6 +231,8 @@ void task_bluetooth(void *params)
           
           // se devuelve el packet como not delivered
           packet_return_BLE_str=(String)txValue.c_str();
+          // se coloca un delay antes de borrarlo para que pueda haber sido enviado por BLE y recibido el ACK correspondiente
+          delay(1000);
           txValue.clear();
           text_to_send="";
       }

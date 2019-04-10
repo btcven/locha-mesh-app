@@ -27,7 +27,7 @@ using namespace std;
 
 // variables fijas para este demo
 // ID unico del nodo
-char id_nodo_demo[16] = "TURPIAL.0";
+char id_nodo_demo[16] = "";
 
 
 char *id_node;
@@ -171,9 +171,13 @@ void setup()
   DEBUG_PRINT(" ");
   DEBUG_PRINTLN(MSG_START);
   // se genera el node_id solo si no existe
-  if (id_node == "")
+  if ((String)id_node== "")
   {
-    create_unique_id(id_node);
+    String id_tmp=get_id_mac();
+    //id_node=id_tmp.c_str();
+    strcpy(id_node,id_tmp.c_str());
+   // copy_array_locha(id_tmp.c_str(), id_node, 16);
+    
   }
 
   
@@ -183,16 +187,17 @@ void setup()
     xTaskCreate(task_update_older_records, "task_update_older_records", 2048, NULL, 2, NULL);
 
   
-  DEBUG_PRINT(id_node);
-  DEBUG_PRINT(F(" >"));
-
+  
   // se inicializa el control del tiempo
   tiempo = millis();
-
+  //  DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));
     // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
-    packet_t packet_HELLO;
-    copy_array_locha(id_node, packet_HELLO.header.from, 16);
-    radioSend(packet_serialize(packet_HELLO));
+delay(100);
+    radioSend(packet_serialize(construct_packet_HELLO(id_node)));
+
+   DEBUG_PRINTLN("");
+   DEBUG_PRINT(id_node);
+   DEBUG_PRINT(F(" >"));
 
 } //setup
 
@@ -289,6 +294,8 @@ void loop()
       txValue = text_to_send_to_ble.c_str();
       Serial.print(F("enviado al BLE:"));
       Serial.println(text_to_send_to_ble);
+      Serial.print("Largo de la cadena enviada al BLE:");
+      Serial.println((String)text_to_send_to_ble.length());
    // }
 
 if (mensaje_waiting_to_send>0){

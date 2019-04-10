@@ -374,7 +374,7 @@ uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
             
                  // se verifica que no exista previamente
                  for (i = 1; i <= total_vecinos; i++) {
-                     if (vecinos[i].id==nombre_temporal){
+                     if ((String)vecinos[i].id==(String)nombre_temporal){
                           // existe previamente, no se crea de nuevo
                           permitir_agregar=false;
                           break;
@@ -392,8 +392,9 @@ uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
                       // usamos memcpy ocupando la misma direccion de memoria
                       memcpy(nodo_vecino.id, nombre_temporal, 16);
                       // ***
-                      total_vecinos++;
+                     
                       vecinos[total_vecinos] = nodo_vecino;
+                      total_vecinos++;
                       
     return 0;
                  } else {
@@ -472,6 +473,7 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
          }
        } else {
         String rpta_str="This node has no neigbours";
+        rpta_str=Json_return_error(rpta_str);
           DEBUG_PRINTLN(rpta_str);
           // enviar un mensaje via BLE a los clientes conectados
           txValue=rpta_str.c_str();

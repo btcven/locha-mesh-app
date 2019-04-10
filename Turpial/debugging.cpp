@@ -498,9 +498,8 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           
             rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
             // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
-            packet_t packet_HELLO;
-            copy_array_locha(id_node, packet_HELLO.header.from, 16);
-            radioSend(packet_serialize(packet_HELLO));
+            DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));
+            radioSend(packet_serialize(construct_packet_HELLO(id_node)));
             
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -560,10 +559,9 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
                 copy_array_locha(nombre_tmp,id_node,16);
 
                 // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
-                    packet_t packet_HELLO;
-                    copy_array_locha(id_node, packet_HELLO.header.from, 16);
-                    radioSend(packet_serialize(packet_HELLO));
-                
+               DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));
+                radioSend(packet_serialize(construct_packet_HELLO(id_node)));
+                    
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);

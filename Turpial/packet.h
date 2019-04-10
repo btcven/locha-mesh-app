@@ -68,7 +68,7 @@ packet_type_e convertir_int_packet_type_e(uint8_t type_recibido);
 String packet_serialize(packet_t packet);
 packet_t packet_deserialize_str(String received_text);
 packet_t packet_deserialize(char* received_text);
-
-
+packet_t construct_packet_HELLO(char* from);
+String Json_return_error(String mensaje);
 
 #endif // PACKET_H

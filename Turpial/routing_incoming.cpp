@@ -12,7 +12,7 @@
 
 
 
-//extern char* id_node; // id unico del nodo
+extern char* id_node; // id unico del nodo
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
@@ -97,9 +97,13 @@ Serial.println("se actualiza el age de la ruta");
 
 uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received){
   // nuevo vecino de la tabla de vecinos
+ // si no existe previamente
+ if (!es_vecino(packet_received.header.from)){
   copy_array_locha(packet_received.header.from, vecinos[total_vecinos+1].id, 16);
-//  vecinos[total_vecinos+1]=packet_received.header.from;
+  //vecinos[total_vecinos+1]=packet_received.header.from;
   total_vecinos++;
+ }
+  //uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
   // nueva ruta en la tabla de rutas
   nodo_t nodo1;
   nodo_t nodo2;
@@ -198,14 +202,20 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   nodo_t nodo2;
   rutas_t nueva_ruta;
  // nodo1.id=packet_received.header.to;
-  copy_array_locha(packet_received.header.to, nodo1.id, 16);
+  copy_array_locha(packet_received.header.from,packet_received.header.to, 16);
  // nodo2.id=packet_received.header.from;
-   copy_array_locha(packet_received.header.from, nodo2.id, 16);
-  create_route(nodo1, nodo2, nodo2);
+   copy_array_locha(id_node,packet_received.header.from, 16);
+  
   packet_received.header.type=JOIN;
   copy_array_locha(nodo2.id,packet_received.header.to, 16);
-  copy_array_locha(nodo1.id,packet_received.header.from, 16);
+ // copy_array_locha(nodo1.id,packet_received.header.from, 16);
   radioSend(packet_serialize(packet_received));
+
+
+  // ahra se crea la ruta de A->B
+  copy_array_locha(packet_received.header.from,  nodo1.id,16);
+  copy_array_locha(packet_received.header.to,  nodo2.id,16);
+  create_route(nodo1, nodo2, nodo2);
   return 0;
 }
 
@@ -268,43 +278,48 @@ void process_received_packet(char id_node[16], packet_t packet_temporal){
 
   DEBUG_PRINT(F("A new packet incoming, type:"));
   DEBUG_PRINTLN(convertir_packet_type_e_str(packet_temporal.header.type));
-  switch (packet_temporal.header.type)
-  {
-  case EMPTY:
-        DEBUG_PRINT("Node:");
-        DEBUG_PRINT((String)packet_temporal.header.from);
-        DEBUG_PRINT(" is sending ");
-        DEBUG_PRINT(convertir_packet_type_e_str(EMPTY));
-        DEBUG_PRINTLN(" packets, review it.");
-    break;
-  case JOIN:
-      routing_incoming_PACKET_JOIN(id_node, packet_temporal);
-      break;
-  case BYE:
-      routing_incoming_PACKET_BYE(id_node, packet_temporal);
-      break;
-  case ROUTE:
-      routing_incoming_PACKET_ROUTE(id_node, packet_temporal);
-      break;
-  case ACK:
-      routing_incoming_PACKET_ACK(id_node, packet_temporal);
-      break;
-  case MSG:
-     routing_incoming_PACKET_MSG(id_node, packet_temporal);
-     break;
-  case HELLO:
-   routing_incoming_PACKET_HELLO(id_node, packet_temporal);
-      break;
-  case GOSSIP:
-   routing_incoming_PACKET_GOSSIP(id_node, packet_temporal);
-      break;
-  case NOT_DELIVERED:
-   routing_incoming_PACKET_NOT_DELIVERED(id_node, packet_temporal);
-      break;
-  default:
-    break;
-  }
 
-  // todo packet incoming actualiza el RSSI y el SNR de la ruta que le corresponda
-  update_rssi_snr(packet_temporal.header.from, packet_temporal.header.to, Lora_RSSI, Lora_SNR);
+      // se verifica que el origen y destino no sea el mismo, para evitar ataques 
+    if ((String)packet_temporal.header.from!=(String)packet_temporal.header.to){
+      
+      switch (packet_temporal.header.type)
+      {
+      case EMPTY:
+            DEBUG_PRINT("Node:");
+            DEBUG_PRINT((String)packet_temporal.header.from);
+            DEBUG_PRINT(" is sending ");
+            DEBUG_PRINT(convertir_packet_type_e_str(EMPTY));
+            DEBUG_PRINTLN(" packets, review it.");
+        break;
+      case JOIN:
+          routing_incoming_PACKET_JOIN(id_node, packet_temporal);
+          break;
+      case BYE:
+          routing_incoming_PACKET_BYE(id_node, packet_temporal);
+          break;
+      case ROUTE:
+          routing_incoming_PACKET_ROUTE(id_node, packet_temporal);
+          break;
+      case ACK:
+          routing_incoming_PACKET_ACK(id_node, packet_temporal);
+          break;
+      case MSG:
+         routing_incoming_PACKET_MSG(id_node, packet_temporal);
+         break;
+      case HELLO:
+       routing_incoming_PACKET_HELLO(id_node, packet_temporal);
+          break;
+      case GOSSIP:
+       routing_incoming_PACKET_GOSSIP(id_node, packet_temporal);
+          break;
+      case NOT_DELIVERED:
+       routing_incoming_PACKET_NOT_DELIVERED(id_node, packet_temporal);
+          break;
+      default:
+        break;
+      }
+    
+      // todo packet incoming actualiza el RSSI y el SNR de la ruta que le corresponda
+      update_rssi_snr(packet_temporal.header.from, packet_temporal.header.to, Lora_RSSI, Lora_SNR);
+    }
 }

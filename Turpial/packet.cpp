@@ -112,6 +112,17 @@ String getValue(String data, char separator, int index)
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+packet_t construct_packet_HELLO(char* from){
+   packet_t packet_HELLO;
+    copy_array_locha(from, packet_HELLO.header.from, 16);
+    copy_array_locha("", packet_HELLO.header.to, 16);
+    copy_array_locha("", packet_HELLO.body.payload, 240);
+    packet_HELLO.header.type=HELLO;
+    packet_HELLO.header.timestamp=millis();
+    //packet_HELLO.body.payload=""; // se asigna un solo caracter para que no viaje con basura NULL por el radio Lora
+    return packet_HELLO;
+}
+
 // Funcion encargada de convertir un string en un packet 
 packet_t packet_deserialize_str(String received_text){
    uint8_t ind1;
@@ -219,4 +230,11 @@ packet_t create_packet(char* id_node, packet_type_e tipo_packet, char* from, cha
       new_packet.header=header;
       new_packet.body=body;
     return new_packet;
+}
+
+// funcion que construye un mensaje son para devolver al bluetooth en formato ERR
+String Json_return_error(String mensaje){
+    String msg_to_return;
+    msg_to_return="{\"uid\":\"broadcast\",\"ERR\":\""+mensaje+"\",\"time\":"+(String)millis()+"\",\"status\":NOT_DELIVERED}";  
+    return msg_to_return;
 }
