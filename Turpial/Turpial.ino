@@ -27,7 +27,7 @@ using namespace std;
 
 // variables fijas para este demo
 // ID unico del nodo
-char id_nodo_demo[16] = "";
+char id_nodo_demo[16] = "TURPIAL.0";
 
 
 char *id_node;
