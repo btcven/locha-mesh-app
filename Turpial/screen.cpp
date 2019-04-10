@@ -16,6 +16,26 @@ unsigned int scr_timeToPoweroff = 15000;
 unsigned long scr_timeStart;
 unsigned long scr_elapsedTime;
 
+// radio quality link
+extern int Lora_RSSI;
+extern int Lora_SNR;
+
+// node id
+extern char *id_node;
+// Queues
+extern uint8_t total_mensajes_salientes;
+extern uint32_t outcoming_msgs_size;
+
+// Routes
+extern uint8_t total_rutas;
+extern uint32_t route_table_size;
+// Neighbours
+extern uint8_t total_vecinos;
+extern uint32_t vecinos_table_size;
+
+
+
+
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 OLEDDisplayUi ui(&display);
 
@@ -90,12 +110,6 @@ void frame_RAD(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, i
     display->setTextAlignment(TEXT_ALIGN_LEFT);
     display->drawString(WST_xPos + 9, WST_yPos, "ST");
 
-    /*
-    int16_t RAD_xPos = 0;
-    int16_t RAD_yPos = 0;
-    display->drawXbm(RAD_xPos, RAD_yPos, RAD_width, RAD_height, RAD_bits);
-    */
-
     display->setFont(ArialMT_Plain_10);
     display->setTextAlignment(TEXT_ALIGN_LEFT);
     display->drawString(x + 20, y + 0, "__ RADIO __");
@@ -107,9 +121,9 @@ void frame_RAD(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, i
     // values for rssi & snr are right aligned
     display->setTextAlignment(TEXT_ALIGN_RIGHT);
     // radio iface last rssi value.
-    display->drawString(x + 80, y + 24, "-00");
+    display->drawString(x + 80, y + 24, (String)Lora_RSSI);
     // radio iface last snr value.
-    display->drawString(x + 80, y + 42, "000");
+    display->drawString(x + 80, y + 42, (String)Lora_SNR);
 }
 void frame_WIFI(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
 {
@@ -211,12 +225,47 @@ void frame_SYS(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, i
     // free Disk
     display->drawString(x + 0, y + 42, "Free Disk");
     display->drawProgressBar(x + 8, y + 56, 64, 5, 60);
+}
+void frame_Queue(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
+{
+    // title
+    display->setFont(ArialMT_Plain_10);
+    display->setTextAlignment(TEXT_ALIGN_CENTER);
+    display->drawString(x + 64, y + 0, (String)id_node);
 
+    display->setTextAlignment(TEXT_ALIGN_LEFT);
+    display->drawString(x, y + 14, "Out. msgs");
+    display->drawString(x, y + 26, " ''  '' size");
+
+    display->setTextAlignment(TEXT_ALIGN_RIGHT);
+    display->drawString(x + 128, y + 14, (String)total_mensajes_salientes);
+    display->drawString(x + 128, y + 26, (String)outcoming_msgs_size);
 
 }
 
+// display the nearest neighbours and routes table.
+void frame_Neighbours(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
+{
+    // title
+    display->setFont(ArialMT_Plain_10);
+    display->setTextAlignment(TEXT_ALIGN_LEFT);
+    display->drawString(x + 20, y + 0, "__ Tables __");
 
-FrameCallback frames[] = {frame_RAD, frame_WIFI, frame_SYS}; //
+    display->drawString(x, y + 12, "Neighbours");
+    display->drawString(x, y + 24, "T. Size");
+    display->drawHorizontalLine(x + 16, y + 36, 64);
+    display->drawString(x, y + 38, "Routes");
+    display->drawString(x, y + 50, "T. Size");
+
+    display->setTextAlignment(TEXT_ALIGN_RIGHT);
+    display->drawString(x + 128, y + 12, (String)total_vecinos);
+    display->drawString(x + 128, y + 24, (String)vecinos_table_size);
+    display->drawString(x + 128, y + 38, (String)total_rutas);
+    display->drawString(x + 128, y + 50, (String)route_table_size);
+}
+
+FrameCallback frames[] = {frame_RAD, frame_Queue, frame_Neighbours};
+// FrameCallback frames[] = {frame_RAD, frame_WIFI, frame_SYS};
 
 void task_screen(void *params)
 {

@@ -24,6 +24,8 @@ extern std::string rxValue;
 extern bool radio_Lora_receiving;
 extern std::string txValue_Lora;
 extern std::string rxValue_Lora;
+extern int Lora_RSSI;
+extern int Lora_SNR;
 extern char *id_node;
 
 
@@ -39,23 +41,25 @@ void process_Lora_incoming(){
   // no puede ser invocado desde Onreceive debido a un bug en la libreria Lora.h
   // https://www.bountysource.com/issues/70601319-calling-any-function-in-the-callback-method
 
-
-
-
-
-String mensaje_recibido="";
- char* mensaje_recibido_char2;
-  bool recibido=false;
-  
-  mensaje_recibido=rxValue_Lora.c_str();
+ String mensaje_recibido="";
+ 
+ bool recibido=false;
  char* mensaje_recibido_char;
+  // recibo las variables globales que trae el packet
+  int RSSI_packet_actual=Lora_RSSI;
+  int SNR_packet_actual=Lora_SNR;
+  
+ mensaje_recibido=rxValue_Lora.c_str();
+  Lora_RSSI=LoRa.packetRssi();
+  Lora_SNR=LoRa.packetSnr();
+ Serial.println("recibiendo mensaje via LoRa");
  rxValue_Lora.clear();  // se libera el buffer Lora
  radio_Lora_receiving=false;  //  se habilita para que se pueda recibir otro packet
  
  // mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
    mensaje_recibido_char=string2char(mensaje_recibido);
 packet_t packet_received=packet_deserialize_str(mensaje_recibido);
-
+//packet_received.
 
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
@@ -105,6 +109,9 @@ packet_t packet_received=packet_deserialize_str(mensaje_recibido);
          Serial.print("---");
          Serial.println(mensaje_recibido.c_str());
    //txValue=msg_will_send;
+
+   // se verifica que tipo de mensaje es para mandarlo al movil
+   
    txValue=mensaje_recibido.c_str();
         
 
@@ -137,6 +144,7 @@ if (packetSize) {
   }
   // se usa la variable boolean radio_Lora_receiving para indicar en el loop main que se puede procesar el contenido de rxValue_Lora
   // se hace de esta forma porque la libreria Lora.cpp tiene un bug y no permite invocar voids ni funciones dentro de onReceive
+ 
   radio_Lora_receiving=true;  
   
  
@@ -222,7 +230,8 @@ void task_radio(void *params) {
     if (txValue_Lora.size() > 0) {
       DEBUG_PRINT("LoRa:");
       DEBUG_PRINTLN(txValue_Lora.c_str());
-
+      Lora_RSSI = LoRa.packetRssi();
+      Lora_SNR=LoRa.packetSnr();
     }
     delay(40);
   }

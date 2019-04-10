@@ -102,22 +102,24 @@ class characteristicCB : public BLECharacteristicCallbacks
         // se procesa el comando que se haya recibido por BLE
         
          // se valida el hash del msg para ver si esta integro
-        if (is_valid_hash160(msg, hash_msg)){
+        if (is_valid_hash160(msg_temporal, hash_msg)){
           //if (timemsg>now()){ 
               // se sincroniza la hora en caso de que este desfasada, se confia en que el relogj del movil este correcto
             // setTime(timemsg);  
           //}
-
+          
           // se verifica si viene un comando remoto para el turpial por BLE
-          int pos_remote=remote_debugging.indexOf("remote:");
-          if(pos_remote > 0){
+          String msg_tmp=(String)msg_temporal;
+          msg_tmp.toUpperCase();
+          int pos_remote=msg_tmp.indexOf("REMOTE:");
+
+          if(pos_remote >= 0){
                 DEBUG_PRINT(F("Remote command received:"));
-                DEBUG_PRINTLN(msg);
-                remote_debugging=(String)msg;
+                DEBUG_PRINTLN(msg_tmp);
+                remote_debugging=(String)msg_tmp;
                // txValue=("OK").c_str();
           } else {
-
-          
+       
                 BLE_incoming(uid_temporal,msg_temporal,time_temporal,hash_temporal,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
                 DEBUG_PRINTLN(F("BLE process OK"));
           }

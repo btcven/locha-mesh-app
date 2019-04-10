@@ -228,6 +228,10 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
      DEBUG_PRINT(F("\t"));
      DEBUG_PRINT(F("Age: "));
      DEBUG_PRINTLN((String)routeTable[i].age);
+    DEBUG_PRINT(F("RSSI: "));
+     DEBUG_PRINTLN((String)routeTable[i].RSSI_packet);
+    DEBUG_PRINT(F("SNR: "));
+     DEBUG_PRINTLN((String)routeTable[i].SNR_packet); 
     }
     DEBUG_PRINT(F("Tamaño de la tabla de rutas :"));
     DEBUG_PRINT(tamano_arreglo);
@@ -312,8 +316,11 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   nodo_t nodo_vecino;
 
   char* id_nodo_demo0="TURPIAL.0";
+  //char const *id_nodo_demo0 = "TURPIAL.0"; // valid and safe in either C or C++.
   char* id_nodo_demo1="TURPIAL.1";
+ // char const *id_nodo_demo1 = "TURPIAL.1"; // valid and safe in either C or C++.
   char* id_nodo_demo2="TURPIAL.2";
+  //char const *id_nodo_demo2 = "TURPIAL.2"; // valid and safe in either C or C++.
   
 //strcpy (id_nodo_demo0,"TURPIAL.0");
 //strcpy (id_nodo_demo1,"TURPIAL.1");
@@ -368,7 +375,8 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
 }
 
 
-void process_debugging_command(String str_buffer_serial_received, bool &ejecute){
+uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecute){
+  
        String mensaje="";
         mensaje=F("SHOW ROUTES");
         if (str_buffer_serial_received==mensaje){
@@ -478,34 +486,9 @@ void process_debugging_command(String str_buffer_serial_received, bool &ejecute)
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
          }
-         
-}
 
 
-uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, String &remote_debugging){
-
- // #ifdef DEBUG
-    uint8_t rpta;
-    String str_buffer_serial_received="";
-    String mensaje="";
-    bool ejecute=false;
-
-    // tambien puedo recibir un comando por la variable: remote_debugging
-    
-    if (Serial.available()) {
-      
-      str_buffer_serial_received=Serial.readStringUntil('\n');
-      str_buffer_serial_received.toUpperCase();
-      str_buffer_serial_received.replace("  "," ");  // se elimina cualquier doble espacio en el input
-      str_buffer_serial_received.trim();
-
-
-      process_debugging_command(str_buffer_serial_received,ejecute);
-           
-        
-        
-        
-        mensaje=F("LOAD DEMO");
+          mensaje=F("LOAD DEMO");
         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -514,6 +497,11 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
              uint8_t rpta=vaciar_tablas();
           
             rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
+            // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
+            packet_t packet_HELLO;
+            copy_array_locha(id_node, packet_HELLO.header.from, 16);
+            radioSend(packet_serialize(packet_HELLO));
+            
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
@@ -570,6 +558,12 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                 char nombre_tmp[16];
                 str_node_name.toCharArray(nombre_tmp,16);
                 copy_array_locha(nombre_tmp,id_node,16);
+
+                // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
+                    packet_t packet_HELLO;
+                    copy_array_locha(id_node, packet_HELLO.header.from, 16);
+                    radioSend(packet_serialize(packet_HELLO));
+                
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -601,10 +595,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
                 return 1;
          } 
               
-         
-         
-
-         mensaje=F("PACKET CREATE INCOMING");   // formato: CREATE PACKET INCOMING TYPE FROM PAYLOAD 
+  mensaje=F("PACKET CREATE INCOMING");   // formato: CREATE PACKET INCOMING TYPE FROM PAYLOAD 
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
                 String str_type = getparamValue(str_buffer_serial_received, ' ', 3);  
@@ -681,9 +672,44 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
          }
-        } 
+
+         
+}
+
+
+uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, String &remote_debugging){
+
+ 
+    uint8_t rpta=0;
+    String str_buffer_serial_received="";
+    String mensaje="";
+    bool ejecute=false;
+    
+    if (Serial.available()) {
+      
+      str_buffer_serial_received=Serial.readStringUntil('\n');
+      str_buffer_serial_received.toUpperCase();
+      str_buffer_serial_received.replace("  "," ");  // se elimina cualquier doble espacio en el input
+      str_buffer_serial_received.trim();
+
+
+      rpta=process_debugging_command(str_buffer_serial_received,ejecute);
+     } 
+    // tambien puedo recibir un comando por la variable: remote_debugging
+    if (remote_debugging.length()>0){
+      int pos_remote=remote_debugging.indexOf("REMOTE:");
+          if(pos_remote >= 0){
+              // es un comando remoto, se filtra y se manda a ejecutar
+                      remote_debugging=remote_debugging.substring(pos_remote+7,remote_debugging.length());
+                      rpta=process_debugging_command(remote_debugging,ejecute);  
+                      // se vaia el comando remoto una vez efectuado
+                      remote_debugging="";
+                      return rpta;              
+          }
+        remote_debugging="";
+    }
            
-        // Serial.println("sali de la funcion debugging");
+    
          if (ejecute){
             DEBUG_PRINTLN(">");
          } else{
@@ -692,9 +718,7 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
           }
          }
 
-    
-      //     #endif   // del #ifdef DEBUG
-         return 0;
+         return rpta;
          }
         
   

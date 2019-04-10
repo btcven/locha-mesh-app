@@ -5,6 +5,9 @@
 #include "memory_def.h"
 #include "general_functions.h"
 #include "boards_def.h"
+#include "packet.h"
+#include "route.h"
+#include "radio.h"
 #include "debugging.h"
 
 
@@ -19,7 +22,8 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 
-
+extern int Lora_RSSI;
+extern int Lora_SNR;
 
 
 uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
@@ -188,6 +192,20 @@ uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received){
 uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received){
   // 
   Serial.println(F("se recibio un packet hello"));
+  // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
+   // nueva ruta en la tabla de rutas
+  nodo_t nodo1;
+  nodo_t nodo2;
+  rutas_t nueva_ruta;
+ // nodo1.id=packet_received.header.to;
+  copy_array_locha(packet_received.header.to, nodo1.id, 16);
+ // nodo2.id=packet_received.header.from;
+   copy_array_locha(packet_received.header.from, nodo2.id, 16);
+  create_route(nodo1, nodo2, nodo2);
+  packet_received.header.type=JOIN;
+  copy_array_locha(nodo2.id,packet_received.header.to, 16);
+  copy_array_locha(nodo1.id,packet_received.header.from, 16);
+  radioSend(packet_serialize(packet_received));
   return 0;
 }
 
@@ -196,27 +214,51 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
   // se verifica si en los mensajes enviados hay uno que tenga el mismo payload para borrarlo
   uint8_t i;
   uint8_t is_MSG=0;
-   for (i = 1; i <= total_mensajes_salientes; i++) {
-      if ((strcmp(mensajes_salientes[i].paquete.header.to,id_node)==0)and(strcmp(mensajes_salientes[i].paquete.header.from,packet_received.header.to)==0)){
+  Serial.println(F("Packet ACK recibido , se procesa ..."));
+   for (i = 1; i <= total_mensajes_waiting; i++) {
+    Serial.println("packet received:");
+    Serial.print("To:");
+    Serial.println((String)packet_received.header.to);
+    Serial.print("From:");
+    Serial.println((String)packet_received.header.from);
+    
+      if (((String)mensajes_waiting[i].paquete.header.from==(String)(String)packet_received.header.from)and((String)mensajes_waiting[i].paquete.header.to==(String)packet_received.header.to)){
           // se verifica que sea un ACK de un mensaje tipo MSG
-          if (mensajes_salientes[i].paquete.header.type=MSG){
+          if (mensajes_waiting[i].paquete.header.type=MSG){
                   // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)
-                if (strcmp(mensajes_salientes[i].paquete.body.payload,packet_received.body.payload)==0){
+                if ((String)mensajes_waiting[i].paquete.body.payload==(String)packet_received.body.payload){
                   // se recibio el ACK de que el mensaje MSG fue recibido correctamente
                   is_MSG=i;
                   break;
                 }
            }
+        }
+        }
           if (is_MSG>0){
+            Serial.println(F("Procedo a eliminar el packet de la cola waiting..."));
              // se borra el mensaje de la tabla de mensajes_salientes
-              for (i = is_MSG; i <= total_mensajes_salientes-1; i++) {
-                  mensajes_salientes[i]=mensajes_salientes[i+1];
+              for (i = is_MSG; i < total_mensajes_waiting; i++) {
+                  mensajes_waiting[i]=mensajes_waiting[i+1];
               }
-              total_mensajes_salientes=total_mensajes_salientes-1;
-              DEBUG_PRINTLN(F("ACK del packet recibido exitosamente"));
+              total_mensajes_waiting--;
+              
+          } else {
+            Serial.println(F("No se elimino nada de la cola waiting"));
           }
+      DEBUG_PRINTLN(F("ACK del packet recibido exitosamente"));
+   
+}
+
+void update_rssi_snr(char route_from[16], char route_to[16], int RSSI_received, int SNR_received){
+  uint8_t xx;
+  for (xx = 1; xx <= total_rutas; xx++) {
+      if (((String)routeTable[xx].origen.id==(String)route_from)and((String)routeTable[xx].next_neighbor.id==(String)route_to)){
+        routeTable[xx].RSSI_packet=RSSI_received;
+        routeTable[xx].SNR_packet=SNR_received;
+        break;
       }
-   }
+    
+  }
 }
 
 
@@ -262,4 +304,7 @@ void process_received_packet(char id_node[16], packet_t packet_temporal){
   default:
     break;
   }
+
+  // todo packet incoming actualiza el RSSI y el SNR de la ruta que le corresponda
+  update_rssi_snr(packet_temporal.header.from, packet_temporal.header.to, Lora_RSSI, Lora_SNR);
 }
