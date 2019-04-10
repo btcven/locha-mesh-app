@@ -5,6 +5,9 @@
 #include "memory_def.h"
 #include "general_functions.h"
 #include "boards_def.h"
+#include "packet.h"
+#include "route.h"
+#include "radio.h"
 #include "debugging.h"
 
 
@@ -189,6 +192,20 @@ uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received){
 uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received){
   // 
   Serial.println(F("se recibio un packet hello"));
+  // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
+   // nueva ruta en la tabla de rutas
+  nodo_t nodo1;
+  nodo_t nodo2;
+  rutas_t nueva_ruta;
+ // nodo1.id=packet_received.header.to;
+  copy_array_locha(packet_received.header.to, nodo1.id, 16);
+ // nodo2.id=packet_received.header.from;
+   copy_array_locha(packet_received.header.from, nodo2.id, 16);
+  create_route(nodo1, nodo2, nodo2);
+  packet_received.header.type=JOIN;
+  copy_array_locha(nodo2.id,packet_received.header.to, 16);
+  copy_array_locha(nodo1.id,packet_received.header.from, 16);
+  radioSend(packet_serialize(packet_received));
   return 0;
 }
 
@@ -199,7 +216,13 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
   uint8_t is_MSG=0;
   Serial.println(F("Packet ACK recibido , se procesa ..."));
    for (i = 1; i <= total_mensajes_waiting; i++) {
-      if (((String)mensajes_waiting[i].paquete.header.to==(String)id_node)and((String)mensajes_waiting[i].paquete.header.from==(String)packet_received.header.to)){
+    Serial.println("packet received:");
+    Serial.print("To:");
+    Serial.println((String)packet_received.header.to);
+    Serial.print("From:");
+    Serial.println((String)packet_received.header.from);
+    
+      if (((String)mensajes_waiting[i].paquete.header.from==(String)(String)packet_received.header.from)and((String)mensajes_waiting[i].paquete.header.to==(String)packet_received.header.to)){
           // se verifica que sea un ACK de un mensaje tipo MSG
           if (mensajes_waiting[i].paquete.header.type=MSG){
                   // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)

@@ -29,6 +29,7 @@ using namespace std;
 // ID unico del nodo
 char id_nodo_demo[16] = "TURPIAL.0";
 
+
 char *id_node;
 
 // includes internos
@@ -188,6 +189,11 @@ void setup()
   // se inicializa el control del tiempo
   tiempo = millis();
 
+    // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
+    packet_t packet_HELLO;
+    copy_array_locha(id_node, packet_HELLO.header.from, 16);
+    radioSend(packet_serialize(packet_HELLO));
+
 } //setup
 
 // con esta variable se lleva el control de cual frame de pantalla se esta mostrando en el momento
@@ -279,7 +285,10 @@ void loop()
    // if (paquet_in_process2.header.type=MSG){
    //   txValue = paquet_in_process2.body.payload;
    // } else {
-      txValue = packet_into_json(paquet_in_process2).c_str();
+   String text_to_send_to_ble=packet_into_json(paquet_in_process2);
+      txValue = text_to_send_to_ble.c_str();
+      Serial.print(F("enviado al BLE:"));
+      Serial.println(text_to_send_to_ble);
    // }
 
 if (mensaje_waiting_to_send>0){

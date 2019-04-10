@@ -316,8 +316,11 @@ uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rut
   nodo_t nodo_vecino;
 
   char* id_nodo_demo0="TURPIAL.0";
+  //char const *id_nodo_demo0 = "TURPIAL.0"; // valid and safe in either C or C++.
   char* id_nodo_demo1="TURPIAL.1";
+ // char const *id_nodo_demo1 = "TURPIAL.1"; // valid and safe in either C or C++.
   char* id_nodo_demo2="TURPIAL.2";
+  //char const *id_nodo_demo2 = "TURPIAL.2"; // valid and safe in either C or C++.
   
 //strcpy (id_nodo_demo0,"TURPIAL.0");
 //strcpy (id_nodo_demo1,"TURPIAL.1");
@@ -494,6 +497,11 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
              uint8_t rpta=vaciar_tablas();
           
             rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
+            // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
+            packet_t packet_HELLO;
+            copy_array_locha(id_node, packet_HELLO.header.from, 16);
+            radioSend(packet_serialize(packet_HELLO));
+            
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
@@ -550,6 +558,12 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
                 char nombre_tmp[16];
                 str_node_name.toCharArray(nombre_tmp,16);
                 copy_array_locha(nombre_tmp,id_node,16);
+
+                // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
+                    packet_t packet_HELLO;
+                    copy_array_locha(id_node, packet_HELLO.header.from, 16);
+                    radioSend(packet_serialize(packet_HELLO));
+                
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
