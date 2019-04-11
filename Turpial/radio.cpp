@@ -105,7 +105,7 @@ packet_t packet_received=packet_deserialize_str(mensaje_recibido);
 // solo se envian al BLE los packets Lora incoming MSG o TXN
 if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
         // se envia al BLE para efectos del demo, se arma en forma de packet
-         Serial.print("se envia al BLE:");
+         Serial.print("se envia al BLE desde process_Lora_incoming:");
          
          Serial.println(mensaje_recibido);
          Serial.print("---");

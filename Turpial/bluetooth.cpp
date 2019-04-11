@@ -119,7 +119,8 @@ class characteristicCB : public BLECharacteristicCallbacks
                 remote_debugging=(String)msg_tmp;
                // txValue=("OK").c_str();
           } else {
-       
+                DEBUG_PRINTLN(F("antes de comenzar BLE incoming:"));
+                
                 BLE_incoming(uid_temporal,msg_temporal,time_temporal,hash_temporal,mensajes_salientes,total_mensajes_salientes);   // este procesamiento coloca los paquetes broadcast en la cola de mensajes salientes, la cola se procesa en el main loop 
                 DEBUG_PRINTLN(F("BLE process OK"));
           }
@@ -134,7 +135,7 @@ class characteristicCB : public BLECharacteristicCallbacks
     void onRead(BLECharacteristic *pCharacteristic)
     {
         if (txValue.size() > 0){
-            Serial.println(F("enviando al BLE"));
+            Serial.println(F("enviando al BLE desde onRead"));
             pCharacteristic->setValue(txValue);
             Serial.print(F("listo el envio al BLE, texto enviado:"));
             Serial.println(txValue.c_str());

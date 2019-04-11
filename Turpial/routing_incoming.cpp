@@ -10,6 +10,14 @@
 #include "radio.h"
 #include "debugging.h"
 
+// variables para trasmision BLE
+extern std::string rxValue;
+extern std::string txValue;
+// variables para trasmision Lora
+extern std::string rxValue_Lora;
+extern std::string txValue_Lora;
+extern int Lora_RSSI;
+extern int Lora_SNR;
 
 
 extern char* id_node; // id unico del nodo
@@ -21,9 +29,6 @@ extern uint8_t total_mensajes_waiting;
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
-
-extern int Lora_RSSI;
-extern int Lora_SNR;
 
 
 uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
@@ -37,7 +42,7 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
 
  // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
  Serial.println("empezando procesando el packet");
-if ((String)packet_received.header.to==(String)id_node){
+if (((String)packet_received.header.to==(String)id_node)or(((String)packet_received.header.to==""))){
   // es un paquete para mi nodo
  // process_received_packet(Buffer_packet);
   // se devuelve un packet_ACK por la misma ruta
@@ -60,7 +65,19 @@ Serial.println("t, se devuelve un ACK");
       
       packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.body.payload);
       Serial.println("tengo el packet en routing_incoming_PACKET_MSG:");
-      show_packet(new_packet, true);
+      show_packet(packet_received, true);
+      if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
+        Serial.println("");
+        Serial.print("colocando mensaje al BLE:");
+          // se manda al BLE en formato Json
+          // modificado por ahora mientras solventamos lo de la limitacion de 20 char en BLE
+          //String hacia_el_ble=Json_return_msg((String)packet_received.body.payload);
+          String hacia_el_ble=(String)packet_received.body.payload;
+          txValue=hacia_el_ble.c_str();
+        Serial.print(hacia_el_ble);
+        Serial.print("-largo del mensaje enviado:");
+        Serial.println((String)hacia_el_ble.length());
+      }
       uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
 Serial.println("se actualiza el age de la ruta");
       // se actualiza el age de la ruta desde el origen al destino y si no existe se crea

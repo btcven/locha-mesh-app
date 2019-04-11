@@ -442,6 +442,24 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
          }
+
+
+         
+         mensaje=F("BLE TEST");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+            String str_param_received = "123456789012345678901234567890";  
+            //txValue=str_param_received.c_str();
+            txValue="123456789012345678901234567890";
+            Serial.println("");
+            Serial.print("convertido:");
+            Serial.println(txValue.c_str());
+            delay(100);
+            DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
+            str_buffer_serial_received="";
+            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            ejecute=true;
+         }
+
          
          mensaje=F("BLE CREATE OUTCOMING");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
