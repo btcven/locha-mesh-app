@@ -385,6 +385,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           uint8_t rpta=mostrar_rutas(id_node,routeTable, sizeof(routeTable));  
           ejecute=true;
         }
+        
         mensaje=F("SHOW NODES");
         if (str_buffer_serial_received==mensaje){
           str_buffer_serial_received="";
@@ -392,7 +393,8 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           uint8_t rpta=mostrar_vecinos(id_node,vecinos,total_vecinos);  
           ejecute=true;
         }
-              mensaje=F("SHOW QUEUE");
+        
+        mensaje=F("SHOW QUEUE");
         if (str_buffer_serial_received==mensaje){
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
           DEBUG_PRINTLN(F("Cola de mensajes salientes:"));
@@ -401,7 +403,6 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           ejecute=true;
           }
          
-        
         mensaje=F("SHOW WAITING");
         if (str_buffer_serial_received==mensaje){
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -410,31 +411,32 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           uint8_t rpta=mostrar_cola_mensajes(mensajes_waiting, total_mensajes_waiting,sizeof(mensajes_waiting));  
           ejecute=true;
           }
-     mensaje=F("SHOW BLACKLIST");
+     
+        mensaje=F("SHOW BLACKLIST");
         if (str_buffer_serial_received==mensaje){
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
           str_buffer_serial_received="";
           uint8_t rpta=mostrar_blacklist(id_node, blacklist, sizeof(blacklist));
           ejecute=true;
         }
-         mensaje=F("CLEAR ALL");
+        
+        mensaje=F("CLEAR ALL");
         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             uint8_t rpta=vaciar_tablas();
             ejecute=true;
          }
+        
          mensaje=F("SYSTEM RESET");
-        if (str_buffer_serial_received==mensaje){
+         if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ESP.restart();
-           // ejecute=true;  
          }
          
-        mensaje=F("BLE CREATE INCOMING");
-        if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
-            
+         mensaje=F("BLE CREATE INCOMING");
+         if (str_buffer_serial_received.substring(0,mensaje.length())==mensaje){
             String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
             rxValue=str_param_received.c_str();
             str_buffer_serial_received="";
@@ -443,8 +445,6 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             ejecute=true;
          }
 
-
-         
          mensaje=F("BLE TEST");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
             String str_param_received = "123456789012345678901234567890";  
@@ -460,7 +460,6 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             ejecute=true;
          }
 
-         
          mensaje=F("BLE CREATE OUTCOMING");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
             String str_param_received = getparamValue(str_buffer_serial_received, ' ', 3);  
@@ -470,6 +469,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
          }
+         
           // limpia el buffer BLE (rxValue y txValue)
          mensaje=F("BLE CLEAR");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){

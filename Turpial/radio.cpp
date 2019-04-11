@@ -114,7 +114,8 @@ if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
 
    // se verifica que tipo de mensaje es para mandarlo al movil
    
-   mensaje_recibido= Json_return_msg(packet_received.body.payload);
+   //mensaje_recibido= Json_return_msg(packet_received.body.payload);
+   mensaje_recibido=(String)packet_received.body.payload;
    txValue=mensaje_recibido.c_str();
         
 } 
