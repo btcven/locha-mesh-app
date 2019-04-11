@@ -480,8 +480,10 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
                 String rpta_str="NOT DELIVERED";
                 rpta_str=Json_return_error(rpta_str);
                 DEBUG_PRINTLN(rpta_str);
+                
                 // enviar un mensaje via BLE a los clientes conectados
-                txValue=rpta_str.c_str();
+                // por ahora desactivado
+               // txValue=rpta_str.c_str();
               } 
          }
        } else {
@@ -489,7 +491,8 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
         rpta_str=Json_return_error(rpta_str);
           DEBUG_PRINTLN(rpta_str);
           // enviar un mensaje via BLE a los clientes conectados
-          txValue=rpta_str.c_str();
+          // por ahora desactivado
+         // txValue=rpta_str.c_str();
        }
     } else {
        DEBUG_PRINT(F("type of packet received:"));
