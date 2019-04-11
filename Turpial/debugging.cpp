@@ -505,6 +505,16 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             ejecute=true;
          }
 
+mensaje=F("BLE INFO");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+            str_buffer_serial_received="";
+            DEBUG_PRINT("enviando info al BLE");
+            String a_enviar=(String)id_node;
+            txValue=a_enviar.c_str();
+            DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
+            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            ejecute=true;
+         }
 
           mensaje=F("LOAD DEMO");
         if (str_buffer_serial_received==mensaje){

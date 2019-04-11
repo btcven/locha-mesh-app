@@ -71,7 +71,7 @@ Serial.println("t, se devuelve un ACK");
         Serial.print("colocando mensaje al BLE:");
           // se manda al BLE en formato Json
           // modificado por ahora mientras solventamos lo de la limitacion de 20 char en BLE
-          //String hacia_el_ble=Json_return_msg((String)packet_received.body.payload);
+       //   String hacia_el_ble=Json_return_msg((String)packet_received.body.payload);
           String hacia_el_ble=(String)packet_received.body.payload;
           txValue=hacia_el_ble.c_str();
         Serial.print(hacia_el_ble);

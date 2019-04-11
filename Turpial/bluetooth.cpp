@@ -155,6 +155,9 @@ void task_bluetooth(void *params)
   // este será el que se mostrará en la app movil al escanear
   // dispositivos cercanos.
   BLEDevice::init(server_name);
+  uint16_t mtu = 257;
+  BLEDevice::setMTU(mtu);
+  
   ble_server = BLEDevice::createServer();
   // asignamos el callback que se disparará cada vez que un cliente
   // conecta o desconecta.
