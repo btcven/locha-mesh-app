@@ -60,7 +60,7 @@ void imprimir_salidaln(String mensaje, bool mostrar_serial, bool mostrar_BLE){
 
 String getparamValue(String data, char separator, int index)
 {
-    int found = 0;
+    uint8_t found = 0;
     int strIndex[] = { 0, -1 };
     int maxIndex = data.length() - 1;
 
@@ -537,7 +537,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
                 String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
 
                
-                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(str_from),id_node, string2char(str_payload));
+                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(string2char(str_type)), string2char(str_from),id_node, string2char(str_payload));
                 
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
@@ -553,7 +553,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
                 String str_to = getparamValue(str_buffer_serial_received, ' ', 4);  
                 String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
              
-                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(id_node),string2char(str_to), string2char(str_payload));
+                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(string2char(str_type)), string2char(id_node),string2char(str_to), string2char(str_payload));
               
                 uint8_t rptad=packet_to_send(Buffer_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
                 

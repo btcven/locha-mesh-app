@@ -18,6 +18,7 @@ extern double timemsg;
 
 // declaracion de funciones
 void create_unique_id(char* &unique_id_created);
+bool compare_char(char* src ,char* dst);
 char* string2char_node_name(String command);
 void string2char_node_name_v2(String command, char* &respuesta);
 char* string2char(String command);

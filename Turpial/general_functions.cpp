@@ -17,6 +17,14 @@
 #include "debugging.h"
 
 
+// funcion para comparar dos arreglos de char
+bool compare_char(char* src ,char* dst){
+  if (strcmp(src, dst) == 0){ 
+    return true;
+  } else { 
+    return false;
+  }
+}
 
 // Funcion de conversion de tipo de datos: Char* a long long
 // usada para convertir timestamps que  vienen en cadenas de caracteres a un numero tipo long long 
@@ -162,13 +170,13 @@ void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &ti
 String packet_into_json(packet_t packet_to_convert, String BLE_type){
    // this function convert [acket data in format: "{'uid':'xxxxx','BLE_type':'yyyy','time':#############,'hash':'XXXXXXXXXX'}"
   String rpta;
-  String tipo_packet=convertir_packet_type_e_str(packet_to_convert.header.type);
-  tipo_packet.toLowerCase();
+  char* tipo_packet=convertir_packet_type_e_str(packet_to_convert.header.type);
+ // tipo_packet.toLowerCase();
   if (packet_to_convert.header.type!=EMPTY){
       rpta="{";
       rpta=rpta+"'uid':'"+(String)packet_to_convert.header.from+"',";
       rpta=rpta+"'"+BLE_type+"':'"+(String)packet_to_convert.body.payload+"',";
-      rpta=rpta+"'type':"+convertir_str_packet_type_e(tipo_packet)+",";
+      rpta=rpta+"'type':"+(String)convertir_str_packet_type_e(tipo_packet)+",";
       rpta=rpta+"'time':"+(String)packet_to_convert.header.timestamp+",";
       rpta=rpta+"'hash':'"+(String)packet_to_convert.header.hash+"',";
       rpta=rpta+"}";

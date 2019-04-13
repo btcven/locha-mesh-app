@@ -384,7 +384,7 @@ uint8_t create_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
                         if (id_node_neighbor!=""){
                        // se verifica que no exista previamente
                        for (i = 1; i <= total_vecinos; i++) {
-                           if ((String)vecinos[i].id==(String)nombre_temporal){
+                           if (compare_char(vecinos[i].id,nombre_temporal)){
                                 // existe previamente, no se crea de nuevo
                                 permitir_agregar=false;
                                 break;

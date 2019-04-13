@@ -36,13 +36,13 @@ char *id_node;
 uint8_t total_vecinos;            // cantidad de vecinos del nodo actual
 uint8_t total_rutas;              // cantidad de rutas del nodo actual (en iniciar_vecinos_y_rutas() se llenan manualmente las rutas a efectos del demo)
 uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
-uint32_t outcoming_msgs_size;     // tamaño de la cola de mensajes salientes en bytes.
+uint8_t outcoming_msgs_size;     // tamaño de la cola de mensajes salientes en bytes.
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
 uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
 uint8_t mensaje_waiting_to_send;   // id del mensaje_waiting para ser reenviado
 
 rutas_t routeTable[MAX_ROUTES];
-uint32_t route_table_size = 0;      // tamaño de la tabla de rutas en bytes
+uint8_t route_table_size = 0;      // tamaño de la tabla de rutas en bytes
 
 nodo_t vecinos[MAX_NODES];
 uint32_t vecinos_table_size = 0;    // size of neigbours table

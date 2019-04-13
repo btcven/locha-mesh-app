@@ -37,18 +37,27 @@ unsigned long convert_str_to_long(char* time_in_char){
 
 
 // convierte una cadena de caracteres recibida en formato texto al typedef enum packet_type_e 
-packet_type_e convertir_str_packet_type_e(String type_recibido){
+packet_type_e convertir_str_packet_type_e(char* type_recibido){
   packet_type_e rpta=EMPTY;
-  type_recibido.trim();
-  if (type_recibido==F("EMPTY")) return EMPTY;
-  if (type_recibido==F("ACK")) return ACK;
-  if (type_recibido==F("JOIN")) return JOIN;
-  if (type_recibido==F("BYE")) return BYE;
-  if (type_recibido==F("MSG")) return MSG;
-  if (type_recibido==F("ROUTE")) return ROUTE;
-  if (type_recibido==F("HELLO")) return HELLO;
-  if (type_recibido==F("GOSSIP")) return GOSSIP;
-  if (type_recibido==F("NOT_DELIVERED")) return NOT_DELIVERED;
+  //type_recibido.trim();
+  if (compare_char(type_recibido,"EMPTY")) return EMPTY;
+  if (compare_char(type_recibido,"ACK")) return ACK;
+  if (compare_char(type_recibido,"JOIN")) return JOIN;
+  if (compare_char(type_recibido,"BYE")) return BYE;
+  if (compare_char(type_recibido,"MSG")) return MSG;
+  if (compare_char(type_recibido,"ROUTE")) return ROUTE;
+  if (compare_char(type_recibido,"HELLO")) return HELLO;
+  if (compare_char(type_recibido,"GOSSIP")) return GOSSIP;
+  if (compare_char(type_recibido,"NOT_DELIVERED")) return NOT_DELIVERED;
+         
+ // if (type_recibido==F("ACK")) return ACK;
+//  if (type_recibido==F("JOIN")) return JOIN;
+//  if (type_recibido==F("BYE")) return BYE;
+//  if (type_recibido==F("MSG")) return MSG;
+//  if (type_recibido==F("ROUTE")) return ROUTE;
+//  if (type_recibido==F("HELLO")) return HELLO;
+//  if (type_recibido==F("GOSSIP")) return GOSSIP;
+//  if (type_recibido==F("NOT_DELIVERED")) return NOT_DELIVERED;
   return rpta;
 }
 
@@ -69,24 +78,24 @@ packet_type_e convertir_int_packet_type_e(uint8_t type_recibido){
 }
 
 // convierte un  typedef enum packet_type_e  en una cadena de caracteres ( inverso de convertir_str_packet_type_e() )
-String convertir_packet_type_e_str(packet_type_e type_recibido){
-  String rpta="";
-  if (type_recibido==EMPTY) rpta=F("EMPTY");
-  if (type_recibido==ACK) rpta=F("ACK");
-  if (type_recibido==JOIN) rpta=F("JOIN");
-  if (type_recibido==BYE) rpta=F("BYE");
-  if (type_recibido==MSG) rpta=F("MSG");
-  if (type_recibido==ROUTE) rpta=F("ROUTE");
-  if (type_recibido==HELLO) rpta=F("HELLO");
-  if (type_recibido==GOSSIP) rpta=F("GOSSIP");
-  if (type_recibido==NOT_DELIVERED) rpta=F("NOT_DELIVERED");
+char* convertir_packet_type_e_str(packet_type_e type_recibido){
+  char* rpta=NULL;
+  if (type_recibido==EMPTY) rpta="EMPTY";
+  if (type_recibido==ACK) rpta="ACK";
+  if (type_recibido==JOIN) rpta="JOIN";
+  if (type_recibido==BYE) rpta="BYE";
+  if (type_recibido==MSG) rpta="MSG";
+  if (type_recibido==ROUTE) rpta="ROUTE";
+  if (type_recibido==HELLO) rpta="HELLO";
+  if (type_recibido==GOSSIP) rpta="GOSSIP";
+  if (type_recibido==NOT_DELIVERED) rpta="NOT_DELIVERED";
   return rpta;
 }
 
 // https://stackoverflow.com/questions/9072320/split-string-into-string-array
 String getValue(String data, char separator, int index)
 {
-  int found = 0;
+  uint8_t found = 0;
   int strIndex[] = {0, -1};
   int maxIndex = data.length()-1;
 
@@ -190,7 +199,7 @@ packet_t packet_deserialize(char* received_text){
           case 1:
             DEBUG_PRINT(F("el tipo es:"));
             DEBUG_PRINT((String)str_in_process);
-            packet_tmp.header.type=convertir_str_packet_type_e((String)str_in_process);
+            packet_tmp.header.type=convertir_str_packet_type_e(str_in_process);
             break;
           case 2:
           

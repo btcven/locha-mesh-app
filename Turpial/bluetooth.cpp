@@ -196,7 +196,7 @@ void task_bluetooth(void *params)
         {
             Serial.print("[BLE] Sending: ");
             packet_in_process_str=txValue.c_str();
-            if (packet_in_process_str.length()>0){ 
+            
                  if(packet_in_process_str.indexOf("|") > 0){ 
                   
                    //    packet_in_process_str.toCharArray(packet_str_tmp, packet_in_process_str.length());
@@ -223,13 +223,13 @@ void task_bluetooth(void *params)
                  txValue.clear();
                  text_to_send="";
                 
-            }
+            
             
             
         }
     } else {
       // si hay algo para envio pero no esta el dispositivo conectado
-      if (((String)txValue.c_str()).length()>0){ 
+      if (txValue.size()>0){ 
         // solo si hay algo para mandar al BLE pero no hay cliente conectado
           Serial.println(F("No hay dispositivo BLE conectado"));
           
