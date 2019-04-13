@@ -3,20 +3,21 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
+// declaracion de librerias
 #include <Arduino.h>
 #include <SPI.h>
 #include <string.h>
+#include <LoRa.h>
 #include "radio.h"
 #include "hal/hardware.h"
 #include "lang/language.h"
-#include <LoRa.h>
 #include "packet.h"
 #include "general_functions.h"
 #include "routing_incoming.h"
 #include "debugging.h"
-
 using namespace std;
 
+//declaracion de variables
 // para BLE
 extern std::string txValue;
 extern std::string rxValue;
@@ -36,118 +37,114 @@ bool is_number(const std::string& s)
         s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
 
-void process_Lora_incoming(){
-  // se encarga de procesar la cadena recibida por Lora
-  // no puede ser invocado desde Onreceive debido a un bug en la libreria Lora.h
-  // https://www.bountysource.com/issues/70601319-calling-any-function-in-the-callback-method
+// funcion encargada de procesar un mensaje recibido por el radio Lora, se recibe una cadena de caracteres en la variable rxValue_Lora
+// esta funcion verifica que sea un paquete valido y lo manda a procesar segun el tipo de paquete que corresponda por medio de la funcion process_received_packet()
+// esta funcion no puede ser invocada directo desde un callback de un task FreeRTOS y por eso se usa una variable global en el archivo main (Turpial.ino) para poderla  invocar desde el callback
 
- String mensaje_recibido="";
+void process_Lora_incoming(){
+      // se encarga de procesar la cadena recibida por Lora
+      // no puede ser invocado desde Onreceive debido a un bug en la libreria Lora.h
+      // https://www.bountysource.com/issues/70601319-calling-any-function-in-the-callback-method
+    
+     String mensaje_recibido="";
+     
+     bool recibido=false;
+     char* mensaje_recibido_char;
+      // recibo las variables globales que trae el packet
+     int RSSI_packet_actual=Lora_RSSI;
+     int SNR_packet_actual=Lora_SNR;
+      
+     mensaje_recibido=rxValue_Lora.c_str();
+     Lora_RSSI=LoRa.packetRssi();
+     Lora_SNR=LoRa.packetSnr();
+     Serial.println("recibiendo mensaje via LoRa");
+     rxValue_Lora.clear();  // se libera el buffer Lora
+     radio_Lora_receiving=false;  //  se habilita para que se pueda recibir otro packet
+     
  
- bool recibido=false;
- char* mensaje_recibido_char;
-  // recibo las variables globales que trae el packet
-  int RSSI_packet_actual=Lora_RSSI;
-  int SNR_packet_actual=Lora_SNR;
-  
- mensaje_recibido=rxValue_Lora.c_str();
-  Lora_RSSI=LoRa.packetRssi();
-  Lora_SNR=LoRa.packetSnr();
- Serial.println("recibiendo mensaje via LoRa");
- rxValue_Lora.clear();  // se libera el buffer Lora
- radio_Lora_receiving=false;  //  se habilita para que se pueda recibir otro packet
- 
- // mensaje_recibido.toCharArray(mensaje_recibido_char, mensaje_recibido.length());
-   mensaje_recibido_char=string2char(mensaje_recibido);
-packet_t packet_received=packet_deserialize_str(mensaje_recibido);
-//packet_received.
+      mensaje_recibido_char=string2char(mensaje_recibido);
+      packet_t packet_received=packet_deserialize_str(mensaje_recibido);
+
 
 
  // se verifica el header del mensaje recibido a ver si es un packet valido
-      Serial.print(F("largo recibido:"));
-      Serial.println((String)mensaje_recibido.length());
- 
-      Serial.print(F("procesar packet recibido por LoRa1:"));
-      Serial.println((String)mensaje_recibido);
-    // Serial.print(F("procesar packet recibido por LoRa2:"));
-    // Serial.println((String)mensaje_recibido_char);
-    
-      Serial.print("recibi:");
-      Serial.print("type:");
-      
-      Serial.print(convertir_packet_type_e_str(packet_received.header.type));
-      Serial.print((String)packet_received.header.type);
-       Serial.print("from:");
-      Serial.print((String)packet_received.header.from);
-      Serial.print("to:");
-      Serial.print((String)packet_received.header.to);
-       Serial.print("timestamp:");
-      Serial.print((String)packet_received.header.timestamp);
-      
-       Serial.print("payload:");
-      Serial.println((String)packet_received.body.payload);
+      DEBUG_PRINT(F("largo recibido:"));
+      DEBUG_PRINTLN((String)mensaje_recibido.length());
+      DEBUG_PRINT(F("procesar packet recibido por LoRa1:"));
+      DEBUG_PRINTLN((String)mensaje_recibido);
+      DEBUG_PRINT(F("recibi:"));
+      DEBUG_PRINT(F("type:"));
+      DEBUG_PRINT(convertir_packet_type_e_str(packet_received.header.type));
+      DEBUG_PRINT((String)packet_received.header.type);
+      DEBUG_PRINT(F("from:"));
+      DEBUG_PRINT((String)packet_received.header.from);
+      DEBUG_PRINT(F("to:"));
+      DEBUG_PRINT((String)packet_received.header.to);
+      DEBUG_PRINT(F("timestamp:"));
+      DEBUG_PRINT((String)packet_received.header.timestamp);
+      DEBUG_PRINT(F("payload:"));
+      DEBUG_PRINTLN((String)packet_received.body.payload);
 
         // si no existe la ruta previamente se agrega la nueva ruta, si existe la ruta se actualiza el age de esa ruta
-        
-  if (!existe_ruta(id_node, packet_received.header.from,true)){
-      nodo_t origen;
-      nodo_t vecino;
-        Serial.print("se agrega una nueva ruta porque no existe previamente la ruta de lo recibido");
-      copy_array_locha(id_node, origen.id, 16);
-      copy_array_locha(packet_received.header.from, vecino.id, 16);
-      // se agrega el nuevo vecino
-      if (!es_vecino(vecino.id)){ 
-          create_neighbor(vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-      }
-      // se crea la nueva ruta
-      uint8_t rptass= create_route(origen, vecino, vecino);  
-  } 
-
-// solo se envian al BLE los packets Lora incoming MSG o TXN
-if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
-        // se envia al BLE para efectos del demo, se arma en forma de packet
-         Serial.print("se envia al BLE desde process_Lora_incoming:");
+              
+      if (!existe_ruta(id_node, packet_received.header.from,true)){
+            nodo_t origen;
+            nodo_t vecino;
+            DEBUG_PRINTLN(F("Se agrega una nueva ruta..."));
+            copy_array_locha(id_node, origen.id, 16);
+            copy_array_locha(packet_received.header.from, vecino.id, 16);
+            // se agrega el nuevo vecino
+            if (!es_vecino(vecino.id)){ 
+                create_neighbor(vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+            }
+            // se crea la nueva ruta
+            uint8_t rptass= create_route(origen, vecino, vecino);  
+        } 
+      
+      // solo se envian al BLE los packets Lora incoming MSG o TXN
+      if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
+              // se envia al BLE para efectos del demo, se arma en forma de packet
+               Serial.print("se envia al BLE desde process_Lora_incoming:");
+               
+               Serial.println(mensaje_recibido);
+               Serial.print("---");
+               Serial.println(mensaje_recibido.c_str());
+         //txValue=msg_will_send;
+      
+         // se verifica que tipo de mensaje es para mandarlo al movil
          
-         Serial.println(mensaje_recibido);
-         Serial.print("---");
-         Serial.println(mensaje_recibido.c_str());
-   //txValue=msg_will_send;
-
-   // se verifica que tipo de mensaje es para mandarlo al movil
-   
-   //mensaje_recibido= Json_return_msg(packet_received.body.payload);
-   mensaje_recibido=(String)packet_received.body.payload;
-   txValue=mensaje_recibido.c_str();
+         //mensaje_recibido= Json_return_msg(packet_received.body.payload);
+         mensaje_recibido=(String)packet_received.body.payload;
+         txValue=mensaje_recibido.c_str();
+              
+      } 
+              DEBUG_PRINT(F("Se enruta el packet recibido..."));
+              // se hace la parte de enrutamiento del packet
+              process_received_packet(id_node,packet_received);
         
-} 
-          Serial.print("se va a enrutar lo recibido:");
-        // se hace la parte de enrutamiento del packet
-        process_received_packet(id_node,packet_received);
-  
-}
+      }
 
 
-// recibe un paquete , es invocado via callback 
+// recibe un paquete , es invocado via callback desde el xTask task_radio en el main (turpial.ino)
 void onReceive(int packetSize) {
    // modificaciones para evitar el error de call back
    
    if (packetSize == 0) return; 
-   
-  
-// char* mensaje_recibido_temp;
-  char in_process;
-uint8_t i;
-if (!radio_Lora_receiving){
-if (packetSize) {
-
-  // estaba packesize-1 y se cambio packetsize 
-  for (i = 0; i < packetSize; i++) {
-    in_process=(char)LoRa.read();
-   // se coloca en el Buffer Lora
-      rxValue_Lora=rxValue_Lora+in_process;  
      
-  }
-  // se usa la variable boolean radio_Lora_receiving para indicar en el loop main que se puede procesar el contenido de rxValue_Lora
-  // se hace de esta forma porque la libreria Lora.cpp tiene un bug y no permite invocar voids ni funciones dentro de onReceive
+    char in_process;
+    uint8_t i;
+    if (!radio_Lora_receiving){
+    if (packetSize) {
+    
+      // estaba packesize-1 y se cambio packetsize 
+      for (i = 0; i < packetSize; i++) {
+        in_process=(char)LoRa.read();
+       // se coloca en el Buffer Lora
+          rxValue_Lora=rxValue_Lora+in_process;  
+         
+      }
+    // se usa la variable boolean radio_Lora_receiving para indicar en el loop main que se puede procesar el contenido de rxValue_Lora
+    // se hace de esta forma porque la libreria Lora.cpp tiene un bug y no permite invocar voids ni funciones dentro de onReceive, y tambien para facilitar la comunicacion entre los callbacks y el main
  
   radio_Lora_receiving=true;  
   
@@ -161,28 +158,30 @@ if (packetSize) {
 }
 }
 
-// envía un paquete.
+// envía un paquete String recibido
 uint8_t radioSend(String _data) {
-  int done =0;
-  int rpta;
-  int delay_time=500;
+  uint8_t done =0;
+  uint8_t rpta;
+  uint8_t delay_time=500;  // millisegundos entre reintento de envio
+  
   // hay que verificar primero si el canal esta libre Listen before Talk
-  Serial.print("voy a enviar el packet:");
-  Serial.print(_data.c_str());
-   for (int ii = 0; ii<5; ++ii){
+  DEBUG_PRINT(F("se envia el packet..."));
+  DEBUG_PRINTLN(_data.c_str());
+  // se hacen 5 intentos de delibery a busy variables en caso de que el canal este ocupado
+   for (uint8_t ii = 0; ii<5; ++ii){
       rpta= LoRa.beginPacket();
       if (rpta==1){ 
-        break;
+        break;  // si logra enviarse se sale de los reintentos
       }
-      Serial.print("radio busy, reintentando ...");
+      DEBUG_PRINT(F("radio busy, reintentando ..."));
       delay(delay_time);
-      delay_time=500+delay_time;
+      delay_time=500+delay_time; //
    }
    LoRa.print(_data.c_str());
   done = LoRa.endPacket();
  if (rpta==1){ 
   if (done){
-  Serial.print("enviado OK");
+  DEBUG_PRINT(F("enviado OK"));
   // se coloca en modo receive para que siga escuchando packets
   
  
@@ -195,23 +194,26 @@ uint8_t radioSend(String _data) {
   // payload
 
 
-
+    // se coloca el radio en modo listen antes de salir
     LoRa.receive();
     
     return 1;
   }
   }
- // cualquier otro escenario devuelve 0, packet no enviado
+ 
  LoRa.receive();
+ // cualquier otro escenario devuelve 0, packet no enviado
  return 0;
 }
+
+
 // declaracion del radio Lora y su vinculacion via SPI
 void task_radio(void *params) {
 
-  DEBUG_PRINT(MSG_SCR);
-  DEBUG_PRINT(" ");
-  DEBUG_PRINT(MSG_INIT);
-  DEBUG_PRINTLN(" ");
+ // DEBUG_PRINT(MSG_SCR);
+ // DEBUG_PRINT(" ");
+ // DEBUG_PRINT(MSG_INIT);
+ // DEBUG_PRINTLN(" ");
 
   SPI.begin(RAD_SCK, RAD_MISO, RAD_MOSI, RAD_CSS);
   LoRa.setPins(RAD_CSS, RAD_RST, RAD_DIO0);
@@ -232,7 +234,7 @@ void task_radio(void *params) {
 // se deja en modo recibiendo el radio Lora
   while (1) {
     if (txValue_Lora.size() > 0) {
-      DEBUG_PRINT("LoRa:");
+      DEBUG_PRINT(F("LoRa:"));
       DEBUG_PRINTLN(txValue_Lora.c_str());
       Lora_RSSI = LoRa.packetRssi();
       Lora_SNR=LoRa.packetSnr();

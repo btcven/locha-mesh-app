@@ -3,6 +3,8 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
+
+// declaracion de librerias
 #include <Arduino.h>
 #include "update_older_records.h"
 #include "packet.h"
@@ -13,23 +15,24 @@
 #include "general_functions.h"
 #include "debugging.h"
 
+//declaracion de variables
 extern char* id_node;
 extern packet_t Buffer_packet;
-
 extern std::string txValue;
 extern std::string rxValue;
-
 // variables para trasmision Lora
 extern std::string rxValue_Lora;
 extern std::string txValue_Lora;
 
 extern uint8_t mensaje_waiting_to_send;   // id del mensaje_waiting para ser reenviado
-
 extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_waiting;
 extern uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
 
+// funciones para el mantenimiento de las colas de mensaje:
+// se reenvian packets en espera
+//se eliminan y mandan notificaciones de packets que hagan timeout
 
 void update_older_record(){
 
@@ -49,6 +52,7 @@ void update_older_record(){
 }
 
 
+// se maneja el mantenimiento de las tablas de mensajes y vecinos por medio de un callback en un xTask FreeRTOS de menor prioridad
 void task_update_older_records(void *params) {
 uint8_t xx;
 uint8_t jj;

@@ -1,19 +1,21 @@
 /**
-   (c) Copyright 2019 locha.io project developers
-   Licensed under a MIT license, see LICENSE file in the root folder
-   for a full text.
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
 
-  
-*/
 
 #ifndef MEMORY_DEF_H 
 #define MEMORY_DEF_H
 
-  static const int MAX_NODES=12;
-  static const int MAX_ROUTES=35;
-  static const int MAX_MSG_QUEUE=75;
-  static const int MAX_NODES_BLACKLIST=15;
-  //static const int MAX_MSG_QUEUE_WAITING=64;   // se elimino para poder reutlizar las funciones de debugging entre msg_queue y mas_waiting ya que comparten el mismo typedef
+  // Estas son las definiciones del tamaño de los arreglos de variables en memoria , se pueden aumentar o disminuir de acuerdo a la capacidad de memoria del equipo
+  // todas las rutas, vecinos y colas se crea su contenido dinamicamente, esto solo provee un limite fisico maximo
+  
+  static const int MAX_NODES=12;   // maximo de nodos vecinos a lo que va a estar escuchando a tiempo de ejecucion
+  static const int MAX_ROUTES=35;  // maximo de rutas que puede usar el equipo a tiempo de ejecucion
+  static const int MAX_MSG_QUEUE=75;    // maximo de mensajes en cola (mensajes no enviados ni siquiera la primera vez)
+  static const int MAX_NODES_BLACKLIST=15;   // maximo de nodos bloqueados (blacklisted) a los que no se les va a permitir usar rutas desde/hacia ellos ni tampoco registrarse como vecinos
   static const int MSG_QUEUE_WAITING_MAX_RETRIES=5; // max retries to deliver a packet
   static const int MSG_QUEUE_WAITING_MAX_AGE=30000;  // in millisecond, packet timeout before not delivered (total wait time
 

@@ -6,12 +6,12 @@
 
 #ifndef RADIO_H 
 #define RADIO_H
+// declaracion de librerias
 #include <Arduino.h>
 
-
+// declaracion de funciones
 uint8_t radioSend(String _data);
 void task_radio(void *params);
-
 extern void process_Lora_incoming();
 
 #endif // RADIO_H

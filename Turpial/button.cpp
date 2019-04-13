@@ -4,13 +4,14 @@
  * Licensed under a MIT license, see LICENSE file in the root folder
  * for a full text
  */
-
+// declaracion de librerias
 #include <Arduino.h>
 #include "hal/hardware.h"
 #include "button.h"
 
-unsigned long timerButton;
+//declaracion de variables
 
+unsigned long timerButton;
 extern void cb_next_option(void);
 extern void cb_confirm_option(void);
 

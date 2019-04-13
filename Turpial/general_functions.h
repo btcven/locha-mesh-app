@@ -5,26 +5,26 @@
 */
 #ifndef GENERAL_FUNCTIONS_H_
 #define GENERAL_FUNCTIONS_H_
+
+// declaracion de librerias
 #include <Arduino.h>
 #include "packet.h"
+using namespace std;
 
+//declaracion de variables
 extern char* uid;
 extern char* msg;
 extern double timemsg;
-using namespace std;
 
+// declaracion de funciones
 void create_unique_id(char* &unique_id_created);
 char* string2char_node_name(String command);
 void string2char_node_name_v2(String command, char* &respuesta);
 char* string2char(String command);
 boolean isNumeric(String str);
-String packet_into_json(packet_t packet_to_convert);
-
-
-long readVcc();
+String packet_into_json(packet_t packet_to_convert, String BLE_type);
 String get_id_mac();
 String freeRam();
-String random_name(int numBytes);
 void copy_array_locha(char* src, char* dst, int len);
 void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &timemsg_intern_str, char* &hash_msg_intern );
 char* node_name_char_to_uppercase(char array_temp[16]);

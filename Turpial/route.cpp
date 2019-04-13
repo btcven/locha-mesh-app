@@ -1,3 +1,10 @@
+/**
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
+
 #include <Arduino.h>
 #include <Time.h>
 #include <TimeLib.h>
@@ -439,16 +446,28 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
   return 0;
 }
 
+
+// broadcast BYE packet to all neighbours
+void broadcast_bye(char* id_node,struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes){
+    // se envia un packet para liberar recursos en los vecinos
+    packet_t new_packet;
+    uint8_t rpta;
+    uint8_t i;
+    
+    for (i = 1; i <= total_vecinos; i++) {         
+            new_packet=create_packet(id_node, BYE,id_node , vecinos[i].id, NULL);
+            rpta=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);
+    }
+}
+
+
 // funcion para proesar un mensaje BLE incoming
 void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
   uint8_t i;
   uint8_t rpta;
   // si es un mensaje tipo broadcast se envia a todos los vecinos 
   DEBUG_PRINTLN(F("Starting BLE_incoming"));
-  //DEBUG_PRINTLN(F("recibi msg:"));
- // DEBUG_PRINTLN(msg_ble);
-  //Serial.print("tengo:");
-  //Serial.println(uid2);
+  
     if (String(uid2)=="broadcast"){ 
        DEBUG_PRINTLN(F("its a broadcast"));
        // se envia el packet a todos los vecinos
@@ -487,7 +506,7 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
               } 
          }
        } else {
-        String rpta_str="This node has no neigbours";
+        String rpta_str="No tiene vecinos";
         rpta_str=Json_return_error(rpta_str);
           DEBUG_PRINTLN(rpta_str);
           // enviar un mensaje via BLE a los clientes conectados

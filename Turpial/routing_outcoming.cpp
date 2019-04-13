@@ -1,8 +1,17 @@
+/**
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
+
+// declaracion de librerias
 #include <Arduino.h>
 #include "routing_outcoming.h"
 #include "general_functions.h"
 #include "debugging.h"
 
+//declaracion de variables
 extern char* id_node; // id unico del nodo
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];

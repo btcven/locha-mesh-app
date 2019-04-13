@@ -1,3 +1,11 @@
+/**
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
+
+// declaracion de librerias
 #include <Arduino.h>
 #include "debugging.h"
 #include "hal/hardware.h"
@@ -7,16 +15,14 @@
 #include "memory_def.h"
 #include "blacklist.h"
 #include "radio.h"
+#include "bluetooth.h"
+#include "route.h"
 
+//declaracion de variables
 extern std::string txValue;
 extern std::string rxValue;
 extern std::string txValue_Lora;
 extern std::string rxValue_Lora;
-
-#ifdef BLE_ENABLED
-  #include "bluetooth.h"
-#endif
-
 extern char* id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
@@ -71,14 +77,14 @@ String getparamValue(String data, char separator, int index)
 
 
 // borra un packet de la cola de paquetes salientes
-uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes){
+uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp){
     uint8_t i;
      if (id_to_delete>0){
       
-      for (i = id_to_delete; i < total_mensajes_salientes; i++) {
-          mensajes_salientes[i]=mensajes_salientes[i+1];
+      for (i = id_to_delete; i < total_mensajes_salientes_tmp; i++) {
+          mensajes_salientes_tmp[i]=mensajes_salientes_tmp[i+1];
       }
-      total_mensajes_salientes--;
+      total_mensajes_salientes_tmp--;
      
      }
       return 0;
@@ -305,76 +311,6 @@ DEBUG_PRINT(F("Intentos de envio"));
      return 0;
 }
 
-// funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
-uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rutas_t routeTable[MAX_ROUTES], uint8_t &total_vecinos, size_t size_vecinos, size_t size_rutas)
-{
-  String str_nombre_nodo=""; 
-  char arr[16];
-  
-  str_nombre_nodo=(String)id_nodo;
-  nodo_t nodo_actual;
-  nodo_t nodo_vecino;
-
-  char* id_nodo_demo0="TURPIAL.0";
-  //char const *id_nodo_demo0 = "TURPIAL.0"; // valid and safe in either C or C++.
-  char* id_nodo_demo1="TURPIAL.1";
- // char const *id_nodo_demo1 = "TURPIAL.1"; // valid and safe in either C or C++.
-  char* id_nodo_demo2="TURPIAL.2";
-  //char const *id_nodo_demo2 = "TURPIAL.2"; // valid and safe in either C or C++.
-  
-//strcpy (id_nodo_demo0,"TURPIAL.0");
-//strcpy (id_nodo_demo1,"TURPIAL.1");
-//strcpy (id_nodo_demo2,"TURPIAL.2");
-
-
-#define OLED_SCREEN_INTERVAL 4000 
-
-
-   // se colocan los id_nodo en mayusculas
- // id_nodo_demo0=char_to_uppercase(id_nodo_demo0, 16);
- // id_nodo_demo1=char_to_uppercase(id_nodo_demo1, 16);
- //   id_nodo_demo2=char_to_uppercase(id_nodo_demo2, 16);
-  
-  char* id_node=id_nodo_demo0;
-  
-  if ((String)id_nodo == (String)id_nodo_demo0)
-  {
-    
-      copy_array_locha(id_nodo_demo0, nodo_actual.id, 16);
-      copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
-      uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-     
-      // ruta T1
-      create_route(nodo_actual, nodo_vecino, nodo_vecino);
-   
-  }
-  if ((String)id_nodo == (String)id_nodo_demo1)
-  {
-    nodo_t nodo_vecino2;
-  
-    copy_array_locha(id_nodo, nodo_vecino.id, 16);
-    copy_array_locha(id_nodo_demo0, nodo_vecino.id, 16);
-    uint8_t rpta2=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-    copy_array_locha(id_nodo_demo2, nodo_vecino2.id, 16);
-    
-    uint8_t rpta3=create_neighbor(nodo_vecino2.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-    // ruta T1
-    create_route(nodo_actual, nodo_vecino, nodo_vecino);
-    // ruta T2
-    create_route(nodo_actual, nodo_vecino2, nodo_vecino2);
-  }
-  
-  if ((String)id_nodo == (String)id_nodo_demo2)
-  {
-    copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
-    uint8_t rpta=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-    // ruta T2
-    create_route(nodo_actual, nodo_vecino, nodo_vecino);
-  }
-  return 0;
-}
-
-
 uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecute){
   
        String mensaje="";
@@ -432,6 +368,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
          if (str_buffer_serial_received==mensaje){
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            broadcast_bye(id_node,vecinos,total_vecinos, mensajes_salientes,total_mensajes_salientes);
             ESP.restart();
          }
          
@@ -447,13 +384,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
 
          mensaje=F("BLE TEST");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
-            String str_param_received = "123456789012345678901234567890";  
-            //txValue=str_param_received.c_str();
             txValue="123456789012345678901234567890";
-            Serial.println("");
-            Serial.print("convertido:");
-            Serial.println(txValue.c_str());
-            delay(100);
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -505,10 +436,10 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             ejecute=true;
          }
 
-mensaje=F("BLE INFO");
+         mensaje=F("BLE INFO");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
             str_buffer_serial_received="";
-            DEBUG_PRINT("enviando info al BLE");
+            DEBUG_PRINT(F("enviando info al BLE"));
             String a_enviar=(String)id_node;
             txValue=a_enviar.c_str();
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
@@ -516,25 +447,6 @@ mensaje=F("BLE INFO");
             ejecute=true;
          }
 
-          mensaje=F("LOAD DEMO");
-        if (str_buffer_serial_received==mensaje){
-            str_buffer_serial_received="";
-            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-           
-            // primero se vacian las tablas para que el ambiente quede solo para el demo
-             uint8_t rpta=vaciar_tablas();
-          
-            rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
-            // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
-            DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));
-            radioSend(packet_serialize(construct_packet_HELLO(id_node)));
-            
-            DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
-            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-            ejecute=true;
-            
-         }
-       
          mensaje=F("SYSTEM INFO");
          if (str_buffer_serial_received==mensaje){
              str_buffer_serial_received="";
@@ -549,11 +461,7 @@ mensaje=F("BLE INFO");
             str_buffer_serial_received="";
             ejecute=true;
          }
-        
-        
-        
-
-         
+                 
          mensaje=F("NODE CREATE");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
               // getparamValue (0) devuelve CREATE , (1) devuelve NODE , (2) devuelve el nombre el nodo recibido por parametro
@@ -667,14 +575,38 @@ mensaje=F("BLE INFO");
                   ejecute=true;
                   return 1;
          }
-         mensaje=F("PACKET DELETE");  
+         
+         mensaje=F("PACKET DELETE QUEUE");  
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
                   DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-                  String id_to_delete = getparamValue(str_buffer_serial_received, ' ', 2); 
+                  String id_to_delete = getparamValue(str_buffer_serial_received, ' ', 3); 
                   
                   if (isNumeric(id_to_delete)){ 
                       
                       uint8_t rpta=delete_packet(id_to_delete.toInt(),mensajes_salientes,total_mensajes_salientes);
+                      if (rpta==0){
+                        DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
+                        mensaje="";
+                        DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+                        str_buffer_serial_received="";
+                        ejecute=true;
+                        return 1;
+                      } else {
+                         DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_FAIL);
+                      }
+                  } else {
+                      DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_FAIL);
+                  }
+         }
+
+        mensaje=F("PACKET DELETE WAITING");  
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+                  DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+                  String id_to_delete = getparamValue(str_buffer_serial_received, ' ', 3); 
+                  
+                  if (isNumeric(id_to_delete)){ 
+                      
+                      uint8_t rpta=delete_packet(id_to_delete.toInt(),mensajes_waiting,total_mensajes_waiting);
                       if (rpta==0){
                         DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                         mensaje="";
