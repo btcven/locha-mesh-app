@@ -12,6 +12,7 @@
 #include "graphics.h"
 
 boolean screen_on = true;
+uint8_t brightness = 0;
 unsigned int scr_timeToPoweroff = 15000;
 unsigned long scr_timeStart;
 unsigned long scr_elapsedTime;
@@ -286,6 +287,7 @@ void task_screen(void *params)
 
     // Initialising the UI will init the display too.
     ui.init();
+    display.setBrightness(brightness);
     display.flipScreenVertically();
 
     splash_screen(&display);
