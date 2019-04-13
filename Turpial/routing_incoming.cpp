@@ -1,5 +1,12 @@
-#include <Arduino.h>
+/**
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
 
+// declaracion de librerias
+#include <Arduino.h>
 #include "routing_incoming.h"
 #include "hal/hardware.h"
 #include "memory_def.h"
@@ -10,6 +17,7 @@
 #include "radio.h"
 #include "debugging.h"
 
+//declaracion de variables
 // variables para trasmision BLE
 extern std::string rxValue;
 extern std::string txValue;
@@ -18,7 +26,6 @@ extern std::string rxValue_Lora;
 extern std::string txValue_Lora;
 extern int Lora_RSSI;
 extern int Lora_SNR;
-
 
 extern char* id_node; // id unico del nodo
 extern rutas_t routeTable[MAX_ROUTES];
@@ -30,6 +37,10 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 
+// funciones para enrutamiento de paquetes entrantes, dado un tipo de packet_t.type 
+// se usa la funcion process_received_packet para determinar como va a ser procesado el paquete recibido
+// para cada tipo de paquete existe una funcion uint8_t routing_incoming_PACKET_XXX()
+// todas devuelven 0 a menos que consigan algun error
 
 uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
   
@@ -40,99 +51,67 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
   // 5) se actualiza el age de la ruta desde el recibido hasta el nodo actual
 
 
- // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
- Serial.println("empezando procesando el packet");
-if (((String)packet_received.header.to==(String)id_node)or(((String)packet_received.header.to==""))){
-  // es un paquete para mi nodo
- // process_received_packet(Buffer_packet);
-  // se devuelve un packet_ACK por la misma ruta
-  // se arma un packet_ACK
-   // packet_header_t header;
-     // packet_body_t body;
-Serial.println("t, se devuelve un ACK");
-     // header.type=ACK;
-      //header.from=id_node;
-   //   copy_array(id_node, header.from, 16);
-   //   copy_array(packet_received.header.from, header.to, 16);
-     // header.to=packet_received.header.from;
-   //   header.timestamp=millis();
-    //  copy_array(Buffer_packet.body.payload, body.payload, 240);
-    //  body.payload=Buffer_packet.body.payload;   // aqui deberia devolver el hash y en base al hash validar que efectivamente cuando se reciba el ACK elimine al que corresponda
-    
-     // new_packet.header=header;
-    //  new_packet.body=body;
-      //packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, Buffer_packet.body.payload);
+      // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
+      DEBUG_PRINT(F("empezando a procesar el packet"));
+      if (((String)packet_received.header.to==(String)id_node)or(((String)packet_received.header.to==""))){
+       
+        // se devuelve un packet_ACK por la misma ruta al origen para notificar la recepcion
+        
+            packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.body.payload);
+            DEBUG_PRINT(F("se esta procesando routing_incoming_PACKET_MSG:"));
+            #ifdef DEBUG
+              show_packet(packet_received, true);
+            #endif
+            if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
+              DEBUG_PRINTLN("");
+              DEBUG_PRINT(F("colocando mensaje al BLE:"));
+                // se manda al BLE en formato Json
+                // modificado por ahora mientras solventamos lo de la limitacion de 20 char en BLE
+             //   String hacia_el_ble=Json_return_msg((String)packet_received.body.payload);
+                String hacia_el_ble=(String)packet_received.body.payload;
+                txValue=hacia_el_ble.c_str();
+              DEBUG_PRINT(hacia_el_ble);
+              DEBUG_PRINT(F("-largo del mensaje enviado:"));
+              DEBUG_PRINT((String)hacia_el_ble.length());
+            }
+            uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
+            DEBUG_PRINTLN(F("se actualiza el age de la ruta"));
+            // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
+            update_route_age(packet_received.header.from, packet_received.header.to);
+      } else {
+            // el paquete no es para mi, pero tengo que hacerle relay a mis vecinos
+            // busco si tengo una ruta entre mi nodo y el destino del paquete (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
+            if (existe_ruta(id_node, packet_received.header.to,true)){
+           
+                packet_t new_packet;
+                new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to, Buffer_packet.body.payload);
+                uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
+            } else {
+              // si no existe ruta, falta determinar si me voy random por cualquiera de los nodos para intentar
+            }
       
-      packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.body.payload);
-      Serial.println("tengo el packet en routing_incoming_PACKET_MSG:");
-      show_packet(packet_received, true);
-      if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
-        Serial.println("");
-        Serial.print("colocando mensaje al BLE:");
-          // se manda al BLE en formato Json
-          // modificado por ahora mientras solventamos lo de la limitacion de 20 char en BLE
-       //   String hacia_el_ble=Json_return_msg((String)packet_received.body.payload);
-          String hacia_el_ble=(String)packet_received.body.payload;
-          txValue=hacia_el_ble.c_str();
-        Serial.print(hacia_el_ble);
-        Serial.print("-largo del mensaje enviado:");
-        Serial.println((String)hacia_el_ble.length());
       }
-      uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
-Serial.println("se actualiza el age de la ruta");
-      // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
-       update_route_age(packet_received.header.from, packet_received.header.to);
-} else {
-  // el paquete no es para mi, pero tengo que hacerle relay a mis vecinos
-  // busco si tengo una ruta entre mi nodo y el destino del paquete (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
-  if (existe_ruta(id_node, packet_received.header.to,true)){
-   //    packet_header_t header;
-  //    packet_body_t body;
-
- //     header.type=ACK;
- //     copy_array(id_node, header.from, 16);
-    //  header.from=id_node;
- //   copy_array(packet_received.header.from, header.to, 16);
-     // header.to=packet_received.header.from;
-  //    header.timestamp=millis();
-  //    header.last_node=id_node;   // este parametro se encarga de determinar que no se devuelva el mismo paquete hacia el origen
-      
-    //  body=Buffer_packet.body;  
-      packet_t new_packet;
-     // new_packet.header=header;
-     // new_packet.body=body;
-      new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to, Buffer_packet.body.payload);
-      uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
-  } else {
-    // si no existe ruta, falta determinar si me voy random por cualquiera de los nodos para intentar
-  }
-
-}
   
   return 0;
 }
 
+
+// cuando se recibe un packet HELLO se devuelve un packet JOIN
+// TODO: en el payload debe contener la tabla de vecinos,rutas hasta donde alcance el limite de tamaño
 uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received){
   // nuevo vecino de la tabla de vecinos
- // si no existe previamente
- //if (!es_vecino(packet_received.header.from)){
- // copy_array_locha(packet_received.header.from, vecinos[total_vecinos+1].id, 16);
-  //vecinos[total_vecinos+1]=packet_received.header.from;
-//  total_vecinos++;
- //}
   uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
   // nueva ruta en la tabla de rutas
   nodo_t nodo1;
   nodo_t nodo2;
   rutas_t nueva_ruta;
- // nodo1.id=packet_received.header.to;
   copy_array_locha(packet_received.header.to, nodo1.id, 16);
- // nodo2.id=packet_received.header.from;
-   copy_array_locha(packet_received.header.from, nodo2.id, 16);
+  copy_array_locha(packet_received.header.from, nodo2.id, 16);
   create_route(nodo1, nodo2, nodo2);
   return 0;
 }
 
+// si se desconecta, apaga o sale de la red, o se hace un reset se envia un BYE para que los vecinos liberen recursos asociados a este nodo
 uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received){
   // borra al vecino de la tabla de vecinos
   uint8_t i;
@@ -195,16 +174,21 @@ uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received
   return 0;
 }
 
+// TODO
 uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received){
   // si no es para mi se reenvia el paquete a los vecinos por la ruta donde origino
   Serial.println(F("se recibio un packet not delivered"));
   return 0;
 }
+
+// TODO
 uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received){
   // 
   Serial.println(F("se recibio un packet gossip"));
   return 0;
 }
+
+// TODO
 uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received){
   // 
   Serial.println(F("se recibio un packet txn"));

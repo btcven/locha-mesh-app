@@ -1,3 +1,11 @@
+/**
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
+
+ // declaracion de librerias
 #include <Arduino.h>
 #include <string.h>
 #include <WiFi.h>
@@ -8,10 +16,7 @@
 #include "general_functions.h"
 #include "debugging.h"
 
-extern char* uid;
-extern char* msg;
-extern double timemsg;
-extern char* hash_msg;
+
 
 // Funcion de conversion de tipo de datos: Char* a long long
 // usada para convertir timestamps que  vienen en cadenas de caracteres a un numero tipo long long 

@@ -1,5 +1,11 @@
+/**
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
+
 #include <Arduino.h>
-//#include "hardware.h"
 #include "general_functions.h"
 #include "boards_def.h"
 #include "memory_def.h"

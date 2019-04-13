@@ -128,7 +128,7 @@ void setup()
     DEBUG_PRINT(MSG_SCR);
     DEBUG_PRINT(" ");
     DEBUG_PRINTLN(MSG_START);
-    xTaskCreate(task_screen, "task_screen", 2048, NULL, 6, NULL);
+    xTaskCreate(task_screen, "task_screen", 2048, NULL, 3, NULL);
   }
 
   if (BLE_ENABLED)
@@ -137,7 +137,7 @@ void setup()
     DEBUG_PRINT(MSG_BLE);
     DEBUG_PRINT(" ");
     DEBUG_PRINTLN(MSG_START);
-    xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
+    xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 4, NULL);
   }
 
   // WiFi AP aka WAP, is enabled?
@@ -187,11 +187,14 @@ void setup()
   
     // se inicializa el control del tiempo
     tiempo = millis();
-   
+   DEBUG_PRINTLN(F("Enviando HELLO"));
     // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
-    delay(100);
-    radioSend(packet_serialize(construct_packet_HELLO(id_node)));
-
+   String rpta_str=packet_serialize(construct_packet_HELLO(id_node));
+    delay(50);
+   DEBUG_PRINT(rpta_str); 
+   DEBUG_PRINTLN(F(" ... sigo ... "));
+    uint8_t rpta_rad=radioSend(rpta_str);
+ DEBUG_PRINTLN(F(" ... continuando ... "));
    DEBUG_PRINTLN("");
    DEBUG_PRINT(id_node);
    DEBUG_PRINT(F(" >"));

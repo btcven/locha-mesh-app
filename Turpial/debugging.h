@@ -5,14 +5,21 @@
  * for a full text
  */
 
-// Rutinas para debugging de la app
 #ifndef DEBUGGING_H
 #define DEBUGGING_H
 
+
+// Rutinas para debugging de la app
+
+// declaracion de librerias
 #include <Arduino.h>
 #include "packet.h"
 #include "route.h"
 using namespace std;
+
+//declaracion de variables
+// la siguiente linea se comenta para produccion, solo es para hacer debugging en desarrollo, esta variable desactiva todos los comandos via consola serial
+#define DEBUG true
 
 extern char *id_node;
 extern packet_t Buffer_packet;
@@ -27,10 +34,7 @@ extern uint8_t total_mensajes_salientes;
 extern uint8_t total_mensajes_waiting;
 extern String remote_debugging;
 
-// la siguiente linea se comenta para produccion, solo es para hacer debugging en desarrollo
-#define DEBUG true
-
-
+// se redevine la salida serial si el debug esta activado
 #ifdef DEBUG
   #define DEBUG_BEGIN(x) Serial.begin(x)
   #define DEBUG_PRINT(x) Serial.print(x)
@@ -51,8 +55,9 @@ extern String remote_debugging;
   #define DEBUG_PRINTLN_STR(x)
 #endif
 
+// declaracion de funciones
 uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, String &remote_debugging);
-uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes);
+uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp);
 uint8_t show_packet(packet_t el_packet, bool show_size);
 
 #endif // DEBUGGING_H

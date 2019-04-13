@@ -3,16 +3,14 @@
    Licensed under a MIT license, see LICENSE file in the root folder
    for a full text.
 */
+// declaracion de librerias
 #include <Arduino.h>
-#include "packet.h"
 #include <string.h> 
 #include <Time.h>
 #include <TimeLib.h>
+#include "packet.h"
 #include "general_functions.h"
 #include "debugging.h"
-
-extern char* id_node;
-extern packet_t Buffer_packet;
 
 
 radioPacket::radioPacket(packet_t packet)
@@ -30,18 +28,7 @@ radioPacket::~radioPacket()
 
 
 
-// Funcion en cargada de convertir un packet en una cadana char para ser enviada por Radio
-//  se usa +"|" como separador de campo
-String packet_serialize(packet_t packet){
-  String rpta_str="";
-  rpta_str=rpta_str+(String)packet.header.type+"|";
-  rpta_str=rpta_str+(String)packet.header.from+"|";
-  rpta_str=rpta_str+(String)packet.header.to+"|";
-  rpta_str=rpta_str+(String)packet.header.timestamp+"|";
-  rpta_str=rpta_str+(String)packet.body.payload+"|";
-  return rpta_str;
-}
-
+// convierte un string en un numero tipo long
 unsigned long convert_str_to_long(char* time_in_char){
     unsigned long uil;  
     uil = strtoul(time_in_char,NULL,10);
@@ -49,7 +36,7 @@ unsigned long convert_str_to_long(char* time_in_char){
 }
 
 
-
+// convierte una cadena de caracteres recibida en formato texto al typedef enum packet_type_e 
 packet_type_e convertir_str_packet_type_e(String type_recibido){
   packet_type_e rpta=EMPTY;
   type_recibido.trim();
@@ -65,21 +52,23 @@ packet_type_e convertir_str_packet_type_e(String type_recibido){
   return rpta;
 }
 
+// convierte un numero al typedef enum packet_type_e 
 packet_type_e convertir_int_packet_type_e(uint8_t type_recibido){
   packet_type_e rpta=EMPTY;
   
   if (type_recibido==0) return EMPTY;
-  if (type_recibido==4) return ACK;
   if (type_recibido==1) return JOIN;
   if (type_recibido==2) return BYE;
-  if (type_recibido==5) return MSG;
   if (type_recibido==3) return ROUTE;
+  if (type_recibido==4) return ACK;
+  if (type_recibido==5) return MSG;
   if (type_recibido==6) return HELLO;
   if (type_recibido==7) return GOSSIP;
   if (type_recibido==8) return NOT_DELIVERED;
   return rpta;
 }
 
+// convierte un  typedef enum packet_type_e  en una cadena de caracteres ( inverso de convertir_str_packet_type_e() )
 String convertir_packet_type_e_str(packet_type_e type_recibido){
   String rpta="";
   if (type_recibido==EMPTY) rpta=F("EMPTY");
@@ -112,24 +101,39 @@ String getValue(String data, char separator, int index)
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+
+// funcion para contruir un packet HELLO que identifique inicialmente al nodo
 packet_t construct_packet_HELLO(char* from){
    packet_t packet_HELLO;
+   
     copy_array_locha(from, packet_HELLO.header.from, 16);
     copy_array_locha("", packet_HELLO.header.to, 16);
     copy_array_locha("", packet_HELLO.body.payload, 240);
     packet_HELLO.header.type=HELLO;
     packet_HELLO.header.timestamp=millis();
-    //packet_HELLO.body.payload=""; // se asigna un solo caracter para que no viaje con basura NULL por el radio Lora
+    
     return packet_HELLO;
 }
 
-// Funcion encargada de convertir un string en un packet 
+// Funcion en cargada de convertir un packet en una cadana char para ser enviada por Radio
+//  se usa +"|" como separador de campo
+String packet_serialize(packet_t packet){
+  String rpta_str="";
+  rpta_str=rpta_str+(String)packet.header.type+"|";
+  rpta_str=rpta_str+(String)packet.header.from+"|";
+  rpta_str=rpta_str+(String)packet.header.to+"|";
+  rpta_str=rpta_str+(String)packet.header.timestamp+"|";
+  rpta_str=rpta_str+(String)packet.body.payload+"|";
+  return rpta_str;
+}
+
+// Funcion encargada de convertir un string en un packet ( inverso de packet_serialize() )
 packet_t packet_deserialize_str(String received_text){
    uint8_t ind1;
    uint8_t ind2;
    uint8_t ind3;
    uint8_t ind4;
-      uint8_t ind5;
+   uint8_t ind5;
    String str_in_process;
    packet_t packet_tmp;
   
@@ -179,13 +183,13 @@ packet_t packet_deserialize(char* received_text){
  
   uint8_t i=1;
 
- Serial.print("voy a deserialize con:");
- Serial.println((String)received_text);
+ DEBUG_PRINT(F("voy a deserialize con:"));
+ DEBUG_PRINTLN((String)received_text);
   while ((str_in_process = strtok_r(received_text, "|", &received_text)) != NULL) {
     switch (i) {
           case 1:
-            Serial.print("el tipo es:");
-            Serial.print((String)str_in_process);
+            DEBUG_PRINT(F("el tipo es:"));
+            DEBUG_PRINT((String)str_in_process);
             packet_tmp.header.type=convertir_str_packet_type_e((String)str_in_process);
             break;
           case 2:
@@ -208,14 +212,12 @@ packet_t packet_deserialize(char* received_text){
         }
     i++;
   }
- // Serial.print("sali del while con:");
- // Serial.println(packet_tmp.body.payload);
- 
 
   return packet_tmp;
 }
 
 
+// Funcion para construir un packet dao el origen, destino, tipo y contenido (payload)
 packet_t create_packet(char* id_node, packet_type_e tipo_packet, char* from, char* to, char* payload){
    
       packet_header_t header;
