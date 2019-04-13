@@ -305,76 +305,6 @@ DEBUG_PRINT(F("Intentos de envio"));
      return 0;
 }
 
-// funcion para llenar manualmente los datos del modelo demo en la tabla vecinos y rutas
-uint8_t iniciar_vecinos_y_rutas(char* id_nodo, nodo_t (&vecinos)[MAX_NODES], rutas_t routeTable[MAX_ROUTES], uint8_t &total_vecinos, size_t size_vecinos, size_t size_rutas)
-{
-  String str_nombre_nodo=""; 
-  char arr[16];
-  
-  str_nombre_nodo=(String)id_nodo;
-  nodo_t nodo_actual;
-  nodo_t nodo_vecino;
-
-  char* id_nodo_demo0="TURPIAL.0";
-  //char const *id_nodo_demo0 = "TURPIAL.0"; // valid and safe in either C or C++.
-  char* id_nodo_demo1="TURPIAL.1";
- // char const *id_nodo_demo1 = "TURPIAL.1"; // valid and safe in either C or C++.
-  char* id_nodo_demo2="TURPIAL.2";
-  //char const *id_nodo_demo2 = "TURPIAL.2"; // valid and safe in either C or C++.
-  
-//strcpy (id_nodo_demo0,"TURPIAL.0");
-//strcpy (id_nodo_demo1,"TURPIAL.1");
-//strcpy (id_nodo_demo2,"TURPIAL.2");
-
-
-#define OLED_SCREEN_INTERVAL 4000 
-
-
-   // se colocan los id_nodo en mayusculas
- // id_nodo_demo0=char_to_uppercase(id_nodo_demo0, 16);
- // id_nodo_demo1=char_to_uppercase(id_nodo_demo1, 16);
- //   id_nodo_demo2=char_to_uppercase(id_nodo_demo2, 16);
-  
-  char* id_node=id_nodo_demo0;
-  
-  if ((String)id_nodo == (String)id_nodo_demo0)
-  {
-    
-      copy_array_locha(id_nodo_demo0, nodo_actual.id, 16);
-      copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
-      uint8_t rpta1=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-     
-      // ruta T1
-      create_route(nodo_actual, nodo_vecino, nodo_vecino);
-   
-  }
-  if ((String)id_nodo == (String)id_nodo_demo1)
-  {
-    nodo_t nodo_vecino2;
-  
-    copy_array_locha(id_nodo, nodo_vecino.id, 16);
-    copy_array_locha(id_nodo_demo0, nodo_vecino.id, 16);
-    uint8_t rpta2=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-    copy_array_locha(id_nodo_demo2, nodo_vecino2.id, 16);
-    
-    uint8_t rpta3=create_neighbor(nodo_vecino2.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-    // ruta T1
-    create_route(nodo_actual, nodo_vecino, nodo_vecino);
-    // ruta T2
-    create_route(nodo_actual, nodo_vecino2, nodo_vecino2);
-  }
-  
-  if ((String)id_nodo == (String)id_nodo_demo2)
-  {
-    copy_array_locha(id_nodo_demo1, nodo_vecino.id, 16);
-    uint8_t rpta=create_neighbor(nodo_vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
-    // ruta T2
-    create_route(nodo_actual, nodo_vecino, nodo_vecino);
-  }
-  return 0;
-}
-
-
 uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecute){
   
        String mensaje="";
@@ -516,25 +446,6 @@ mensaje=F("BLE INFO");
             ejecute=true;
          }
 
-          mensaje=F("LOAD DEMO");
-        if (str_buffer_serial_received==mensaje){
-            str_buffer_serial_received="";
-            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-           
-            // primero se vacian las tablas para que el ambiente quede solo para el demo
-             uint8_t rpta=vaciar_tablas();
-          
-            rpta=iniciar_vecinos_y_rutas(id_node, vecinos, routeTable,total_vecinos,sizeof(vecinos),sizeof(routeTable));
-            // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
-            DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));
-            radioSend(packet_serialize(construct_packet_HELLO(id_node)));
-            
-            DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
-            DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-            ejecute=true;
-            
-         }
-       
          mensaje=F("SYSTEM INFO");
          if (str_buffer_serial_received==mensaje){
              str_buffer_serial_received="";

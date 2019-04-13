@@ -174,10 +174,7 @@ void setup()
   if ((String)id_node== "")
   {
     String id_tmp=get_id_mac();
-    //id_node=id_tmp.c_str();
     strcpy(id_node,id_tmp.c_str());
-   // copy_array_locha(id_tmp.c_str(), id_node, 16);
-    
   }
 
   
@@ -188,11 +185,11 @@ void setup()
 
   
   
-  // se inicializa el control del tiempo
-  tiempo = millis();
-  //  DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));
+    // se inicializa el control del tiempo
+    tiempo = millis();
+   
     // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
-delay(100);
+    delay(100);
     radioSend(packet_serialize(construct_packet_HELLO(id_node)));
 
    DEBUG_PRINTLN("");
@@ -207,46 +204,8 @@ int pantalla_activa = 1;
 void loop()
 {
   char *packet_str_tmp;
-  char remitente[16];
-  /*
-  if (millis() - tiempo > SCR_INTERVAL)
-  {
-    display.clear();
-    switch (pantalla_activa)
-    {
-    case 1:
-      drawframe_title_with_2_fields(0, 0, "Locha Mesh", "Node id:", (String)id_node, "", "");
-      break;
-    case 2:
-      drawframe_table_with_4_fields(0, 0, "Node Locha Mesh", "Neigbours:", (String)total_vecinos, "Blacklisted:", (String)total_nodos_blacklist, "Size:", (String)sizeof(vecinos) + " bytes", "Size:", (String)sizeof(blacklist) + " bytes");
-      break;
-    case 3:
-      drawframe_title_with_2_fields(0, 0, "Routes Locha Mesh", "Total Routes:", (String)total_rutas, "Size:", (String)sizeof(routeTable) + " bytes");
-      break;
-    case 4:
-      drawframe_title_with_2_fields(0, 0, "Outcoming Queue", "Total packets queue:", (String)total_mensajes_salientes, "Size:", (String)sizeof(mensajes_salientes) + " bytes");
-      break;
-    case 5:
-      drawFrame5(0, 0);
-      break;
-    case 6:
-      drawFrame_tech(0, 0);
-      break;
-    default:
-      pantalla_activa = 0; //para que aparezca la primera pantalla
-      break;
-    }
-
-    pantalla_activa++;
-    tiempo = millis();
-
-    if (pantalla_activa > 6)
-    {
-      pantalla_activa = 1;
-    }
-    display.display();
-  }
-*/
+  
+  
   if (millis() - tiempo < 0)
   {
     tiempo = millis();
@@ -255,10 +214,10 @@ void loop()
   // se efectua el procesamiento de paquetes salientes
   packet_processing_outcoming(mensajes_salientes, total_mensajes_salientes, mensajes_waiting, total_mensajes_waiting);
 
-// solo se agrega la consola de comandos cuando se esta compilando para DEBUG
-#ifdef DEBUG
-  uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos, remote_debugging);
-#endif
+  // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
+  #ifdef DEBUG
+    uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos, remote_debugging);
+  #endif
 
   if (radio_Lora_receiving)
   {
@@ -276,16 +235,18 @@ void loop()
    
 
    if ((paquet_in_process2.header.type==MSG)or(paquet_in_process2.header.type==TXN)){
-    delay(500); // se hace una pausa antes de devolver para liberar el radio o cualquier otro recurso de menos prioridad que necesite ejecutarse
-    Serial.println("devolviendo packet ...");
-    Serial.print("recibi:");
-    Serial.println(packet_return_BLE_str);
-     //   paquet_in_process2.header.type=NOT_DELIVERED;
-    // se invierte el remitente con el destinatario
-    copy_array_locha(paquet_in_process2.header.from, remitente, 16);
-    copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, 16);
-    copy_array_locha(remitente, paquet_in_process2.header.to, 16);
-      String text_to_send_to_ble=packet_into_json(paquet_in_process2);
+      delay(20); // se hace una pausa antes de devolver para liberar el radio o cualquier otro recurso de menos prioridad que necesite ejecutarse
+      DEBUG_PRINT(F("devolviendo packet ..."));
+      DEBUG_PRINT("recibi:");
+      DEBUG_PRINTLN(packet_return_BLE_str);
+    
+      // se invierte el remitente con el destinatario
+      // se usa una variable temporal para invertir los valores
+      char remitente[16];
+      copy_array_locha(paquet_in_process2.header.from, remitente, 16);
+      copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, 16);
+      copy_array_locha(remitente, paquet_in_process2.header.to, 16);
+      String text_to_send_to_ble=packet_into_json(paquet_in_process2,"msg");
       txValue = text_to_send_to_ble.c_str();
       
       Serial.print(F("enviado al BLE:"));
@@ -294,11 +255,10 @@ void loop()
       Serial.println((String)text_to_send_to_ble.length());
     }
 
-if (mensaje_waiting_to_send>0){
-  void update_older_record();
-}
+    if (mensaje_waiting_to_send>0){
+      void update_older_record();
+    }
 
     packet_return_BLE_str = "";
-    Serial.println("seliendo del envio hacia el BLE");
   }
 }

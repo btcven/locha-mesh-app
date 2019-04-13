@@ -9,10 +9,9 @@
 #ifndef BOARDS_DEF_H 
 #define BOARDS_DEF_H
 
-// detecting MCU compiler
-#if defined(__AVR__)
-    #define MCU_ARDUINO
-#endif 
+// Tipos de ESP32 reconocidos a nivel de compilacion
+
+
 // definicion para ESP32 generico
 #ifdef ARDUINO_ARCH_ESP32
     #define MCU_ESP32
@@ -42,30 +41,9 @@
 #ifdef ESP32_DEV
     #define MCU_ESP32
 #endif
-#ifdef ESP8266_GENERIC
-    #define MCU_ESP32
-#endif
-#ifdef ESP8266_WEMOS_D1MINI
-    #define MCU_ESP32
-#endif
-#ifdef ESP8266_WEMOS_D1MINIPRO
-    #define MCU_ESP32
-#endif
-#ifdef ESP8266_WEMOS_D1MINILITE
-    #define MCU_ESP32
-#endif
-#ifdef ESP8266_WEMOS_D1R1
-    #define MCU_ESP32
-#endif
-#ifdef ESP8266_ESP12
-    #define MCU_ESP32
-#endif
-#ifdef ESP8266
-    #define MCU_ESP32
-#endif
-#ifdef TEENSY36
-    #define MCU_ARDUINO
-#endif
+
+
+
 
 
 #endif // BOARDS_DEF_H
