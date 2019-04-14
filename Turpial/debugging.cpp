@@ -470,7 +470,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             
               if (str_node_name.length()>0){
                 
-                uint8_t rptax=create_neighbor(str_node_name,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+                uint8_t rptax=create_neighbor(string2char(str_node_name),vecinos,total_vecinos,blacklist,total_nodos_blacklist);
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);

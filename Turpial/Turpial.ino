@@ -61,6 +61,7 @@ String remote_debugging = "";       // se usa para recibir comandos de debugging
 uint8_t packet_timeout = 30; // expiration time in seconds of packets
 
 unsigned long tiempo;
+unsigned long tiempo_desde_ultimo_packet_recibido;
 
 bool radio_Lora_receiving;
 
@@ -264,4 +265,8 @@ void loop()
 
     packet_return_BLE_str = "";
   }
+
+
+
+ 
 }

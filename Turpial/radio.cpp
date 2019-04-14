@@ -86,8 +86,11 @@ void process_Lora_incoming(){
       DEBUG_PRINTLN((String)packet_received.body.payload);
 
         // si no existe la ruta previamente se agrega la nueva ruta, si existe la ruta se actualiza el age de esa ruta
-              
+        Serial.println("aaaaaa");
+      if (!(compare_char(packet_received.header.from,""))){        
+        Serial.println("bbbbbb");
       if (!existe_ruta(id_node, packet_received.header.from,true)){
+        Serial.println("ccccc");
             nodo_t origen;
             nodo_t vecino;
             DEBUG_PRINTLN(F("Se agrega una nueva ruta..."));
@@ -95,12 +98,15 @@ void process_Lora_incoming(){
             copy_array_locha(packet_received.header.from, vecino.id, 16);
             // se agrega el nuevo vecino
             if (!es_vecino(vecino.id)){ 
+              Serial.println("ffffff");
                 create_neighbor(vecino.id,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
             }
             // se crea la nueva ruta
+            Serial.println("gggggg");
             uint8_t rptass= create_route(origen, vecino, vecino);  
         } 
-      
+      }
+      Serial.println("ddddd");
       // solo se envian al BLE los packets Lora incoming MSG o TXN
       if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
               // se envia al BLE para efectos del demo, se arma en forma de packet
@@ -162,7 +168,7 @@ void onReceive(int packetSize) {
 uint8_t radioSend(String _data) {
   uint8_t done =0;
   uint8_t rpta;
-  uint8_t delay_time=500;  // millisegundos entre reintento de envio
+  uint16_t delay_time=250;  // millisegundos entre reintento de envio
   
   // hay que verificar primero si el canal esta libre Listen before Talk
   DEBUG_PRINT(F("se envia el packet..."));
