@@ -117,7 +117,7 @@ uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received){
   uint8_t i;
   uint8_t is_MSG=0;
    for (i = 1; i <= total_vecinos; i++) {
-      if (vecinos[i].id==packet_received.header.from){
+      if (compare_char(vecinos[i].id,packet_received.header.from)){
         is_MSG=i;
         break;
       }
@@ -132,27 +132,27 @@ uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received){
   // se eliminan las rutas a ese nodo
   is_MSG=0;
   for (i = 1; i <= total_rutas; i++) {
-    if (strcmp(routeTable[i].origen.id, packet_received.header.from) == 0){
+    if (compare_char(routeTable[i].origen.id, packet_received.header.from)){
         is_MSG=i;
         break;
     }
-    if (strcmp(routeTable[i].destino.id,packet_received.header.from)==0){
+    if (compare_char(routeTable[i].destino.id,packet_received.header.from)){
         is_MSG=i;
         break;
     }
-    if (strcmp(routeTable[i].origen.id,packet_received.header.to)==0){
+    if (compare_char(routeTable[i].origen.id,packet_received.header.to)){
         is_MSG=i;
         break;
     }
-    if (strcmp(routeTable[i].destino.id,packet_received.header.to)==0){
+    if (compare_char(routeTable[i].destino.id,packet_received.header.to)){
         is_MSG=i;
         break;
     }
-    if (strcmp(routeTable[i].next_neighbor.id,packet_received.header.to)==0){
+    if (compare_char(routeTable[i].next_neighbor.id,packet_received.header.to)){
         is_MSG=i;
         break;
     }
-     if (strcmp(routeTable[i].next_neighbor.id,packet_received.header.from)==0){
+     if (compare_char(routeTable[i].next_neighbor.id,packet_received.header.from)){
         is_MSG=i;
         break;
     }
@@ -266,7 +266,7 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
 void update_rssi_snr(char route_from[16], char route_to[16], int RSSI_received, int SNR_received){
   uint8_t xx;
   for (xx = 1; xx <= total_rutas; xx++) {
-      if (((String)routeTable[xx].origen.id==(String)route_from)and((String)routeTable[xx].next_neighbor.id==(String)route_to)){
+      if ((compare_char(routeTable[xx].origen.id,route_from))and(compare_char(routeTable[xx].next_neighbor.id,route_to))){
         routeTable[xx].RSSI_packet=RSSI_received;
         routeTable[xx].SNR_packet=SNR_received;
         break;

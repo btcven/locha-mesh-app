@@ -28,7 +28,7 @@ extern std::string rxValue_Lora;
 extern int Lora_RSSI;
 extern int Lora_SNR;
 extern char *id_node;
-
+extern unsigned long tiempo_desde_ultimo_packet_recibido;
 
 // Funcion para validar si un string es numerico
 bool is_number(const std::string& s)
@@ -151,7 +151,7 @@ void onReceive(int packetSize) {
       }
     // se usa la variable boolean radio_Lora_receiving para indicar en el loop main que se puede procesar el contenido de rxValue_Lora
     // se hace de esta forma porque la libreria Lora.cpp tiene un bug y no permite invocar voids ni funciones dentro de onReceive, y tambien para facilitar la comunicacion entre los callbacks y el main
- 
+ //tiempo_desde_ultimo_packet_recibido=millis();
   radio_Lora_receiving=true;  
   
  
