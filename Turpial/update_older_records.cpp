@@ -29,6 +29,7 @@ extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_waiting;
 extern uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
+extern unsigned long tiempo_desde_ultimo_packet_recibido;
 
 // funciones para el mantenimiento de las colas de mensaje:
 // se reenvian packets en espera
@@ -96,6 +97,13 @@ uint8_t jj;
     
     // 2) chequea rutas viejas: si hay que mandar un paquete route a ver si todavia esta activa la ruta
     // 3) vecinos no reportados desde hace mucho , mandarle un paquete route a ver si responden
+    // 4) cada x minutos hacer un HELLO para actualizar cualquier nuevo nodo/ruta
+    if (millis()-tiempo_desde_ultimo_packet_recibido>60000){
+        String rpta_str=packet_serialize(construct_packet_HELLO(id_node));
+        delay(50);
+        DEBUG_PRINT(F("Buscando nuevos vecinos")); 
+        uint8_t rpta_rad=radioSend(rpta_str);
+    }
     
     delay(40);
   }

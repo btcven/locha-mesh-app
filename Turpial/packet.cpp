@@ -13,6 +13,19 @@
 #include "debugging.h"
 
 
+extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
+extern rutas_t routeTable[MAX_ROUTES];
+extern nodo_t vecinos[MAX_NODES];
+extern nodo_t blacklist[MAX_NODES_BLACKLIST];
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_salientes; 
+extern uint8_t total_mensajes_waiting; 
+extern uint8_t total_vecinos;  
+extern uint8_t total_rutas;
+extern uint8_t total_nodos_blacklist;
+
+
+
 radioPacket::radioPacket(packet_t packet)
 {
   packet = packet;

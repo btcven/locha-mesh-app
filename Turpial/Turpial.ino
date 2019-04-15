@@ -172,7 +172,7 @@ void setup()
   DEBUG_PRINT(" ");
   DEBUG_PRINTLN(MSG_START);
   // se genera el node_id solo si no existe
-  if ((String)id_node== "")
+  if (compare_char(id_node,""))
   {
     String id_tmp=get_id_mac();
     strcpy(id_node,id_tmp.c_str());
@@ -191,12 +191,13 @@ void setup()
    DEBUG_PRINTLN(F("Enviando HELLO"));
     // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
    String rpta_str=packet_serialize(construct_packet_HELLO(id_node));
-    delay(50);
+   
+   delay(50);  // este delay tiene que ser mayor al que esta en task_radio para garantizar que se ejecuto el ciclo del callback y no de ERROR
    DEBUG_PRINT(rpta_str); 
-   DEBUG_PRINTLN(F(" ... sigo ... "));
+  // DEBUG_PRINTLN(F(" ... sigo ... "));
     uint8_t rpta_rad=radioSend(rpta_str);
- DEBUG_PRINTLN(F(" ... continuando ... "));
-   DEBUG_PRINTLN("");
+ //DEBUG_PRINTLN(F(" ... continuando ... "));
+ //  DEBUG_PRINTLN("");
    DEBUG_PRINT(id_node);
    DEBUG_PRINT(F(" >"));
 
@@ -226,7 +227,7 @@ void loop()
   if (radio_Lora_receiving)
   {
     delay(20);
-    process_Lora_incoming();
+    process_Lora_incoming(vecinos,total_vecinos);
   }
 
 
@@ -260,7 +261,7 @@ void loop()
     }
 
     if (mensaje_waiting_to_send>0){
-      void update_older_record();
+      update_older_record();
     }
 
     packet_return_BLE_str = "";

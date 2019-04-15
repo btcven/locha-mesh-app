@@ -15,7 +15,7 @@
 #include <Arduino.h>
 #include "packet.h"
 #include "route.h"
-using namespace std;
+//using namespace std;
 
 //declaracion de variables
 // la siguiente linea se comenta para produccion, solo es para hacer debugging en desarrollo, esta variable desactiva todos los comandos via consola serial

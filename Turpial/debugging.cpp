@@ -138,7 +138,6 @@ uint8_t vaciar_tablas(){
 
 uint8_t mostrar_vecinos(char* node_id, nodo_t vecinos[MAX_NODES], size_t tamano_arreglo){
   uint8_t i;
-  char* id_temporal;
   DEBUG_PRINTLN();
   DEBUG_PRINT(F("Vecinos del nodo: "));
   DEBUG_PRINTLN(node_id);
@@ -152,8 +151,7 @@ uint8_t mostrar_vecinos(char* node_id, nodo_t vecinos[MAX_NODES], size_t tamano_
     DEBUG_PRINT(i);
     DEBUG_PRINT(F(" : "));
     DEBUG_PRINT(F("\t"));
-    id_temporal=vecinos[i].id;
-    DEBUG_PRINTLN((String)id_temporal);
+    DEBUG_PRINTLN(vecinos[i].id);
   }
    DEBUG_PRINT(F("Tamaño de la tabla de vecinos :"));
    DEBUG_PRINT(tamano_arreglo);
@@ -202,11 +200,8 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
   nodo_t origen;
   nodo_t destino;
   nodo_t next_neighbor;
-  Serial.print("estoy dentro de mostrar_rutas con el id_nodo:");
-  Serial.println((String)node_id);
   DEBUG_PRINTLN(MSG_SPACE);
   DEBUG_PRINT("Rutas disponibles en el nodo: ");
-  Serial.println("coloque el titulo");
   DEBUG_PRINT(node_id);
   DEBUG_PRINTLN();
    for (i = 1; i <= 80; i++) {
@@ -326,7 +321,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
         if (str_buffer_serial_received==mensaje){
           str_buffer_serial_received="";
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-          uint8_t rpta=mostrar_vecinos(id_node,vecinos,total_vecinos);  
+          uint8_t rpta=mostrar_vecinos(id_node,vecinos,sizeof(vecinos));  
           ejecute=true;
         }
         
@@ -442,6 +437,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINT(F("enviando info al BLE"));
             String a_enviar=(String)id_node;
             txValue=a_enviar.c_str();
+            
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;

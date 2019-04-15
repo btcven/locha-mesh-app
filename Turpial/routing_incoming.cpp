@@ -53,7 +53,7 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
 
       // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
       DEBUG_PRINT(F("empezando a procesar el packet"));
-      if (((String)packet_received.header.to==(String)id_node)or(((String)packet_received.header.to==""))){
+      if ((compare_char(packet_received.header.to,id_node))or((compare_char(packet_received.header.to,"")))){
        
         // se devuelve un packet_ACK por la misma ruta al origen para notificar la recepcion
         
@@ -62,7 +62,7 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
             #ifdef DEBUG
               show_packet(packet_received, true);
             #endif
-            if ((packet_received.header.type==MSG)or(packet_received.header.type==TXN)){
+            
               DEBUG_PRINTLN("");
               DEBUG_PRINT(F("colocando mensaje al BLE:"));
                 // se manda al BLE en formato Json
@@ -73,7 +73,7 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
               DEBUG_PRINT(hacia_el_ble);
               DEBUG_PRINT(F("-largo del mensaje enviado:"));
               DEBUG_PRINT((String)hacia_el_ble.length());
-            }
+            
             uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
             DEBUG_PRINTLN(F("se actualiza el age de la ruta"));
             // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
@@ -107,7 +107,7 @@ uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received)
   rutas_t nueva_ruta;
   copy_array_locha(packet_received.header.to, nodo1.id, 16);
   copy_array_locha(packet_received.header.from, nodo2.id, 16);
-  create_route(nodo1, nodo2, nodo2);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
   return 0;
 }
 
@@ -198,28 +198,34 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   // 
   nodo_t nodo1;
   nodo_t nodo2;
+  rutas_t nueva_ruta;
+    
   Serial.println(F("se recibio un packet hello"));
   // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
    // nueva ruta en la tabla de rutas
    uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
   
-  rutas_t nueva_ruta;
-  
- // nodo1.id=packet_received.header.to;
+  // nueva ruta en la tabla de rutas
+
+  copy_array_locha(packet_received.header.to, nodo1.id, 16);
+  copy_array_locha(packet_received.header.from, nodo2.id, 16);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
+
+  // ahora se crea la ruta de A->B
   copy_array_locha(packet_received.header.from,packet_received.header.to, 16);
- // nodo2.id=packet_received.header.from;
-   copy_array_locha(id_node,packet_received.header.from, 16);
-  
+  copy_array_locha(id_node,packet_received.header.from, 16);
+  copy_array_locha(packet_received.header.from,  nodo1.id,16);
+  copy_array_locha(packet_received.header.to,  nodo2.id,16);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
+
+// se devuelve un packet JOIN
+Serial.println("Se envia un packet Join");
   packet_received.header.type=JOIN;
   copy_array_locha(nodo2.id,packet_received.header.to, 16);
  // copy_array_locha(nodo1.id,packet_received.header.from, 16);
   radioSend(packet_serialize(packet_received));
 
 
-  // ahra se crea la ruta de A->B
-  copy_array_locha(packet_received.header.from,  nodo1.id,16);
-  copy_array_locha(packet_received.header.to,  nodo2.id,16);
-  create_route(nodo1, nodo2, nodo2);
   return 0;
 }
 
@@ -264,20 +270,24 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
 }
 
 void update_rssi_snr(char route_from[16], char route_to[16], int RSSI_received, int SNR_received){
-  uint8_t xx;
-  for (xx = 1; xx <= total_rutas; xx++) {
+  for (uint8_t xx = 1; xx <= total_rutas; xx++) {
       if ((compare_char(routeTable[xx].origen.id,route_from))and(compare_char(routeTable[xx].next_neighbor.id,route_to))){
         routeTable[xx].RSSI_packet=RSSI_received;
         routeTable[xx].SNR_packet=SNR_received;
         break;
       }
-    
+      // si existe como ruta inversa tambien hay que actualizarla
+    if ((compare_char(routeTable[xx].origen.id,route_to))and(compare_char(routeTable[xx].next_neighbor.id,route_from))){
+        routeTable[xx].RSSI_packet=RSSI_received;
+        routeTable[xx].SNR_packet=SNR_received;
+        break;
+      }
   }
 }
 
 
 // esta funcion procesa el paquete recibido 
-void process_received_packet(char id_node[16], packet_t packet_temporal){
+void process_received_packet(char id_node[16], packet_t packet_temporal,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, int RSSI_recibido, int SNR_recibido){
   uint8_t rpta;
 
   DEBUG_PRINT(F("A new packet incoming, type:"));
@@ -289,11 +299,11 @@ void process_received_packet(char id_node[16], packet_t packet_temporal){
       switch (packet_temporal.header.type)
       {
       case EMPTY:
-            DEBUG_PRINT("Node:");
+            DEBUG_PRINT(F("Node:"));
             DEBUG_PRINT((String)packet_temporal.header.from);
-            DEBUG_PRINT(" is sending ");
+            DEBUG_PRINT(F(" is sending "));
             DEBUG_PRINT(convertir_packet_type_e_str(EMPTY));
-            DEBUG_PRINTLN(" packets, review it.");
+            DEBUG_PRINTLN(F(" packets, review it."));
         break;
       case JOIN:
           routing_incoming_PACKET_JOIN(id_node, packet_temporal);
@@ -324,6 +334,6 @@ void process_received_packet(char id_node[16], packet_t packet_temporal){
       }
     
       // todo packet incoming actualiza el RSSI y el SNR de la ruta que le corresponda
-      update_rssi_snr(packet_temporal.header.from, packet_temporal.header.to, Lora_RSSI, Lora_SNR);
+      update_rssi_snr(packet_temporal.header.from, packet_temporal.header.to, RSSI_recibido, SNR_recibido);
     }
 }

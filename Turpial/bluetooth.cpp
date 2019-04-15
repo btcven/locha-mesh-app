@@ -219,7 +219,7 @@ void task_bluetooth(void *params)
                       tx_uart->notify();
                  }
                  // se coloca un delay antes de borrar la variable para que pueda llegar el ack del BLE
-                 delay(100);
+                 delay(50);
                  txValue.clear();
                  text_to_send="";
                 

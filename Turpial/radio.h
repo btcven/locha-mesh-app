@@ -8,10 +8,11 @@
 #define RADIO_H
 // declaracion de librerias
 #include <Arduino.h>
+#include "memory_def.h"
 
 // declaracion de funciones
 uint8_t radioSend(String _data);
 void task_radio(void *params);
-extern void process_Lora_incoming();
+void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
 
 #endif // RADIO_H

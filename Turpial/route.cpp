@@ -179,19 +179,15 @@ bool encontre;
 // verifica si el nodo a consultar esta en la tabla de vecinos
 uint8_t es_vecino(char id_nodo[16]){
   uint8_t i;
-  Serial.println("verificando si es vecino");
+  
   if (!(compare_char(id_nodo,""))){
-    Serial.println("no es vacio");
+  
     for (i = 1; i <= total_vecinos; i++) {
         if (compare_char(vecinos[i].id,id_nodo)){
-          Serial.print("si es vecino");
-          Serial.print("posicion en la tabla de vecinos:");
-          Serial.println((String)i);
           return 1;
         }
     }
   }
-  Serial.println("no es vecino");
   return 0;
 }
 
@@ -199,21 +195,12 @@ uint8_t es_vecino(char id_nodo[16]){
 uint8_t pos_ruta(char id_nodo_from[16], char id_nodo_to[16]){
   uint8_t i;
   for (i = 1; i <= total_rutas; i++) {
-    Serial.print("pos_ruta:from:");
-    Serial.print((String)id_nodo_from);
-    Serial.print("-pos_ruta:from2:");
-    Serial.println((String)routeTable[i].origen.id);
-    Serial.print("pos_ruta:to:");
-    Serial.print((String)id_nodo_to);
-    Serial.print("-pos_ruta:to2:");
-    Serial.println((String)routeTable[i].destino.id);
+  
       if ((compare_char(routeTable[i].origen.id,id_nodo_from))and(compare_char(routeTable[i].destino.id,id_nodo_to))){
-        Serial.println("ppppp");
         return i;
       }
       // el inverso tambien es la misma ruta
       if ((compare_char(routeTable[i].origen.id,id_nodo_to))and(compare_char(routeTable[i].destino.id,id_nodo_from))){
-        Serial.println("xxxxxx");
         return i;
       }
   }
@@ -236,31 +223,26 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_rout
   // nuevo vecino de la tabla de vecinos
       uint8_t rpta1;
       if (!(compare_char(id_nodo_from,id_node))){ 
-          Serial.println("creando vecino from");
            rpta1=create_neighbor(id_nodo_from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
       } 
       if (!(compare_char(id_nodo_to,id_node))){
-        Serial.println("creando vecino to");
           rpta1=create_neighbor(id_nodo_to,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
       }
       
   if (update_route){
-    Serial.println("ruta:vvvv");
      if (pos_route>0){
-      Serial.println("ruta:yyyyy");
               routeTable[pos_route].age=millis();      
      } else {
         // no existe la ruta, se crea una nueva ruta
-      Serial.println("ruta:zzzz");
       
-  // nueva ruta en la tabla de rutas
-  nodo_t nodo1;
-  nodo_t nodo2;
-  rutas_t nueva_ruta;
-  copy_array_locha(id_nodo_from, nodo1.id, 16);
-  copy_array_locha(id_nodo_to, nodo2.id, 16);
-  create_route(nodo1, nodo2, nodo2);
-Serial.println("ruta creada correctamente");  
+        // nueva ruta en la tabla de rutas
+        nodo_t nodo1;
+        nodo_t nodo2;
+        rutas_t nueva_ruta;
+        copy_array_locha(id_nodo_from, nodo1.id, 16);
+        copy_array_locha(id_nodo_to, nodo2.id, 16);
+        create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
+        DEBUG_PRINTLN(F("ruta creada correctamente"));  
      }
   }
         // si existe la ruta se actualiza el 
@@ -280,7 +262,7 @@ uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16]){
 }
 
 // create a new route on memory  
-uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino){
+uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t (&blacklist)[MAX_NODES_BLACKLIST], uint8_t &total_nodos_blacklist , struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
   uint8_t i;
   rutas_t nueva_ruta;
   bool ejecute_correctamente=true;
@@ -417,54 +399,44 @@ uint8_t delete_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
 // create a new neighbor on memory  
 uint8_t create_neighbor(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t blacklist[MAX_NODES_BLACKLIST], uint8_t total_nodos_blacklist ){
                   nodo_t nodo_vecino;
-                //  char nombre_temporal[16];
                   uint8_t i;
                   bool permitir_agregar=true;
 
-                  // id_node_neighbor.trim();
-                //  id_node_neighbor.toCharArray(nombre_temporal, 16);
                   // no se permiten vecinos sin id
-                  Serial.println("create_neigbour:wwww");
+                  
                         if (!(compare_char(id_node_neighbor,""))){
-                          Serial.println("create_neigbour:zzzz");
+                  
                        // se verifica que no exista previamente
+                       if (es_vecino(id_node_neighbor)){
+                        permitir_agregar=false;
+                       }
                        for (i = 1; i <= total_vecinos; i++) {
                            if (compare_char(vecinos[i].id,id_node_neighbor)){
                                 // existe previamente, no se crea de nuevo
-                                Serial.println("create_neigbour:rrrrrr");
                                 permitir_agregar=false;
                                 break;
                             }
                        }
-                       Serial.println("create_neigbour:tttt");
+                       
                         // se verifica que no exista en blacklist de nodos 
                        for (i = 1; i <= total_nodos_blacklist; i++) {
                             if (compare_char(blacklist[i].id,id_node_neighbor)){
                                 // como esta en blacklist no se le permite agregar como un vecino valido
-                                Serial.println("create_neigbour:gggggg");
                                 permitir_agregar=false;
                                 break;
                             }
                        }
-                       Serial.println("create_neigbour:hhhhh:total de vecinos:");
-                       Serial.println((String)total_vecinos);
                         } else {
                           permitir_agregar=false;
-                          Serial.println("create_neigbour:jjjj");
                         }
                   
-                 Serial.print("id_node_neighbor en proceso:");
-                 Serial.println((String)id_node_neighbor);
                  if (es_vecino(id_node_neighbor)){ 
                   permitir_agregar=false;
-                  Serial.println("create_neigbour:kkkkk");
                  }
                  if ((compare_char(id_node_neighbor,""))){
-                  Serial.println("create_neigbour:llll");
                   permitir_agregar=false;
                  }
                  if (permitir_agregar){
-                  Serial.println("create_neigbour:mmmmm");
                       // usamos memcpy ocupando la misma direccion de memoria
                       //memcpy(nodo_vecino.id, id_node_neighbor, 16);
                       copy_array_locha(id_node_neighbor, nodo_vecino.id, 16);
@@ -472,16 +444,14 @@ uint8_t create_neighbor(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODE
                       //String compares_str=(String)nodo_vecino.id;
                       
                      if (!(compare_char(nodo_vecino.id ,""))){
-                      Serial.println("create_neigbour:nnnnn");
                       if (!(es_vecino(nodo_vecino.id))){
-                        Serial.print("no es vecino,");
-                          Serial.print("voy a agregar:");
-                          Serial.println((String)nodo_vecino.id);
-                            vecinos[total_vecinos] = nodo_vecino;
-                            total_vecinos++;
-                      } else {
-                        Serial.print("ya existe como vecino, no se agrega");
-                      }
+                          total_vecinos++;
+                          vecinos[total_vecinos] = nodo_vecino;
+                          // aqui hay que agregar la ruta en caso de que no exista
+                            
+                      } //else {
+                //        Serial.print("ya existe como vecino, no se agrega");
+                      //}
                      }
                     return 0;
                  } else {
@@ -593,4 +563,9 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
        }
     }
   DEBUG_PRINTLN(F("ready , packet sent to message queue"));
+}
+
+// funcion para serializar el contenido de la tabla vecinos
+std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos){
+  
 }
