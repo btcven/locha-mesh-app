@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include "update_older_records.h"
 #include "packet.h"
+#include "memory_def.h"
 #include <string.h> 
 #include <Time.h>
 #include <TimeLib.h>
@@ -98,11 +99,12 @@ uint8_t jj;
     // 2) chequea rutas viejas: si hay que mandar un paquete route a ver si todavia esta activa la ruta
     // 3) vecinos no reportados desde hace mucho , mandarle un paquete route a ver si responden
     // 4) cada x minutos hacer un HELLO para actualizar cualquier nuevo nodo/ruta
-    if (millis()-tiempo_desde_ultimo_packet_recibido>60000){
+    if (millis()-tiempo_desde_ultimo_packet_recibido>HELLO_RETRY_TIMEOUT){
         String rpta_str=packet_serialize(construct_packet_HELLO(id_node));
         delay(50);
         DEBUG_PRINT(F("Buscando nuevos vecinos")); 
         uint8_t rpta_rad=radioSend(rpta_str);
+        tiempo_desde_ultimo_packet_recibido=millis();
     }
     
     delay(40);

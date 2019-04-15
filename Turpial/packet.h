@@ -7,7 +7,7 @@
 #define PACKET_H
 
 #include <Arduino.h>
-
+#include "memory_def.h"
 
 
 typedef enum
@@ -36,7 +36,7 @@ typedef struct
 
 typedef struct
 {
-  char payload[240];
+  char payload[SIZE_PAYLOAD];
 } packet_body_t;
 
 typedef struct

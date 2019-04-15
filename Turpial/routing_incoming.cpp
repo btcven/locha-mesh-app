@@ -43,7 +43,10 @@ extern uint8_t total_mensajes_salientes;
 // todas devuelven 0 a menos que consigan algun error
 
 uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
-  
+ // char* char_vacio= malloc(1);
+ // *char_vacio ;
+//  char_vacio="";
+char *pChar = (char*)"";
   // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
   // 2) si no es para mi nodo se verifica si el destinatario existe en mi tabla de rutas
   // 3) si no es para mi nodo  y si existe el destinatario en mi tabla de rutas se reenvia a ese destinatario
@@ -52,19 +55,20 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
 
 
       // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
-      DEBUG_PRINT(F("empezando a procesar el packet"));
-      if ((compare_char(packet_received.header.to,id_node))or((compare_char(packet_received.header.to,"")))){
+      //DEBUG_PRINT(F("Empezando a procesar el packet"));
+      
+      if ((compare_char(packet_received.header.to,id_node))or((compare_char(packet_received.header.to,pChar)))){
        
         // se devuelve un packet_ACK por la misma ruta al origen para notificar la recepcion
         
             packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.body.payload);
-            DEBUG_PRINT(F("se esta procesando routing_incoming_PACKET_MSG:"));
+            DEBUG_PRINT(F("Se esta procesando routing_incoming_PACKET_MSG:"));
             #ifdef DEBUG
               show_packet(packet_received, true);
             #endif
             
               DEBUG_PRINTLN("");
-              DEBUG_PRINT(F("colocando mensaje al BLE:"));
+              DEBUG_PRINT(F("Colocando mensaje al BLE:"));
                 // se manda al BLE en formato Json
                 // modificado por ahora mientras solventamos lo de la limitacion de 20 char en BLE
              //   String hacia_el_ble=Json_return_msg((String)packet_received.body.payload);
@@ -199,6 +203,7 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   nodo_t nodo1;
   nodo_t nodo2;
   rutas_t nueva_ruta;
+  std::string payload_join="";
     
   Serial.println(F("se recibio un packet hello"));
   // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
@@ -219,13 +224,19 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
 
 // se devuelve un packet JOIN
-Serial.println("Se envia un packet Join");
+  Serial.println("Se envia un packet Join");
   packet_received.header.type=JOIN;
   copy_array_locha(nodo2.id,packet_received.header.to, 16);
- // copy_array_locha(nodo1.id,packet_received.header.from, 16);
+  // copy_array_locha(nodo1.id,packet_received.header.from, 16);
+
+ // se arma como payload el contenido de la tabla vecinos concatenado por el contenido de la tabla rutas
+  payload_join=serialize_vecinos(vecinos, total_vecinos,SIZE_PAYLOAD);
+  char *cstr = new char[payload_join.length() + 1];
+  strcpy(cstr, payload_join.c_str());
+  copy_array_locha(cstr,packet_received.body.payload, payload_join.length() + 1);
+  //packet_received.body.payload=payload_join.c_str();
   radioSend(packet_serialize(packet_received));
-
-
+ 
   return 0;
 }
 

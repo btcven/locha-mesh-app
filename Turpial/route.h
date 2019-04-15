@@ -66,7 +66,7 @@ uint8_t delete_neighbor(String id_node_neighbor, struct nodo_t (&vecinos)[MAX_NO
 uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16]);
 uint8_t delete_route_by_id(uint8_t id_to_delete);
 uint8_t delete_older_packets();
-std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos);
+std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos, uint8_t maximo_caracteres);
 
 
 #endif // ROUTE_H

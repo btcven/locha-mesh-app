@@ -8,6 +8,8 @@
 #include <Arduino.h>
 #include <Time.h>
 #include <TimeLib.h>
+#include <sstream>
+#include <string>
 #include "route.h"
 #include "hal/hardware.h"
 #include "memory_def.h"
@@ -566,6 +568,31 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
 }
 
 // funcion para serializar el contenido de la tabla vecinos
-std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos){
-  
+std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos, uint8_t maximo_caracteres){
+    std::string rpta_str="";
+    std::ostringstream s;
+  // hay que excluir en este serialize, el to y el from del packet que se asume tienen comunicacion
+    
+    if (total_vecinos>0){ 
+         s << total_vecinos;
+          rpta_str=s.str();
+          for (uint8_t i = 1; i <= total_vecinos; i++) {
+                     if (rpta_str.length()+sizeof(vecinos[i].id)>SIZE_PAYLOAD){ 
+                        break;  // si es mayor al largo del payload se sale del serialize
+                     } else {
+                        rpta_str.append(vecinos[i].id); 
+                     }
+                     
+                     
+           }
+    }
+    return rpta_str;
+}
+
+std::string serialize_rutas(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos,struct rutas_t (routeTable)[MAX_ROUTES], uint8_t total_rutas){
+    std::string rpta_str="";
+
+
+
+    return rpta_str;
 }

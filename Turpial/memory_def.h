@@ -17,6 +17,8 @@
   static const int MAX_MSG_QUEUE=75;    // maximo de mensajes en cola (mensajes no enviados ni siquiera la primera vez)
   static const int MAX_NODES_BLACKLIST=15;   // maximo de nodos bloqueados (blacklisted) a los que no se les va a permitir usar rutas desde/hacia ellos ni tampoco registrarse como vecinos
   static const int MSG_QUEUE_WAITING_MAX_RETRIES=5; // max retries to deliver a packet
-  static const int MSG_QUEUE_WAITING_MAX_AGE=30000;  // in millisecond, packet timeout before not delivered (total wait time
+  static const int MSG_QUEUE_WAITING_MAX_AGE=30000;  // in millisecond, packet timeout before not delivered (total wait time)
+  static const int HELLO_RETRY_TIMEOUT=10000;     // tiempo maximo desde que se recibio el ultimo packet para enviar un HELLO nuevamente y verificar si hay nodos nuevos
 
+  static const int SIZE_PAYLOAD=240;            // Tamaño maximo del payload del packet
 #endif // MEMORY_DEF_H

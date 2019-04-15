@@ -155,7 +155,7 @@ uint8_t radioSend(String _data) {
   done = LoRa.endPacket();
  if (rpta==1){ 
   if (done){
-  DEBUG_PRINT(F("enviado OK"));
+  DEBUG_PRINTLN(F("enviado OK"));
   // se coloca en modo receive para que siga escuchando packets
   
  
