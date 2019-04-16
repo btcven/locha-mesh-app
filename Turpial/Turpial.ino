@@ -196,6 +196,9 @@ void setup()
    DEBUG_PRINT(rpta_str); 
   // DEBUG_PRINTLN(F(" ... sigo ... "));
     uint8_t rpta_rad=radioSend(rpta_str);
+    
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
  //DEBUG_PRINTLN(F(" ... continuando ... "));
  //  DEBUG_PRINTLN("");
    DEBUG_PRINT(id_node);
