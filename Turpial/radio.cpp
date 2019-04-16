@@ -101,7 +101,7 @@ void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_v
 // recibe un paquete , es invocado via callback desde el xTask task_radio en el main (turpial.ino)
 void onReceive(int packetSize) {
    // modificaciones para evitar el error de call back
-   
+   Serial.println("Recibiendo un packet ...");
    if (packetSize == 0) return; 
      
     char in_process;
@@ -137,12 +137,12 @@ uint8_t radioSend(String _data) {
   uint8_t done =0;
   uint8_t rpta;
   uint16_t delay_time=250;  // millisegundos entre reintento de envio
-  
+  uint8_t ii;
   // hay que verificar primero si el canal esta libre Listen before Talk
   DEBUG_PRINT(F("se envia el packet..."));
   DEBUG_PRINTLN(_data.c_str());
   // se hacen 5 intentos de delibery a busy variables en caso de que el canal este ocupado
-   for (uint8_t ii = 0; ii<5; ++ii){
+   for (ii = 0; ii<5; ++ii){
       rpta= LoRa.beginPacket();
       if (rpta==1){ 
         break;  // si logra enviarse se sale de los reintentos
@@ -153,10 +153,16 @@ uint8_t radioSend(String _data) {
    }
    LoRa.print(_data.c_str());
   done = LoRa.endPacket();
+  // se coloca en modo receive para que siga escuchando packets
+    // ponemos en modo recepcion.
+  LoRa.receive();
+  
  if (rpta==1){ 
   if (done){
+  DEBUG_PRINT("Cantidad de reintentos efectuados:");
+  DEBUG_PRINT((String)ii);
   DEBUG_PRINTLN(F("enviado OK"));
-  // se coloca en modo receive para que siga escuchando packets
+  
   
  
   
@@ -167,15 +173,12 @@ uint8_t radioSend(String _data) {
   // ..::BODY::..
   // payload
 
-
-    // se coloca el radio en modo listen antes de salir
-    LoRa.receive();
     
     return 1;
   }
   }
- 
- LoRa.receive();
+ Serial.println("Lora continues...");
+
  // cualquier otro escenario devuelve 0, packet no enviado
  return 0;
 }

@@ -8,6 +8,9 @@
 #define RADIO_H
 // declaracion de librerias
 #include <Arduino.h>
+#include <SPI.h>
+#include <string.h>
+#include <LoRa.h>
 #include "memory_def.h"
 
 // declaracion de funciones

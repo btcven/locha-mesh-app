@@ -121,10 +121,15 @@ bool encontre;
         el_mensaje_saliente=mensajes_salientes[i];
         msg_to_send=packet_serialize(mensajes_salientes[i].paquete);
         uint8_t rpta_rad=radioSend(msg_to_send);
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
         if (rpta_rad==0){ 
           // no se transmitio se hace un reintento 
           delay(500);
           rpta_rad=radioSend(msg_to_send);
+          
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
         }
         DEBUG_PRINTLN(F("Return to processing outcoming ..."));
         // se colcoa el packet como waiting si el tipo de packet es MSG
@@ -218,7 +223,7 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16]){
   
 }
 
-uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_route){
+uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_route, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
  
  uint8_t pos_route=pos_ruta(id_nodo_from, id_nodo_to);
 
@@ -258,8 +263,8 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_rout
 }
 
 // update age of a route in routeTable , if didnt exist 
-uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16]){
-  uint8_t respuesta=existe_ruta(id_nodo_from, id_nodo_to, true);
+uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16], struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
+  uint8_t respuesta=existe_ruta(id_nodo_from, id_nodo_to, true,routeTable,total_rutas);
   return respuesta;
 }
 
@@ -574,10 +579,10 @@ std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_
   // hay que excluir en este serialize, el to y el from del packet que se asume tienen comunicacion
     
     if (total_vecinos>0){ 
-         s << total_vecinos;
+          s << (int)total_vecinos;
           rpta_str=s.str();
           for (uint8_t i = 1; i <= total_vecinos; i++) {
-                     if (rpta_str.length()+sizeof(vecinos[i].id)>SIZE_PAYLOAD){ 
+                     if (rpta_str.length()+sizeof(vecinos[i].id)>maximo_caracteres){ 
                         break;  // si es mayor al largo del payload se sale del serialize
                      } else {
                         rpta_str.append(vecinos[i].id); 
@@ -589,9 +594,31 @@ std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_
     return rpta_str;
 }
 
-std::string serialize_rutas(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos,struct rutas_t (routeTable)[MAX_ROUTES], uint8_t total_rutas){
+std::string serialize_rutas(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos,struct rutas_t (routeTable)[MAX_ROUTES], uint8_t total_rutas, uint8_t maximo_caracteres){
     std::string rpta_str="";
-
+    std::ostringstream s;
+  // hay que excluir la ruta entre origen y destino del packet en curso que se asume como ya conocida y no necesita ser compartida
+        if (total_rutas>0){ 
+          s << (int)total_vecinos;
+          rpta_str=s.str();
+              for (uint8_t i = 1; i <= total_rutas; i++) {
+                if (rpta_str.length()+sizeof(routeTable[i].origen.id)>maximo_caracteres){ 
+                        break;  // si es mayor al largo del payload se sale del serialize
+                     } else {
+                        if (compare_char(routeTable[i].next_neighbor.id,routeTable[i].destino.id)){
+                          rpta_str.append("2");
+                        } else {
+                          rpta_str.append("3");
+                        }
+                        rpta_str.append(routeTable[i].origen.id); 
+                        rpta_str.append(routeTable[i].next_neighbor.id); 
+                         if (!(compare_char(routeTable[i].next_neighbor.id,routeTable[i].destino.id))){
+                              rpta_str.append(routeTable[i].destino.id);    
+                         }
+                     }
+            }
+              
+        }
 
 
     return rpta_str;

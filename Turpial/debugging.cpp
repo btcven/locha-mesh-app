@@ -494,6 +494,8 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
                DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));
                 radioSend(packet_serialize(construct_packet_HELLO(id_node)));
                     
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);

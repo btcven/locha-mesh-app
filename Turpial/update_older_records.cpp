@@ -42,6 +42,9 @@ void update_older_record(){
     if (mensaje_waiting_to_send<=total_mensajes_waiting){ 
           String msg_to_send_now=packet_serialize(mensajes_waiting[mensaje_waiting_to_send].paquete);
           radioSend(msg_to_send_now.c_str());
+          
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
           // y se borra de la tabla mensajes_salientes
                 for ( uint8_t yy = mensaje_waiting_to_send; yy < total_mensajes_waiting; yy++) {
                     mensajes_waiting[yy]=mensajes_waiting[yy+1];
@@ -102,11 +105,14 @@ uint8_t jj;
     if (millis()-tiempo_desde_ultimo_packet_recibido>HELLO_RETRY_TIMEOUT){
         String rpta_str=packet_serialize(construct_packet_HELLO(id_node));
         delay(50);
-        DEBUG_PRINT(F("Buscando nuevos vecinos")); 
+        DEBUG_PRINTLN(F("Buscando nuevos vecinos")); 
         uint8_t rpta_rad=radioSend(rpta_str);
+        
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
         tiempo_desde_ultimo_packet_recibido=millis();
     }
-    
-    delay(40);
+    // se aumenta el delay ya que este callback es de baja prioridad y no debe interferir en la recepcion de otros packets
+    delay(HELLO_RETRY_TIMEOUT);
   }
 }

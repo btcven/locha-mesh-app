@@ -81,11 +81,11 @@ char *pChar = (char*)"";
             uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
             DEBUG_PRINTLN(F("se actualiza el age de la ruta"));
             // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
-            update_route_age(packet_received.header.from, packet_received.header.to);
+            update_route_age(packet_received.header.from, packet_received.header.to,routeTable,total_rutas);
       } else {
             // el paquete no es para mi, pero tengo que hacerle relay a mis vecinos
             // busco si tengo una ruta entre mi nodo y el destino del paquete (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
-            if (existe_ruta(id_node, packet_received.header.to,true)){
+            if (existe_ruta(id_node, packet_received.header.to,true,routeTable,total_rutas)){
            
                 packet_t new_packet;
                 new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to, Buffer_packet.body.payload);
@@ -112,6 +112,7 @@ uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received)
   copy_array_locha(packet_received.header.to, nodo1.id, 16);
   copy_array_locha(packet_received.header.from, nodo2.id, 16);
   create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
+  update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas);
   return 0;
 }
 
@@ -203,8 +204,10 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   nodo_t nodo1;
   nodo_t nodo2;
   rutas_t nueva_ruta;
+  std::string payload_vecinos="";
+  std::string payload_rutas="";  
   std::string payload_join="";
-    
+  
   Serial.println(F("se recibio un packet hello"));
   // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
    // nueva ruta en la tabla de rutas
@@ -222,7 +225,7 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   copy_array_locha(packet_received.header.from,  nodo1.id,16);
   copy_array_locha(packet_received.header.to,  nodo2.id,16);
   create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
-
+  update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas);
 // se devuelve un packet JOIN
   Serial.println("Se envia un packet Join");
   packet_received.header.type=JOIN;
@@ -230,13 +233,19 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   // copy_array_locha(nodo1.id,packet_received.header.from, 16);
 
  // se arma como payload el contenido de la tabla vecinos concatenado por el contenido de la tabla rutas
-  payload_join=serialize_vecinos(vecinos, total_vecinos,SIZE_PAYLOAD);
+  payload_vecinos=serialize_vecinos(vecinos, total_vecinos,SIZE_PAYLOAD);
+  payload_rutas=serialize_rutas(vecinos, total_vecinos, routeTable, total_rutas, (SIZE_PAYLOAD-sizeof(payload_vecinos)));
+  payload_join=payload_vecinos;
+  payload_join.append(payload_rutas);
+  
   char *cstr = new char[payload_join.length() + 1];
   strcpy(cstr, payload_join.c_str());
   copy_array_locha(cstr,packet_received.body.payload, payload_join.length() + 1);
   //packet_received.body.payload=payload_join.c_str();
   radioSend(packet_serialize(packet_received));
  
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
   return 0;
 }
 

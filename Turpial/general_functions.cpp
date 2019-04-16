@@ -15,7 +15,7 @@
 #include "esp_system.h"
 #include "general_functions.h"
 #include "debugging.h"
-
+using namespace std;
 
 // funcion para comparar dos arreglos de char
 bool compare_char(char* src ,char* dst){
