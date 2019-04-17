@@ -5,7 +5,8 @@
 */
 // declaracion de librerias
 #include <Arduino.h>
-#include <string.h> 
+#include <sstream>
+#include <string>
 #include <Time.h>
 #include <TimeLib.h>
 #include "packet.h"
@@ -52,16 +53,24 @@ unsigned long convert_str_to_long(char* time_in_char){
 // convierte una cadena de caracteres recibida en formato texto al typedef enum packet_type_e 
 packet_type_e convertir_str_packet_type_e(char* type_recibido){
   packet_type_e rpta=EMPTY;
-  //type_recibido.trim();
-  if (compare_char(type_recibido,"EMPTY")) return EMPTY;
-  if (compare_char(type_recibido,"ACK")) return ACK;
-  if (compare_char(type_recibido,"JOIN")) return JOIN;
-  if (compare_char(type_recibido,"BYE")) return BYE;
-  if (compare_char(type_recibido,"MSG")) return MSG;
-  if (compare_char(type_recibido,"ROUTE")) return ROUTE;
-  if (compare_char(type_recibido,"HELLO")) return HELLO;
-  if (compare_char(type_recibido,"GOSSIP")) return GOSSIP;
-  if (compare_char(type_recibido,"NOT_DELIVERED")) return NOT_DELIVERED;
+  char *pChar = (char*)"EMPTY";
+  if (compare_char(type_recibido,pChar)) return EMPTY;
+  pChar = (char*)"ACK";
+  if (compare_char(type_recibido,pChar)) return ACK;
+  pChar = (char*)"JOIN";
+  if (compare_char(type_recibido,pChar)) return JOIN;
+   pChar = (char*)"BYE";
+  if (compare_char(type_recibido,pChar)) return BYE;
+   pChar = (char*)"MSG";
+  if (compare_char(type_recibido,pChar)) return MSG;
+   pChar = (char*)"ROUTE";
+  if (compare_char(type_recibido,pChar)) return ROUTE;
+   pChar = (char*)"HELLO";
+  if (compare_char(type_recibido,pChar)) return HELLO;
+   pChar = (char*)"GOSSIP";
+  if (compare_char(type_recibido,pChar)) return GOSSIP;
+   pChar = (char*)"NOT_DELIVERED";
+  if (compare_char(type_recibido,pChar)) return NOT_DELIVERED;
          
  // if (type_recibido==F("ACK")) return ACK;
 //  if (type_recibido==F("JOIN")) return JOIN;
@@ -93,15 +102,25 @@ packet_type_e convertir_int_packet_type_e(uint8_t type_recibido){
 // convierte un  typedef enum packet_type_e  en una cadena de caracteres ( inverso de convertir_str_packet_type_e() )
 char* convertir_packet_type_e_str(packet_type_e type_recibido){
   char* rpta=NULL;
-  if (type_recibido==EMPTY) rpta="EMPTY";
-  if (type_recibido==ACK) rpta="ACK";
-  if (type_recibido==JOIN) rpta="JOIN";
-  if (type_recibido==BYE) rpta="BYE";
-  if (type_recibido==MSG) rpta="MSG";
-  if (type_recibido==ROUTE) rpta="ROUTE";
-  if (type_recibido==HELLO) rpta="HELLO";
-  if (type_recibido==GOSSIP) rpta="GOSSIP";
-  if (type_recibido==NOT_DELIVERED) rpta="NOT_DELIVERED";
+  char *pChar = (char*)"EMPTY";
+  if (type_recibido==EMPTY) rpta=pChar;
+  pChar = (char*)"ACK";
+  if (type_recibido==ACK) rpta=pChar;
+  pChar = (char*)"JOIN";
+  if (type_recibido==JOIN) rpta=pChar;
+  pChar = (char*)"BYE";
+  if (type_recibido==BYE) rpta=pChar;
+  pChar = (char*)"MSG";
+  if (type_recibido==MSG) rpta=pChar;
+  pChar = (char*)"ROUTE";
+  if (type_recibido==ROUTE) rpta=pChar;
+  pChar = (char*)"HELLO";
+  if (type_recibido==HELLO) rpta=pChar;
+  pChar = (char*)"GOSSIP";
+  if (type_recibido==GOSSIP) rpta=pChar;
+  pChar = (char*)"NOT_DELIVERED";
+  if (type_recibido==NOT_DELIVERED) rpta=pChar;
+  
   return rpta;
 }
 
@@ -123,14 +142,31 @@ String getValue(String data, char separator, int index)
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+// https://stackoverflow.com/questions/9072320/split-string-into-string-array
+std::string getValue_std_string(std::string data, char separator, int index)
+{
+  uint8_t found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.size()-1;
+
+  for(int i=0; i<=maxIndex && found<=index; i++){
+    if(data[i]==separator || i==maxIndex){
+        found++;
+        strIndex[0] = strIndex[1]+1;
+        strIndex[1] = (i == maxIndex) ? i+1 : i;
+    }
+  }
+
+  return found>index ? data.substr(strIndex[0], strIndex[1]) : "";
+}
 
 // funcion para contruir un packet HELLO que identifique inicialmente al nodo
 packet_t construct_packet_HELLO(char* from){
    packet_t packet_HELLO;
-   
+    char *pChar = (char*)"";
     copy_array_locha(from, packet_HELLO.header.from, 16);
-    copy_array_locha("", packet_HELLO.header.to, 16);
-    copy_array_locha("", packet_HELLO.body.payload, 240);
+    copy_array_locha(pChar, packet_HELLO.header.to, 16);
+    copy_array_locha(pChar, packet_HELLO.body.payload, 240);
     packet_HELLO.header.type=HELLO;
     packet_HELLO.header.timestamp=millis();
     
@@ -140,13 +176,29 @@ packet_t construct_packet_HELLO(char* from){
 // Funcion en cargada de convertir un packet en una cadana char para ser enviada por Radio
 //  se usa +"|" como separador de campo
 String packet_serialize(packet_t packet){
-  String rpta_str="";
-  rpta_str=rpta_str+(String)packet.header.type+"|";
-  rpta_str=rpta_str+(String)packet.header.from+"|";
-  rpta_str=rpta_str+(String)packet.header.to+"|";
-  rpta_str=rpta_str+(String)packet.header.timestamp+"|";
-  rpta_str=rpta_str+(String)packet.body.payload+"|";
-  return rpta_str;
+     std::string rpta_str="";
+     std::ostringstream s;
+     char *pChar = (char*)"|";
+          s << (int)packet.header.type;
+          rpta_str=s.str();
+          rpta_str.append(pChar);
+          rpta_str.append(packet.header.from);
+          rpta_str.append(pChar);
+          rpta_str.append(packet.header.to);
+          rpta_str.append(pChar);
+          s << (long long)packet.header.timestamp;
+          rpta_str.append(s.str());
+          rpta_str.append(pChar);
+          rpta_str.append(packet.body.payload);
+          rpta_str.append(pChar);
+          
+  String rpta_str2="";
+  rpta_str2=rpta_str2+(String)packet.header.type+"|";
+  rpta_str2=rpta_str2+(String)packet.header.from+"|";
+  rpta_str2=rpta_str2+(String)packet.header.to+"|";
+  rpta_str2=rpta_str2+(String)packet.header.timestamp+"|";
+  rpta_str2=rpta_str2+(String)packet.body.payload+"|";
+  return rpta_str2;
 }
 
 // Funcion encargada de convertir un string en un packet ( inverso de packet_serialize() )

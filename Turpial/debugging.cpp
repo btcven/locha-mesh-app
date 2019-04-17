@@ -18,6 +18,7 @@
 #include "bluetooth.h"
 #include "route.h"
 
+
 //declaracion de variables
 extern std::string txValue;
 extern std::string rxValue;
@@ -27,13 +28,15 @@ extern char* id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
-extern nodo_t blacklist[MAX_NODES_BLACKLIST];
+extern nodo_t blacklist_nodes[MAX_NODES_BLACKLIST];
+extern rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 extern uint8_t total_mensajes_waiting;
+extern uint8_t total_rutas_blacklist; 
 extern uint8_t total_nodos_blacklist;
 extern String remote_debugging;
 
@@ -163,11 +166,13 @@ uint8_t mostrar_vecinos(char* node_id, nodo_t vecinos[MAX_NODES], size_t tamano_
 }
 
 
-uint8_t mostrar_blacklist(char* node_id, nodo_t blacklist[MAX_NODES_BLACKLIST], size_t total_nodos_blacklist){
+uint8_t mostrar_blacklist(char* node_id, nodo_t blacklist_nodes[MAX_NODES_BLACKLIST], size_t total_nodos_blacklist, std::string tipo){
   uint8_t i;
   char* id_temporal;
   DEBUG_PRINTLN();
-  DEBUG_PRINT(F("Blacklist Node: "));
+  DEBUG_PRINT(F("Blacklist "));
+  DEBUG_PRINT(tipo.c_str());     // candidato al error 
+  DEBUG_PRINT(F(": "));
   DEBUG_PRINTLN(node_id);
   DEBUG_PRINTLN();
    for (i = 1; i <= 80; i++) {
@@ -179,18 +184,59 @@ uint8_t mostrar_blacklist(char* node_id, nodo_t blacklist[MAX_NODES_BLACKLIST], 
     DEBUG_PRINT(i);
     DEBUG_PRINT(F(" : "));
     DEBUG_PRINT(F("\t"));
-    id_temporal=blacklist[i].id;
-    DEBUG_PRINTLN((String)id_temporal);
+    id_temporal=blacklist_nodes[i].id;    // candidato al error aqui deberia ser un copy_array_locha
+    DEBUG_PRINTLN(id_temporal);
   }
-   DEBUG_PRINT(F("Blacklist Table Size:"));
-   DEBUG_PRINT("falta esta info");
+   DEBUG_PRINT(F("Blacklist "));
+   DEBUG_PRINT(tipo.c_str());    // candidato al error 
+   DEBUG_PRINT(F(" table size:"));
+   DEBUG_PRINT(sizeof(blacklist_nodes));
    DEBUG_PRINTLN(F(" bytes"));
-   DEBUG_PRINT(F("Total de vecinos: "));
+   DEBUG_PRINT(F("Total de "));
+   DEBUG_PRINT(tipo.c_str());   // candidato al error 
+   DEBUG_PRINT(F(": "));
    DEBUG_PRINTLN(total_nodos_blacklist);
    DEBUG_PRINTLN();
   return 0;   
 }
 
+uint8_t mostrar_blacklist_routes(char* node_id, rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST], size_t total_nodos_blacklist, std::string tipo){
+  uint8_t i;
+  char* id_temporal;
+  DEBUG_PRINTLN();
+  DEBUG_PRINT(F("Blacklist "));
+  DEBUG_PRINT(tipo.c_str());
+  DEBUG_PRINT(F(": "));
+  DEBUG_PRINTLN(node_id);
+  DEBUG_PRINTLN();
+   for (i = 1; i <= 80; i++) {
+          DEBUG_PRINT(F("-"));
+      }
+      DEBUG_PRINTLN();
+  for (i = 1; i <= total_nodos_blacklist; i++) {
+    DEBUG_PRINT(F("ID "));
+    DEBUG_PRINT(i);
+    DEBUG_PRINT(F(" : "));
+    DEBUG_PRINT(F("\t"));
+    id_temporal=blacklist_routes[i].from;
+    DEBUG_PRINTLN(id_temporal);
+    DEBUG_PRINT(F("->"));
+    id_temporal=blacklist_routes[i].to;
+    DEBUG_PRINTLN(id_temporal);
+    
+  }
+   DEBUG_PRINT(F("Blacklist "));
+   DEBUG_PRINT(tipo.c_str());
+   DEBUG_PRINT(F(" table size:"));
+   DEBUG_PRINT(sizeof(blacklist_routes));
+   DEBUG_PRINTLN(F(" bytes"));
+   DEBUG_PRINT(F("Total de "));
+   DEBUG_PRINT(tipo.c_str());
+   DEBUG_PRINT(F(": "));
+   DEBUG_PRINTLN(total_nodos_blacklist);
+   DEBUG_PRINTLN();
+  return 0;   
+}
 
 uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tamano_arreglo){
   uint8_t i;
@@ -345,9 +391,33 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
      
         mensaje=F("SHOW BLACKLIST");
         if (str_buffer_serial_received==mensaje){
+          str_buffer_serial_received=F("BLACKLIST NODES SHOW");
+        }
+        mensaje=F("BLACK NODES");
+        if (str_buffer_serial_received==mensaje){
+          str_buffer_serial_received=F("BLACKLIST NODES SHOW");
+        }
+        mensaje=F("BLACKLIST NODES SHOW");
+        if (str_buffer_serial_received==mensaje){
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
           str_buffer_serial_received="";
-          uint8_t rpta=mostrar_blacklist(id_node, blacklist, sizeof(blacklist));
+          uint8_t rpta=mostrar_blacklist(id_node, blacklist_nodes, total_nodos_blacklist,"Nodes");
+          ejecute=true;
+        }
+
+        mensaje=F("SHOW BLACK ROUTES");
+        if (str_buffer_serial_received==mensaje){
+          str_buffer_serial_received=F("BLACKLIST ROUTES SHOW");
+        }
+        mensaje=F("BLACK ROUTES");
+        if (str_buffer_serial_received==mensaje){
+          str_buffer_serial_received=F("BLACKLIST ROUTES SHOW");
+        }
+        mensaje=F("BLACKLIST ROUTES SHOW");
+        if (str_buffer_serial_received==mensaje){
+          DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+          str_buffer_serial_received="";
+          uint8_t rpta=mostrar_blacklist_routes(id_node, blacklist_routes, total_rutas_blacklist,"Routes");
           ejecute=true;
         }
         
@@ -466,7 +536,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             
               if (str_node_name.length()>0){
                 
-                uint8_t rptax=create_neighbor(string2char(str_node_name),vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+                uint8_t rptax=create_neighbor(string2char(str_node_name),vecinos,total_vecinos,blacklist_nodes,total_nodos_blacklist);
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -516,8 +586,29 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             
               if (str_node_name.length()>0){
                 
-                uint8_t rpta=blacklist_add(str_node_name,vecinos, total_vecinos, blacklist, total_nodos_blacklist , routeTable, total_rutas);
+                uint8_t rpta=blacklist_node_add((char*)str_node_name.c_str(),vecinos, total_vecinos, blacklist_nodes, total_nodos_blacklist , routeTable, total_rutas);
                   
+                }
+                DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
+                mensaje="";
+                DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+               str_buffer_serial_received="";
+                ejecute=true;
+                return 1;
+         } 
+
+
+         mensaje=F("BLACKLIST ROUTE");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+              
+              DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+              String str_node_name = getparamValue(str_buffer_serial_received, ' ', 2);  
+              String str_node_name2 = getparamValue(str_buffer_serial_received, ' ', 3);  
+            
+              if (str_node_name.length()>0){
+                  if (str_node_name2.length()>0){
+                      uint8_t rpta= blacklist_route_add((char*)str_node_name.c_str(),(char*)str_node_name2.c_str(),vecinos, total_vecinos, blacklist_routes,  total_rutas_blacklist , routeTable, total_rutas);
+                  }
                 }
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";

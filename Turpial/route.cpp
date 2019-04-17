@@ -186,8 +186,8 @@ bool encontre;
 // verifica si el nodo a consultar esta en la tabla de vecinos
 uint8_t es_vecino(char id_nodo[16]){
   uint8_t i;
-  
-  if (!(compare_char(id_nodo,""))){
+   char *pChar = (char*)"";
+  if (!(compare_char(id_nodo,pChar))){
   
     for (i = 1; i <= total_vecinos; i++) {
         if (compare_char(vecinos[i].id,id_nodo)){
@@ -230,10 +230,10 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_rout
   // nuevo vecino de la tabla de vecinos
       uint8_t rpta1;
       if (!(compare_char(id_nodo_from,id_node))){ 
-           rpta1=create_neighbor(id_nodo_from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+           rpta1=create_neighbor(id_nodo_from,vecinos,total_vecinos,blacklist_nodes,total_nodos_blacklist);
       } 
       if (!(compare_char(id_nodo_to,id_node))){
-          rpta1=create_neighbor(id_nodo_to,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+          rpta1=create_neighbor(id_nodo_to,vecinos,total_vecinos,blacklist_nodes,total_nodos_blacklist);
       }
       
   if (update_route){
@@ -248,7 +248,7 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_rout
         rutas_t nueva_ruta;
         copy_array_locha(id_nodo_from, nodo1.id, 16);
         copy_array_locha(id_nodo_to, nodo2.id, 16);
-        create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
+        create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas);
         DEBUG_PRINTLN(F("ruta creada correctamente"));  
      }
   }
@@ -269,7 +269,7 @@ uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16], struct ruta
 }
 
 // create a new route on memory  
-uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t (&blacklist)[MAX_NODES_BLACKLIST], uint8_t &total_nodos_blacklist , struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
+uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t (&blacklist_nodes)[MAX_NODES_BLACKLIST], uint8_t &total_nodos_blacklist , struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
   uint8_t i;
   rutas_t nueva_ruta;
   bool ejecute_correctamente=true;
@@ -408,10 +408,10 @@ uint8_t create_neighbor(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODE
                   nodo_t nodo_vecino;
                   uint8_t i;
                   bool permitir_agregar=true;
-
+                  char *pChar = (char*)"";
                   // no se permiten vecinos sin id
                   
-                        if (!(compare_char(id_node_neighbor,""))){
+                        if (!(compare_char(id_node_neighbor,pChar))){
                   
                        // se verifica que no exista previamente
                        if (es_vecino(id_node_neighbor)){
@@ -440,7 +440,7 @@ uint8_t create_neighbor(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODE
                  if (es_vecino(id_node_neighbor)){ 
                   permitir_agregar=false;
                  }
-                 if ((compare_char(id_node_neighbor,""))){
+                 if ((compare_char(id_node_neighbor,pChar))){
                   permitir_agregar=false;
                  }
                  if (permitir_agregar){
@@ -450,7 +450,7 @@ uint8_t create_neighbor(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODE
                       // ***
                       //String compares_str=(String)nodo_vecino.id;
                       
-                     if (!(compare_char(nodo_vecino.id ,""))){
+                     if (!(compare_char(nodo_vecino.id ,pChar))){
                       if (!(es_vecino(nodo_vecino.id))){
                           total_vecinos++;
                           vecinos[total_vecinos] = nodo_vecino;
@@ -512,10 +512,11 @@ void broadcast_bye(char* id_node,struct nodo_t (vecinos)[MAX_NODES], uint8_t tot
 void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2){
   uint8_t i;
   uint8_t rpta;
+  char *pChar = (char*)"";
   // si es un mensaje tipo broadcast se envia a todos los vecinos 
   DEBUG_PRINTLN(F("Starting BLE_incoming"));
-  
-    if (String(uid2)=="broadcast"){ 
+  pChar=(char*)"broadcast";
+    if (compare_char(uid2,pChar)){ 
        DEBUG_PRINTLN(F("its a broadcast"));
        // se envia el packet a todos los vecinos
        if (total_vecinos>0){ 
@@ -523,7 +524,8 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
           DEBUG_PRINTLN(F("enviando packet al vecino:"));
           DEBUG_PRINTLN(vecinos[i].id);
           // se arma el packet y se envia a cada vecino
-          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, vecinos[i].id, msg_ble);
+          pChar=(char*)"MSG";
+          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e(pChar), id_node, vecinos[i].id, msg_ble);
          
           //DEBUG_PRINTLN("Packet received:");
           //DEBUG_PRINT("type:");
@@ -564,8 +566,10 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
        DEBUG_PRINT(F("type of packet received:"));
        DEBUG_PRINTLN(String(uid2));
        // por ahora todo lo que origina en BLE es tipo MSG
-       if (String(uid2)!=""){
-          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e("MSG"), id_node, uid2, msg);
+         pChar=(char*)"";
+       if (compare_char(uid2,pChar)){
+          pChar = (char*)"MSG";
+          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e(pChar), id_node, uid2, msg);
           rpta=packet_to_send(tmp_packet,mensajes_salientes,total_mensajes_salientes_tmp2);
        }
     }

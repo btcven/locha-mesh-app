@@ -15,6 +15,7 @@
 #include <Arduino.h>
 #include "packet.h"
 #include "route.h"
+#include "blacklist.h"
 //using namespace std;
 
 //declaracion de variables
@@ -25,13 +26,16 @@ extern char *id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
-extern nodo_t blacklist[MAX_NODES_BLACKLIST];
+extern nodo_t blacklist_nodes[MAX_NODES_BLACKLIST];
+extern rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas;
 extern uint8_t total_mensajes_salientes;
 extern uint8_t total_mensajes_waiting;
+extern uint8_t total_rutas_blacklist; 
+extern uint8_t total_nodos_blacklist;
 extern String remote_debugging;
 
 // se redevine la salida serial si el debug esta activado

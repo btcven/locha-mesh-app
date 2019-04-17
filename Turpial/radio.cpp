@@ -93,7 +93,7 @@ void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_v
         
               
               // se hace la parte de enrutamiento del packet
-              process_received_packet(id_node,packet_received,vecinos,total_vecinos,RSSI_packet_actual,SNR_packet_actual);
+              process_received_packet(id_node,packet_received,vecinos,total_vecinos,routeTable,total_rutas,RSSI_packet_actual,SNR_packet_actual);
         
       }
 
@@ -122,11 +122,6 @@ void onReceive(int packetSize) {
 
   radio_Lora_receiving=true;  
   
- 
- 
-        
-
-    //Serial.println("saliendo...");
   }
   
 }

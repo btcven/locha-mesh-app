@@ -38,6 +38,7 @@ uint8_t total_rutas;              // cantidad de rutas del nodo actual (en inici
 uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
 uint8_t outcoming_msgs_size;     // tamaño de la cola de mensajes salientes en bytes.
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
+uint8_t total_rutas_blacklist;    // cantidad de nodos en blacklist
 uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
 uint8_t mensaje_waiting_to_send;   // id del mensaje_waiting para ser reenviado
 
@@ -47,8 +48,11 @@ uint8_t route_table_size = 0;      // tamaño de la tabla de rutas en bytes
 nodo_t vecinos[MAX_NODES];
 uint32_t vecinos_table_size = 0;    // size of neigbours table
 
-nodo_t blacklist[MAX_NODES_BLACKLIST];
-uint32_t blacklist_table_size = 0;  // size of blacklisted nodes table
+nodo_t blacklist_nodes[MAX_NODES_BLACKLIST];
+uint32_t total_blacklist_nodes = 0;  // size of blacklisted nodes table
+
+rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST];
+uint32_t total_blacklist_routes = 0;  // size of blacklisted routes table
 
 message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
@@ -82,6 +86,7 @@ int Lora_SNR;
 void setup()
 {
   uint8_t i;
+  char *pChar = (char*)"";
   radio_Lora_receiving = false;
   bool display_enabled = false;
   bool lora_enabled = false;
@@ -89,6 +94,7 @@ void setup()
   bool wifi_enabled = false;
   total_mensajes_salientes = 0;
   total_nodos_blacklist = 0;
+  total_rutas_blacklist=0;
   total_mensajes_waiting = 0;
   total_rutas = 0;
   total_vecinos = 0;
@@ -172,7 +178,7 @@ void setup()
   DEBUG_PRINT(" ");
   DEBUG_PRINTLN(MSG_START);
   // se genera el node_id solo si no existe
-  if (compare_char(id_node,""))
+  if (compare_char(id_node,pChar))
   {
     String id_tmp=get_id_mac();
     strcpy(id_node,id_tmp.c_str());

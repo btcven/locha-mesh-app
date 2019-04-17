@@ -30,6 +30,8 @@ typedef struct
   packet_type_e type;
   char from[16];
   char to[16];
+  // modificacion para Relay
+  char next_neighbor[16];
   unsigned long timestamp;
   char hash[20];
 } packet_header_t;

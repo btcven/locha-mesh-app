@@ -48,13 +48,10 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
 //  char_vacio="";
 char *pChar = (char*)"";
   // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
-  // 2) si no es para mi nodo se verifica si el destinatario existe en mi tabla de rutas
-  // 3) si no es para mi nodo  y si existe el destinatario en mi tabla de rutas se reenvia a ese destinatario
-  // 4) si no es para mi nodo  y no existe el destinatario en mi tabla de rutas se retorna un packet_not_delivered
-  // 5) se actualiza el age de la ruta desde el recibido hasta el nodo actual
 
 
-      // 1) el paquete recibido es para mi nodo : se procesa y se devuelve al origen via la ruta un packet ACK
+
+      // 1) el paquete recibido es para mi nodo o es un broadcast : se procesa y se devuelve al origen via la ruta un packet ACK
       //DEBUG_PRINT(F("Empezando a procesar el packet"));
       
       if ((compare_char(packet_received.header.to,id_node))or((compare_char(packet_received.header.to,pChar)))){
@@ -95,6 +92,7 @@ char *pChar = (char*)"";
             }
       
       }
+
   
   return 0;
 }
@@ -104,14 +102,14 @@ char *pChar = (char*)"";
 // TODO: en el payload debe contener la tabla de vecinos,rutas hasta donde alcance el limite de tamaño
 uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received){
   // nuevo vecino de la tabla de vecinos
-  uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+  uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist_nodes,total_nodos_blacklist);
   // nueva ruta en la tabla de rutas
   nodo_t nodo1;
   nodo_t nodo2;
   rutas_t nueva_ruta;
   copy_array_locha(packet_received.header.to, nodo1.id, 16);
   copy_array_locha(packet_received.header.from, nodo2.id, 16);
-  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas);
   update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas);
   return 0;
 }
@@ -211,20 +209,20 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   Serial.println(F("se recibio un packet hello"));
   // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
    // nueva ruta en la tabla de rutas
-   uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+   uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist_nodes,total_nodos_blacklist);
   
   // nueva ruta en la tabla de rutas
 
   copy_array_locha(packet_received.header.to, nodo1.id, 16);
   copy_array_locha(packet_received.header.from, nodo2.id, 16);
-  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas);
 
   // ahora se crea la ruta de A->B
   copy_array_locha(packet_received.header.from,packet_received.header.to, 16);
   copy_array_locha(id_node,packet_received.header.from, 16);
   copy_array_locha(packet_received.header.from,  nodo1.id,16);
   copy_array_locha(packet_received.header.to,  nodo2.id,16);
-  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist,total_nodos_blacklist ,routeTable,total_rutas);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas);
   update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas);
 // se devuelve un packet JOIN
   Serial.println("Se envia un packet Join");
@@ -289,7 +287,7 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
    
 }
 
-void update_rssi_snr(char route_from[16], char route_to[16], int RSSI_received, int SNR_received){
+void update_rssi_snr(char route_from[16], char route_to[16], struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas,int RSSI_received, int SNR_received){
   for (uint8_t xx = 1; xx <= total_rutas; xx++) {
       if ((compare_char(routeTable[xx].origen.id,route_from))and(compare_char(routeTable[xx].next_neighbor.id,route_to))){
         routeTable[xx].RSSI_packet=RSSI_received;
@@ -307,14 +305,17 @@ void update_rssi_snr(char route_from[16], char route_to[16], int RSSI_received, 
 
 
 // esta funcion procesa el paquete recibido 
-void process_received_packet(char id_node[16], packet_t packet_temporal,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, int RSSI_recibido, int SNR_recibido){
+void process_received_packet(char id_node[16], packet_t packet_temporal,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas, int RSSI_recibido, int SNR_recibido){
   uint8_t rpta;
-
+ char *pChar = (char*)"";
   DEBUG_PRINT(F("A new packet incoming, type:"));
   DEBUG_PRINTLN(convertir_packet_type_e_str(packet_temporal.header.type));
 
       // se verifica que el origen y destino no sea el mismo, para evitar ataques 
     if ((String)packet_temporal.header.from!=(String)packet_temporal.header.to){
+
+      // si el packet es para mi nodo o es un broadcast
+       if ((compare_char(packet_temporal.header.to,id_node))or((compare_char(packet_temporal.header.to,pChar)))){
       
       switch (packet_temporal.header.type)
       {
@@ -354,6 +355,51 @@ void process_received_packet(char id_node[16], packet_t packet_temporal,struct n
       }
     
       // todo packet incoming actualiza el RSSI y el SNR de la ruta que le corresponda
-      update_rssi_snr(packet_temporal.header.from, packet_temporal.header.to, RSSI_recibido, SNR_recibido);
+      update_rssi_snr(packet_temporal.header.from, packet_temporal.header.to, routeTable, total_rutas, RSSI_recibido, SNR_recibido);
+    }
+    // el packet no es para mi nodo
+
+ 
+  
+      // 2) el packet no es para mi nodo pero soy el nextneighbor del packet (relay)
+      uint8_t jj;
+      uint8_t route_number=0;
+       bool encontre_ruta=false;
+      if (compare_char(packet_temporal.header.next_neighbor,id_node)){
+        // se busca si existe una ruta directa
+       
+        
+        for ( jj = 1; jj <= total_rutas;jj++) {
+            if (compare_char(routeTable[jj].next_neighbor.id,packet_temporal.header.to)){
+              // el destinatario es un vecino directo asi que le envio el packet tal como esta (el ultimo next_neigbour del packet es el nodo actual y por alli deberia devolverse el packet teoricamente
+              encontre_ruta=true;
+              route_number=jj;
+              String msg_to_send_now=packet_serialize(packet_temporal);
+              radioSend(msg_to_send_now.c_str());
+              break;
+            }
+        }
+        // se busca si existe una ruta indirecta (via otro next neighbor)
+        if (!encontre_ruta){ 
+          for ( jj = 1; jj <= total_rutas; jj++) {
+                if (compare_char(routeTable[jj].destino.id,packet_temporal.header.to)){
+                    // el destinatario es un vecino indirecto se reenvia al nextneigbour correspondiente
+                    copy_array_locha(routeTable[jj].next_neighbor.id, packet_temporal.header.next_neighbor, 16);
+                    encontre_ruta=true;
+                    route_number=jj;
+                    String msg_to_send_now=packet_serialize(packet_temporal);
+                    radioSend(msg_to_send_now.c_str());
+                    break;
+                 }
+          }
+        }
+      }
+
+      // 4) si no es para mi nodo  y no existe el destinatario en mi tabla de rutas se retorna un packet_not_delivered
+      // 5) se actualiza el age de la ruta desde el recibido hasta el nodo actual
+      if ((route_number>0)and(encontre_ruta)){
+          routeTable[route_number].age=millis();
+      }
+  
     }
 }

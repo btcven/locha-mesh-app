@@ -38,6 +38,13 @@ typedef struct rutas_t
     int SNR_packet;    // SNR del este paquete
 } rutas_t;
 
+typedef struct rutas_blacklisted_t
+{
+  char from[16];
+  char to[16];
+} rutas_blacklisted_t;
+
+
 //declaracion de variables
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern rutas_t routeTable[MAX_ROUTES];
