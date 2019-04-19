@@ -1,4 +1,4 @@
-/**
+  /**
  * @Copyright:
  * (c) Copyright 2019 locha.io project developers
  * Licensed under a MIT license, see LICENSE file in the root folder
@@ -223,7 +223,7 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16]){
   
 }
 
-uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_route, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
+uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_route, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas,struct rutas_blacklisted_t (&blacklist_routes)[MAX_NODES_BLACKLIST],uint8_t &total_rutas_blacklist){
  
  uint8_t pos_route=pos_ruta(id_nodo_from, id_nodo_to);
 
@@ -248,7 +248,7 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_rout
         rutas_t nueva_ruta;
         copy_array_locha(id_nodo_from, nodo1.id, 16);
         copy_array_locha(id_nodo_to, nodo2.id, 16);
-        create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas);
+        create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
         DEBUG_PRINTLN(F("ruta creada correctamente"));  
      }
   }
@@ -263,16 +263,18 @@ uint8_t existe_ruta(char id_nodo_from[16], char id_nodo_to[16], bool update_rout
 }
 
 // update age of a route in routeTable , if didnt exist 
-uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16], struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
-  uint8_t respuesta=existe_ruta(id_nodo_from, id_nodo_to, true,routeTable,total_rutas);
+uint8_t update_route_age(char id_nodo_from[16], char id_nodo_to[16], struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas,struct rutas_blacklisted_t (&blacklist_routes)[MAX_NODES_BLACKLIST],uint8_t &total_rutas_blacklist){
+  uint8_t respuesta=existe_ruta(id_nodo_from, id_nodo_to, true,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
   return respuesta;
 }
 
 // create a new route on memory  
-uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t (&blacklist_nodes)[MAX_NODES_BLACKLIST], uint8_t &total_nodos_blacklist , struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
+uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t (&blacklist_nodes)[MAX_NODES_BLACKLIST], uint8_t &total_nodos_blacklist , struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas,struct rutas_blacklisted_t (&blacklist_routes)[MAX_NODES_BLACKLIST],uint8_t &total_rutas_blacklist ){
   uint8_t i;
   rutas_t nueva_ruta;
   bool ejecute_correctamente=true;
+
+
 
   if (!(existe_ruta(origen.id,destino.id))){ 
 // solo se agregan las rutas si origen y destino son distintos de vacio
@@ -293,7 +295,49 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino,struct 
     // no se crea ruta cuando no se conoce el origen o el destino
    ejecute_correctamente=false;
   }
+  
+// si origen o destino es un nodo blacklisted no se crea la ruta
+for (i = 0; i <= total_nodos_blacklist; i++) {
+    if (compare_char(blacklist_nodes[i].id,origen.id)){
+          ejecute_correctamente=false;
+          break;
+    }
+    if (compare_char(blacklist_nodes[i].id,destino.id)){
+          ejecute_correctamente=false;
+          break;
+    }
+    if (compare_char(blacklist_nodes[i].id,next_neighbor.id)){
+          ejecute_correctamente=false;
+          break;
+    }
+}
+
+// si la ruta esta blacklisted no se permite crearla
+for (i = 0; i <= total_rutas_blacklist; i++) {
+  
+  if ((compare_char(blacklist_routes[i].from,origen.id))and(compare_char(blacklist_routes[i].to,destino.id))){
+     ejecute_correctamente=false;
+     break;
+  }
+  if ((compare_char(blacklist_routes[i].to,origen.id))and(compare_char(blacklist_routes[i].from,destino.id))){
+     ejecute_correctamente=false;
+     break;
+  }
+  if ((compare_char(blacklist_routes[i].from,origen.id))and(compare_char(blacklist_routes[i].to,next_neighbor.id))){
+     ejecute_correctamente=false;
+     break;
+  }
+   if ((compare_char(blacklist_routes[i].to,origen.id))and(compare_char(blacklist_routes[i].from,next_neighbor.id))){
+     ejecute_correctamente=false;
+     break;
+  }
+}
+  
   if (ejecute_correctamente){
+      DEBUG_PRINT("Creando ruta desde:");
+      DEBUG_PRINT(origen.id);
+    DEBUG_PRINT("-hasta:");
+    DEBUG_PRINTLN(destino.id);
       nueva_ruta.origen=origen;
       nueva_ruta.destino=destino;
       nueva_ruta.next_neighbor=next_neighbor;
@@ -317,7 +361,7 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino,struct 
 }
 }
 
-uint8_t delete_route_by_id(uint8_t id_to_delete){
+uint8_t delete_route_by_id(uint8_t id_to_delete, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
    uint8_t i;
    if (id_to_delete>0){
       
@@ -330,11 +374,15 @@ uint8_t delete_route_by_id(uint8_t id_to_delete){
      return 0;
 }
 
-uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16]){
+uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16], struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
     uint8_t i;
     uint8_t j;
     bool encontro_ruta=false;
     // se busca si existe en la tabla de rutas que id tiene y se elimina
+    DEBUG_PRINT("Borrando desde:");
+    DEBUG_PRINT(id_nodo_from);
+    DEBUG_PRINT("-Borrando hasta:");
+    DEBUG_PRINTLN(id_nodo_to);
      for (i = 0; i <= total_rutas; i++) {
         if ((compare_char(routeTable[i].origen.id,id_nodo_from))and(compare_char(routeTable[i].destino.id,id_nodo_to))){
             encontro_ruta=true;
@@ -372,9 +420,12 @@ uint8_t delete_route(char id_nodo_from[16], char id_nodo_to[16]){
         
      }
      if (encontro_ruta){
-       uint8_t rpta=delete_route_by_id(j);   // se borra y se invoca recursivamente para garantizar que no queden otras rutas
-       rpta=delete_route(id_nodo_from, id_nodo_to);
+       uint8_t rpta=delete_route_by_id(j,routeTable,total_rutas);   // se borra y se invoca recursivamente para garantizar que no queden otras rutas
+       rpta=delete_route(id_nodo_from, id_nodo_to,routeTable,total_rutas);
+     } else {
+      DEBUG_PRINTLN(F("El nodo no tiene una ruta hacia ese destino"));
      }
+     
      
      return 0;
     
@@ -398,7 +449,7 @@ uint8_t delete_neighbor(String id_node_neighbor,struct nodo_t (&vecinos)[MAX_NOD
          }
          total_vecinos--;
    }
-   uint8_t rpta=delete_route(id_node,nombre_temporal);
+   uint8_t rpta=delete_route(id_node,nombre_temporal,routeTable,total_rutas);
    return 0;
                   
 }
@@ -467,10 +518,69 @@ uint8_t create_neighbor(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODE
                  }
      }
 
+// funcion para buscar el vecino con mas rutas activas
+char* vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES],uint8_t total_rutas){
+  uint8_t i;
+  uint8_t j;
+  uint8_t total_rutas_tmp=0;
+  uint8_t total_rutas_vecino_con_mas_rutas=0;
+  uint8_t max_rutas=0;
+  char* nombre_vecino;
+char* nombre_vecino_con_mas_rutas;
+
+   for (i = 1; i <= total_rutas; i++) {
+      total_rutas_tmp=0;
+      nombre_vecino=routeTable[i].next_neighbor.id;
+      copy_array_locha(routeTable[i].next_neighbor.id, nombre_vecino, 16);
+      for (j = 1; j <= total_rutas; j++) {
+        if (compare_char(routeTable[j].next_neighbor.id,nombre_vecino)){ 
+            total_rutas_tmp++;
+        }
+      }
+      if (total_rutas>total_rutas_vecino_con_mas_rutas){
+        copy_array_locha(nombre_vecino, nombre_vecino_con_mas_rutas, 16);
+        total_rutas_vecino_con_mas_rutas=total_rutas_tmp;
+      }
+   }
+  return nombre_vecino_con_mas_rutas;
+  
+}
+
+
 // coloca el mensaje recibido en Buffer_packet a la cola de mensajes salientes, ubicandolo segun su tipo/prioridad en la posicion de la cola de mensajes que le corresponda
 uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp){
   // por ahora solo se agrega a la cola de paquetes salientes
   uint8_t rptsx;
+  uint8_t i;
+  bool exist_route=false;
+  char* vecino_mas_conectado;
+  bool send_route_request=false;
+  
+  // se ubica la ruta que va a usar el packet en curso
+  //1) se busca en la tabla de rutas
+  //2) si no se encuentra, se busca al vecino que tenga mas rutas hacia otros nodos en la tabla de rutas
+  
+   for (i = 1; i <= total_rutas; i++) {
+        if (compare_char(routeTable[i].origen.id,packet_temp.header.to)){
+            copy_array_locha(routeTable[i].origen.id, packet_temp.header.next_neighbor, 16);
+            exist_route=true;
+            break;
+        }
+        if (compare_char(routeTable[i].destino.id,packet_temp.header.to)){
+            copy_array_locha(routeTable[i].destino.id, packet_temp.header.next_neighbor, 16);
+            exist_route=true;
+            break;
+        }
+   }
+  if (!exist_route){
+    // se busca el vecino con mas rutas
+    vecino_mas_conectado=vecino_con_mas_rutas(routeTable, total_rutas);
+    if (!(compare_char(vecino_mas_conectado,NULL))){
+        copy_array_locha(vecino_mas_conectado, packet_temp.header.next_neighbor, 16);
+        // a los demas vecinos se les puede enviar una valixa para ir buscando info con un packet ROUTE tipo RREQ 
+        send_route_request=true;
+    } 
+  }
   
   message_queue_t nuevo_mensaje_en_cola;
   nuevo_mensaje_en_cola.paquete=packet_temp;
@@ -490,6 +600,11 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
     
     return 1;
   }
+
+if (send_route_request){
+  // se envian solicitudes de info de ruta a los demas nodos vecinos, pero solo si packet origen distinto a id_node
+}
+  
   return 0;
 }
 
@@ -502,7 +617,7 @@ void broadcast_bye(char* id_node,struct nodo_t (vecinos)[MAX_NODES], uint8_t tot
     uint8_t i;
     
     for (i = 1; i <= total_vecinos; i++) {         
-            new_packet=create_packet(id_node, BYE,id_node , vecinos[i].id, NULL);
+            new_packet=create_packet(id_node, BYE,id_node , vecinos[i].id, "","","");
             rpta=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);
     }
 }
@@ -525,7 +640,7 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
           DEBUG_PRINTLN(vecinos[i].id);
           // se arma el packet y se envia a cada vecino
           pChar=(char*)"MSG";
-          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e(pChar), id_node, vecinos[i].id, msg_ble);
+          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e(pChar), id_node, vecinos[i].id,"","", msg_ble);
          
           //DEBUG_PRINTLN("Packet received:");
           //DEBUG_PRINT("type:");
@@ -569,12 +684,25 @@ void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, messa
          pChar=(char*)"";
        if (compare_char(uid2,pChar)){
           pChar = (char*)"MSG";
-          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e(pChar), id_node, uid2, msg);
+          packet_t tmp_packet=create_packet(id_node,convertir_str_packet_type_e(pChar), id_node, uid2,"","", msg);
           rpta=packet_to_send(tmp_packet,mensajes_salientes,total_mensajes_salientes_tmp2);
        }
     }
   DEBUG_PRINTLN(F("ready , packet sent to message queue"));
 }
+
+
+// funcion para completar con espacios en blanco al final el contenido de una variable
+std::string completar_con_espacios(char* cadena, uint8_t largo){
+  std::string cadena_tmp;
+  cadena_tmp.append(cadena);
+   // se completa con espacios en blanco despues del id_node para que todo mida exactamente lo mismo
+                        for (uint8_t jj = 1; jj < largo-cadena_tmp.size(); jj++) {
+                            cadena_tmp.append(" ");  
+                        }
+                        return cadena_tmp;
+}
+
 
 // funcion para serializar el contenido de la tabla vecinos
 std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos, uint8_t maximo_caracteres){
@@ -589,7 +717,7 @@ std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_
                      if (rpta_str.length()+sizeof(vecinos[i].id)>maximo_caracteres){ 
                         break;  // si es mayor al largo del payload se sale del serialize
                      } else {
-                        rpta_str.append(vecinos[i].id); 
+                        rpta_str.append(completar_con_espacios(vecinos[i].id,(uint8_t)SIZE_IDNODE)); 
                      }
                      
                      
@@ -598,31 +726,45 @@ std::string serialize_vecinos(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_
     return rpta_str;
 }
 
+// recibe X2NODO1NODO23NODO1NODO2NODO3  donde X es el total de rutas y 2 o 3 es la cantidad de nodos que componen la ruta
+// prcedente de std::string serialize_rutas() y el resultado se va adicionando a la tabla de rutas_t
+void deserialize_rutas(std::string ruta_recibida,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos,struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas){
+  
+}
+
 std::string serialize_rutas(struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos,struct rutas_t (routeTable)[MAX_ROUTES], uint8_t total_rutas, uint8_t maximo_caracteres){
+    // si maximo_caracteres=0 se devuelve un solo std::string con todo
+    // formato a devolver X2NODO1NODO23NODO1NODO2NODO3  donde X es el total de rutas y 2 o 3 es la cantidad de nodos que componen la ruta
     std::string rpta_str="";
+    std::string id_node_tmp;
     std::ostringstream s;
+    uint8_t j;
+    
   // hay que excluir la ruta entre origen y destino del packet en curso que se asume como ya conocida y no necesita ser compartida
         if (total_rutas>0){ 
-          s << (int)total_vecinos;
+          s << (int)total_rutas;
           rpta_str=s.str();
               for (uint8_t i = 1; i <= total_rutas; i++) {
-                if (rpta_str.length()+sizeof(routeTable[i].origen.id)>maximo_caracteres){ 
+                if ((rpta_str.length()+sizeof(routeTable[i].origen.id))>maximo_caracteres){ 
+                    if (maximo_caracteres!=0){  // cuando se recibe 0 es porque se debe devolver toda la cadena completa de rutas
                         break;  // si es mayor al largo del payload se sale del serialize
-                     } else {
-                        if (compare_char(routeTable[i].next_neighbor.id,routeTable[i].destino.id)){
+                    }
+                } 
+                if (compare_char(routeTable[i].next_neighbor.id,routeTable[i].destino.id)){
                           rpta_str.append("2");
                         } else {
                           rpta_str.append("3");
                         }
-                        rpta_str.append(routeTable[i].origen.id); 
-                        rpta_str.append(routeTable[i].next_neighbor.id); 
+                        id_node_tmp.append(completar_con_espacios(routeTable[i].origen.id,(uint8_t)SIZE_IDNODE));
+
+                        rpta_str.append(completar_con_espacios(routeTable[i].next_neighbor.id,(uint8_t)SIZE_IDNODE)); 
                          if (!(compare_char(routeTable[i].next_neighbor.id,routeTable[i].destino.id))){
-                              rpta_str.append(routeTable[i].destino.id);    
+                                rpta_str.append(completar_con_espacios(routeTable[i].destino.id,(uint8_t)SIZE_IDNODE));    
                          }
                      }
             }
               
-        }
+        
 
 
     return rpta_str;

@@ -162,11 +162,14 @@ std::string getValue_std_string(std::string data, char separator, int index)
 
 // funcion para contruir un packet HELLO que identifique inicialmente al nodo
 packet_t construct_packet_HELLO(char* from){
-   packet_t packet_HELLO;
+    packet_t packet_HELLO;
     char *pChar = (char*)"";
-    copy_array_locha(from, packet_HELLO.header.from, 16);
-    copy_array_locha(pChar, packet_HELLO.header.to, 16);
-    copy_array_locha(pChar, packet_HELLO.body.payload, 240);
+    
+    copy_array_locha(from, packet_HELLO.header.from, SIZE_IDNODE);
+    copy_array_locha(pChar, packet_HELLO.header.to, SIZE_IDNODE);
+    copy_array_locha(pChar, packet_HELLO.header.next_neighbor, SIZE_IDNODE);
+    copy_array_locha(pChar, packet_HELLO.header.hash, 20);
+    copy_array_locha(pChar, packet_HELLO.body.payload, SIZE_PAYLOAD);
     packet_HELLO.header.type=HELLO;
     packet_HELLO.header.timestamp=millis();
     
@@ -176,29 +179,38 @@ packet_t construct_packet_HELLO(char* from){
 // Funcion en cargada de convertir un packet en una cadana char para ser enviada por Radio
 //  se usa +"|" como separador de campo
 String packet_serialize(packet_t packet){
-     std::string rpta_str="";
-     std::ostringstream s;
-     char *pChar = (char*)"|";
-          s << (int)packet.header.type;
-          rpta_str=s.str();
-          rpta_str.append(pChar);
-          rpta_str.append(packet.header.from);
-          rpta_str.append(pChar);
-          rpta_str.append(packet.header.to);
-          rpta_str.append(pChar);
-          s << (long long)packet.header.timestamp;
-          rpta_str.append(s.str());
-          rpta_str.append(pChar);
-          rpta_str.append(packet.body.payload);
-          rpta_str.append(pChar);
+//     std::string rpta_str="";
+ //    std::ostringstream s;
+ //    char *pChar = (char*)"|";
+  //        s << (int)packet.header.type;
+  //        rpta_str=s.str();
+  //        rpta_str.append(pChar);
+   //       rpta_str.append(packet.header.from);
+   //       rpta_str.append(pChar);
+   //       rpta_str.append(packet.header.to);
+   //       rpta_str.append(pChar);
+   //       rpta_str.append(packet.header.next_neighbor);
+   //       rpta_str.append(pChar);
+   //       s << (long long)packet.header.timestamp;
+   //       rpta_str.append(s.str());
+   //       rpta_str.append(pChar);
+     //     rpta_str.append(packet.header.hash);
+    //      rpta_str.append(pChar);
+    //      rpta_str.append(packet.body.payload);
+    //      rpta_str.append(pChar);
           
   String rpta_str2="";
   rpta_str2=rpta_str2+(String)packet.header.type+"|";
   rpta_str2=rpta_str2+(String)packet.header.from+"|";
   rpta_str2=rpta_str2+(String)packet.header.to+"|";
+  //rpta_str2=rpta_str2+(String)packet.header.next_neighbor+"|";
+  rpta_str2=rpta_str2+"||";
   rpta_str2=rpta_str2+(String)packet.header.timestamp+"|";
+  //rpta_str2=rpta_str2+(String)packet.header.hash+"|";
+  rpta_str2=rpta_str2+"||";
   rpta_str2=rpta_str2+(String)packet.body.payload+"|";
-  return rpta_str2;
+   return rpta_str2;
+  //return rpta_str.c_str();
 }
 
 // Funcion encargada de convertir un string en un packet ( inverso de packet_serialize() )
@@ -208,6 +220,9 @@ packet_t packet_deserialize_str(String received_text){
    uint8_t ind3;
    uint8_t ind4;
    uint8_t ind5;
+    uint8_t ind6;
+     uint8_t ind7;
+     
    String str_in_process;
    packet_t packet_tmp;
   
@@ -221,25 +236,36 @@ packet_t packet_deserialize_str(String received_text){
             }
       ind2 = received_text.indexOf('|', ind1+1 );   //finds location of second ,
       str_in_process = received_text.substring(ind1+1, ind2);   //captures second data String
-      str_in_process.toCharArray(packet_tmp.header.from,16);
+      str_in_process.toCharArray(packet_tmp.header.from,SIZE_IDNODE);
+     
       ind3 = received_text.indexOf('|', ind2+1 );
       str_in_process = received_text.substring(ind2+1, ind3);
-      str_in_process.toCharArray(packet_tmp.header.to,16);
+      str_in_process.toCharArray(packet_tmp.header.to,SIZE_IDNODE);
+      
       ind4 = received_text.indexOf('|', ind3+1 );
       str_in_process = received_text.substring(ind3+1, ind4);
+      str_in_process.toCharArray(packet_tmp.header.next_neighbor,SIZE_IDNODE);
+      
+      ind5 = received_text.indexOf('|', ind4+1 );
+      str_in_process = received_text.substring(ind4+1, ind5);
             if (isNumeric(str_in_process)){
                     packet_tmp.header.timestamp=char2LL(string2char(str_in_process));
             } else { 
               packet_tmp.header.timestamp=0;
             }
+
+      ind6 = received_text.indexOf('|', ind5+1 );
+      str_in_process = received_text.substring(ind5+1, ind6);
+      str_in_process.toCharArray(packet_tmp.header.hash,20);
+
        
-      ind5 = received_text.indexOf('|', ind4+1);
-      if (ind5>0){   // si venia al final con |
-          str_in_process = received_text.substring( ind4+1,ind5 );
+      ind7 = received_text.indexOf('|', ind6+1);
+      if (ind7>0){   // si venia al final con |
+          str_in_process = received_text.substring( ind6+1,ind7 );
          
       } else {
         // no trae | al final
-        str_in_process = received_text.substring( ind4+1,received_text.length()-ind4-1 );
+        str_in_process = received_text.substring( ind6+1,received_text.length()-ind6-1 );
         
       }
       
@@ -258,27 +284,36 @@ packet_t packet_deserialize(char* received_text){
   uint8_t i=1;
 
  DEBUG_PRINT(F("voy a deserialize con:"));
- DEBUG_PRINTLN((String)received_text);
+ DEBUG_PRINTLN(received_text);
   while ((str_in_process = strtok_r(received_text, "|", &received_text)) != NULL) {
     switch (i) {
           case 1:
             DEBUG_PRINT(F("el tipo es:"));
-            DEBUG_PRINT((String)str_in_process);
+            DEBUG_PRINT(str_in_process);
             packet_tmp.header.type=convertir_str_packet_type_e(str_in_process);
             break;
           case 2:
           
-             copy_array_locha(str_in_process, packet_tmp.header.from, 16);
+             copy_array_locha(str_in_process, packet_tmp.header.from, SIZE_IDNODE);
             break;
              case 3:
              
-             copy_array_locha(str_in_process, packet_tmp.header.to, 16);
+             copy_array_locha(str_in_process, packet_tmp.header.to, SIZE_IDNODE);
             break;
-             case 4:
+              case 4:
+             
+             copy_array_locha(str_in_process, packet_tmp.header.next_neighbor, SIZE_IDNODE);
+            break;
+             
+             case 5:
            
              packet_tmp.header.timestamp=convert_str_to_long(str_in_process);
             break;
-             case 5:
+             case 6:
+             
+             copy_array_locha(str_in_process, packet_tmp.header.hash, 20);
+            break;
+             case 7:
             
              copy_array_locha(str_in_process, packet_tmp.body.payload, ((String)str_in_process).length());
             break;
@@ -292,16 +327,18 @@ packet_t packet_deserialize(char* received_text){
 
 
 // Funcion para construir un packet dao el origen, destino, tipo y contenido (payload)
-packet_t create_packet(char* id_node, packet_type_e tipo_packet, char* from, char* to, char* payload){
+packet_t create_packet(char* id_node, packet_type_e tipo_packet, char* from, char* to,  char* next_neighbor, char* hash,char* payload){
    
       packet_header_t header;
       packet_body_t body;
 
       header.type=tipo_packet;
-      copy_array_locha(from, header.from, 16);
-      copy_array_locha(to, header.to, 16);
+      copy_array_locha(from, header.from, SIZE_IDNODE);
+      copy_array_locha(to, header.to, SIZE_IDNODE);
+      copy_array_locha(next_neighbor, header.next_neighbor, SIZE_IDNODE);
       header.timestamp=millis();
-      copy_array_locha(payload, body.payload, 240);
+      copy_array_locha(hash, header.hash,  20);
+      copy_array_locha(payload, body.payload, SIZE_PAYLOAD);
       packet_t new_packet;
       new_packet.header=header;
       new_packet.body=body;

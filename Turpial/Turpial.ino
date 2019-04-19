@@ -9,6 +9,7 @@
 #include <WiFi.h>
 #include <Time.h>
 #include <TimeLib.h>
+#include "dummy.h"
 // devices and default settings
 #include "hal/hardware.h"
 #include "lang/language.h"
@@ -40,7 +41,7 @@ uint8_t outcoming_msgs_size;     // tamaño de la cola de mensajes salientes en 
 uint8_t total_nodos_blacklist;    // cantidad de nodos en blacklist
 uint8_t total_rutas_blacklist;    // cantidad de nodos en blacklist
 uint8_t total_mensajes_waiting;   // cantidad de mensajes en la cola de espera por ACK , reintento u otro estado de espera
-uint8_t mensaje_waiting_to_send;   // id del mensaje_waiting para ser reenviado
+uint8_t mensaje_waiting_to_send=0;   // id del mensaje_waiting para ser reenviado
 
 rutas_t routeTable[MAX_ROUTES];
 uint8_t route_table_size = 0;      // tamaño de la tabla de rutas en bytes
@@ -65,7 +66,7 @@ String remote_debugging = "";       // se usa para recibir comandos de debugging
 uint8_t packet_timeout = 30; // expiration time in seconds of packets
 
 unsigned long tiempo;
-unsigned long tiempo_desde_ultimo_packet_recibido;
+unsigned long tiempo_desde_ultimo_packet_recibido=0;
 
 bool radio_Lora_receiving;
 
@@ -265,11 +266,11 @@ void loop()
       
       Serial.print(F("enviado al BLE:"));
       Serial.println(text_to_send_to_ble);
-      Serial.print("Largo de la cadena enviada al BLE:");
+      Serial.print(F("Largo de la cadena enviada al BLE:"));
       Serial.println((String)text_to_send_to_ble.length());
     }
 
-    if (mensaje_waiting_to_send>0){
+    if (total_mensajes_waiting>0){
       update_older_record();
     }
 

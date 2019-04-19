@@ -36,6 +36,11 @@ extern uint8_t total_mensajes_waiting;
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
+extern uint8_t total_rutas_blacklist;
+extern uint8_t total_nodos_blacklist;
+extern nodo_t blacklist_nodes[MAX_NODES_BLACKLIST];
+extern rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST];
+
 
 // funciones para enrutamiento de paquetes entrantes, dado un tipo de packet_t.type 
 // se usa la funcion process_received_packet para determinar como va a ser procesado el paquete recibido
@@ -57,8 +62,8 @@ char *pChar = (char*)"";
       if ((compare_char(packet_received.header.to,id_node))or((compare_char(packet_received.header.to,pChar)))){
        
         // se devuelve un packet_ACK por la misma ruta al origen para notificar la recepcion
-        
-            packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.body.payload);
+            
+            packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.header.next_neighbor , "",packet_received.body.payload);
             DEBUG_PRINT(F("Se esta procesando routing_incoming_PACKET_MSG:"));
             #ifdef DEBUG
               show_packet(packet_received, true);
@@ -78,17 +83,18 @@ char *pChar = (char*)"";
             uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
             DEBUG_PRINTLN(F("se actualiza el age de la ruta"));
             // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
-            update_route_age(packet_received.header.from, packet_received.header.to,routeTable,total_rutas);
+            update_route_age(packet_received.header.from, packet_received.header.to,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
       } else {
             // el paquete no es para mi, pero tengo que hacerle relay a mis vecinos
             // busco si tengo una ruta entre mi nodo y el destino del paquete (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
-            if (existe_ruta(id_node, packet_received.header.to,true,routeTable,total_rutas)){
+            if (existe_ruta(id_node, packet_received.header.to,true,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist)){
            
                 packet_t new_packet;
-                new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to, Buffer_packet.body.payload);
+                new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to,packet_received.header.next_neighbor,"", Buffer_packet.body.payload);
                 uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
             } else {
-              // si no existe ruta, falta determinar si me voy random por cualquiera de los nodos para intentar
+              // si no existe ruta se aplica GDFA 
+              
             }
       
       }
@@ -109,8 +115,8 @@ uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received)
   rutas_t nueva_ruta;
   copy_array_locha(packet_received.header.to, nodo1.id, 16);
   copy_array_locha(packet_received.header.from, nodo2.id, 16);
-  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas);
-  update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
+  update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
   return 0;
 }
 
@@ -186,26 +192,92 @@ uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_
 
 // TODO
 uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received){
-  // 
+  // con GOSSIP se hace solicitudes de informacion, el payload contiene el comando o informacion solicitada
+  std::string payload_rutas;
+std::string payload_tmp;
+char* payload_char;
+  if (compare_char(packet_received.body.payload,"ROUTES")){
+      payload_rutas=serialize_rutas(vecinos, total_vecinos, routeTable, total_rutas, 0);
+      
+      //payload_join=payload_vecinos;
+     // payload_join.append(payload_rutas);
+     packet_t new_packet;
+     uint32_t tamano_tmp=payload_rutas.size();
+     uint8_t cantidad_packets=1;
+      while(1){
+        DEBUG_PRINTLN("");
+        DEBUG_PRINT(F("enviando rutas...:"));
+        DEBUG_PRINTLN((String)cantidad_packets);
+        DEBUG_PRINTLN("");
+          if (tamano_tmp>SIZE_PAYLOAD){
+             payload_tmp=payload_rutas.substr(1,SIZE_PAYLOAD);
+             payload_rutas=payload_rutas.substr(SIZE_PAYLOAD,tamano_tmp);
+             //copy_array_locha(payload_tmp.c_str(), payload_char, SIZE_PAYLOAD);
+              char *cstr = new char[payload_tmp.length() + 1];
+              strcpy(cstr, payload_tmp.c_str());
+             new_packet=create_packet(id_node, ROUTE, packet_received.header.to, packet_received.header.from, packet_received.header.next_neighbor , "",cstr);
+          } else {
+            payload_tmp=payload_rutas;
+            //copy_array_locha(payload_tmp.c_str(), payload_char, SIZE_PAYLOAD);
+            char *cstr = new char[payload_tmp.length() + 1];
+              strcpy(cstr, payload_tmp.c_str());
+            new_packet=create_packet(id_node, ROUTE, packet_received.header.to, packet_received.header.from, packet_received.header.next_neighbor , "",cstr);
+            break;
+          }
+            cantidad_packets++; 
+      }
+            
+            
+      }     
+    
+     
+
+
+
   Serial.println(F("se recibio un packet gossip"));
   return 0;
 }
 
 // TODO
-uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received){
+uint8_t routing_incoming_PACKET_TXN(char id_node[SIZE_IDNODE], packet_t packet_received){
   // 
   Serial.println(F("se recibio un packet txn"));
   return 0;
 }
-uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received){
-  // 
+uint8_t routing_incoming_PACKET_HELLO(char id_node[SIZE_IDNODE], packet_t packet_received){
+  // variables
+   uint8_t i;
   nodo_t nodo1;
   nodo_t nodo2;
   rutas_t nueva_ruta;
   std::string payload_vecinos="";
   std::string payload_rutas="";  
   std::string payload_join="";
+  bool is_blacklisted=false;
+  bool existe_previamente_vecino=false;
+  packet_t new_packet;
   
+// se verifica si el remitente esta en blacklist
+for (i = 1; i <= total_nodos_blacklist; i++) {
+    if (compare_char(blacklist_nodes[i].id,packet_received.header.from)){
+      is_blacklisted=true;
+      break;
+    }
+}
+// se verifica si la ruta al remitente esta en blacklist
+for (i = 1; i <= total_rutas_blacklist; i++) {
+    if ((compare_char(blacklist_routes[i].from,packet_received.header.from))and(compare_char(blacklist_routes[i].to,id_node))){
+      is_blacklisted=true;
+      break;
+    }
+    // o la ruta inversa
+     if ((compare_char(blacklist_routes[i].to,packet_received.header.from))and(compare_char(blacklist_routes[i].from,id_node))){
+      is_blacklisted=true;
+      break;
+    }
+}
+  if (!is_blacklisted){ 
+    existe_previamente_vecino=es_vecino(packet_received.header.from);
   Serial.println(F("se recibio un packet hello"));
   // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
    // nueva ruta en la tabla de rutas
@@ -213,18 +285,21 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
   
   // nueva ruta en la tabla de rutas
 
-  copy_array_locha(packet_received.header.to, nodo1.id, 16);
+  copy_array_locha(packet_received.header.to, nodo1.id, SIZE_IDNODE);
   copy_array_locha(packet_received.header.from, nodo2.id, 16);
-  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
 
   // ahora se crea la ruta de A->B
   copy_array_locha(packet_received.header.from,packet_received.header.to, 16);
   copy_array_locha(id_node,packet_received.header.from, 16);
   copy_array_locha(packet_received.header.from,  nodo1.id,16);
   copy_array_locha(packet_received.header.to,  nodo2.id,16);
-  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas);
-  update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas);
+  create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
+  update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
+
+
 // se devuelve un packet JOIN
+
   Serial.println("Se envia un packet Join");
   packet_received.header.type=JOIN;
   copy_array_locha(nodo2.id,packet_received.header.to, 16);
@@ -232,16 +307,27 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received
 
  // se arma como payload el contenido de la tabla vecinos concatenado por el contenido de la tabla rutas
   payload_vecinos=serialize_vecinos(vecinos, total_vecinos,SIZE_PAYLOAD);
-  payload_rutas=serialize_rutas(vecinos, total_vecinos, routeTable, total_rutas, (SIZE_PAYLOAD-sizeof(payload_vecinos)));
+  //payload_rutas=serialize_rutas(vecinos, total_vecinos, routeTable, total_rutas, (SIZE_PAYLOAD-sizeof(payload_vecinos)));
   payload_join=payload_vecinos;
-  payload_join.append(payload_rutas);
+ // payload_join.append(payload_rutas);
   
   char *cstr = new char[payload_join.length() + 1];
   strcpy(cstr, payload_join.c_str());
   copy_array_locha(cstr,packet_received.body.payload, payload_join.length() + 1);
   //packet_received.body.payload=payload_join.c_str();
   radioSend(packet_serialize(packet_received));
- 
+  
+  // se le solicta via GOSSIP las rutas que tenga solo para los vecinos que no existan previamente
+  //if (!existe_previamente_vecino){
+    new_packet=create_packet(id_node, GOSSIP, id_node, packet_received.header.to, packet_received.header.next_neighbor , "","ROUTES");
+    radioSend(packet_serialize(new_packet));
+  //}
+
+
+  } else {
+    DEBUG_PRINT(F("Se recibio un packet de un nodo/ruta blacklisted, no se procesa el packet de:"));
+    DEBUG_PRINTLN(packet_received.header.from);
+  }
         // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
         LoRa.receive();
   return 0;
@@ -256,15 +342,15 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
    for (i = 1; i <= total_mensajes_waiting; i++) {
     Serial.println("packet received:");
     Serial.print("To:");
-    Serial.println((String)packet_received.header.to);
+    Serial.println(packet_received.header.to);
     Serial.print("From:");
-    Serial.println((String)packet_received.header.from);
+    Serial.println(packet_received.header.from);
     
-      if (((String)mensajes_waiting[i].paquete.header.from==(String)(String)packet_received.header.from)and((String)mensajes_waiting[i].paquete.header.to==(String)packet_received.header.to)){
+      if ((compare_char(mensajes_waiting[i].paquete.header.from,packet_received.header.from))and(compare_char(mensajes_waiting[i].paquete.header.to,packet_received.header.to))){
           // se verifica que sea un ACK de un mensaje tipo MSG
           if (mensajes_waiting[i].paquete.header.type=MSG){
                   // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)
-                if ((String)mensajes_waiting[i].paquete.body.payload==(String)packet_received.body.payload){
+                if (compare_char(mensajes_waiting[i].paquete.body.payload,packet_received.body.payload)){
                   // se recibio el ACK de que el mensaje MSG fue recibido correctamente
                   is_MSG=i;
                   break;

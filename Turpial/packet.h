@@ -28,12 +28,12 @@ typedef enum
 typedef struct
 {
   packet_type_e type;
-  char from[16];
-  char to[16];
+  char from[SIZE_IDNODE];
+  char to[SIZE_IDNODE];
   // modificacion para Relay
-  char next_neighbor[16];
+  char next_neighbor[SIZE_IDNODE];
   unsigned long timestamp;
-  char hash[20];
+  char hash[SIZE_HASH_MSG];
 } packet_header_t;
 
 typedef struct
@@ -63,7 +63,7 @@ private:
   packet_t packet;
 };
 
-packet_t create_packet(char* id_node, packet_type_e type, char* from, char* to, char* payload);
+packet_t create_packet(char* id_node, packet_type_e tipo_packet, char* from, char* to,  char* next_neighbor, char* hash,char* payload);
 packet_type_e convertir_str_packet_type_e(char* type_recibido);
 char* convertir_packet_type_e_str(packet_type_e type_recibido);
 packet_type_e convertir_int_packet_type_e(uint8_t type_recibido);

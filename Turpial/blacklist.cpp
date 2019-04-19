@@ -47,7 +47,8 @@ uint8_t blacklist_node_add(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_N
     total_nodos_blacklist++;
     blacklist_nodes[total_nodos_blacklist] = nodo_vecino;
     uint8_t rpta=delete_neighbor(id_node_neighbor,vecinos, total_vecinos);
-    return delete_route(id_node, id_node_neighbor);
+    rpta=delete_route(id_node, id_node_neighbor,routeTable,total_rutas);
+    return 0;
 }
 
 // blacklist a route 
@@ -60,9 +61,9 @@ uint8_t blacklist_route_add(char* from, char* to,struct nodo_t (&vecinos)[MAX_NO
     uint8_t i;
     copy_array_locha(from, route_to_block.from, 16);
     copy_array_locha(to, route_to_block.to, 16);
-    total_blacklist_routes++;
-    blacklist_routes[total_blacklist_routes]=route_to_block;
+    total_rutas_blacklist++;
+    blacklist_routes[total_rutas_blacklist]=route_to_block;
     // se elimina la ruta en caso de que exista
     
-    return delete_route(from, to);
+    return delete_route(from, to,routeTable,total_rutas);
 }

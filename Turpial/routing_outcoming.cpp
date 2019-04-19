@@ -46,7 +46,7 @@ uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]){
       copy_array_locha(id_node_dest_temp,header.to, 16);
       header.timestamp=millis();
       
-      copy_array_locha(mensaje,body.payload, 240);
+      copy_array_locha(mensaje,body.payload, SIZE_PAYLOAD);
       Buffer_packet.header=header; 
       Buffer_packet.body=body;
       uint8_t rptax=packet_to_send(Buffer_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
@@ -58,7 +58,7 @@ uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]){
        copy_array_locha(id_node_temp,header.from, 16);
       copy_array_locha(id_node_dest_temp,header.to, 16);
       header.timestamp=millis();
-       copy_array_locha(mensaje,body.payload, 240);
+       copy_array_locha(mensaje,body.payload, SIZE_PAYLOAD);
       Buffer_packet.header=header;
       Buffer_packet.body=body;
       uint8_t rptax=packet_to_send(Buffer_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes

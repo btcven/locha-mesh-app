@@ -66,7 +66,7 @@ void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_v
      rxValue_Lora.clear();  // se libera el buffer Lora
      radio_Lora_receiving=false;  //  se habilita para que se pueda recibir otro packet
      
- 
+
       mensaje_recibido_char=string2char(mensaje_recibido);
       packet_t packet_received=packet_deserialize_str(mensaje_recibido);
 
@@ -136,6 +136,7 @@ uint8_t radioSend(String _data) {
   // hay que verificar primero si el canal esta libre Listen before Talk
   DEBUG_PRINT(F("se envia el packet..."));
   DEBUG_PRINTLN(_data.c_str());
+  LoRa.setTxPower(20,false);
   // se hacen 5 intentos de delibery a busy variables en caso de que el canal este ocupado
    for (ii = 0; ii<5; ++ii){
       rpta= LoRa.beginPacket();
@@ -148,8 +149,10 @@ uint8_t radioSend(String _data) {
    }
    LoRa.print(_data.c_str());
   done = LoRa.endPacket();
+  LoRa.setTxPower(2,false);
   // se coloca en modo receive para que siga escuchando packets
     // ponemos en modo recepcion.
+    delay(20);
   LoRa.receive();
   
  if (rpta==1){ 
@@ -157,7 +160,9 @@ uint8_t radioSend(String _data) {
   DEBUG_PRINT("Cantidad de reintentos efectuados:");
   DEBUG_PRINT((String)ii);
   DEBUG_PRINTLN(F("enviado OK"));
-  
+   // se coloca en modo receive para que siga escuchando packets
+    // ponemos en modo recepcion.
+  LoRa.receive();
   
  
   
@@ -189,9 +194,9 @@ void task_radio(void *params) {
 
   SPI.begin(RAD_SCK, RAD_MISO, RAD_MOSI, RAD_CSS);
   LoRa.setPins(RAD_CSS, RAD_RST, RAD_DIO0);
-
+  LoRa.setSPIFrequency(1e6);
   int rad_isInit = LoRa.begin(RAD_BAND, RAD_PABOOST);
-
+LoRa.setTxPower(2,false);
   if (rad_isInit) {
     DEBUG_PRINT(MSG_OK);
   } else {

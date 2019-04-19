@@ -26,6 +26,13 @@ bool compare_char(char* src ,char* dst){
   }
 }
 
+//funcion para convertir un std::string en un char*
+char* std_string_to_char(std::string cadena){
+   char *cstr = new char[cadena.length() + 1];
+  strcpy(cstr, cadena.c_str());
+  return cstr;
+}
+
 // Funcion de conversion de tipo de datos: Char* a long long
 // usada para convertir timestamps que  vienen en cadenas de caracteres a un numero tipo long long 
 long long char2LL(char *str)
