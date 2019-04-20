@@ -30,15 +30,15 @@ extern uint8_t total_rutas;
 extern uint8_t total_mensajes_salientes; 
 
 // declaracion de funciones
-void process_received_packet(char id_node[16], packet_t packet_temporal,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas, int RSSI_recibido, int SNR_recibido);
-uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received);
-uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received);
-uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received);
-uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received);
-uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received);
-uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received);
-uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received);
-uint8_t routing_incoming_PACKET_TXN(char id_node[16], packet_t packet_received);
-uint8_t routing_incoming_PACKET_HELLO(char id_node[16], packet_t packet_received);
+void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas, int RSSI_recibido, int SNR_recibido);
+uint8_t routing_incoming_PACKET_MSG(char id_node[SIZE_IDNODE], packet_t packet_received);
+uint8_t routing_incoming_PACKET_JOIN(char id_node[SIZE_IDNODE], packet_t packet_received);
+uint8_t routing_incoming_PACKET_BYE(char id_node[SIZE_IDNODE], packet_t packet_received);
+uint8_t routing_incoming_PACKET_ROUTE(char id_node[SIZE_IDNODE], packet_t packet_received);
+uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[SIZE_IDNODE], packet_t packet_received);
+uint8_t routing_incoming_PACKET_ACK(char id_node[SIZE_IDNODE], packet_t packet_received);
+uint8_t routing_incoming_PACKET_GOSSIP(char id_node[SIZE_IDNODE], packet_t packet_received);
+uint8_t routing_incoming_PACKET_TXN(char id_node[SIZE_IDNODE], packet_t packet_received);
+uint8_t routing_incoming_PACKET_HELLO(char id_node[SIZE_IDNODE], packet_t packet_received);
 
 #endif // INCOMING_H

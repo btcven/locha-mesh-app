@@ -28,7 +28,7 @@ using namespace std;
 
 // variables fijas para este demo
 // ID unico del nodo
-char id_nodo_demo[16] = "";
+char id_nodo_demo[SIZE_IDNODE] = "";
 
 
 char *id_node;
@@ -62,6 +62,8 @@ packet_t Buffer_packet;             // packet_t usado como buffer para mensajes 
 String packet_return_BLE_str = "";  // se usa en los callback para devolver valores hacia el main loop
 String packet_return_Lora_str = ""; // se usa en los callback para devolver valores hacia el main loop
 String remote_debugging = "";       // se usa para recibir comandos de debugging remote de la app movil via BLE al equipo
+
+not_delivered_type_e why_not_delivered=EMPTY_NOT_DELIVERED;   // causa de no entrega de algun packet
 
 uint8_t packet_timeout = 30; // expiration time in seconds of packets
 
@@ -100,10 +102,10 @@ void setup()
   total_rutas = 0;
   total_vecinos = 0;
   // se coloca el id_nodo en mayusculas
-  // id_nodo_demo=char_to_uppercase(id_nodo_demo, 16);
+  // id_nodo_demo=char_to_uppercase(id_nodo_demo, SIZE_IDNODE);
   // id_node= node_name_char_to_uppercase(id_nodo_demo);
   id_node = id_nodo_demo;
-  copy_array_locha(id_nodo_demo, id_node, 16);
+  copy_array_locha(id_nodo_demo, id_node, SIZE_IDNODE);
   // fin de colocar id_nodo en mayusculas
 
 #if defined(DEBUG)
@@ -254,30 +256,36 @@ void loop()
       DEBUG_PRINT(F("devolviendo packet ..."));
       DEBUG_PRINT("recibi:");
       DEBUG_PRINTLN(packet_return_BLE_str);
-    
+     
       // se invierte el remitente con el destinatario
       // se usa una variable temporal para invertir los valores
-      char remitente[16];
-      copy_array_locha(paquet_in_process2.header.from, remitente, 16);
-      copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, 16);
-      copy_array_locha(remitente, paquet_in_process2.header.to, 16);
-      String text_to_send_to_ble=packet_into_json(paquet_in_process2,"msg");
-      txValue = text_to_send_to_ble.c_str();
-      
-      Serial.print(F("enviado al BLE:"));
-      Serial.println(text_to_send_to_ble);
-      Serial.print(F("Largo de la cadena enviada al BLE:"));
-      Serial.println((String)text_to_send_to_ble.length());
-    }
+      char remitente[SIZE_IDNODE];
+      copy_array_locha(paquet_in_process2.header.from, remitente, SIZE_IDNODE);
+      copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, SIZE_IDNODE);
+      copy_array_locha(remitente, paquet_in_process2.header.to, SIZE_IDNODE);
 
-    if (total_mensajes_waiting>0){
-      update_older_record();
+      // se manda por el radio Lora
+      if (why_not_delivered!=EMPTY_NOT_DELIVERED){ 
+        paquet_in_process2.header.type=NOT_DELIVERED;
+        radioSend(packet_serialize(paquet_in_process2));
+        why_not_delivered=EMPTY_NOT_DELIVERED;  // despues de enviado se inicializa la variable para que quede disponible para cualquier otro packet
+      }
+      // igualmente se intenta enviar noti
+     // String text_to_send_to_ble=packet_into_json(paquet_in_process2,"msg");
+     // txValue = text_to_send_to_ble.c_str();
+      
+     // Serial.print(F("enviado al BLE:"));
+    //  Serial.println(text_to_send_to_ble);
+    //  Serial.print(F("Largo de la cadena enviada al BLE:"));
+    //  Serial.println((String)text_to_send_to_ble.length());
     }
 
     packet_return_BLE_str = "";
   }
 
-
+    if (total_mensajes_waiting>0){
+      update_older_record();
+    }
 
  
 }

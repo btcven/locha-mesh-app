@@ -135,7 +135,7 @@ uint8_t radioSend(String _data) {
   uint8_t ii;
   // hay que verificar primero si el canal esta libre Listen before Talk
   DEBUG_PRINT(F("se envia el packet..."));
-  DEBUG_PRINTLN(_data.c_str());
+  DEBUG_PRINT(_data.c_str());
   LoRa.setTxPower(20,false);
   // se hacen 5 intentos de delibery a busy variables en caso de que el canal este ocupado
    for (ii = 0; ii<5; ++ii){
@@ -157,9 +157,11 @@ uint8_t radioSend(String _data) {
   
  if (rpta==1){ 
   if (done){
-  DEBUG_PRINT("Cantidad de reintentos efectuados:");
-  DEBUG_PRINT((String)ii);
-  DEBUG_PRINTLN(F("enviado OK"));
+    if (ii>0){ 
+    DEBUG_PRINT("Cantidad de reintentos efectuados:");
+    DEBUG_PRINT((String)ii);
+      } 
+    DEBUG_PRINTLN(F("enviado OK"));
    // se coloca en modo receive para que siga escuchando packets
     // ponemos en modo recepcion.
   LoRa.receive();

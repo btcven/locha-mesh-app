@@ -168,7 +168,7 @@ packet_t construct_packet_HELLO(char* from){
     copy_array_locha(from, packet_HELLO.header.from, SIZE_IDNODE);
     copy_array_locha(pChar, packet_HELLO.header.to, SIZE_IDNODE);
     copy_array_locha(pChar, packet_HELLO.header.next_neighbor, SIZE_IDNODE);
-    copy_array_locha(pChar, packet_HELLO.header.hash, 20);
+    copy_array_locha(pChar, packet_HELLO.header.hash, SIZE_HASH_MSG);
     copy_array_locha(pChar, packet_HELLO.body.payload, SIZE_PAYLOAD);
     packet_HELLO.header.type=HELLO;
     packet_HELLO.header.timestamp=millis();
@@ -203,11 +203,11 @@ String packet_serialize(packet_t packet){
   rpta_str2=rpta_str2+(String)packet.header.type+"|";
   rpta_str2=rpta_str2+(String)packet.header.from+"|";
   rpta_str2=rpta_str2+(String)packet.header.to+"|";
-  //rpta_str2=rpta_str2+(String)packet.header.next_neighbor+"|";
-  rpta_str2=rpta_str2+"||";
+  rpta_str2=rpta_str2+(String)packet.header.next_neighbor+"|";
+  //rpta_str2=rpta_str2+"|";
   rpta_str2=rpta_str2+(String)packet.header.timestamp+"|";
-  //rpta_str2=rpta_str2+(String)packet.header.hash+"|";
-  rpta_str2=rpta_str2+"||";
+  rpta_str2=rpta_str2+(String)packet.header.hash+"|";
+  //rpta_str2=rpta_str2+"|";
   rpta_str2=rpta_str2+(String)packet.body.payload+"|";
    return rpta_str2;
   //return rpta_str.c_str();
@@ -236,15 +236,15 @@ packet_t packet_deserialize_str(String received_text){
             }
       ind2 = received_text.indexOf('|', ind1+1 );   //finds location of second ,
       str_in_process = received_text.substring(ind1+1, ind2);   //captures second data String
-      str_in_process.toCharArray(packet_tmp.header.from,SIZE_IDNODE);
+      str_in_process.toCharArray(packet_tmp.header.from,SIZE_IDNODE);    
      
       ind3 = received_text.indexOf('|', ind2+1 );
       str_in_process = received_text.substring(ind2+1, ind3);
-      str_in_process.toCharArray(packet_tmp.header.to,SIZE_IDNODE);
+      str_in_process.toCharArray(packet_tmp.header.to,SIZE_IDNODE);    
       
       ind4 = received_text.indexOf('|', ind3+1 );
       str_in_process = received_text.substring(ind3+1, ind4);
-      str_in_process.toCharArray(packet_tmp.header.next_neighbor,SIZE_IDNODE);
+      str_in_process.toCharArray(packet_tmp.header.next_neighbor,SIZE_IDNODE);   
       
       ind5 = received_text.indexOf('|', ind4+1 );
       str_in_process = received_text.substring(ind4+1, ind5);
@@ -256,7 +256,7 @@ packet_t packet_deserialize_str(String received_text){
 
       ind6 = received_text.indexOf('|', ind5+1 );
       str_in_process = received_text.substring(ind5+1, ind6);
-      str_in_process.toCharArray(packet_tmp.header.hash,20);
+      str_in_process.toCharArray(packet_tmp.header.hash,SIZE_HASH_MSG);
 
        
       ind7 = received_text.indexOf('|', ind6+1);
@@ -311,7 +311,7 @@ packet_t packet_deserialize(char* received_text){
             break;
              case 6:
              
-             copy_array_locha(str_in_process, packet_tmp.header.hash, 20);
+             copy_array_locha(str_in_process, packet_tmp.header.hash, SIZE_HASH_MSG);
             break;
              case 7:
             
@@ -337,7 +337,7 @@ packet_t create_packet(char* id_node, packet_type_e tipo_packet, char* from, cha
       copy_array_locha(to, header.to, SIZE_IDNODE);
       copy_array_locha(next_neighbor, header.next_neighbor, SIZE_IDNODE);
       header.timestamp=millis();
-      copy_array_locha(hash, header.hash,  20);
+      copy_array_locha(hash, header.hash,  SIZE_HASH_MSG);
       copy_array_locha(payload, body.payload, SIZE_PAYLOAD);
       packet_t new_packet;
       new_packet.header=header;

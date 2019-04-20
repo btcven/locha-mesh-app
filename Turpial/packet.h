@@ -25,6 +25,13 @@ typedef enum
   //BIN=10 // binarios para el caso de audios, fotos
 } packet_type_e;
 
+// causas de no entrega de packets
+typedef enum
+{
+  EMPTY_NOT_DELIVERED=0,
+  BLE_NOT_CONNECTED=1
+} not_delivered_type_e;
+
 typedef struct
 {
   packet_type_e type;

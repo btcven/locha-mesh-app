@@ -28,10 +28,10 @@ uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]){
 // 2) si  no es vecino existe una ruta al vecino (en caso negativo se devuelve packet not delivered por ahora en este demo)
 // 3) se arma el paquete
 // 4) se envia el paquete
-      char id_node_dest_temp[16];
-       copy_array_locha(id_node_destino,id_node_dest_temp, 16);
-      char id_node_temp[16];
-       copy_array_locha(id_node,id_node_temp, 16);
+      char id_node_dest_temp[SIZE_IDNODE];
+       copy_array_locha(id_node_destino,id_node_dest_temp, SIZE_IDNODE);
+      char id_node_temp[SIZE_IDNODE];
+       copy_array_locha(id_node,id_node_temp, SIZE_IDNODE);
        
       packet_header_t header;
       packet_body_t body;
@@ -42,8 +42,8 @@ uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]){
       
       header.type=Buffer_packet.header.type;
      
-      copy_array_locha(id_node_temp,header.from, 16);
-      copy_array_locha(id_node_dest_temp,header.to, 16);
+      copy_array_locha(id_node_temp,header.from, SIZE_IDNODE);
+      copy_array_locha(id_node_dest_temp,header.to, SIZE_IDNODE);
       header.timestamp=millis();
       
       copy_array_locha(mensaje,body.payload, SIZE_PAYLOAD);
@@ -55,8 +55,8 @@ uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]){
         // se arma el paquete y se envia por esa ruta 
          header.type=MSG;
       
-       copy_array_locha(id_node_temp,header.from, 16);
-      copy_array_locha(id_node_dest_temp,header.to, 16);
+       copy_array_locha(id_node_temp,header.from, SIZE_IDNODE);
+      copy_array_locha(id_node_dest_temp,header.to, SIZE_IDNODE);
       header.timestamp=millis();
        copy_array_locha(mensaje,body.payload, SIZE_PAYLOAD);
       Buffer_packet.header=header;

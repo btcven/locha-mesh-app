@@ -31,6 +31,8 @@ extern String packet_return_BLE_str;
 extern String packet_return_Lora_str;
 extern String remote_debugging;
 
+extern not_delivered_type_e why_not_delivered;   // causa de no entrega de algun packet
+
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
 BLECharacteristic *rx_uart;
@@ -232,11 +234,11 @@ void task_bluetooth(void *params)
       if (txValue.size()>0){ 
         // solo si hay algo para mandar al BLE pero no hay cliente conectado
           Serial.println(F("No hay dispositivo BLE conectado"));
-          
+          why_not_delivered=BLE_NOT_CONNECTED;
           // se devuelve el packet como not delivered
           packet_return_BLE_str=(String)txValue.c_str();
           // se coloca un delay antes de borrarlo para que pueda haber sido enviado por BLE y recibido el ACK correspondiente
-          delay(1000);
+          delay(500);
           txValue.clear();
           text_to_send="";
       }

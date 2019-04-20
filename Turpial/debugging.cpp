@@ -559,9 +559,9 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             
               if (str_node_name.length()>0){
                 uint8_t rpta=vaciar_tablas();
-                char nombre_tmp[16];
-                str_node_name.toCharArray(nombre_tmp,16);
-                copy_array_locha(nombre_tmp,id_node,16);
+                char nombre_tmp[SIZE_IDNODE];
+                str_node_name.toCharArray(nombre_tmp,SIZE_IDNODE);
+                copy_array_locha(nombre_tmp,id_node,SIZE_IDNODE);
 
                 // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
                DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));

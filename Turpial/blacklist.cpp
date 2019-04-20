@@ -38,12 +38,12 @@ uint8_t blacklist_node_add(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_N
     // 1) add to blacklist node table
     // 2) delete blacklisted node from vecinos
     // 3) delete all routes to blacklisted node on routeTable
-    char nombre_temporal[16];
+    char nombre_temporal[SIZE_IDNODE];
     nodo_t nodo_vecino;
     uint8_t i;
-       copy_array_locha(id_node_neighbor,nodo_vecino.id, 16);
- //   id_node_neighbor.toCharArray(nombre_temporal, 16);
- //   memcpy(nodo_vecino.id, nombre_temporal, 16);
+       copy_array_locha(id_node_neighbor,nodo_vecino.id, SIZE_IDNODE);
+ //   id_node_neighbor.toCharArray(nombre_temporal, SIZE_IDNODE);
+ //   memcpy(nodo_vecino.id, nombre_temporal, SIZE_IDNODE);
     total_nodos_blacklist++;
     blacklist_nodes[total_nodos_blacklist] = nodo_vecino;
     uint8_t rpta=delete_neighbor(id_node_neighbor,vecinos, total_vecinos);
@@ -59,8 +59,8 @@ uint8_t blacklist_route_add(char* from, char* to,struct nodo_t (&vecinos)[MAX_NO
  
     rutas_blacklisted_t route_to_block;
     uint8_t i;
-    copy_array_locha(from, route_to_block.from, 16);
-    copy_array_locha(to, route_to_block.to, 16);
+    copy_array_locha(from, route_to_block.from, SIZE_IDNODE);
+    copy_array_locha(to, route_to_block.to, SIZE_IDNODE);
     total_rutas_blacklist++;
     blacklist_routes[total_rutas_blacklist]=route_to_block;
     // se elimina la ruta en caso de que exista

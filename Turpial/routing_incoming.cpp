@@ -47,7 +47,7 @@ extern rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST];
 // para cada tipo de paquete existe una funcion uint8_t routing_incoming_PACKET_XXX()
 // todas devuelven 0 a menos que consigan algun error
 
-uint8_t routing_incoming_PACKET_MSG(char id_node[16], packet_t packet_received){
+uint8_t routing_incoming_PACKET_MSG(char id_node[SIZE_IDNODE], packet_t packet_received){
  // char* char_vacio= malloc(1);
  // *char_vacio ;
 //  char_vacio="";
@@ -106,22 +106,22 @@ char *pChar = (char*)"";
 
 // cuando se recibe un packet HELLO se devuelve un packet JOIN
 // TODO: en el payload debe contener la tabla de vecinos,rutas hasta donde alcance el limite de tamaño
-uint8_t routing_incoming_PACKET_JOIN(char id_node[16], packet_t packet_received){
+uint8_t routing_incoming_PACKET_JOIN(char id_node[SIZE_IDNODE], packet_t packet_received){
   // nuevo vecino de la tabla de vecinos
   uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist_nodes,total_nodos_blacklist);
   // nueva ruta en la tabla de rutas
   nodo_t nodo1;
   nodo_t nodo2;
   rutas_t nueva_ruta;
-  copy_array_locha(packet_received.header.to, nodo1.id, 16);
-  copy_array_locha(packet_received.header.from, nodo2.id, 16);
+  copy_array_locha(packet_received.header.to, nodo1.id, SIZE_IDNODE);
+  copy_array_locha(packet_received.header.from, nodo2.id, SIZE_IDNODE);
   create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
   update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
   return 0;
 }
 
 // si se desconecta, apaga o sale de la red, o se hace un reset se envia un BYE para que los vecinos liberen recursos asociados a este nodo
-uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received){
+uint8_t routing_incoming_PACKET_BYE(char id_node[SIZE_IDNODE], packet_t packet_received){
   // borra al vecino de la tabla de vecinos
   uint8_t i;
   uint8_t is_MSG=0;
@@ -176,7 +176,7 @@ uint8_t routing_incoming_PACKET_BYE(char id_node[16], packet_t packet_received){
   return 0;
 }
 
-uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received){
+uint8_t routing_incoming_PACKET_ROUTE(char id_node[SIZE_IDNODE], packet_t packet_received){
   // este tipo de paquete permite adicionar nuevas rutas a la tabla de rutas
   
   Serial.println(F("se recibio un packet route"));
@@ -184,18 +184,21 @@ uint8_t routing_incoming_PACKET_ROUTE(char id_node[16], packet_t packet_received
 }
 
 // TODO
-uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[16], packet_t packet_received){
+uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[SIZE_IDNODE], packet_t packet_received){
   // si no es para mi se reenvia el paquete a los vecinos por la ruta donde origino
   Serial.println(F("se recibio un packet not delivered"));
   return 0;
 }
 
 // TODO
-uint8_t routing_incoming_PACKET_GOSSIP(char id_node[16], packet_t packet_received){
+uint8_t routing_incoming_PACKET_GOSSIP(char id_node[SIZE_IDNODE], packet_t packet_received){
   // con GOSSIP se hace solicitudes de informacion, el payload contiene el comando o informacion solicitada
   std::string payload_rutas;
 std::string payload_tmp;
 char* payload_char;
+
+Serial.println(F("se recibio un packet gossip"));
+
   if (compare_char(packet_received.body.payload,"ROUTES")){
       payload_rutas=serialize_rutas(vecinos, total_vecinos, routeTable, total_rutas, 0);
       
@@ -234,7 +237,7 @@ char* payload_char;
 
 
 
-  Serial.println(F("se recibio un packet gossip"));
+  
   return 0;
 }
 
@@ -277,23 +280,26 @@ for (i = 1; i <= total_rutas_blacklist; i++) {
     }
 }
   if (!is_blacklisted){ 
+    
     existe_previamente_vecino=es_vecino(packet_received.header.from);
-  Serial.println(F("se recibio un packet hello"));
+  
   // se crea una ruta al packet que envio el HELLO y se devuelve un PACKET_JOIN
    // nueva ruta en la tabla de rutas
+   if (!existe_previamente_vecino){
+    Serial.println(F("se recibio un packet hello"));
    uint8_t rpta1=create_neighbor(packet_received.header.from,vecinos,total_vecinos,blacklist_nodes,total_nodos_blacklist);
   
   // nueva ruta en la tabla de rutas
 
   copy_array_locha(packet_received.header.to, nodo1.id, SIZE_IDNODE);
-  copy_array_locha(packet_received.header.from, nodo2.id, 16);
+  copy_array_locha(packet_received.header.from, nodo2.id, SIZE_IDNODE);
   create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
 
   // ahora se crea la ruta de A->B
-  copy_array_locha(packet_received.header.from,packet_received.header.to, 16);
-  copy_array_locha(id_node,packet_received.header.from, 16);
-  copy_array_locha(packet_received.header.from,  nodo1.id,16);
-  copy_array_locha(packet_received.header.to,  nodo2.id,16);
+  copy_array_locha(packet_received.header.from,packet_received.header.to, SIZE_IDNODE);
+  copy_array_locha(id_node,packet_received.header.from, SIZE_IDNODE);
+  copy_array_locha(packet_received.header.from,  nodo1.id,SIZE_IDNODE);
+  copy_array_locha(packet_received.header.to,  nodo2.id,SIZE_IDNODE);
   create_route(nodo1, nodo2, nodo2,vecinos,total_vecinos, blacklist_nodes,total_nodos_blacklist ,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
   update_route_age(nodo1.id, nodo2.id,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist);
 
@@ -302,8 +308,8 @@ for (i = 1; i <= total_rutas_blacklist; i++) {
 
   Serial.println("Se envia un packet Join");
   packet_received.header.type=JOIN;
-  copy_array_locha(nodo2.id,packet_received.header.to, 16);
-  // copy_array_locha(nodo1.id,packet_received.header.from, 16);
+  copy_array_locha(nodo2.id,packet_received.header.to, SIZE_IDNODE);
+  // copy_array_locha(nodo1.id,packet_received.header.from, SIZE_IDNODE);
 
  // se arma como payload el contenido de la tabla vecinos concatenado por el contenido de la tabla rutas
   payload_vecinos=serialize_vecinos(vecinos, total_vecinos,SIZE_PAYLOAD);
@@ -315,15 +321,18 @@ for (i = 1; i <= total_rutas_blacklist; i++) {
   strcpy(cstr, payload_join.c_str());
   copy_array_locha(cstr,packet_received.body.payload, payload_join.length() + 1);
   //packet_received.body.payload=payload_join.c_str();
+  // se hace un delay random de hasta 3 segundos ya que el HELLO se origina en modo broadcast y si hay varios nodos asi se trata de minimizar la posibilidad de colision ya que todos van a responder al mismo moento
+  int delay_rand=rand() % 1000 + 1;
+  delay(delay_rand);
   radioSend(packet_serialize(packet_received));
   
-  // se le solicta via GOSSIP las rutas que tenga solo para los vecinos que no existan previamente
+  // se le solicita via GOSSIP las rutas que tenga solo para los vecinos que no existan previamente
   //if (!existe_previamente_vecino){
     new_packet=create_packet(id_node, GOSSIP, id_node, packet_received.header.to, packet_received.header.next_neighbor , "","ROUTES");
     radioSend(packet_serialize(new_packet));
   //}
 
-
+   }
   } else {
     DEBUG_PRINT(F("Se recibio un packet de un nodo/ruta blacklisted, no se procesa el packet de:"));
     DEBUG_PRINTLN(packet_received.header.from);
@@ -334,7 +343,7 @@ for (i = 1; i <= total_rutas_blacklist; i++) {
 }
 
 
-uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
+uint8_t routing_incoming_PACKET_ACK(char id_node[SIZE_IDNODE], packet_t packet_received){
   // se verifica si en los mensajes enviados hay uno que tenga el mismo payload para borrarlo
   uint8_t i;
   uint8_t is_MSG=0;
@@ -373,7 +382,7 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[16], packet_t packet_received){
    
 }
 
-void update_rssi_snr(char route_from[16], char route_to[16], struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas,int RSSI_received, int SNR_received){
+void update_rssi_snr(char route_from[SIZE_IDNODE], char route_to[SIZE_IDNODE], struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas,int RSSI_received, int SNR_received){
   for (uint8_t xx = 1; xx <= total_rutas; xx++) {
       if ((compare_char(routeTable[xx].origen.id,route_from))and(compare_char(routeTable[xx].next_neighbor.id,route_to))){
         routeTable[xx].RSSI_packet=RSSI_received;
@@ -391,7 +400,7 @@ void update_rssi_snr(char route_from[16], char route_to[16], struct rutas_t (&ro
 
 
 // esta funcion procesa el paquete recibido 
-void process_received_packet(char id_node[16], packet_t packet_temporal,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas, int RSSI_recibido, int SNR_recibido){
+void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas, int RSSI_recibido, int SNR_recibido){
   uint8_t rpta;
  char *pChar = (char*)"";
   DEBUG_PRINT(F("A new packet incoming, type:"));
@@ -470,7 +479,7 @@ void process_received_packet(char id_node[16], packet_t packet_temporal,struct n
           for ( jj = 1; jj <= total_rutas; jj++) {
                 if (compare_char(routeTable[jj].destino.id,packet_temporal.header.to)){
                     // el destinatario es un vecino indirecto se reenvia al nextneigbour correspondiente
-                    copy_array_locha(routeTable[jj].next_neighbor.id, packet_temporal.header.next_neighbor, 16);
+                    copy_array_locha(routeTable[jj].next_neighbor.id, packet_temporal.header.next_neighbor, SIZE_IDNODE);
                     encontre_ruta=true;
                     route_number=jj;
                     String msg_to_send_now=packet_serialize(packet_temporal);

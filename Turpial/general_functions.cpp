@@ -13,6 +13,7 @@
 #include <iostream>
 #include <Hash.h>   // de la libreria uBitcoin https://gitlab.com/btcven/locha/uBitcoin/tree/master
 #include "esp_system.h"
+#include "memory_def.h"
 #include "general_functions.h"
 #include "debugging.h"
 using namespace std;
@@ -89,7 +90,7 @@ String getMacAddress() {
 }
 
 // funcion encargada de colocar los id de nodo en mayusculas
-char* node_name_char_to_uppercase(char array_temp[16]){
+char* node_name_char_to_uppercase(char array_temp[SIZE_IDNODE]){
     String chars_temp=array_temp;
     chars_temp.toUpperCase();
     return string2char(chars_temp);
@@ -213,20 +214,20 @@ void create_unique_id(char *&unique_id_created) {
   // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
   //TODO: armar el unique id como un compuesto donde el user pueda colocar una parte del uniqueid y el resto sea el chipid (completo o una parte) y algun caracter de validacion
   
-  char uniqueid3[16];
+  char uniqueid3[SIZE_IDNODE];
   uint32_t uChipId;
   
   uChipId = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
     
   snprintf(uniqueid3, 25, "%08X", uChipId);
-  copy_array_locha(uniqueid3, unique_id_created, 16);
+  copy_array_locha(uniqueid3, unique_id_created,SIZE_IDNODE );
   
 }
 
 // esta funcion verifica si el hash del mensaje es valido comparando el hash160
 bool is_valid_hash160(char* mensaje, char* hash_recibido){
 
-    byte hash[20] = {0};
+    byte hash[SIZE_HASH_MSG] = {0};
     
    // hash160(mensaje, strlen(mensaje), hash);
     Serial.print("Hash recibido:");
