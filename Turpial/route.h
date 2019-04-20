@@ -72,6 +72,7 @@ extern uint8_t total_nodos_blacklist;
 void packet_processing_outcoming(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE],uint8_t &total_mensajes_salientes,message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE],uint8_t &total_mensajes_waiting);
 void BLE_incoming(char* uid2,char* msg_ble, char* timemsg, char* hash_msg, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp2);
 void broadcast_bye(char* id_node,struct nodo_t (vecinos)[MAX_NODES], uint8_t total_vecinos, message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes);
+void devolver_como_packet_not_delivered(packet_t paquet_in_process2,not_delivered_type_e motivo);
 uint8_t create_neighbor(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t blacklist[MAX_NODES_BLACKLIST], uint8_t total_nodos_blacklist );
 uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp);
 uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct nodo_t (&blacklist_nodes)[MAX_NODES_BLACKLIST], uint8_t &total_nodos_blacklist , struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas,struct rutas_blacklisted_t (&blacklist_routes)[MAX_NODES_BLACKLIST],uint8_t &total_rutas_blacklist );

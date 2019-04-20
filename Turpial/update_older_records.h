@@ -7,8 +7,16 @@
 #define UPDATE_OLDER_RECORDS_H
 
 #include <Arduino.h>
+#include "general_functions.h"
+#include "bluetooth.h"
+#include "radio.h"
+#include "route.h"
+#include "debugging.h"
+
+extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+extern uint8_t total_mensajes_waiting;
 
 void task_update_older_records(void *params);
-void update_older_record();
+uint8_t pending_tasks(message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE],uint8_t &total_mensajes_waiting);
 
 #endif

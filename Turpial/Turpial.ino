@@ -257,19 +257,8 @@ void loop()
       DEBUG_PRINT("recibi:");
       DEBUG_PRINTLN(packet_return_BLE_str);
      
-      // se invierte el remitente con el destinatario
-      // se usa una variable temporal para invertir los valores
-      char remitente[SIZE_IDNODE];
-      copy_array_locha(paquet_in_process2.header.from, remitente, SIZE_IDNODE);
-      copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, SIZE_IDNODE);
-      copy_array_locha(remitente, paquet_in_process2.header.to, SIZE_IDNODE);
-
-      // se manda por el radio Lora
-      if (why_not_delivered!=EMPTY_NOT_DELIVERED){ 
-        paquet_in_process2.header.type=NOT_DELIVERED;
-        radioSend(packet_serialize(paquet_in_process2));
-        why_not_delivered=EMPTY_NOT_DELIVERED;  // despues de enviado se inicializa la variable para que quede disponible para cualquier otro packet
-      }
+     
+      devolver_como_packet_not_delivered(paquet_in_process2,BLE_NOT_CONNECTED);
       // igualmente se intenta enviar noti
      // String text_to_send_to_ble=packet_into_json(paquet_in_process2,"msg");
      // txValue = text_to_send_to_ble.c_str();
@@ -284,7 +273,7 @@ void loop()
   }
 
     if (total_mensajes_waiting>0){
-      update_older_record();
+      uint8_t rpta_task=pending_tasks(mensajes_waiting,total_mensajes_waiting);
     }
 
  

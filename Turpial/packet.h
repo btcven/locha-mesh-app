@@ -29,7 +29,8 @@ typedef enum
 typedef enum
 {
   EMPTY_NOT_DELIVERED=0,
-  BLE_NOT_CONNECTED=1
+  BLE_NOT_CONNECTED=1,
+  MAX_RETRIES_REACHED=2
 } not_delivered_type_e;
 
 typedef struct

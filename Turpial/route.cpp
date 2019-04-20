@@ -39,6 +39,8 @@ extern uint8_t total_nodos_blacklist;
 
 extern uint8_t packet_timeout;
 
+extern not_delivered_type_e why_not_delivered;   // causa de no entrega de algun packet
+
 //deletes expired packets in message queue
 uint8_t delete_older_packets(){
   uint8_t i;
@@ -68,7 +70,21 @@ uint8_t delete_older_packets(){
    return 0;
 }
 
+void devolver_como_packet_not_delivered(packet_t paquet_in_process2,not_delivered_type_e motivo){
+    // se invierte el remitente con el destinatario
+      // se usa una variable temporal para invertir los valores
+      char remitente[SIZE_IDNODE];
+      copy_array_locha(paquet_in_process2.header.from, remitente, SIZE_IDNODE);
+      copy_array_locha(paquet_in_process2.header.to, paquet_in_process2.header.from, SIZE_IDNODE);
+      copy_array_locha(remitente, paquet_in_process2.header.to, SIZE_IDNODE);
 
+      // se manda por el radio Lora
+      why_not_delivered=motivo;
+        paquet_in_process2.header.type=NOT_DELIVERED;
+        radioSend(packet_serialize(paquet_in_process2));
+      why_not_delivered=EMPTY_NOT_DELIVERED;  // despues de enviado se inicializa la variable para que quede disponible para cualquier otro packet
+      
+}
 
 void packet_processing_outcoming(message_queue_t (&mensajes_salientes)[MAX_MSG_QUEUE],uint8_t &total_mensajes_salientes,message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE],uint8_t &total_mensajes_waiting){
 // aqui se deberia invocar radio_send del primer registro que consiga en el arreglo mensajes_salientes
@@ -599,13 +615,25 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
   if (!exist_route){
     // se busca el vecino con mas rutas
     vecino_mas_conectado=vecino_con_mas_rutas(routeTable, total_rutas);
-    if (!(compare_char(vecino_mas_conectado,NULL))){
+    Serial.print("tengo:");
+    
+    String el_vecino_mas=(String)vecino_mas_conectado;
+  
+    Serial.print((String)el_vecino_mas);
+    Serial.println("no existe ruta, voy a comparar");
+    if (el_vecino_mas.length()>0){
+    if (!(compare_char(vecino_mas_conectado,""))){
+      Serial.println(F("no es vacio, se coloca como el next neogbor que se va a encargar del packet"));
         copy_array_locha(vecino_mas_conectado, packet_temp.header.next_neighbor, SIZE_IDNODE);
         // a los demas vecinos se les puede enviar una valixa para ir buscando info con un packet ROUTE tipo RREQ 
         send_route_request=true;
     } 
+    } else { 
+      Serial.print("No hay vecino mas conectado");
+    }
+    Serial.println("sigo....");
   }
-  
+  Serial.print("------------se colooooca en la cola--------------");
   message_queue_t nuevo_mensaje_en_cola;
   nuevo_mensaje_en_cola.paquete=packet_temp;
   nuevo_mensaje_en_cola.prioridad=1;
@@ -621,7 +649,7 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
       DEBUG_PRINTLN(F("Packet queue succesfully"));
   } else {
     // esta la cola de mensajes salientes llena, no se puede colocar mas nada alli
-    
+    Serial.println("MSG QUEUE FULL");
     return 1;
   }
 

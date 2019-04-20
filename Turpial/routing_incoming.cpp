@@ -87,15 +87,15 @@ char *pChar = (char*)"";
       } else {
             // el paquete no es para mi, pero tengo que hacerle relay a mis vecinos
             // busco si tengo una ruta entre mi nodo y el destino del paquete (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
-            if (existe_ruta(id_node, packet_received.header.to,true,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist)){
+         //   if (existe_ruta(id_node, packet_received.header.to,true,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist)){
            
                 packet_t new_packet;
                 new_packet=create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to,packet_received.header.next_neighbor,"", Buffer_packet.body.payload);
                 uint8_t rptas=packet_to_send(new_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
-            } else {
+          //  } else {
               // si no existe ruta se aplica GDFA 
               
-            }
+          //  }
       
       }
 
@@ -186,7 +186,41 @@ uint8_t routing_incoming_PACKET_ROUTE(char id_node[SIZE_IDNODE], packet_t packet
 // TODO
 uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[SIZE_IDNODE], packet_t packet_received){
   // si no es para mi se reenvia el paquete a los vecinos por la ruta donde origino
+   uint8_t i;
+  uint8_t is_MSG=0;
   Serial.println(F("se recibio un packet not delivered"));
+   for (i = 1; i <= total_mensajes_waiting; i++) {
+  
+
+
+
+  if ((compare_char(mensajes_waiting[i].paquete.header.from,packet_received.header.from))and(compare_char(mensajes_waiting[i].paquete.header.to,packet_received.header.to))){
+          // los NOT DELIVERED solo aplican para apquetes MSG y TXN
+          if ((mensajes_waiting[i].paquete.header.type=MSG)or((mensajes_waiting[i].paquete.header.type=TXN))){
+                  // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)
+                if (compare_char(mensajes_waiting[i].paquete.body.payload,packet_received.body.payload)){
+                  // se recibio el NOT DELIVERED de el mensaje MSG 
+                  is_MSG=i;
+                  break;
+                }
+           }
+        }
+        }
+          if (is_MSG>0){
+            DEBUG_PRINTLN(F("Procedo a eliminar el packet de la cola waiting..."));
+             // se borra el mensaje de la tabla de mensajes_salientes
+              for (i = is_MSG; i < total_mensajes_waiting; i++) {
+                  mensajes_waiting[i]=mensajes_waiting[i+1];
+              }
+              total_mensajes_waiting--;
+              
+          } else {
+            DEBUG_PRINTLN(F("No se elimino nada de la cola waiting"));
+          }
+
+      DEBUG_PRINTLN(F("NOT DELIVERED del packet procesado exitosamente"));
+   
+  
   return 0;
 }
 
@@ -349,15 +383,20 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[SIZE_IDNODE], packet_t packet_r
   uint8_t is_MSG=0;
   Serial.println(F("Packet ACK recibido , se procesa ..."));
    for (i = 1; i <= total_mensajes_waiting; i++) {
-    Serial.println("packet received:");
+    Serial.print("packet received:");
     Serial.print("To:");
-    Serial.println(packet_received.header.to);
-    Serial.print("From:");
+    Serial.print(packet_received.header.to);
+    Serial.print("-From:");
     Serial.println(packet_received.header.from);
+    Serial.print("mensajes_waiting:");
+    Serial.print("To:");
+    Serial.print(mensajes_waiting[i].paquete.header.to);
+    Serial.print("-From:");
+    Serial.println(mensajes_waiting[i].paquete.header.from);
     
       if ((compare_char(mensajes_waiting[i].paquete.header.from,packet_received.header.from))and(compare_char(mensajes_waiting[i].paquete.header.to,packet_received.header.to))){
           // se verifica que sea un ACK de un mensaje tipo MSG
-          if (mensajes_waiting[i].paquete.header.type=MSG){
+          if ((mensajes_waiting[i].paquete.header.type=MSG)or((mensajes_waiting[i].paquete.header.type=TXN))){
                   // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)
                 if (compare_char(mensajes_waiting[i].paquete.body.payload,packet_received.body.payload)){
                   // se recibio el ACK de que el mensaje MSG fue recibido correctamente
@@ -368,7 +407,7 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[SIZE_IDNODE], packet_t packet_r
         }
         }
           if (is_MSG>0){
-            Serial.println(F("Procedo a eliminar el packet de la cola waiting..."));
+            DEBUG_PRINTLN(F("Procedo a eliminar el packet de la cola waiting..."));
              // se borra el mensaje de la tabla de mensajes_salientes
               for (i = is_MSG; i < total_mensajes_waiting; i++) {
                   mensajes_waiting[i]=mensajes_waiting[i+1];
@@ -376,7 +415,7 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[SIZE_IDNODE], packet_t packet_r
               total_mensajes_waiting--;
               
           } else {
-            Serial.println(F("No se elimino nada de la cola waiting"));
+            DEBUG_PRINTLN(F("No se elimino nada de la cola waiting"));
           }
       DEBUG_PRINTLN(F("ACK del packet recibido exitosamente"));
    
@@ -403,15 +442,19 @@ void update_rssi_snr(char route_from[SIZE_IDNODE], char route_to[SIZE_IDNODE], s
 void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal,struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos, struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas, int RSSI_recibido, int SNR_recibido){
   uint8_t rpta;
  char *pChar = (char*)"";
-  DEBUG_PRINT(F("A new packet incoming, type:"));
-  DEBUG_PRINTLN(convertir_packet_type_e_str(packet_temporal.header.type));
+
+// solo se procesa un packet si es para mi (to,next_neighbour) o si es un broadcats (to="")
+
+ 
+  
 
       // se verifica que el origen y destino no sea el mismo, para evitar ataques 
     if ((String)packet_temporal.header.from!=(String)packet_temporal.header.to){
 
       // si el packet es para mi nodo o es un broadcast
        if ((compare_char(packet_temporal.header.to,id_node))or((compare_char(packet_temporal.header.to,pChar)))){
-      
+  DEBUG_PRINT(F("A new packet incoming direct for my node, type:"));
+  DEBUG_PRINTLN(convertir_packet_type_e_str(packet_temporal.header.type));    
       switch (packet_temporal.header.type)
       {
       case EMPTY:
@@ -463,7 +506,8 @@ void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal
       if (compare_char(packet_temporal.header.next_neighbor,id_node)){
         // se busca si existe una ruta directa
        
-        
+        DEBUG_PRINT(F("A new packet incoming for relay by my node, type:"));
+  DEBUG_PRINTLN(convertir_packet_type_e_str(packet_temporal.header.type));    
         for ( jj = 1; jj <= total_rutas;jj++) {
             if (compare_char(routeTable[jj].next_neighbor.id,packet_temporal.header.to)){
               // el destinatario es un vecino directo asi que le envio el packet tal como esta (el ultimo next_neigbour del packet es el nodo actual y por alli deberia devolverse el packet teoricamente
@@ -488,12 +532,13 @@ void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal
                  }
           }
         }
-      }
 
       // 4) si no es para mi nodo  y no existe el destinatario en mi tabla de rutas se retorna un packet_not_delivered
       // 5) se actualiza el age de la ruta desde el recibido hasta el nodo actual
       if ((route_number>0)and(encontre_ruta)){
           routeTable[route_number].age=millis();
+      }
+
       }
   
     }
