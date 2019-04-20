@@ -5,8 +5,10 @@
  * for a full text
  */
 
-#ifndef PT_H
-#define PT_H
+#ifndef BUTTON_H
+#define BUTTON_H
 
+// declaracion de funciones
+void irq_button(void);
 
-#endif // PT_H
+#endif // BUTTON_H

@@ -6,24 +6,16 @@
 
 #ifndef RADIO_H 
 #define RADIO_H
+// declaracion de librerias
+#include <Arduino.h>
+#include <SPI.h>
+#include <string.h>
+#include <LoRa.h>
+#include "memory_def.h"
 
-#define RADIO_ENABLED 1
-
-#ifdef RADIO_ENABLED
-
-#define RAD_SCK   5
-#define RAD_MISO  19
-#define RAD_MOSI  27
-#define RAD_CSS   18
-#define RAD_RST   14
-#define RAD_DIO0  26
-#define RAD_BAND  915E6
-#define PABOOST   true
-#endif
-
-#include "packet.h"
-
-void radioSend(std::string _data);
+// declaracion de funciones
+uint8_t radioSend(String _data);
 void task_radio(void *params);
+void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
 
 #endif // RADIO_H

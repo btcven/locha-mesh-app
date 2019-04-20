@@ -25,6 +25,8 @@
     #define SCR_SCL 15
     #define SCR_RST 16
     #define Vext false
+    //
+    #define SCR_INTERVAL 5000
 #endif // SCR
 
 // Radio Module Settings
@@ -34,11 +36,19 @@
     #define RAD_RST     14
     #define RAD_MISO    19
     #define RAD_MOSI    27
-    #define RAD_DIO0    11
-    #define RAD_DIO1    33
-    #define RAD_DIO2    32
+    #define RAD_DIO0    26
     #define RAD_BAND    915E6
     #define RAD_PABOOST true
 #endif // RAD
+
+// On board LED
+#if defined(LED_ENABLED)
+    #define LED_PIN 25
+#endif
+
+// On Board Button
+#if BTN_ENABLED
+    #define BTN_GPIO 0
+#endif // BTN
 
 #endif // HELTEC_V1_H

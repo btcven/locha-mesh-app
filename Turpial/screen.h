@@ -5,8 +5,9 @@
  * for a full text
  */
 
-#ifndef PT_H
-#define PT_H
+#ifndef SCREENS_H 
+#define SCREENS_H
 
+void task_screen(void *params);
 
-#endif // PT_H
+#endif // SCREENS_H
