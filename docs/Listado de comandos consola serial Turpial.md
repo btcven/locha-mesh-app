@@ -33,7 +33,8 @@ CLEAR ALL              vacia las tablas de mensajes salientes, nodos y rutas
 SYSTEM RESET           reinicia el equipo
 
 para la radio Lora:
-MSG RADIO XXX          envia un mensaje XXX por el radio Lora
+MSG RADIO XXX          envia un mensaje XXX por el radio Lora, el formato es basado en el protocolo LochaMesh: type_of_msg|from|to|time|payload|
+
 
 
 para BLE:

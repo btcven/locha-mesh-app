@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include "update_older_records.h"
 #include "packet.h"
+#include "memory_def.h"
 #include <string.h> 
 #include <Time.h>
 #include <TimeLib.h>
@@ -29,6 +30,7 @@ extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern uint8_t total_mensajes_waiting;
 extern uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
+extern unsigned long tiempo_desde_ultimo_packet_recibido;
 
 // funciones para el mantenimiento de las colas de mensaje:
 // se reenvian packets en espera
@@ -37,18 +39,30 @@ extern uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
 void update_older_record(){
 
     // se hace el reenvio de un mensaje waiting en la cola de mensajes_waiting
-    if (mensaje_waiting_to_send<=total_mensajes_waiting){ 
-          String msg_to_send_now=packet_serialize(mensajes_waiting[mensaje_waiting_to_send].paquete);
+    Serial.println("");
+    Serial.println(" ... entre a update_older_record ...");
+    Serial.print("total_mensajes_waiting:");
+    Serial.print((String)total_mensajes_waiting);
+    Serial.print(" - mensaje_waiting_to_send:");
+    Serial.println((String)mensaje_waiting_to_send);
+    Serial.println("");
+    if (total_mensajes_waiting>0){ 
+         Serial.println(F("Voy a enviar un packet waiting"));
+          String msg_to_send_now=packet_serialize(mensajes_waiting[1].paquete);
           radioSend(msg_to_send_now.c_str());
+          
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
           // y se borra de la tabla mensajes_salientes
-                for ( uint8_t yy = mensaje_waiting_to_send; yy < total_mensajes_waiting; yy++) {
+                for ( uint8_t yy = 1; yy < total_mensajes_waiting; yy++) {
                     mensajes_waiting[yy]=mensajes_waiting[yy+1];
                 }
                 total_mensajes_waiting--;
-                delay(20);
+                 // una vez procesado y se coloca nuevamente en 0
+                //mensaje_waiting_to_send=0;
+            //    delay(20);
     }
-      // una vez procesado y se coloca nuevamente en 0
-      mensaje_waiting_to_send=0;
+     
 }
 
 
@@ -61,7 +75,7 @@ uint8_t jj;
     // 1) paquetes en espera: tiempo delayed o si tienen que reintentar
     // se recorre la tabla de mensajes_waiting
     if (total_mensajes_waiting>0){
-     //  DEBUG_PRINT(F("Waiting MSG present"));
+       DEBUG_PRINT(F("Waiting MSG present"));
       for ( xx = 0; xx <= total_mensajes_waiting; xx++) {
        //   if ((mensajes_waiting[xx].retry_timestamp+MSG_QUEUE_WAITING_MAX_AGE)>millis()){
             // el paquete vencio se vuelve a hacer un retry
@@ -70,9 +84,12 @@ uint8_t jj;
                 break;    
               } else {
                 // se hace un retry de envio
+                DEBUG_PRINT(F("waiting retry ..."));
                // if (total_mensajes_salientes<MAX_MSG_QUEUE){ 
                // por ahora solo los ACK se devuelven y se tratan de sacar rapido de la tabla waiting
                     if (mensajes_waiting[xx].paquete.header.type==ACK){ 
+                      DEBUG_PRINT(F("intentando enviar:"));
+                      DEBUG_PRINTLN((String)xx);
                         mensaje_waiting_to_send=xx;
                         mensajes_waiting[xx].retries++;
                         mensajes_waiting[xx].retry_timestamp=millis();
@@ -96,7 +113,22 @@ uint8_t jj;
     
     // 2) chequea rutas viejas: si hay que mandar un paquete route a ver si todavia esta activa la ruta
     // 3) vecinos no reportados desde hace mucho , mandarle un paquete route a ver si responden
+    // 4) cada x minutos hacer un HELLO para actualizar cualquier nuevo nodo/ruta
+    if (millis()-tiempo_desde_ultimo_packet_recibido>HELLO_RETRY_TIMEOUT){
+        DEBUG_PRINT(F("Se envia un AUTOHELLO"));
+        packet_t packet_temporal;
+        packet_temporal=construct_packet_HELLO(id_node);
     
-    delay(40);
+        String rpta_str=packet_serialize(packet_temporal);
+        
+        DEBUG_PRINTLN(F("Buscando nuevos vecinos")); 
+        uint8_t rpta_rad=radioSend(rpta_str);
+        
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
+        tiempo_desde_ultimo_packet_recibido=millis();
+    }
+    // se aumenta el delay ya que este callback es de baja prioridad y no debe interferir en la recepcion de otros packets
+    delay(HELLO_RETRY_TIMEOUT);
   }
 }

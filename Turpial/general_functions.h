@@ -18,6 +18,7 @@ extern double timemsg;
 
 // declaracion de funciones
 void create_unique_id(char* &unique_id_created);
+bool compare_char(char* src ,char* dst);
 char* string2char_node_name(String command);
 void string2char_node_name_v2(String command, char* &respuesta);
 char* string2char(String command);
@@ -27,7 +28,7 @@ String get_id_mac();
 String freeRam();
 void copy_array_locha(char* src, char* dst, int len);
 void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &timemsg_intern_str, char* &hash_msg_intern );
-char* node_name_char_to_uppercase(char array_temp[16]);
+char* node_name_char_to_uppercase(char array_temp[SIZE_IDNODE]);
 uint8_t convert_str_to_uint8(String texto);
 bool is_valid_hash160(char* mensaje, char* hash_recibido);
 long long char2LL(char *str);

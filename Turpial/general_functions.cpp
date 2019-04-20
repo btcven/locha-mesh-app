@@ -13,10 +13,26 @@
 #include <iostream>
 #include <Hash.h>   // de la libreria uBitcoin https://gitlab.com/btcven/locha/uBitcoin/tree/master
 #include "esp_system.h"
+#include "memory_def.h"
 #include "general_functions.h"
 #include "debugging.h"
+using namespace std;
 
+// funcion para comparar dos arreglos de char
+bool compare_char(char* src ,char* dst){
+  if (strcmp(src, dst) == 0){ 
+    return true;
+  } else { 
+    return false;
+  }
+}
 
+//funcion para convertir un std::string en un char*
+char* std_string_to_char(std::string cadena){
+   char *cstr = new char[cadena.length() + 1];
+  strcpy(cstr, cadena.c_str());
+  return cstr;
+}
 
 // Funcion de conversion de tipo de datos: Char* a long long
 // usada para convertir timestamps que  vienen en cadenas de caracteres a un numero tipo long long 
@@ -74,7 +90,7 @@ String getMacAddress() {
 }
 
 // funcion encargada de colocar los id de nodo en mayusculas
-char* node_name_char_to_uppercase(char array_temp[16]){
+char* node_name_char_to_uppercase(char array_temp[SIZE_IDNODE]){
     String chars_temp=array_temp;
     chars_temp.toUpperCase();
     return string2char(chars_temp);
@@ -162,13 +178,13 @@ void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &ti
 String packet_into_json(packet_t packet_to_convert, String BLE_type){
    // this function convert [acket data in format: "{'uid':'xxxxx','BLE_type':'yyyy','time':#############,'hash':'XXXXXXXXXX'}"
   String rpta;
-  String tipo_packet=convertir_packet_type_e_str(packet_to_convert.header.type);
-  tipo_packet.toLowerCase();
+  char* tipo_packet=convertir_packet_type_e_str(packet_to_convert.header.type);
+ // tipo_packet.toLowerCase();
   if (packet_to_convert.header.type!=EMPTY){
       rpta="{";
       rpta=rpta+"'uid':'"+(String)packet_to_convert.header.from+"',";
       rpta=rpta+"'"+BLE_type+"':'"+(String)packet_to_convert.body.payload+"',";
-      rpta=rpta+"'type':"+convertir_str_packet_type_e(tipo_packet)+",";
+      rpta=rpta+"'type':"+(String)convertir_str_packet_type_e(tipo_packet)+",";
       rpta=rpta+"'time':"+(String)packet_to_convert.header.timestamp+",";
       rpta=rpta+"'hash':'"+(String)packet_to_convert.header.hash+"',";
       rpta=rpta+"}";
@@ -198,20 +214,20 @@ void create_unique_id(char *&unique_id_created) {
   // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
   //TODO: armar el unique id como un compuesto donde el user pueda colocar una parte del uniqueid y el resto sea el chipid (completo o una parte) y algun caracter de validacion
   
-  char uniqueid3[16];
+  char uniqueid3[SIZE_IDNODE];
   uint32_t uChipId;
   
   uChipId = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
     
   snprintf(uniqueid3, 25, "%08X", uChipId);
-  copy_array_locha(uniqueid3, unique_id_created, 16);
+  copy_array_locha(uniqueid3, unique_id_created,SIZE_IDNODE );
   
 }
 
 // esta funcion verifica si el hash del mensaje es valido comparando el hash160
 bool is_valid_hash160(char* mensaje, char* hash_recibido){
 
-    byte hash[20] = {0};
+    byte hash[SIZE_HASH_MSG] = {0};
     
    // hash160(mensaje, strlen(mensaje), hash);
     Serial.print("Hash recibido:");

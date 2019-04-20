@@ -18,6 +18,7 @@
 #include "bluetooth.h"
 #include "route.h"
 
+
 //declaracion de variables
 extern std::string txValue;
 extern std::string rxValue;
@@ -27,13 +28,15 @@ extern char* id_node;
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
-extern nodo_t blacklist[MAX_NODES_BLACKLIST];
+extern nodo_t blacklist_nodes[MAX_NODES_BLACKLIST];
+extern rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 extern uint8_t total_mensajes_waiting;
+extern uint8_t total_rutas_blacklist; 
 extern uint8_t total_nodos_blacklist;
 extern String remote_debugging;
 
@@ -60,7 +63,7 @@ void imprimir_salidaln(String mensaje, bool mostrar_serial, bool mostrar_BLE){
 
 String getparamValue(String data, char separator, int index)
 {
-    int found = 0;
+    uint8_t found = 0;
     int strIndex[] = { 0, -1 };
     int maxIndex = data.length() - 1;
 
@@ -95,11 +98,11 @@ uint8_t delete_packet(uint8_t id_to_delete, message_queue_t (&mensajes_salientes
 uint8_t show_packet(packet_t el_packet, bool show_size){
     
   
-    String tipo=convertir_packet_type_e_str(el_packet.header.type);
-    String from=(String)el_packet.header.from;
-    String to=(String)el_packet.header.to;
-    String timest=(String)el_packet.header.timestamp;
-    String payload=(String)el_packet.body.payload;
+  //  String tipo=convertir_packet_type_e_str(el_packet.header.type);
+  //  String from=(String)el_packet.header.from;
+  //  String to=(String)el_packet.header.to;
+  //  String timest=(String)el_packet.header.timestamp;
+  //  String payload=(String)el_packet.body.payload;
 
  if (show_size){
     DEBUG_PRINTLN("");
@@ -108,15 +111,15 @@ uint8_t show_packet(packet_t el_packet, bool show_size){
  }
     
     DEBUG_PRINT(F("Type:"));
-    DEBUG_PRINT(tipo);
+    DEBUG_PRINT(convertir_packet_type_e_str(el_packet.header.type));
     DEBUG_PRINT(F(" From:"));
-    DEBUG_PRINT(from);
+    DEBUG_PRINT(el_packet.header.from);
     DEBUG_PRINT(F(" To:"));
-    DEBUG_PRINT(to);
+    DEBUG_PRINT(el_packet.header.to);
     DEBUG_PRINT(F(" Payload:"));
-    DEBUG_PRINT(payload);
+    DEBUG_PRINT(el_packet.body.payload);
     DEBUG_PRINT(F(" Timestamp:"));
-    DEBUG_PRINT(timest);
+    DEBUG_PRINT(el_packet.header.timestamp);
     
      
     if (show_size){
@@ -138,7 +141,6 @@ uint8_t vaciar_tablas(){
 
 uint8_t mostrar_vecinos(char* node_id, nodo_t vecinos[MAX_NODES], size_t tamano_arreglo){
   uint8_t i;
-  char* id_temporal;
   DEBUG_PRINTLN();
   DEBUG_PRINT(F("Vecinos del nodo: "));
   DEBUG_PRINTLN(node_id);
@@ -152,8 +154,7 @@ uint8_t mostrar_vecinos(char* node_id, nodo_t vecinos[MAX_NODES], size_t tamano_
     DEBUG_PRINT(i);
     DEBUG_PRINT(F(" : "));
     DEBUG_PRINT(F("\t"));
-    id_temporal=vecinos[i].id;
-    DEBUG_PRINTLN((String)id_temporal);
+    DEBUG_PRINTLN(vecinos[i].id);
   }
    DEBUG_PRINT(F("Tamaño de la tabla de vecinos :"));
    DEBUG_PRINT(tamano_arreglo);
@@ -165,11 +166,13 @@ uint8_t mostrar_vecinos(char* node_id, nodo_t vecinos[MAX_NODES], size_t tamano_
 }
 
 
-uint8_t mostrar_blacklist(char* node_id, nodo_t blacklist[MAX_NODES_BLACKLIST], size_t total_nodos_blacklist){
+uint8_t mostrar_blacklist(char* node_id, nodo_t blacklist_nodes[MAX_NODES_BLACKLIST], size_t total_nodos_blacklist, std::string tipo){
   uint8_t i;
   char* id_temporal;
   DEBUG_PRINTLN();
-  DEBUG_PRINT(F("Blacklist Node: "));
+  DEBUG_PRINT(F("Blacklist Nodes"));
+  //DEBUG_PRINT(tipo.c_str());     // candidato al error 
+  DEBUG_PRINT(F(": "));
   DEBUG_PRINTLN(node_id);
   DEBUG_PRINTLN();
    for (i = 1; i <= 80; i++) {
@@ -181,18 +184,59 @@ uint8_t mostrar_blacklist(char* node_id, nodo_t blacklist[MAX_NODES_BLACKLIST], 
     DEBUG_PRINT(i);
     DEBUG_PRINT(F(" : "));
     DEBUG_PRINT(F("\t"));
-    id_temporal=blacklist[i].id;
-    DEBUG_PRINTLN((String)id_temporal);
+  //  id_temporal=blacklist_nodes[i].id;    // candidato al error aqui deberia ser un copy_array_locha
+    DEBUG_PRINTLN(blacklist_nodes[i].id);
   }
-   DEBUG_PRINT(F("Blacklist Table Size:"));
-   DEBUG_PRINT("falta esta info");
+   DEBUG_PRINT(F("Blacklist nodes"));
+ //  DEBUG_PRINT(tipo.c_str());    // candidato al error 
+   DEBUG_PRINT(F(" table size:"));
+   DEBUG_PRINT(sizeof(blacklist_nodes));
    DEBUG_PRINTLN(F(" bytes"));
-   DEBUG_PRINT(F("Total de vecinos: "));
+   DEBUG_PRINT(F("Total Nodes "));
+ //  DEBUG_PRINT(tipo.c_str());   // candidato al error 
+   DEBUG_PRINT(F(": "));
    DEBUG_PRINTLN(total_nodos_blacklist);
    DEBUG_PRINTLN();
   return 0;   
 }
 
+uint8_t mostrar_blacklist_routes(char* node_id, rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST], size_t total_nodos_blacklist, std::string tipo){
+  uint8_t i;
+  char* id_temporal;
+  DEBUG_PRINTLN();
+  DEBUG_PRINT(F("Blacklist Routes"));
+ // DEBUG_PRINT(tipo.c_str());
+  DEBUG_PRINT(F(": "));
+  DEBUG_PRINTLN(node_id);
+  DEBUG_PRINTLN();
+   for (i = 1; i <= 80; i++) {
+          DEBUG_PRINT(F("-"));
+      }
+      DEBUG_PRINTLN();
+  for (i = 1; i <= total_nodos_blacklist; i++) {
+    DEBUG_PRINT(F("ID "));
+    DEBUG_PRINT(i);
+    DEBUG_PRINT(F(" : "));
+    DEBUG_PRINT(F("\t"));
+ //   id_temporal=blacklist_routes[i].from;
+    DEBUG_PRINTLN(blacklist_routes[i].from);
+    DEBUG_PRINT(F("->"));
+   // id_temporal=blacklist_routes[i].to;
+    DEBUG_PRINTLN(blacklist_routes[i].to);
+    
+  }
+   DEBUG_PRINT(F("Blacklist Route"));
+  // DEBUG_PRINT(tipo.c_str());
+   DEBUG_PRINT(F(" table size:"));
+   DEBUG_PRINT(sizeof(blacklist_routes));
+   DEBUG_PRINTLN(F(" bytes"));
+   DEBUG_PRINT(F("Total Routes"));
+ //  DEBUG_PRINT(tipo.c_str());
+   DEBUG_PRINT(F(": "));
+   DEBUG_PRINTLN(total_nodos_blacklist);
+   DEBUG_PRINTLN();
+  return 0;   
+}
 
 uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tamano_arreglo){
   uint8_t i;
@@ -202,11 +246,8 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
   nodo_t origen;
   nodo_t destino;
   nodo_t next_neighbor;
-  Serial.print("estoy dentro de mostrar_rutas con el id_nodo:");
-  Serial.println((String)node_id);
   DEBUG_PRINTLN(MSG_SPACE);
-  DEBUG_PRINT("Rutas disponibles en el nodo: ");
-  Serial.println("coloque el titulo");
+  DEBUG_PRINT(F("Rutas disponibles en el nodo: "));
   DEBUG_PRINT(node_id);
   DEBUG_PRINTLN();
    for (i = 1; i <= 80; i++) {
@@ -224,20 +265,20 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
       id_temporal_origen=origen.id;
       id_temporal_destino=destino.id;
       id_temporal_next_neighbor=next_neighbor.id;
-      DEBUG_PRINT((String)id_temporal_origen);
+      DEBUG_PRINT(id_temporal_origen);
       DEBUG_PRINT(F(" -> "));
-      if ((String)id_temporal_destino!=(String)id_temporal_next_neighbor){
-          DEBUG_PRINT((String)id_temporal_next_neighbor);
+      if (!(compare_char(id_temporal_destino,id_temporal_next_neighbor))){
+          DEBUG_PRINT(id_temporal_next_neighbor);
           DEBUG_PRINT(F(" -> "));
       }
-     DEBUG_PRINT((String)id_temporal_destino);
+     DEBUG_PRINT(id_temporal_destino);
      DEBUG_PRINT(F("\t"));
      DEBUG_PRINT(F("Age: "));
-     DEBUG_PRINTLN((String)routeTable[i].age);
+     DEBUG_PRINTLN(routeTable[i].age);
     DEBUG_PRINT(F("RSSI: "));
-     DEBUG_PRINTLN((String)routeTable[i].RSSI_packet);
+     DEBUG_PRINTLN(routeTable[i].RSSI_packet);
     DEBUG_PRINT(F("SNR: "));
-     DEBUG_PRINTLN((String)routeTable[i].SNR_packet); 
+     DEBUG_PRINTLN(routeTable[i].SNR_packet); 
     }
     DEBUG_PRINT(F("Tamaño de la tabla de rutas :"));
     DEBUG_PRINT(tamano_arreglo);
@@ -288,13 +329,13 @@ DEBUG_PRINT(F("Intentos de envio"));
           DEBUG_PRINT(i);
           DEBUG_PRINT(F("\t"));
           DEBUG_PRINT(F("\t"));
-          DEBUG_PRINT((String)mensajes_encola[i].prioridad);
+          DEBUG_PRINT(mensajes_encola[i].prioridad);
           DEBUG_PRINT(F("\t"));
           rptsx=show_packet(mensajes_encola[i].paquete, false);
           DEBUG_PRINT(F("\t"));
-          DEBUG_PRINT((String)mensajes_encola[i].retries);
+          DEBUG_PRINT(mensajes_encola[i].retries);
           DEBUG_PRINT(F("\t"));
-          DEBUG_PRINT((String)mensajes_encola[i].retry_timestamp);
+          DEBUG_PRINT(mensajes_encola[i].retry_timestamp);
           DEBUG_PRINT(F("\t"));
           
           
@@ -326,7 +367,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
         if (str_buffer_serial_received==mensaje){
           str_buffer_serial_received="";
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
-          uint8_t rpta=mostrar_vecinos(id_node,vecinos,total_vecinos);  
+          uint8_t rpta=mostrar_vecinos(id_node,vecinos,sizeof(vecinos));  
           ejecute=true;
         }
         
@@ -348,11 +389,35 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           ejecute=true;
           }
      
-        mensaje=F("SHOW BLACKLIST");
+        mensaje=F("BLACKLIST NODES SHOW");
+        if (str_buffer_serial_received==mensaje){
+          str_buffer_serial_received=F("SHOW BLACKLIST NODES");
+        }
+        mensaje=F("BLACK NODES");
+        if (str_buffer_serial_received==mensaje){
+          str_buffer_serial_received=F("SHOW BLACKLIST NODES");
+        }
+        mensaje=F("SHOW BLACKLIST NODES");
         if (str_buffer_serial_received==mensaje){
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
           str_buffer_serial_received="";
-          uint8_t rpta=mostrar_blacklist(id_node, blacklist, sizeof(blacklist));
+          uint8_t rpta=mostrar_blacklist(id_node, blacklist_nodes, total_nodos_blacklist,"Nodes");
+          ejecute=true;
+        }
+
+        mensaje=F("SHOW BLACK ROUTES");
+        if (str_buffer_serial_received==mensaje){
+          str_buffer_serial_received=F("BLACKLIST ROUTES SHOW");
+        }
+        mensaje=F("BLACK ROUTES");
+        if (str_buffer_serial_received==mensaje){
+          str_buffer_serial_received=F("BLACKLIST ROUTES SHOW");
+        }
+        mensaje=F("BLACKLIST ROUTES SHOW");
+        if (str_buffer_serial_received==mensaje){
+          DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+          str_buffer_serial_received="";
+          uint8_t rpta=mostrar_blacklist_routes(id_node, blacklist_routes, total_rutas_blacklist,"Routes");
           ejecute=true;
         }
         
@@ -414,9 +479,12 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
 
          mensaje=F("MSG RADIO");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
-            str_buffer_serial_received="";
+            
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             String msg_received_for_radio = getparamValue(str_buffer_serial_received, ' ', 2);  
+            str_buffer_serial_received="";
+            DEBUG_PRINT(F("Voy a enviar MSG debugging:"));
+            DEBUG_PRINTLN(msg_received_for_radio);
             uint8_t rpta_rad=radioSend(msg_received_for_radio.c_str());
              if (rpta_rad==0){ 
               DEBUG_PRINTLN(F("Mensaje no enviado, radio no disponible"));
@@ -442,6 +510,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINT(F("enviando info al BLE"));
             String a_enviar=(String)id_node;
             txValue=a_enviar.c_str();
+            
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
@@ -470,7 +539,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             
               if (str_node_name.length()>0){
                 
-                uint8_t rptax=create_neighbor(str_node_name,vecinos,total_vecinos,blacklist,total_nodos_blacklist);
+                uint8_t rptax=create_neighbor(string2char(str_node_name),vecinos,total_vecinos,blacklist_nodes,total_nodos_blacklist);
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -490,14 +559,16 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             
               if (str_node_name.length()>0){
                 uint8_t rpta=vaciar_tablas();
-                char nombre_tmp[16];
-                str_node_name.toCharArray(nombre_tmp,16);
-                copy_array_locha(nombre_tmp,id_node,16);
+                char nombre_tmp[SIZE_IDNODE];
+                str_node_name.toCharArray(nombre_tmp,SIZE_IDNODE);
+                copy_array_locha(nombre_tmp,id_node,SIZE_IDNODE);
 
                 // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
                DEBUG_PRINTLN(F("Enviando mensaje HELLO para mis vecinos"));
                 radioSend(packet_serialize(construct_packet_HELLO(id_node)));
                     
+        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
+        LoRa.receive();
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
                 DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
@@ -518,8 +589,29 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             
               if (str_node_name.length()>0){
                 
-                uint8_t rpta=blacklist_add(str_node_name,vecinos, total_vecinos, blacklist, total_nodos_blacklist , routeTable, total_rutas);
+                uint8_t rpta=blacklist_node_add((char*)str_node_name.c_str(),vecinos, total_vecinos, blacklist_nodes, total_nodos_blacklist , routeTable, total_rutas);
                   
+                }
+                DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
+                mensaje="";
+                DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+               str_buffer_serial_received="";
+                ejecute=true;
+                return 1;
+         } 
+
+
+         mensaje=F("BLACKLIST ROUTE");
+         if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
+              
+              DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+              String str_node_name = getparamValue(str_buffer_serial_received, ' ', 2);  
+              String str_node_name2 = getparamValue(str_buffer_serial_received, ' ', 3);  
+            
+              if (str_node_name.length()>0){
+                  if (str_node_name2.length()>0){
+                      uint8_t rpta= blacklist_route_add((char*)str_node_name.c_str(),(char*)str_node_name2.c_str(),vecinos, total_vecinos, blacklist_routes,  total_rutas_blacklist , routeTable, total_rutas);
+                  }
                 }
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
@@ -537,7 +629,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
                 String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
 
                
-                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(str_from),id_node, string2char(str_payload));
+                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(string2char(str_type)), string2char(str_from),id_node, "","", string2char(str_payload));
                 
                 DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
                 mensaje="";
@@ -553,7 +645,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
                 String str_to = getparamValue(str_buffer_serial_received, ' ', 4);  
                 String str_payload = getparamValue(str_buffer_serial_received, ' ', 5);  
              
-                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(str_type), string2char(id_node),string2char(str_to), string2char(str_payload));
+                Buffer_packet=create_packet(id_node, convertir_str_packet_type_e(string2char(str_type)), string2char(id_node),string2char(str_to), "","", string2char(str_payload));
               
                 uint8_t rptad=packet_to_send(Buffer_packet,mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
                 
