@@ -1,19 +1,66 @@
+/**
+ * @Copyright:
+ * (c) Copyright 2019 locha.io project developers
+ * Licensed under a MIT license, see LICENSE file in the root folder
+ * for a full text
+ */
+
+ // declaracion de librerias
 #include <Arduino.h>
 #include <string.h>
 #include <WiFi.h>
 #include <cJSON.h>
 #include <iostream>
+#include <Hash.h>   // de la libreria uBitcoin https://gitlab.com/btcven/locha/uBitcoin/tree/master
+#include "esp_system.h"
+#include "memory_def.h"
 #include "general_functions.h"
+#include "debugging.h"
+using namespace std;
+
+// funcion para comparar dos arreglos de char
+bool compare_char(char* src ,char* dst){
+  if (strcmp(src, dst) == 0){ 
+    return true;
+  } else { 
+    return false;
+  }
+}
+
+//funcion para convertir un std::string en un char*
+char* std_string_to_char(std::string cadena){
+   char *cstr = new char[cadena.length() + 1];
+  strcpy(cstr, cadena.c_str());
+  return cstr;
+}
+
+// Funcion de conversion de tipo de datos: Char* a long long
+// usada para convertir timestamps que  vienen en cadenas de caracteres a un numero tipo long long 
+long long char2LL(char *str)
+{
+  long long result = 0; // Initialize result
+  // Iterate through all characters of input string and update result
+  for (int i = 0; str[i] != '\0'; ++i)
+    result = result*10 + str[i] - '0';
+  return result;
+}
+
+// Funcion de conversion de tipo de datos: Texto a uint8_t
+uint8_t convert_str_to_uint8(String texto){
+ 
+ unsigned long long y = 0;
+for (int i = 0; i < texto.length(); i++) {
+    char c = texto.charAt(i);
+   if (c < '0' || c > '9') break;
+   y *= 10;
+   y += (c - '0');
+}
+
+  return y;
+}
 
 
-
-
-extern char* uid;
-extern char* msg;
-extern double timemsg;
-
-
-
+// Funcion de conversion de tipo de datos: String a char*
 char *string2char(String command)
 {
   if (command.length() != 0)
@@ -23,6 +70,7 @@ char *string2char(String command)
   }
 }
 
+// Copia arreglos de char (src->dst) dado un largo determinado len
 void copy_array_locha(char *src, char *dst, int len)
 {
   for (int i = 0; i < len; i++)
@@ -31,102 +79,23 @@ void copy_array_locha(char *src, char *dst, int len)
   }
 }
 
-
-String random_name(int numBytes)
-{
-  char *msg;
-  uint8_t i;
-  String respuesta;
-  byte randomValue;
-  memset(msg, 0, numBytes);
-  for (i = 0; i < numBytes; i++)
-  {
-    randomValue = random(0, 37);
-    msg[i] = randomValue + 'a';
-    if (randomValue > 26)
-    {
-      msg[i] = (randomValue - 26) + '0';
-    }
-  }
-  respuesta = (String)msg;
-  respuesta = "locha_" + respuesta;
-  return respuesta;
+// obtiene la macaddress del ESP32 una vez conectado a Wifi
+String getMacAddress() {
+  uint8_t baseMac[6];
+  // Get MAC address for WiFi station
+  esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
+  char baseMacChr[18] = {0};
+  sprintf(baseMacChr, "%02X:%02X:%02X:%02X:%02X:%02X", baseMac[0], baseMac[1], baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
+  return String(baseMacChr);
 }
 
 // funcion encargada de colocar los id de nodo en mayusculas
-char* node_name_char_to_uppercase(char array_temp[16]){
+char* node_name_char_to_uppercase(char array_temp[SIZE_IDNODE]){
     String chars_temp=array_temp;
     chars_temp.toUpperCase();
     return string2char(chars_temp);
 }
 
-// use cJson integrated into espressif esp32 sdk 
-/* The cJSON structure: */
-//typedef struct cJSON {
-//    struct cJSON *next,*prev;   /* next/prev allow you to walk array/object chains. Alternatively, use GetArraySize/GetArrayItem/GetObjectItem */
-//    struct cJSON *child;        /* An array or object item will have a child pointer pointing to a chain of the items in the array/object. */
-
-    //int type;                   /* The type of the item, as above. */
-
-    //char *valuestring;          /* The item's string, if type==cJSON_String */
-    //int valueint;               /* The item's number, if type==cJSON_Number */
-    //double valuedouble;         /* The item's number, if type==cJSON_Number */
-
-    //char *string;               /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
-//} cJSON;
-void json_receive(String message, char* &uid2,char* &msg2, double &timemsg2 ){
- // this function receives data message in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
-  message.replace("'","\"");
-  message=message.c_str();
-  char mensaje3[message.length()+1];
-  message.toCharArray(mensaje3,message.length()+1);
- 
-  cJSON* el_arreglo=cJSON_Parse(mensaje3);
-  uid2 = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
- 
-  msg2 = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
- 
-  timemsg2 = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuedouble;
-   char* timemsg3 = cJSON_GetObjectItemCaseSensitive(el_arreglo, "time")->valuestring;
-   Serial.print("recibi time:");
-   Serial.print((String)timemsg2);
-   Serial.print("-");
-   Serial.println((String)timemsg3);
- // deletes cJSON from memory
-  cJSON_Delete(el_arreglo);
-
-}
-
-
-void create_unique_id(char *&unique_id_created) {
-  // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
-  // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
-  //TODO
-  // se arma el unique id
-  char uniqueid3[16];
-
-  uint32_t uChipId;
-  // uint64_t uChipId2;
-
-  uChipId = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
-                               ///Serial.printf("ESP32 Chip ID = %04X",(uint16_t)(chipid>>32));//print High 2 bytes
-                               //Serial.printf("%08X\n",(uint32_t)chipid);//print Low 4bytes.
-                               //char ssid[23];
-                               //uint16_t chip = (uint16_t)(chipid >> 32);
-                               //snprintf(ssid, 23, "%04X%08X", chip, (uint32_t)chipid);
-                               //copy_array_locha(ssid, uniqueid3, 16);
-
-
-  //  Serial.printf("ESP Chip ID = %04X",(uint16_t)(uChipId>>32));//print High 2 bytes
-  //  Serial.printf("%08X\n",(uint32_t)uChipId);//print Low 4bytes.
-  //      char clientid[25];
-  //      Serial.print("sigo:");
-  snprintf(uniqueid3, 25, "%08X", uChipId);
-  //    Serial.println(clientid);
-  //    copy_array_locha(clientid, uniqueid3, 16);
-  copy_array_locha(uniqueid3, unique_id_created, 16);
-  //  return uniqueid3;
-}
 
 boolean isNumeric(String str)
 {
@@ -160,15 +129,119 @@ boolean isNumeric(String str)
   return true;
 }
 
+
+
+// use cJson integrated into espressif esp32 sdk 
+/* The cJSON structure: */
+//typedef struct cJSON {
+//    struct cJSON *next,*prev;   /* next/prev allow you to walk array/object chains. Alternatively, use GetArraySize/GetArrayItem/GetObjectItem */
+//    struct cJSON *child;        /* An array or object item will have a child pointer pointing to a chain of the items in the array/object. */
+
+    //int type;                   /* The type of the item, as above. */
+
+    //char *valuestring;          /* The item's string, if type==cJSON_String */
+    //int valueint;               /* The item's number, if type==cJSON_Number */
+    //double valuedouble;         /* The item's number, if type==cJSON_Number */
+
+    //char *string;               /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
+//} cJSON;
+void json_receive(String message, char* &uid_intern,char* &msg_intern, char* &timemsg_intern_str, char* &hash_msg_intern ){
+ // this function receives data message in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
+ double time_in_number=0;
+  int tipo_dato_time_int;
+  int tipo_dato_time_dbl;
+  int tipo_dato_time_type;
+  char* nombre_del_dato;
+  
+    message.replace("'","\"");
+    message=message.c_str();
+    char mensaje3[message.length()+1];
+    message.toCharArray(mensaje3,message.length()+1);
+    DEBUG_PRINT(F("mensaje completo Json recibido:"));
+    DEBUG_PRINTLN(mensaje3);
+    cJSON* el_arreglo=cJSON_Parse(mensaje3);
+    uid_intern = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
+    msg_intern = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
+    timemsg_intern_str = cJSON_GetObjectItem(el_arreglo, "time")->valuestring;
+    hash_msg_intern = cJSON_GetObjectItem(el_arreglo, "hash")->valuestring;
+
+    // TODO: verificar si se recibe en lugar de msg un ERR
+ 
+   
+ 
+ // deletes cJSON from memory, ESTA OPCION ESTA PENDIENTE DE PRUEBA
+//  cJSON_Delete(el_arreglo);
+
+}
+
+// procedimiento inverso a Json_receive para devolver valores al BLE (toma un packet y lo transforma en un json)
+String packet_into_json(packet_t packet_to_convert, String BLE_type){
+   // this function convert [acket data in format: "{'uid':'xxxxx','BLE_type':'yyyy','time':#############,'hash':'XXXXXXXXXX'}"
+  String rpta;
+  char* tipo_packet=convertir_packet_type_e_str(packet_to_convert.header.type);
+ // tipo_packet.toLowerCase();
+  if (packet_to_convert.header.type!=EMPTY){
+      rpta="{";
+      rpta=rpta+"'uid':'"+(String)packet_to_convert.header.from+"',";
+      rpta=rpta+"'"+BLE_type+"':'"+(String)packet_to_convert.body.payload+"',";
+      rpta=rpta+"'type':"+(String)convertir_str_packet_type_e(tipo_packet)+",";
+      rpta=rpta+"'time':"+(String)packet_to_convert.header.timestamp+",";
+      rpta=rpta+"'hash':'"+(String)packet_to_convert.header.hash+"',";
+      rpta=rpta+"}";
+  }
+  return rpta;
+}
+
+String get_id_mac() {
+  String result=getMacAddress();
+  result.replace(":","");
+  return result;
+}
+
+// funcion usada para imprimir valores hexadecimales (tipo hash160)
+void printHex(byte * data, int len){
+    for(int i=0; i<len; i++){
+        if(data[i] < 0x10){
+            Serial.print("0");
+        }
+        Serial.print(data[i], HEX);
+    }
+    Serial.println();
+}
+
+void create_unique_id(char *&unique_id_created) {
+  // se genera un unique id con chipid+random+timestamp de la primera configuracion guardada en epprom
+  // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
+  //TODO: armar el unique id como un compuesto donde el user pueda colocar una parte del uniqueid y el resto sea el chipid (completo o una parte) y algun caracter de validacion
+  
+  char uniqueid3[SIZE_IDNODE];
+  uint32_t uChipId;
+  
+  uChipId = ESP.getEfuseMac(); //The chip ID is essentially its MAC address(length: 6 bytes).
+    
+  snprintf(uniqueid3, 25, "%08X", uChipId);
+  copy_array_locha(uniqueid3, unique_id_created,SIZE_IDNODE );
+  
+}
+
+// esta funcion verifica si el hash del mensaje es valido comparando el hash160
+bool is_valid_hash160(char* mensaje, char* hash_recibido){
+
+    byte hash[SIZE_HASH_MSG] = {0};
+    
+   // hash160(mensaje, strlen(mensaje), hash);
+    Serial.print("Hash recibido:");
+    Serial.println(hash_recibido);
+    Serial.print("Hash del mensaje:");
+    Serial.print((String)mensaje);
+    Serial.print("-----hash:");
+ //   printHex(hash, sizeof(hash));
+
+  return true;
+}
+
 // verifica la cantidad de memoria disponible libre
 String freeRam()
 {
   return (String)ESP.getFreeHeap();
-}
-
-// lee el voltaje interno de trabajo del arduino
-long readVcc()
-{
-  // return para todo lo demas que no sea Arduino
-  return 0;
 }
