@@ -57,7 +57,7 @@ char *pChar = (char*)"";
 
 
       // 1) el paquete recibido es para mi nodo o es un broadcast : se procesa y se devuelve al origen via la ruta un packet ACK
-      //DEBUG_PRINT(F("Empezando a procesar el packet"));
+      DEBUG_PRINT(F("Empezando a procesar el packet"));
       
       if ((compare_char(packet_received.header.to,id_node))or((compare_char(packet_received.header.to,pChar)))){
        
@@ -99,7 +99,7 @@ char *pChar = (char*)"";
       
       }
 
-  
+      DEBUG_PRINT("Saliendo de PACKET_MSG");
   return 0;
 }
 
