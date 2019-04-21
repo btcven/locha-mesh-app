@@ -69,6 +69,7 @@ uint8_t packet_timeout = 30; // expiration time in seconds of packets
 
 unsigned long tiempo;
 unsigned long tiempo_desde_ultimo_packet_recibido=0;
+bool run_pending_task=false;
 
 bool radio_Lora_receiving;
 
@@ -147,7 +148,7 @@ void setup()
     DEBUG_PRINT(MSG_BLE);
     DEBUG_PRINT(" ");
     DEBUG_PRINTLN(MSG_START);
-    xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 4, NULL);
+    xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
   }
 
   // WiFi AP aka WAP, is enabled?
@@ -199,15 +200,16 @@ void setup()
     tiempo = millis();
    DEBUG_PRINTLN(F("Enviando HELLO"));
     // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
-   String rpta_str=packet_serialize(construct_packet_HELLO(id_node));
+ //  String rpta_str=packet_serialize(construct_packet_HELLO(id_node));
    
-   delay(50);  // este delay tiene que ser mayor al que esta en task_radio para garantizar que se ejecuto el ciclo del callback y no de ERROR
-   DEBUG_PRINT(rpta_str); 
+  // delay(50);  // este delay tiene que ser mayor al que esta en task_radio para garantizar que se ejecuto el ciclo del callback y no de ERROR
+ //  DEBUG_PRINT(rpta_str); 
   // DEBUG_PRINTLN(F(" ... sigo ... "));
-    uint8_t rpta_rad=radioSend(rpta_str);
-    
-        // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
-        LoRa.receive();
+    //uint8_t rpta_rad=radioSend(rpta_str);
+    // se coloca en la cola de salida para evitar mandarlo directo sobre el radio y que bloquee las otras tareas
+    uint8_t rptad=packet_to_send(construct_packet_HELLO(id_node),mensajes_salientes,total_mensajes_salientes);  // se envia a la cola de mensajes salientes
+        // se coloca el radio en modo receive
+   LoRa.receive();
  //DEBUG_PRINTLN(F(" ... continuando ... "));
  //  DEBUG_PRINTLN("");
    DEBUG_PRINT(id_node);
@@ -240,6 +242,7 @@ void loop()
   {
     delay(20);
     process_Lora_incoming(vecinos,total_vecinos);
+    delay(50); // para que pueda dar tiempo de procesar cualquier mensaje BLE que haya que enviar y cuyo valor este en txValue
   }
 
 
@@ -260,19 +263,19 @@ void loop()
      
       devolver_como_packet_not_delivered(paquet_in_process2,BLE_NOT_CONNECTED);
       // igualmente se intenta enviar noti
-     // String text_to_send_to_ble=packet_into_json(paquet_in_process2,"msg");
-     // txValue = text_to_send_to_ble.c_str();
+      String text_to_send_to_ble=packet_into_json(paquet_in_process2,"err");
+      txValue = text_to_send_to_ble.c_str();
       
-     // Serial.print(F("enviado al BLE:"));
-    //  Serial.println(text_to_send_to_ble);
-    //  Serial.print(F("Largo de la cadena enviada al BLE:"));
-    //  Serial.println((String)text_to_send_to_ble.length());
+      Serial.print(F("enviado al BLE desde text_to_send_to_ble :"));
+      Serial.println(text_to_send_to_ble);
+      Serial.print(F("Largo de la cadena enviada al BLE:"));
+      Serial.println((String)text_to_send_to_ble.length());
     }
 
     packet_return_BLE_str = "";
   }
 
-    if (total_mensajes_waiting>0){
+    if (run_pending_task){
       uint8_t rpta_task=pending_tasks(mensajes_waiting,total_mensajes_waiting);
     }
 

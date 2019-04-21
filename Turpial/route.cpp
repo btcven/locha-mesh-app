@@ -535,8 +535,8 @@ char* vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES],uint8_t total_rutas){
   uint8_t total_rutas_tmp=0;
   uint8_t total_rutas_vecino_con_mas_rutas=0;
   uint8_t max_rutas=0;
-  char* nombre_vecino;
-  char* nombre_vecino_con_mas_rutas;
+  char nombre_vecino[SIZE_IDNODE];
+  char nombre_vecino_con_mas_rutas[SIZE_IDNODE];
   
   DEBUG_PRINTLN(F("entrando a vecino con mas rutas"));
   
@@ -573,7 +573,7 @@ char* vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES],uint8_t total_rutas){
           }
           DEBUG_PRINT(F("Total de rutas de este vecino:"));
           DEBUG_PRINTLN((String)total_rutas_tmp);
-          if (total_rutas>total_rutas_vecino_con_mas_rutas){
+          if (total_rutas_tmp>total_rutas_vecino_con_mas_rutas){
             copy_array_locha(nombre_vecino, nombre_vecino_con_mas_rutas, SIZE_IDNODE);
             total_rutas_vecino_con_mas_rutas=total_rutas_tmp;
           }
@@ -581,8 +581,10 @@ char* vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES],uint8_t total_rutas){
    }
 
    
-   DEBUG_PRINTLN(F("saliendo de vecino con mas rutas"));
-  return nombre_vecino_con_mas_rutas;
+   DEBUG_PRINT(F("saliendo de vecino con mas rutas"));
+DEBUG_PRINT(nombre_vecino_con_mas_rutas);
+   DEBUG_PRINTLN("======");
+  return (char*)nombre_vecino_con_mas_rutas;
   
 }
 
@@ -623,7 +625,7 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
     Serial.println("no existe ruta, voy a comparar");
     if (el_vecino_mas.length()>0){
     if (!(compare_char(vecino_mas_conectado,""))){
-      Serial.println(F("no es vacio, se coloca como el next neogbor que se va a encargar del packet"));
+      Serial.println(F("no es vacio, se coloca como el next neigbour que se va a encargar del packet"));
         copy_array_locha(vecino_mas_conectado, packet_temp.header.next_neighbor, SIZE_IDNODE);
         // a los demas vecinos se les puede enviar una valixa para ir buscando info con un packet ROUTE tipo RREQ 
         send_route_request=true;

@@ -204,21 +204,23 @@ void task_bluetooth(void *params)
                    //    packet_in_process_str.toCharArray(packet_str_tmp, packet_in_process_str.length());
                    //    packet_t paquet_in_process=packet_deserialize(packet_str_tmp);
                         // se devuelve a una variable global el packet a retornar
-                        if (packet_return_BLE_str.length()>0){ 
+                     //   if (packet_return_BLE_str.length()>0){ 
                           // se da un delay para esperar que sea procesado otro paquete saliente que esta pendiente
-                           for (jj = 0; jj <= 100; jj++) {
-                              delay(20);
-                              if (packet_return_BLE_str.length()==0){       
-                                break;
-                              }
-                           }
-                        }
+                       //    for (jj = 0; jj <= 100; jj++) {
+                       //       delay(20);
+                       //       if (packet_return_BLE_str.length()==0){       
+                       //         break;
+                       //       }
+                       //    }
+                      //  }
                         packet_return_BLE_str=packet_in_process_str;      
                       // text_to_send=(String)paquet_in_process.body.payload;
                  }  else {
                       text_to_send=txValue.c_str();
                       tx_uart->setValue(text_to_send.c_str());
                       tx_uart->notify();
+                       Serial.print("Se envio al BLE:");
+                       Serial.println(text_to_send.c_str());
                  }
                  // se coloca un delay antes de borrar la variable para que pueda llegar el ack del BLE
                  delay(50);

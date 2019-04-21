@@ -63,7 +63,7 @@ char *pChar = (char*)"";
        
         // se devuelve un packet_ACK por la misma ruta al origen para notificar la recepcion
             
-            packet_t new_packet=create_packet(id_node, ACK, packet_received.header.from, id_node, packet_received.header.next_neighbor , "",packet_received.body.payload);
+            packet_t new_packet=create_packet(id_node, ACK, id_node,packet_received.header.from, packet_received.header.next_neighbor , "",packet_received.body.payload);
             DEBUG_PRINT(F("Se esta procesando routing_incoming_PACKET_MSG:"));
             #ifdef DEBUG
               show_packet(packet_received, true);
@@ -75,7 +75,10 @@ char *pChar = (char*)"";
                 // modificado por ahora mientras solventamos lo de la limitacion de 20 char en BLE
              //   String hacia_el_ble=Json_return_msg((String)packet_received.body.payload);
                 String hacia_el_ble=(String)packet_received.body.payload;
+                // en la siguiente linea se envia al BLE pero por algun motivo no lo muestra del lado BLE
                 txValue=hacia_el_ble.c_str();
+
+                
               DEBUG_PRINT(hacia_el_ble);
               DEBUG_PRINT(F("-largo del mensaje enviado:"));
               DEBUG_PRINT((String)hacia_el_ble.length());
@@ -396,14 +399,25 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[SIZE_IDNODE], packet_t packet_r
     
       if ((compare_char(mensajes_waiting[i].paquete.header.from,packet_received.header.from))and(compare_char(mensajes_waiting[i].paquete.header.to,packet_received.header.to))){
           // se verifica que sea un ACK de un mensaje tipo MSG
-          if ((mensajes_waiting[i].paquete.header.type=MSG)or((mensajes_waiting[i].paquete.header.type=TXN))){
+        //  if ((mensajes_waiting[i].paquete.header.type=MSG)or((mensajes_waiting[i].paquete.header.type=TXN))){
                   // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)
                 if (compare_char(mensajes_waiting[i].paquete.body.payload,packet_received.body.payload)){
                   // se recibio el ACK de que el mensaje MSG fue recibido correctamente
                   is_MSG=i;
                   break;
                 }
-           }
+          // }
+        }
+         if ((compare_char(mensajes_waiting[i].paquete.header.from,packet_received.header.to))and(compare_char(mensajes_waiting[i].paquete.header.to,packet_received.header.from))){
+          // se verifica que sea un ACK de un mensaje tipo MSG
+        //  if ((mensajes_waiting[i].paquete.header.type=MSG)or((mensajes_waiting[i].paquete.header.type=TXN))){
+                  // se verifica que tenga el mismo payload (esto deberia ser con el hash pero por ahora a efectos del demo se usa solo el mismo payload)
+                if (compare_char(mensajes_waiting[i].paquete.body.payload,packet_received.body.payload)){
+                  // se recibio el ACK de que el mensaje MSG fue recibido correctamente
+                  is_MSG=i;
+                  break;
+                }
+          // }
         }
         }
           if (is_MSG>0){

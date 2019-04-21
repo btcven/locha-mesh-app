@@ -33,6 +33,7 @@ extern uint8_t total_mensajes_salientes; // cantidad de mensajes en la cola
 extern unsigned long tiempo_desde_ultimo_packet_recibido;
 
 extern not_delivered_type_e why_not_delivered;   // causa de no entrega de algun packet
+extern bool run_pending_task;
 
 // funciones para el mantenimiento de las colas de mensaje:
 // se reenvian packets en espera
@@ -55,8 +56,8 @@ uint8_t pending_tasks(message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE],uint8_t
           
         // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
         LoRa.receive();
-        int delay_rand=rand() % 5000 + 20;
-        delay(delay_rand);
+      //  int delay_rand=rand() % 5000 + 20;
+      //  delay(delay_rand);
           // y se borra de la tabla mensajes_salientes
           // los MSG no se borran porque esperan ACK
           if ((mensajes_waiting[1].paquete.header.type!=MSG)and(mensajes_waiting[1].paquete.header.type!=TXN)){
@@ -87,6 +88,7 @@ uint8_t pending_tasks(message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE],uint8_t
                 //mensaje_waiting_to_send=0;
             //    delay(20);
     }
+    run_pending_task=false;
      return 0;
 }
 
@@ -97,6 +99,7 @@ uint8_t xx;
 uint8_t jj;
 
  while (1) {
+  run_pending_task=true;
     // 1) paquetes en espera: tiempo delayed o si tienen que reintentar
     // se recorre la tabla de mensajes_waiting
     //if (total_mensajes_waiting>0){
