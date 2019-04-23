@@ -7,7 +7,6 @@
 
 #include <Arduino.h>
 #include "general_functions.h"
-#include "boards_def.h"
 #include "memory_def.h"
 #include "packet.h"
 #include "route.h"

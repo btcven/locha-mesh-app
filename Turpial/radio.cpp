@@ -6,7 +6,7 @@
 // declaracion de librerias
 #include <Arduino.h>
 #include <SPI.h>
-#include <string.h>
+#include <string>
 #include <LoRa.h>
 #include "radio.h"
 #include "hal/hardware.h"
@@ -215,11 +215,6 @@ uint8_t radioSend(String _data) {
 
 // declaracion del radio Lora y su vinculacion via SPI
 void task_radio(void *params) {
-
- // DEBUG_PRINT(MSG_SCR);
- // DEBUG_PRINT(" ");
- // DEBUG_PRINT(MSG_INIT);
- // DEBUG_PRINTLN(" ");
 
   SPI.begin(RAD_SCK, RAD_MISO, RAD_MOSI, RAD_CSS);
   LoRa.setPins(RAD_CSS, RAD_RST, RAD_DIO0);

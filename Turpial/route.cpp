@@ -12,7 +12,6 @@
 #include "hal/hardware.h"
 #include "memory_def.h"
 #include "general_functions.h"
-#include "boards_def.h"
 #include "radio.h"
 #include "routing_incoming.h"
 #include "routing_outcoming.h"
