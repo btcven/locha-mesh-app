@@ -1,5 +1,5 @@
 /**
- * @file SQLite.cpp
+ * @file crypto.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -8,5 +8,7 @@
  * @copyright Copyright (c) 2019 locha.io project developers
  * 
  */
+#ifndef CRYPTO_H
+#define CRYPTO_H
 
-#include "SQLite.h"
+#endif // CRYPTO_H

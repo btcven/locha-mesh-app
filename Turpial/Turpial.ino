@@ -20,7 +20,7 @@ void setup()
   sys_init = SCR_INIT();
   if (sys_init != ESP_OK)
     esp_restart();
-
+  
   // init. BLE on boot?
 
   // init. WAP on boot?

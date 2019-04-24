@@ -1,5 +1,5 @@
 /**
- * @file SQLite.cpp
+ * @file crypto.cpp
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -9,4 +9,7 @@
  * 
  */
 
-#include "SQLite.h"
+#include <Arduino.h>
+#include <Bitcoin.h>
+#include "crypto.h"
+
