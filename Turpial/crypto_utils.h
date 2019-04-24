@@ -1,5 +1,5 @@
 /**
- * @file NVS.h
+ * @file crypto_utils.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -9,9 +9,7 @@
  * @license MIT license, see LICENSE file for details
  * 
  */
-#ifndef NVS_H
-#define NVS_H
+#ifndef CRYPTO_UTILS_H
+#define CRYPTO_UTILS_H
 
-bool nvs_get_bool(const char *name, const char *key, bool defaultValue);
-
-#endif // NVS_H
+#endif // CRYPTO_UTILS_H

@@ -1,5 +1,5 @@
 /**
- * @file NVS.h
+ * @file WAP.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -9,9 +9,8 @@
  * @license MIT license, see LICENSE file for details
  * 
  */
-#ifndef NVS_H
-#define NVS_H
 
-bool nvs_get_bool(const char *name, const char *key, bool defaultValue);
+#ifndef WAP_H
+#define WAP_H
 
-#endif // NVS_H
+#endif // WAP_H
