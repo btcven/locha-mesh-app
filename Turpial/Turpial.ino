@@ -8,21 +8,27 @@
  * @copyright Copyright (c) 2019 locha.io project developers
  * 
  */
-
-#if CONFIG_FREERTOS_UNICORE
-#define ARDUINO_RUNNING_CORE 0
-#else
-#define ARDUINO_RUNNING_CORE 1
-#endif
-
 #include <Arduino.h>
+#include "Turpial.h"
 #include "SCR.h"
-
 
 void setup()
 {
-SCR_INIT();
-  
+  esp_err_t sys_init;
+
+  // init. SCR on boot?
+  sys_init = SCR_INIT();
+  if (sys_init != ESP_OK)
+    esp_restart();
+
+  // init. BLE on boot?
+
+  // init. WAP on boot?
+
+  // init. WST on boot?
+
+  // init. RAD on boot?
+
 }
 
 void loop()

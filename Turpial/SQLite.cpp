@@ -1,5 +1,5 @@
 /**
- * @file FSS.h
+ * @file SQLite.cpp
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -8,8 +8,4 @@
  * @copyright Copyright (c) 2019 locha.io project developers
  * 
  */
-
-#ifndef FSS_H
-#define FSS_H
-
-#endif // FSS_H
+#include "SQLite.h"

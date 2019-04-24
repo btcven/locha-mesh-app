@@ -1,5 +1,5 @@
 /**
- * @file SCR.h
+ * @file BLE.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -8,11 +8,7 @@
  * @copyright Copyright (c) 2019 locha.io project developers
  * 
  */
+#ifndef BLE_H
+#define BLE_H
 
-#ifndef SCR_H
-#define SCR_H
-#include <Arduino.h>
-
-esp_err_t SCR_INIT();
-
-#endif // SCR_H
+#endif // BLE_H

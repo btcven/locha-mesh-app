@@ -8,18 +8,11 @@
  * @copyright Copyright (c) 2019 locha.io project developers
  * 
  */
-#include "NVS.h"
 
-/**
- * @brief 
- * 
- * @param name: The NVS namespace
- * @param key: 
- * @param defaultValue: Default value taken from "hal/hardware.h"
- * @return bool
- */
+#include <Arduino.h>
 #include <Preferences.h>
 #include "NVS.h"
+
 bool nvs_get_bool(const char *name, const char *key, bool defaultValue)
 {
     Preferences nvs;

@@ -11,8 +11,6 @@
 #ifndef NVS_H
 #define NVS_H
 
-#include <Arduino.h>
-
 bool nvs_get_bool(const char *name, const char *key, bool defaultValue);
 
 #endif // NVS_H
