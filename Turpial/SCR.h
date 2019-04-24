@@ -11,7 +11,7 @@
 
 #ifndef SCR_H
 #define SCR_H
-
+#include <Arduino.h>
 void SCR_INIT();
 
 #endif // SCR_H

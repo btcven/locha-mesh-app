@@ -9,7 +9,7 @@
  * 
  */
 #include <Arduino.h>
-#include "dev/SCR.h"
+#include "SCR.h"
 
 void SCR_INIT()
 {

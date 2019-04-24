@@ -16,9 +16,8 @@
 #endif
 
 #include <Arduino.h>
-#include "dev/SCR.h"
+#include "SCR.h"
 
-extern void SCR_INIT();
 
 void setup()
 {
