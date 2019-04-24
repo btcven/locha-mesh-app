@@ -18,7 +18,6 @@
 #include <Arduino.h>
 #include "dev/SCR.h"
 
-extern void SCR_INIT();
 
 void setup()
 {
