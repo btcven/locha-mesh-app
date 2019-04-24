@@ -1,5 +1,5 @@
 /**
- * @file Turpial.ino
+ * @file NVS.cpp
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -8,14 +8,3 @@
  * @copyright Copyright (c) 2019 locha.io project developers
  * 
  */
-
-#include "Turpial.h"
-
-void setup()
-{
-}
-
-void loop()
-{
-  // nothing here please
-}

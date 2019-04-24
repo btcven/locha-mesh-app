@@ -1,5 +1,5 @@
 /**
- * @file Turpial.ino
+ * @file RAD.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -9,13 +9,7 @@
  * 
  */
 
-#include "Turpial.h"
+#ifndef RAD_H
+#define RAD_H
 
-void setup()
-{
-}
-
-void loop()
-{
-  // nothing here please
-}
+#endif // RAD_H

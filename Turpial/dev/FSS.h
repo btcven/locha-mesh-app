@@ -1,5 +1,5 @@
 /**
- * @file Turpial.ino
+ * @file FSS.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -9,13 +9,7 @@
  * 
  */
 
-#include "Turpial.h"
+#ifndef FSS_H
+#define FSS_H
 
-void setup()
-{
-}
-
-void loop()
-{
-  // nothing here please
-}
+#endif // FSS_H
