@@ -8,21 +8,22 @@
  * @copyright Copyright (c) 2019 locha.io project developers
  * 
  */
+
+#if CONFIG_FREERTOS_UNICORE
+#define ARDUINO_RUNNING_CORE 0
+#else
+#define ARDUINO_RUNNING_CORE 1
+#endif
+
 #include <Arduino.h>
 #include "dev/SCR.h"
-#include "Turpial.h"
+
+extern void SCR_INIT();
 
 void setup()
 {
-
-  esp_err_t sys_init;
-
-  // check display
-  sys_init = SCR_INIT();
-  if (sys_init != ESP_OK)
-    esp_restart();
-
-    
+SCR_INIT();
+  
 }
 
 void loop()

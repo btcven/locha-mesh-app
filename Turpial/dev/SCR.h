@@ -12,6 +12,6 @@
 #ifndef SCR_H
 #define SCR_H
 
-esp_err_t SCR_INIT();
+void SCR_INIT();
 
 #endif // SCR_H

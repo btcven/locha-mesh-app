@@ -19,7 +19,7 @@
  * @return bool
  */
 #include <Preferences.h>
-
+#include "NVS.h"
 bool nvs_get_bool(const char *name, const char *key, bool defaultValue)
 {
     Preferences nvs;
