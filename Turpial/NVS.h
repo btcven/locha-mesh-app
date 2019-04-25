@@ -12,6 +12,15 @@
 #ifndef NVS_H
 #define NVS_H
 
+/**
+ * @brief 
+ * 
+ * @param name 
+ * @param key 
+ * @param defaultValue 
+ * @return true 
+ * @return false 
+ */
 bool nvs_get_bool(const char *name, const char *key, bool defaultValue);
 
 #endif // NVS_H
