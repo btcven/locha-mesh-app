@@ -14,6 +14,15 @@
 #include <Preferences.h>
 #include "NVS.h"
 
+/**
+ * @brief 
+ * 
+ * @param name 
+ * @param key 
+ * @param defaultValue 
+ * @return true 
+ * @return false 
+ */
 bool nvs_get_bool(const char *name, const char *key, bool defaultValue)
 {
     Preferences nvs;
