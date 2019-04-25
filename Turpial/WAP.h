@@ -23,4 +23,5 @@
 esp_err_t WAP_INIT();
 void responses_WAP(WiFiClient client);
 
+
 #endif // WAP_H
