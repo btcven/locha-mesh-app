@@ -18,8 +18,8 @@
 #define SCR_ENABLED     true
 #define RAD_ENABLED     true
 #define BLE_ENABLED     true
-#define WST_ENABLED     false
-#define WAP_ENABLED     false
+#define WST_ENABLED     true
+#define WAP_ENABLED     true
 #define LED_ENABLED     true
 #define BTN_ENABLED     true
 

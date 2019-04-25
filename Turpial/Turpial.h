@@ -17,6 +17,7 @@
 #include "tasks.h"
 #include "SCR.h"
 #include "RAD.h"
+#include "WAP.h"
 #include "SQLite.h"
 
 #if CONFIG_FREERTOS_UNICORE

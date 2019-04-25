@@ -10,7 +10,15 @@
  * 
  */
  #include <Arduino.h>
+ #include "hal/hardware.h"
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WiFiAP.h>
+#include "NVS.h"
+#include "WAP.h"
 #include "tasks.h"
+
+extern WiFiServer server;
 
  void NetworkPeer(void *params)
 {
@@ -18,5 +26,8 @@
     for (;;)
     {
         //esp_log_timestamp();
+       
+      WiFiClient client = server.available();   // listen for incoming clients
+      responses_WAP(client);
     }
 }

@@ -23,6 +23,7 @@
 
 
 bool compare_char(char* src ,char* dst);
+void eraseAllSubStr(std::string & mainStr, const std::string & toErase);
 char* std_string_to_char(std::string cadena);
 long long char2LL(char *str);
 uint8_t convert_str_to_uint8(std::string texto);

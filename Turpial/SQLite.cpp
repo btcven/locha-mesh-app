@@ -12,7 +12,7 @@
 #include <Arduino.h>
 #include "SQLite.h"
 
-const char *TAG = "SQL";
+const char *TAG = "SQLite";
 
 // database declarations
 sqlite3 *config_db; // config database for non volatile data
@@ -34,7 +34,14 @@ static int callback(void *data, int argc, char **argv, char **azColName)
     return 0;
 }
 
-// open filename database , return SQLite open status
+
+/**
+ * @brief open filename database , return SQLite open status
+ * 
+ * @param filename 
+ * @param pointer to db
+ * @return int  SQLite open status
+ */
 int db_open(const char *filename, sqlite3 **db)
 {
 
@@ -75,14 +82,15 @@ int db_exec(sqlite3 *db, const char *sql)
 // database file should not contains special characters neither /  , prefer to use 8+3 syntax name
 bool sqlite3_startup(const char *filename, sqlite3 *db, bool create_on_startup)
 {
-    /*
-    if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
-    {
-        ESP_LOGD(TAG, "Failed to mount file system");
-        return false;
-    }
-    */
-    File root = SPIFFS.open("/");
+//const char *full_path_filename = "/spiffs/config.db";
+std::string only_file((char*)filename);
+char* only_file_char;
+char *pChar = (char*)"/";
+      std::replace( only_file.begin(), only_file.end(), '/spiffs/', NULL);
+      only_file_char=string2char(only_file);
+  //  strcat(file_plus_dirchr, pChar);
+    File root = SPIFFS.open(pChar);
+    
 
     ESP_LOGD(TAG, "Inside sqlite3_startup");
 
@@ -98,10 +106,10 @@ bool sqlite3_startup(const char *filename, sqlite3 *db, bool create_on_startup)
     }
     if (create_on_startup)
     {
-        if (Fileexists(filename))
+        if (Fileexists(only_file_char))
         {
-            ESP_LOGD(TAG, "Erasing %s", filename);
-            SPIFFS.remove(filename);
+            ESP_LOGD(TAG, "Erasing %s", only_file_char);
+            SPIFFS.remove(only_file_char);
         }
     }
     ESP_LOGD(TAG, "Goes to sqlite3_initialize()");
@@ -115,42 +123,22 @@ bool sqlite3_startup(const char *filename, sqlite3 *db, bool create_on_startup)
     strcpy(full_path_filename, "/spiffs/");
     strcat(full_path_filename, filename);
     */
-    const char *full_path_filename = "/spiffs/config.db";
+    
 
     ESP_LOGD(TAG, "Copy path ready");
 
-    if (db_open(full_path_filename, &db))
+    if (!db_open(filename, &db))
     {
-         ESP_LOGE(TAG, "Opened /spiffs/%s", filename);
+         ESP_LOGE(TAG, "Opened %s", filename);
         return true;
     }
     else
     {
-        ESP_LOGE(TAG, "- failed to open database /spiffs/%s", filename);
+        ESP_LOGE(TAG, "- failed to open database %s", filename);
         return false;
     }
 }
 
-/**
- * @brief 
- * 
- * @return esp_err_t 
- */
-esp_err_t open_fs()
-{
-    const char *TAG = "FileSystem";
-    if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
-    {
-
-        ESP_LOGE(TAG, "Mounting file system");
-        return ESP_FAIL;
-    }
-    else
-    {
-        ESP_LOGE(TAG, "Mounting file system");
-        return ESP_OK;
-    }
-}
 
 /**
  * @brief 
@@ -168,14 +156,14 @@ esp_err_t SQLite_INIT()
 
     bool response = false;
 
-    response = sqlite3_startup("config.db", config_db, true);
+    response = sqlite3_startup("/spiffs/config.db", config_db, false);
 
     if (!response)
     {
         ESP_LOGE(TAG, "Can't open config database");
         return ESP_FAIL;
     }
-    response = sqlite3_startup("data.db", data_db, true);
+    response = sqlite3_startup("/spiffs/data.db", data_db, true);
 
     if (!response)
     {

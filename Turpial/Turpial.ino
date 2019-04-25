@@ -13,10 +13,16 @@
 #include "Turpial.h"
 
 
+WiFiServer server(80);
 
 void setup()
 {
   esp_err_t sys_init;
+
+  // FS init
+  sys_init = open_fs();
+  if (sys_init != ESP_OK)
+    esp_restart();
 
   // SQLite init
   sys_init = SQLite_INIT();
@@ -30,7 +36,16 @@ void setup()
   
   // init. BLE on boot?
 
-  // init. WAP on boot?
+  // init. WAP on boot
+  sys_init = WAP_INIT();
+  if (sys_init != ESP_OK){
+     esp_restart();
+  } else {
+     WiFi.mode(WIFI_AP);  
+     WiFi.softAP("elssid");
+     server.begin();
+  }
+   
 
   // init. WST on boot?
 
@@ -46,4 +61,5 @@ void setup()
 void loop()
 {
   // nothing here please
+  
 }
