@@ -13,10 +13,19 @@
 #ifndef TURPIAL_H
 #define TURPIAL_H
 
+#include <Arduino.h>
+#include "tasks.h"
+#include "SCR.h"
+#include "RAD.h"
+#include "SQLite.h"
+
 #if CONFIG_FREERTOS_UNICORE
 #define ARDUINO_RUNNING_CORE 0
 #else
 #define ARDUINO_RUNNING_CORE 1
 #endif
+
+// TAsks handlers
+TaskHandle_t peerHandler;
 
 #endif // TURPIAL_H

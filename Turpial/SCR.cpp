@@ -9,7 +9,7 @@
  * @license MIT license, see LICENSE file for details
  * 
  */
-
+#include <Arduino.h>
 #include "SSD1306.h"
 #include "SCR.h"
 #include "NVS.h"

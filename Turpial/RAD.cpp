@@ -9,4 +9,12 @@
  * @license MIT license, see LICENSE file for details
  * 
  */
+ #include <Arduino.h>
 #include "RAD.h"
+
+
+esp_err_t RAD_INIT()
+{
+
+  return ESP_OK;
+}

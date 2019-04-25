@@ -1,5 +1,5 @@
 /**
- * @file RAD.h
+ * @file tasks.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
  * @version 0.1
@@ -9,11 +9,12 @@
  * @license MIT license, see LICENSE file for details
  * 
  */
-
-#ifndef RAD_H
-#define RAD_H
+#ifndef TASKS_H
+#define TASKS_H
 #include <Arduino.h>
 
-esp_err_t RAD_INIT();
 
-#endif // RAD_H
+
+ void NetworkPeer(void *params);
+ 
+#endif // TASKS_H

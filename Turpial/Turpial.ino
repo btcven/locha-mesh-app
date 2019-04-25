@@ -11,11 +11,17 @@
  */
 #include <Arduino.h>
 #include "Turpial.h"
-#include "SCR.h"
+
+
 
 void setup()
 {
   esp_err_t sys_init;
+
+  // SQLite init
+  sys_init = SQLite_INIT();
+  if (sys_init != ESP_OK)
+    esp_restart();
 
   // init. SCR on boot?
   sys_init = SCR_INIT();
@@ -28,8 +34,13 @@ void setup()
 
   // init. WST on boot?
 
-  // init. RAD on boot?
+    // init. RAD on boot?
+    sys_init = RAD_INIT();
+    if (sys_init != ESP_OK)
+        esp_restart();
 
+    xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 2048, NULL, 5, &peerHandler, ARDUINO_RUNNING_CORE);
+ 
 }
 
 void loop()
