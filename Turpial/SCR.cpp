@@ -25,8 +25,13 @@ SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 esp_err_t SCR_INIT()
 {
     const char *TAG = "SCR";
+    //
+    // only in dev stage:
+    // clear nvs before start.
+    //
+    // nvs_clear("SCR");
 
-    bool SCR_enabled = nvs_get_bool(TAG, "enabled", SCR_ENABLED);
+    bool SCR_enabled = nvs_get_bool(TAG, "enabled", SCR_ENABLED, false);
 
     if (SCR_enabled)
     {

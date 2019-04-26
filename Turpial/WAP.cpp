@@ -18,34 +18,22 @@ esp_err_t WAP_INIT()
 {
   const char *TAG = "WAP";
 
-  bool WAP_enabled = nvs_get_bool(TAG, "enabled", WAP_ENABLED);
+  // getting values from nvs or set values by default from hal/hardware.h
 
-  if (WAP_enabled)
+  const char *WAP_ssid = nvs_get_string(TAG, "ssid", WAP_SSID, false);
+  const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS, false);
+  int32_t WAP_channel = nvs_get_int(TAG, "chan", WAP_CHANNEL, false);
+  int32_t WAP_maxconn = nvs_get_int(TAG, "conn", WAP_MAXCONN, false);
+
+  bool initAP = WiFi.softAP(WAP_ssid, WAP_pass, WAP_channel, 0, WAP_maxconn);
+
+  if (initAP)
   {
-    ESP_LOGD(TAG, "%s enabled on boot", TAG);
-
-    // getting values from nvs or set values by default from hal/hardware.h
-
-    const char *WAP_ssid = nvs_get_string(TAG, "ssid", WAP_SSID);
-    const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS);
-    int32_t WAP_channel = nvs_get_int(TAG, "chan", WAP_CHANNEL);
-    int32_t WAP_maxconn = nvs_get_int(TAG, "conn", WAP_MAXCONN);
-
-    bool initAP = WiFi.softAP(WAP_ssid, WAP_pass, WAP_channel, 0, WAP_maxconn);
-
-    if (initAP)
-    {
-      return ESP_OK;
-    }
-    else
-    {
-      return ESP_FAIL;
-    }
+    return ESP_OK;
   }
   else
   {
-    ESP_LOGD(TAG, "%s disabled on boot", TAG);
-    return ESP_OK;
+    return ESP_FAIL;
   }
 }
 

@@ -20,6 +20,7 @@
 /**
  * @brief 
  * 
+ * @param eventCB 
  * @return esp_err_t 
  */
 esp_err_t WAP_INIT();

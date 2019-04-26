@@ -16,11 +16,9 @@
  * @brief 
  * 
  * @param name 
- * @param key 
- * @param defaultValue 
- * @return int 
+ * @return esp_err_t 
  */
-int32_t nvs_get_int(const char *name, const char *key, int32_t defaultValue);
+esp_err_t nvs_clear(const char *name);
 
 /**
  * @brief 
@@ -28,9 +26,21 @@ int32_t nvs_get_int(const char *name, const char *key, int32_t defaultValue);
  * @param name 
  * @param key 
  * @param defaultValue 
+ * @param upset 
+ * @return int32_t 
+ */
+int32_t nvs_get_int(const char *name, const char *key, int32_t defaultValue, bool upset);
+
+/**
+ * @brief 
+ * 
+ * @param name 
+ * @param key 
+ * @param defaultValue 
+ * @param upset 
  * @return const char* 
  */
-const char *nvs_get_string(const char *name, const char *key, const char *defaultValue);
+const char *nvs_get_string(const char *name, const char *key, const char *defaultValue, bool upset);
 
 /**
  * @brief 
@@ -38,9 +48,10 @@ const char *nvs_get_string(const char *name, const char *key, const char *defaul
  * @param name 
  * @param key 
  * @param defaultValue 
+ * @param upset 
  * @return true 
  * @return false 
  */
-bool nvs_get_bool(const char *name, const char *key, bool defaultValue);
+bool nvs_get_bool(const char *name, const char *key, bool defaultValue, bool upset);
 
 #endif // NVS_H
