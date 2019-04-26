@@ -17,7 +17,6 @@
 bool nvs_get_bool(const char *name, const char *key, bool defaultValue)
 {
     Preferences nvs;
-
     if (nvs.begin(name, false))
     {
         bool value = nvs.getBool(key, NULL);

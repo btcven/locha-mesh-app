@@ -7,6 +7,7 @@
  * 
  * @copyright Copyright (c) 2019 locha.io project developers
  * @license MIT license, see LICENSE file for details
+ * 
  */
 
 #ifndef HELTEC_V1_H
@@ -14,23 +15,21 @@
 
 // Los siguientes parametros son tomados por defecto
 // algunos de ellos pueden ser sobreescritos en tiempo de ejecución.
-#define SCR_ENABLED true
-#define RAD_ENABLED true
-#define BLE_ENABLED true
-#define WST_ENABLED false
-#define WAP_ENABLED false
-#define LED_ENABLED true
-#define BTN_ENABLED true
+#define SCR_ENABLED     true
+#define RAD_ENABLED     true
+#define BLE_ENABLED     true
+#define WST_ENABLED     true
+#define WAP_ENABLED     true
+#define LED_ENABLED     true
+#define BTN_ENABLED     true
 
 // Screen Settings
 #if SCR_ENABLED
-    #define SCR_ADD 0x3c
-    #define SCR_SDA 4
-    #define SCR_SCL 15
-    #define SCR_RST 16
-    #define Vext false
-    //
-    #define SCR_INTERVAL 5000
+    #define SCR_ADD     0x3c
+    #define SCR_SDA     4
+    #define SCR_SCL     15
+    #define SCR_RST     16
+    #define Vext        false
 #endif // SCR
 
 // Radio Module Settings
@@ -47,16 +46,16 @@
 
 // WST default values.
 #if WST_ENABLED
-    #define WST_SSID
-    #define WST_PASS
+    #define WST_SSID    NULL
+    #define WST_PASS    NULL
 #endif // WST_ENABLED
 
 // WAP default values.
 #if WAP_ENABLED
-    #define WAP_SSID
-    #define WAP_PASS
-    #define WAP_CHAN
-    #define WAP_CIPH
+    #define WAP_SSID    "io.locha.ap"
+    #define WAP_PASS    "io.locha.ap"
+    #define WAP_CHAN    6
+    #define WAP_MAXCON  4
 #endif // WAP_ENABLED
 
 // On board LED

@@ -30,8 +30,6 @@
     #define SCR_SCL     15
     #define SCR_RST     16
     #define Vext        21
-    //
-    #define SCR_INTERVAL 5000
 #endif // SCR
 
 // Radio Module Settings
@@ -48,16 +46,16 @@
 
 // WST default values.
 #if WST_ENABLED
-    #define WST_SSID
-    #define WST_PASS
+    #define WST_SSID    NULL
+    #define WST_PASS    NULL
 #endif // WST_ENABLED
 
 // WAP default values.
 #if WAP_ENABLED
-    #define WAP_SSID
-    #define WAP_PASS
-    #define WAP_CHAN
-    #define WAP_CIPH
+    #define WAP_SSID    "io.locha.ap"
+    #define WAP_PASS    "io.locha.ap"
+    #define WAP_CHAN    6
+    #define WAP_MAXCON  4
 #endif // WAP_ENABLED
 
 // On board LED

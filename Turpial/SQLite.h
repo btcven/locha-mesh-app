@@ -21,9 +21,11 @@
 #include <SPIFFS.h>
 #include "general_utils.h"
 
-
-
+/**
+ * @brief 
+ * 
+ * @return esp_err_t 
+ */
 esp_err_t SQLite_INIT();
-
 
 #endif // SQLITE_H

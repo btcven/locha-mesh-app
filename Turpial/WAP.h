@@ -14,14 +14,23 @@
 #define WAP_H
 
 #include <Arduino.h>
-#include "hal/hardware.h"
 #include <WiFi.h>
-#include <WiFiClient.h>
-#include <WiFiAP.h>
-#include "NVS.h"
 
+
+/**
+ * @brief 
+ * 
+ * @return esp_err_t 
+ */
 esp_err_t WAP_INIT();
+
+/**
+ * @brief 
+ * 
+ * @param client 
+ */
+
+/*
 void responses_WAP(WiFiClient client);
-
-
+*/
 #endif // WAP_H

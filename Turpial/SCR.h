@@ -14,6 +14,11 @@
 #define SCR_H
 #include <Arduino.h>
 
+/**
+ * @brief Init. display
+ * 
+ * @return esp_err_t 
+ */
 esp_err_t SCR_INIT();
 
 #endif // SCR_H

@@ -12,7 +12,6 @@
  #include <Arduino.h>
 #include "RAD.h"
 
-
 esp_err_t RAD_INIT()
 {
 

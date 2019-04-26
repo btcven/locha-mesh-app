@@ -15,13 +15,13 @@
 #include "NVS.h"
 #include "hal/hardware.h"
 
+/**
+ * @brief Create an instance of SSD1306 called display
+ * 
+ * @return SSD1306 
+ */
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 
-/**
- * @brief 
- * 
- * @return esp_err_t 
- */
 esp_err_t SCR_INIT()
 {
     const char *TAG = "SCR";
