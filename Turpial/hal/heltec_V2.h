@@ -54,8 +54,8 @@
 #if WAP_ENABLED
     #define WAP_SSID    "io.locha.ap"
     #define WAP_PASS    "io.locha.ap"
-    #define WAP_CHAN    6
-    #define WAP_MAXCON  4
+    #define WAP_CHANNEL 6
+    #define WAP_MAXCONN 4
 #endif // WAP_ENABLED
 
 // On board LED

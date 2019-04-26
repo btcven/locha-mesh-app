@@ -14,6 +14,36 @@
 #include <Preferences.h>
 #include "NVS.h"
 
+const char *nvs_get_string(const char *name, const char *key, const char *defaultValue)
+{
+    Preferences nvs;
+
+    if (nvs.begin(name, false))
+    {
+        ESP_LOGD("NVS", "Open Ok");
+        // leer
+        // si valor no existe -> guardar valor por defecto.
+        // leer -> return value
+        return defaultValue;
+    }
+    else
+    {
+        ESP_LOGE("NVS", "Open Error");
+        return defaultValue;
+    }
+};
+
+int32_t nvs_get_int(const char *name, const char *key, int32_t defaultValue)
+{
+    Preferences nvs;
+
+    if (nvs.begin(name, false))
+    {
+        ESP_LOGD("NVS", "Open Ok");
+        int32_t value = nvs.getInt(key, NULL)
+    }
+}
+
 bool nvs_get_bool(const char *name, const char *key, bool defaultValue)
 {
     Preferences nvs;

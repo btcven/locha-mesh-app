@@ -14,7 +14,7 @@
 #include "tasks.h"
 #include "SCR.h"
 #include "RAD.h"
-#include "WAP.h"
+#include "WAPST.h"
 #include "SQLite.h"
 
 /*
@@ -43,22 +43,21 @@ void setup()
   // init. BLE on boot?
 
   // init. WAP on boot
-  sys_init = WAP_INIT();
+  // init. WST on boot?
+  sys_init = WiFi_INIT();
   if (sys_init != ESP_OK)
   {
     esp_restart();
   }
   else
   {
-    ESP_LOGD("main", "WAP initiating .. %s", "OK");
-    /*
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP("elssid");
-    server.begin();
-    */
+    ESP_LOGD("main", "AP/ST initiating .. %s", "OK");
+
   }
 
-  // init. WST on boot?
+
+
+
 
   // init. RAD on boot?
   sys_init = RAD_INIT();

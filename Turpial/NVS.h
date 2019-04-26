@@ -18,6 +18,26 @@
  * @param name 
  * @param key 
  * @param defaultValue 
+ * @return int 
+ */
+int32_t nvs_get_int(const char *name, const char *key, int32_t defaultValue);
+
+/**
+ * @brief 
+ * 
+ * @param name 
+ * @param key 
+ * @param defaultValue 
+ * @return const char* 
+ */
+const char *nvs_get_string(const char *name, const char *key, const char *defaultValue);
+
+/**
+ * @brief 
+ * 
+ * @param name 
+ * @param key 
+ * @param defaultValue 
  * @return true 
  * @return false 
  */

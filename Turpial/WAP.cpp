@@ -14,13 +14,6 @@
 #include "NVS.h"
 #include "hal/hardware.h"
 
-extern WiFiServer server;
-
-bool load_config()
-{
-  return true;
-}
-
 esp_err_t WAP_INIT()
 {
   const char *TAG = "WAP";
@@ -30,8 +23,24 @@ esp_err_t WAP_INIT()
   if (WAP_enabled)
   {
     ESP_LOGD(TAG, "%s enabled on boot", TAG);
+
     // getting values from nvs or set values by default from hal/hardware.h
-    WiFi.softAP(WAP_SSID, WAP_PASS, WAP_CHAN, 0, WAP_MAXCON);
+
+    const char *WAP_ssid = nvs_get_string(TAG, "ssid", WAP_SSID);
+    const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS);
+    int32_t WAP_channel = nvs_get_int(TAG, "chan", WAP_CHANNEL);
+    int32_t WAP_maxconn = nvs_get_int(TAG, "conn", WAP_MAXCONN);
+
+    bool initAP = WiFi.softAP(WAP_ssid, WAP_pass, WAP_channel, 0, WAP_maxconn);
+
+    if (initAP)
+    {
+      return ESP_OK;
+    }
+    else
+    {
+      return ESP_FAIL;
+    }
   }
   else
   {
