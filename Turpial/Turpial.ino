@@ -25,36 +25,52 @@ void setup()
 {
   esp_err_t sys_init;
 
-  // FS init
+  /**
+   * @brief Initialize filesystem
+   * 
+   */
   sys_init = open_fs();
   if (sys_init != ESP_OK)
     esp_restart();
 
-  // SQLite init
+  /**
+   * @brief Initialize the database 
+   * 
+   */
   sys_init = SQLite_INIT();
   if (sys_init != ESP_OK)
     esp_restart();
 
-  // init. SCR on boot?
+  /**
+   * @brief Display enabled on boot?
+   * 
+   */
   sys_init = SCR_INIT();
   if (sys_init != ESP_OK)
     esp_restart();
 
   // init. BLE on boot?
 
-  // init. WAP on boot
-  // init. WST on boot?
+  /**
+   * @brief WAP or WST ifaces enabled on boot?
+   * 
+   */
   sys_init = WiFi_INIT();
   if (sys_init != ESP_OK)
     esp_restart();
 
-
-
-  // init. RAD on boot?
+  /**
+   * @brief RAD iface enabled on boot?
+   * 
+   */
   sys_init = RAD_INIT();
   if (sys_init != ESP_OK)
     esp_restart();
 
+  /**
+   * @brief Start a master task, running network peer routines.
+   * 
+   */
   xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 2048, NULL, 5, &peerHandler, ARDUINO_RUNNING_CORE);
 }
 

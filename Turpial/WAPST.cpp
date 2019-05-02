@@ -22,10 +22,12 @@
  */
 void WiFiEvent(WiFiEvent_t evt)
 {
+    const char *TAG = "WiFi";
+
     switch (evt)
     {
     case SYSTEM_EVENT_WIFI_READY:
-        /* code */
+        ESP_LOGD(TAG, "Event WIFI_READY #%d", evt);
         break;
     case SYSTEM_EVENT_SCAN_DONE:
         /* code */
@@ -64,9 +66,10 @@ void WiFiEvent(WiFiEvent_t evt)
         /* code */
         break;
     case SYSTEM_EVENT_AP_START:
-        /* code */
+        ESP_LOGD(TAG, "Event AP_START #%d", evt);
         break;
     case SYSTEM_EVENT_AP_STOP:
+        ESP_LOGD(TAG, "Event AP_STOP #%d", evt);
         /* code */
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:
@@ -138,15 +141,14 @@ esp_err_t WiFi_INIT()
     // nvs_clear("WAP");
     // nvs_clear("WST");
 
-    bool WAP_enabled = nvs_get_bool("WAP", "enabled", WAP_ENABLED, false);
+    bool WAP_enabled = nvs_get_bool("WAP", "enabled", WAP_ENABLED, true);
     ESP_LOGD(TAG, "WAP iface enabled: %d", WAP_enabled);
 
-    bool WST_enabled = nvs_get_bool("WST", "enabled", WST_ENABLED, false);
+    bool WST_enabled = nvs_get_bool("WST", "enabled", WST_ENABLED, true);
     ESP_LOGD(TAG, "WST iface enabled: %d", WST_enabled);
 
     wifi_mode_t WIFI_MODE = select_WiFiMode(WAP_enabled, WST_enabled);
     ESP_LOGD(TAG, "Starting WiFi mode: %d", WIFI_MODE);
-
 
     WiFi.onEvent(WiFiEvent);
 
