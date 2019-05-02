@@ -66,19 +66,19 @@ void WiFiEvent(WiFiEvent_t evt)
         /* code */
         break;
     case SYSTEM_EVENT_AP_START:
-        ESP_LOGD(TAG, "Event AP_START #%d", evt);
+        ESP_LOGD(TAG, "Event -> AP start #%d", evt);
         break;
     case SYSTEM_EVENT_AP_STOP:
-        ESP_LOGD(TAG, "Event AP_STOP #%d", evt);
-        /* code */
+        ESP_LOGD(TAG, "Event -> AP stop #%d", evt);
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:
-        /* code */
+        ESP_LOGD(TAG, "Event -> Client connected #%d", evt);
         break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
-        /* code */
+        ESP_LOGD(TAG, "Event -> Client disconnected #%d", evt);
         break;
-    case SYSTEM_EVENT_AP_STAIPASSIGNED:
+        case SYSTEM_EVENT_AP_STAIPASSIGNED:
+     ESP_LOGD(TAG, "Event -> IP assigned to client #%d", evt);
         /* code */
         break;
     case SYSTEM_EVENT_AP_PROBEREQRECVED:
