@@ -78,8 +78,7 @@ void WiFiEvent(WiFiEvent_t evt)
         ESP_LOGD(TAG, "Event -> Client disconnected #%d", evt);
         break;
         case SYSTEM_EVENT_AP_STAIPASSIGNED:
-     ESP_LOGD(TAG, "Event -> IP assigned to client #%d", evt);
-        /* code */
+        ESP_LOGD(TAG, "Event -> IP assigned to client #%d", evt);
         break;
     case SYSTEM_EVENT_AP_PROBEREQRECVED:
         /* code */
@@ -138,8 +137,8 @@ esp_err_t WiFi_INIT()
     // only in dev stage:
     // clear nvs before start.
     //
-    // nvs_clear("WAP");
-    // nvs_clear("WST");
+    nvs_clear("WAP");
+    nvs_clear("WST");
 
     bool WAP_enabled = nvs_get_bool("WAP", "enabled", WAP_ENABLED, true);
     ESP_LOGD(TAG, "WAP iface enabled: %d", WAP_enabled);

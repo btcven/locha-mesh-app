@@ -21,18 +21,25 @@ esp_err_t WAP_INIT()
   // getting values from nvs or set values by default from hal/hardware.h
 
   const char *WAP_ssid = nvs_get_string(TAG, "ssid", WAP_SSID, true);
-  const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS, true);
+  ESP_LOGD(TAG, "AP SSID : %s", WAP_ssid);
+
+  const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS, false);
+  ESP_LOGD(TAG, "AP PASSWORD : %s", WAP_ssid);
+
   int32_t WAP_channel = nvs_get_int(TAG, "channel", WAP_CHANNEL, true);
   int32_t WAP_maxconn = nvs_get_int(TAG, "maxconn", WAP_MAXCONN, true);
+
 
   bool initAP = WiFi.softAP(WAP_ssid, WAP_pass, WAP_channel, 0, WAP_maxconn);
 
   if (initAP)
   {
+    ESP_LOGD(TAG, "AP init OK");
     return ESP_OK;
   }
   else
   {
+    ESP_LOGE(TAG, "AP init ERROR\n");
     return ESP_FAIL;
   }
 }

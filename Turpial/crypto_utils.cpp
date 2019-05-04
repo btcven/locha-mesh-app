@@ -17,21 +17,25 @@
 #include "general_utils.h"
 #include "memory_def.h"
 
-
 // esta funcion verifica si el hash del mensaje es valido comparando el hash160
-bool is_valid_hash160(char* mensaje, char* hash_recibido){
-   byte hash[SIZE_HASH_MSG] = {0};
-   
-   hash160(mensaje, sizeof(mensaje), hash);
+bool is_valid_hash160(char *mensaje, char *hash_recibido)
+{
+  byte hash[SIZE_HASH_MSG] = {0};
 
-   if (compare_char(hash_recibido,(char*)hash)){ 
+  hash160(mensaje, sizeof(mensaje), hash);
+
+  if (compare_char(hash_recibido, (char *)hash))
+  {
     return true;
-   } else { 
+  }
+  else
+  {
     return false;
-   }
+  }
 }
 
-std::string hash160(char* mensaje){
+std::string hash160(char *mensaje)
+{
   byte hash[SIZE_HASH_MSG] = {0};
   hash160(mensaje, sizeof(mensaje), hash);
   return (ToString(hash));

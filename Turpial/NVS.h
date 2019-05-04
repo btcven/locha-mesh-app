@@ -15,6 +15,13 @@
 /**
  * @brief 
  * 
+ * @return esp_err_t 
+ */
+esp_err_t nvs_remove(void);
+
+/**
+ * @brief 
+ * 
  * @param name 
  * @return esp_err_t 
  */
