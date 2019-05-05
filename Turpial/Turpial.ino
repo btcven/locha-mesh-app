@@ -11,12 +11,17 @@
  */
 
 #include "Turpial.h"
+#include "hal/hardware.h"
+#include "lang/language.h"
+#include "memory_def.h"
 #include "tasks.h"
 #include "SCR.h"
 #include "RAD.h"
 #include "WAPST.h"
 #include "SQLite.h"
 
+
+char *id_node;
 /*
 WiFiServer server(80);
 */

@@ -93,6 +93,8 @@ void copy_array(char *src, char *dst, int len)
   }
 }
 
+
+
 // obtiene la macaddress del ESP32 una vez conectado a Wifi
 std::string getMacAddress()
 {
@@ -228,22 +230,29 @@ std::string packet_into_json(packet_t packet_to_convert, std::string BLE_type)
 {
   // this function convert [acket data in format: "{'uid':'xxxxx','BLE_type':'yyyy','time':#############,'hash':'XXXXXXXXXX'}"
   char *rpta;
-  char *tipo_packet = convertir_packet_type_e_str(packet_to_convert.header.type);
-
-  if (packet_to_convert.header.type != EMPTY)
+  char *tipo_packet = convertir_packet_type_e_str(packet_to_convert.header.packet_type);
+  char *subtipo_packet = convertir_packet_type_e_str(packet_to_convert.header.packet_type);
+  
+  if (packet_to_convert.header.packet_type != EMPTY)
   {
     strcpy(rpta, "{'uid':'");
     strcat(rpta, packet_to_convert.header.from);
     strcat(rpta, "','");
     strcat(rpta, string2char(BLE_type));
     strcat(rpta, "':'");
-    strcat(rpta, packet_to_convert.body.payload);
+    if (packet_to_convert.header.packet_type==DATA){
+      strcat(rpta, packet_to_convert.body.body_data_splitted.payload);
+    } else {
+      strcat(rpta, packet_to_convert.body.body_data.payload);
+    }
     strcat(rpta, "','type':");
+    strcat(rpta, string2char(tipo_packet));
+    strcat(rpta, "','subtype':");
     strcat(rpta, string2char(tipo_packet));
     strcat(rpta, "','time':");
     strcat(rpta, string2char(number_to_str(packet_to_convert.header.timestamp)));
     strcat(rpta, "','hash':");
-    strcat(rpta, packet_to_convert.header.hash);
+    strcat(rpta, packet_to_convert.header.checksum_data);
     strcat(rpta, "'}");
   }
   return ToString(rpta);

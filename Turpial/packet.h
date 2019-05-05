@@ -22,18 +22,51 @@
  */
 typedef enum
 {
-  EMPTY,
-  JOIN,
-  BYE,
-  ROUTE,
-  ACK,
-  MSG,
-  HELLO,
-  GOSSIP,
-  NOT_DELIVERED, // esto no seria un tipo de paquete, más bien define un estado.
-  TXN,
-  BINARY
+  EMPTY=0B0000,
+  DATA=0B0001,
+  ROUTING=0B0010,
+  SECURITY=0B0011
 } packet_type_e;
+
+/**
+ * @brief subpacket routing type
+ * 
+ */
+typedef enum
+{
+  EMPTY_ROUTING=0B0000,
+  HELLO=0B0001,
+  JOIN=0B0010,
+  GOSSIP=0B0011,
+  ROUTE=0B0100,
+  BYE=0B0101
+} subpacket_routing_type_e;
+
+/**
+ * @brief subpacket data type
+ * 
+ */
+typedef enum
+{
+  EMPTY_DATA=0B0000,
+  MSG=0B0001,
+  TXN=0B0010,
+  BINARY=0B0011,
+  ACK=0B0100,
+  NOT_DELIVERED=0B0101
+} subpacket_data_type_e;
+
+/**
+ * @brief subpacket security type
+ * 
+ */
+typedef enum
+{
+  EMPTY_SECURITY=0B0000,
+  START=0B0001,
+  TEST=0B0010,
+  RESPONSE=0B0011
+} subpacket_security_type_e;
 
 /**
  * @brief response when a packet can't be delivered.
@@ -41,84 +74,100 @@ typedef enum
  */
 typedef enum
 {
-  EMPTY_NOT_DELIVERED,
-  BLE_NOT_CONNECTED, // mas genérico, puede ser union ó enum
-  MAX_RETRIES_REACHED
+  EMPTY_NOT_DELIVERED=0B0000,
+  BLE_NOT_CONNECTED=0B0001,
+  MAX_RETRIES_REACHED=0B0010
 } not_delivered_type_e;
 
 /**
- * @brief 
+ * @brief only 1 data type per packet
+ * 
+ */
+typedef union {
+  subpacket_routing_type_e routing_type :4;
+  subpacket_data_type_e data_type :4;
+  subpacket_security_type_e security_type :4;
+} subtype_u;
+
+/**
+ * @brief Header of packets
  * 
  */
 typedef struct
 {
-  packet_type_e type;
-  char from[SIZE_IDNODE];
-  char to[SIZE_IDNODE];
-  // modificacion para Relay
-  char next_neighbor[SIZE_IDNODE];
-  unsigned long timestamp;
-  char hash[SIZE_HASH_MSG];
+  packet_type_e packet_type:4;     // tipo de packet: corresponde a packet_type_e
+  subtype_u packet_sub;  // corresponde al subtipo de packet dependiendo del valor type puede ser subpacket_routing_type_e , subpacket_data_type_e o subpacket_security_type_e
+  char *from;   // origen
+  char *to;     // destino
+  char *next_neighbor;   // siguiente vecino
+  char *checksum_data;     // hash160 first 6 digits
+  unsigned long timestamp;      // epoch timestamp
 } packet_header_t;
 
+
 /**
- * @brief 
+ * @brief packet body could be simple: only payload and payload size, or splitted: with packet number/total of packets, not delivery response, and payload w/ length
  * 
  */
 typedef struct
 {
-  char payload[SIZE_PAYLOAD];
-} packet_body_t;
+  uint16_t packet_number;        // packet number or total 
+  uint16_t packet_total;         // total of packets compossing full msg or file , max 65535, file size max: 65535 x sizeof(payload) = 11403090 bytes ~~11Mb 
+  not_delivered_type_e not_delivered_type;
+  uint8_t payload_length; // 1 byte
+  char *payload;
+} packet_body_data_splitted_t;
 
 /**
- * @brief 
+ * @brief packet body simple : only payload and length
+ * 
+ */
+typedef struct
+{
+  uint8_t payload_length; // 1 byte
+  char *payload;
+} packet_body_data_t;
+
+/**
+ * @brief only 1 packet body type per packet
+ * 
+ */
+typedef union {
+  packet_body_data_t body_data;
+  packet_body_data_splitted_t body_data_splitted;
+} body_data_u;
+
+/**
+ * @brief packet definition
  * 
  */
 typedef struct
 {
   packet_header_t header;
-  packet_body_t body;
+  body_data_u body;
 } packet_t;
 
-/**
- * @brief 
- * 
- * @param type_recibido 
- * @return packet_type_e 
- */
-packet_type_e convertir_str_packet_type_e(char *type_recibido);
 
 /**
- * @brief 
+ * @brief: from packet_t to uint8_t array
  * 
- * @param type_recibido 
- * @return packet_type_e 
+ * @param target: pointer to uint8_t array
+ * @param source: source packet
+ * @param s_size: size of source packet 
  */
-packet_type_e convertir_int_packet_type_e(uint8_t type_recibido);
+void packet_to_char(uint8_t *target, packet_t source, size_t s_size);
 
 /**
- * @brief 
+ * @brief from uint8_t array to packet_t
  * 
- * @param type_recibido 
- * @return char* 
+ * @param target; pointer to an empty packet
+ * @param source; pointer to uint8_t array 
+ * @param s_size: size of uint8_t array
  */
-char *convertir_packet_type_e_str(packet_type_e type_recibido);
+void char_to_packet(packet_t *target, uint8_t *source, size_t s_size);
 
-/**
- * @brief 
- * 
- * @param packet 
- * @return std::string 
- */
-std::string packet_serialize(packet_t packet);
-
-/**
- * @brief 
- * 
- * @param received_text 
- * @return packet_t 
- */
-packet_t packet_deserialize(char *received_text);
+packet_type_e convertir_str_packet_type_e(char* type_recibido);
+char* convertir_packet_type_e_str(packet_type_e type_recibido);
 
 /**
  * @brief Create a packet object
@@ -132,7 +181,11 @@ packet_t packet_deserialize(char *received_text);
  * @param payload 
  * @return packet_t 
  */
-packet_t create_packet(char *id_node, packet_type_e tipo_packet, char *from, char *to, char *next_neighbor, char *hash, char *payload);
+packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload, uint16_t packet_number, uint16_t packet_total);
+
+packet_t construct_packet_HELLO(char *id_node,char *from);
+
+void show_packet(packet_t packet_rx,const char *TAG);
 
 /**
  * @brief 
@@ -140,7 +193,7 @@ packet_t create_packet(char *id_node, packet_type_e tipo_packet, char *from, cha
  * @param mensaje 
  * @return std::string 
  */
-std::string Json_return_error(std::string mensaje);
+std::string Json_return_error(std::string mensaje,std::string uid_mensaje);
 
 /**
  * @brief 
@@ -148,6 +201,6 @@ std::string Json_return_error(std::string mensaje);
  * @param mensaje 
  * @return std::string 
  */
-std::string Json_return_msg(std::string mensaje);
+std::string Json_return_msg(std::string mensaje,std::string uid_mensaje);
 
 #endif // PACKET_H
