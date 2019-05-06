@@ -13,6 +13,11 @@
 #define WAPST_H
 #include <Arduino.h>
 
+/**
+ * @brief Initialize WiFi ifaces
+ * 
+ * @return esp_err_t 
+ */
 esp_err_t WiFi_INIT();
 
 #endif // WAPST_H

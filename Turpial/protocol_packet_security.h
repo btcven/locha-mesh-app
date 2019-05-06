@@ -16,9 +16,36 @@
 #include "memory_def.h"
 #include "packet.h"
 
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_ROUTING_START(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_ROUTING_TEST(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_ROUTING_RESPONSE(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_SECURITY(char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 #endif // PROTOCOL_PACKET_SECURITY_H

@@ -16,11 +16,52 @@
 #include "memory_def.h"
 #include "packet.h"
 
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_ROUTING_MSG(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_ROUTING_TXN(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_ROUTING_BINARY(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_ROUTING_ACK(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_DATA(char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 

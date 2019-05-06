@@ -14,9 +14,16 @@
 
 #include <Arduino.h>
 
-/* SQLite is on charge of format in case of fail */
+/**
+ * @brief SQLite can format the file system if corrupted 
+ */
 #define FORMAT_SPIFFS_IF_FAILED true
 
+/**
+ * @brief Initialize the file system
+ * 
+ * @return esp_err_t 
+ */
 esp_err_t open_fs();
 
 #endif // FS_LOCHA_H
