@@ -7,6 +7,14 @@
  * 
  * @copyright Copyright (c) 2019
  * 
- * 
- * 
- */
+  */
+#ifndef PROTOCOL_H 
+#define PROTOCOL_H
+
+#include <Arduino.h>
+#include "memory_def.h"
+#include "packet.h"
+
+void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido);
+
+#endif // PROTOCOL_H
