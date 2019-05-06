@@ -16,7 +16,8 @@
   #include "memory_def.h"
   #include "general_utils.h"
   #include "packet.h"
-
+  #include "SQLite.h"
+  #include "tables.h"
   
 // manejo del packets  START
 void protocol_incoming_PACKET_ROUTING_START(char id_node[SIZE_IDNODE], packet_t packet_temporal){

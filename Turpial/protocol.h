@@ -1,21 +1,12 @@
 /**
  * @file protocol.h
- * @author locha.io project developers (dev@locha.io)
- * @brief 
+ * @author Locha.io
+ * @brief  protocolo para intercambio de packet en LochaMesh
  * @version 0.1
- * @date 2019-04-24
+ * @date 2019-04-27
  * 
- * @copyright Copyright (c) 2019 locha.io project developers
- * @license MIT license, see LICENSE file for details
+ * @copyright Copyright (c) 2019
  * 
-  */
-#ifndef PROTOCOL_H 
-#define PROTOCOL_H
-
-#include <Arduino.h>
-#include "memory_def.h"
-#include "packet.h"
-
-void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido);
-
-#endif // PROTOCOL_H
+ * 
+ * 
+ */

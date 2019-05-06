@@ -170,6 +170,15 @@ esp_err_t SQLite_INIT()
         ESP_LOGE(TAG, "Can't create data database");
         return ESP_FAIL;
     }
+
+    // create tables if doesnt exists
+    //char* table_found=buscar("SELECT name FROM sqlite_master WHERE type='table' AND name='{NODES}'", data_db);
+   
+    int rpta=db_exec(data_db, "CREATE TABLE [IF NOT EXISTS] NODES ( id TEXT PRIMARY KEY, date_last_viewed INTEGER NULL, date_created INTEGER NOT NULL) [WITHOUT ROWID]");
+    rpta=db_exec(data_db, "CREATE TABLE [IF NOT EXISTS] BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) [WITHOUT ROWID];");
+    rpta=db_exec(data_db, "CREATE TABLE [IF NOT EXISTS] ROUTES (id_ruta INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL,id_next_neighbour TEXT NULL,age INTEGER,hops INTEGER,RSSI_packet INTEGER,SNR_packet INTEGER,date_last_viewed INTEGER NULL,date_created INTEGER NOT NULL) [WITHOUT ROWID]");
+    rpta=db_exec(data_db, "CREATE TABLE [IF NOT EXISTS] BLACKLISTED_ROUTES (id_ruta_blacklisted INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL) [WITHOUT ROWID]");
+    
     return ESP_OK;
 }
 
@@ -221,6 +230,45 @@ char *buscar(char *query, sqlite3 *db)
             ESP_LOGE(TAG, "Please select different range, too many records: %s", rec_count);
             sqlite3_finalize(res);
             return pChar;
+        }
+    }
+    sqlite3_finalize(res);
+    return resp;
+}
+
+// exec a select query and return only first record/first field
+// if select return more than 10000 records then return empty
+/* it uses: int sqlite3_prepare_v2(
+  sqlite3 *db,             Database handle 
+  const char *zSql,        SQL statement, UTF-8 encoded 
+  int nByte,               Maximum length of zSql in bytes. 
+  sqlite3_stmt **ppStmt,   OUT: Statement handle 
+  const char **pzTail      OUT: Pointer to unused portion of zSql 
+);
+*/
+int buscar_valor(char *query, sqlite3 *db)
+{
+
+    int resp;
+    sqlite3_stmt *res;
+    const char *tail;
+    int rc;
+    int rec_count = 0;
+  //  char *pChar = (char *)"";
+
+    rc = sqlite3_prepare_v2(db, query, 10000, &res, &tail);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to fetch data: %s", sqlite3_errmsg(db));
+    }
+    while (sqlite3_step(res) == SQLITE_ROW)
+    {
+        resp = (int )sqlite3_column_int(res, 1); // el 1 es el numero de la columna (campo) en el query
+        if (rec_count > 5000)
+        {
+            ESP_LOGE(TAG, "Please select different range, too many records: %s", rec_count);
+            sqlite3_finalize(res);
+            return 0;
         }
     }
     sqlite3_finalize(res);

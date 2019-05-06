@@ -15,6 +15,7 @@
 #include <Arduino.h>
 #include "memory_def.h"
 #include "packet.h"
+  #include "SQLite.h"
 
 void protocol_incoming_PACKET_ROUTING_START(char id_node[SIZE_IDNODE], packet_t packet_temporal);
 void protocol_incoming_PACKET_ROUTING_TEST(char id_node[SIZE_IDNODE], packet_t packet_temporal);

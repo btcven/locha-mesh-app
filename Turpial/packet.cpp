@@ -161,21 +161,25 @@ packet_t construct_packet_HELLO(char *id_node,char *from)
   packet_t packet_HELLO;
   
   char *pChar = (char *)"";
+  
   subtype_u subtipo_packet;
   subtipo_packet.routing_type=HELLO;
-packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, from, pChar, pChar, pChar, pChar);
+  packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, from, pChar, pChar, pChar, pChar);
   
-  //packet_HELLO.header.packet_type = ROUTING;
-  //packet_HELLO.header.packet_sub.routing_type = HELLO;
-  //copy_array(from, packet_HELLO.header.from, SIZE_IDNODE);
-  //copy_array(pChar, packet_HELLO.header.to, SIZE_IDNODE);
-  //copy_array(pChar, packet_HELLO.header.next_neighbor, SIZE_IDNODE);
-  //copy_array(pChar, packet_HELLO.header.checksum_data, SIZE_HASH_MSG);
-  //copy_array(pChar, packet_HELLO.body.body_data.payload, SIZE_PAYLOAD);
-  //packet_HELLO.body.body_data.payload_length = sizeof(packet_HELLO.body.body_data.payload);
- 
-  //packet_HELLO.header.timestamp = millis();
+  return packet_HELLO;
+}
 
+packet_t construct_packet_JOIN(char *id_node,char *to)
+{
+  packet_t packet_HELLO;
+  
+  char *pChar = (char *)"";
+  char *p_payload = (char *)"";
+  
+  subtype_u subtipo_packet;
+  subtipo_packet.routing_type=JOIN;
+  packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, id_node, to, pChar, pChar, p_payload);
+  
   return packet_HELLO;
 }
 

@@ -27,5 +27,8 @@
  * @return esp_err_t 
  */
 esp_err_t SQLite_INIT();
+bool ejecutar(char *query, sqlite3 *db);
+char *buscar(char *query, sqlite3 *db);
+int buscar_valor(char *query, sqlite3 *db);
 
 #endif // SQLITE_H

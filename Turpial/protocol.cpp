@@ -20,9 +20,8 @@
   #include "protocol_packet_security.h"
 
 
-  
 
- void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido){
+ void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db){
   uint8_t rpta;
   char *pChar = (char*)"";
 const char *TAG = "process_received_packet";
@@ -46,7 +45,7 @@ const char *TAG = "process_received_packet";
                 protocol_incoming_PACKET_DATA(id_node, packet_temporal);
                 break;
             case ROUTING:
-                protocol_incoming_PACKET_ROUTING(id_node, packet_temporal);
+                protocol_incoming_PACKET_ROUTING(id_node, packet_temporal,RSSI_recibido, SNR_recibido,db);
                 break;
             case SECURITY:
                 protocol_incoming_PACKET_SECURITY(id_node, packet_temporal);
