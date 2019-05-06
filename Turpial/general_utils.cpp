@@ -14,7 +14,7 @@
 
 #include "general_utils.h"
 
-// funcion para comparar dos arreglos de char
+// compare char
 bool compare_char(char *src, char *dst)
 {
   if (strcmp(src, dst) == 0)
@@ -39,7 +39,7 @@ void eraseAllSubStr(std::string &mainStr, const std::string &toErase)
   }
 }
 
-//funcion para convertir un std::string en un char*
+// funcion para convertir un std::string en un char*
 char *std_string_to_char(std::string cadena)
 {
   char *cstr = new char[cadena.length() + 1];
@@ -92,8 +92,6 @@ void copy_array(char *src, char *dst, int len)
     *dst++ = *src++;
   }
 }
-
-
 
 // obtiene la macaddress del ESP32 una vez conectado a Wifi
 std::string getMacAddress()
@@ -150,16 +148,14 @@ std::string getValue(std::string data, char separator, int index)
   return found > index ? data.substr(strIndex[0], strIndex[1]) : "";
 }
 
-boolean isNumeric(std::string str)
+bool isNumeric(std::string str)
 {
   unsigned int stringLength = str.length();
-
   if (stringLength == 0)
   {
     return false;
   }
-
-  boolean seenDecimal = false;
+  bool seenDecimal = false;
 
   for (unsigned int i = 0; i < stringLength; ++i)
   {
@@ -167,7 +163,6 @@ boolean isNumeric(std::string str)
     {
       continue;
     }
-
     if (str[i] == '.')
     {
       if (seenDecimal)
@@ -232,7 +227,7 @@ std::string packet_into_json(packet_t packet_to_convert, std::string BLE_type)
   char *rpta;
   char *tipo_packet = convertir_packet_type_e_str(packet_to_convert.header.packet_type);
   char *subtipo_packet = convertir_packet_type_e_str(packet_to_convert.header.packet_type);
-  
+
   if (packet_to_convert.header.packet_type != EMPTY)
   {
     strcpy(rpta, "{'uid':'");
@@ -240,9 +235,12 @@ std::string packet_into_json(packet_t packet_to_convert, std::string BLE_type)
     strcat(rpta, "','");
     strcat(rpta, string2char(BLE_type));
     strcat(rpta, "':'");
-    if (packet_to_convert.header.packet_type==DATA){
+    if (packet_to_convert.header.packet_type == DATA)
+    {
       strcat(rpta, packet_to_convert.body.body_data_splitted.payload);
-    } else {
+    }
+    else
+    {
       strcat(rpta, packet_to_convert.body.body_data.payload);
     }
     strcat(rpta, "','type':");

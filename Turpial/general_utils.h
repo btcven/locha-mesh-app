@@ -22,12 +22,12 @@
 #include "packet.h"
 
 /**
- * @brief 
+ * @brief compare if two chars are equals
  * 
  * @param src 
  * @param dst 
- * @return true 
- * @return false 
+ * @return true: both equal
+ * @return false: both not equal
  */
 bool compare_char(char *src, char *dst);
 
@@ -40,7 +40,7 @@ bool compare_char(char *src, char *dst);
 void eraseAllSubStr(std::string &mainStr, const std::string &toErase);
 
 /**
- * @brief 
+ * @brief transforms from std::string to char array
  * 
  * @param cadena 
  * @return char* 
@@ -56,7 +56,7 @@ char *std_string_to_char(std::string cadena);
 long long char2LL(char *str);
 
 /**
- * @brief 
+ * @brief transforms from std::string to uint8_t array
  * 
  * @param texto 
  * @return uint8_t 
@@ -72,11 +72,11 @@ uint8_t convert_str_to_uint8(std::string texto);
 char *string2char(std::string command);
 
 /**
- * @brief 
+ * @brief copy between two array pointers
  * 
- * @param src 
- * @param dst 
- * @param len 
+ * @param src source array
+ * @param dst target array
+ * @param len length of the source array (*)
  */
 void copy_array(char *src, char *dst, int len);
 
@@ -86,6 +86,7 @@ void copy_array(char *src, char *dst, int len);
  * @return std::string 
  */
 std::string getMacAddress();
+
 /**
  * @brief 
  * 
@@ -104,20 +105,21 @@ template <typename T>
 std::string ToString(T val);
 
 /**
- * @brief 
+ * @brief Transforms a ULL to std::string
  * 
- * @param i 
+ * @param i: Number 
  * @return std::string 
  */
 std::string number_to_str(unsigned long long i);
 
 /**
- * @brief 
+ * @brief Determines if a std::string contains a numeric representation.
  * 
  * @param str 
- * @return boolean 
+ * @return true: It is a number
+ * @return false: It is not a number 
  */
-boolean isNumeric(std::string str);
+bool isNumeric(std::string str);
 
 /**
  * @brief 
