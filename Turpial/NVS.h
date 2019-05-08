@@ -39,13 +39,13 @@ esp_err_t nvs_clear(const char *name);
 int32_t nvs_get_int(const char *name, const char *key, int32_t defaultValue, bool upset);
 
 /**
- * @brief 
+ * @brief get a string from NVS storage space
  * 
  * @param name 
  * @param key 
  * @param defaultValue 
  * @param upset 
- * @return const char* 
+ * @return char* 
  */
 char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset);
 

@@ -20,16 +20,24 @@
   #include "protocol_packet_security.h"
 
 
-
+/**
+ * @brief Process a received packet , is processed based on packet.header.type , each type had their own void to process
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ * @param RSSI_recibido 
+ * @param SNR_recibido 
+ * @param db 
+ */
  void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db){
   uint8_t rpta;
   char *pChar = (char*)"";
-const char *TAG = "process_received_packet";
+  const char *TAG = "process_received_packet";
 
        // se verifica que el origen y destino no sea el mismo, para evitar ataques 
     if (!(compare_char(packet_temporal.header.from,packet_temporal.header.to))){
 
-// solo se procesa un packet si es para mi (to,next_neighbour) o si es un broadcats (to="")
+  // solo se procesa un packet si es para mi (to,next_neighbour) o si es un broadcats (to="")
 
       // si el packet es para mi nodo o es un broadcast
        if ((compare_char(packet_temporal.header.to,id_node))or((compare_char(packet_temporal.header.to,pChar)))or((compare_char(packet_temporal.header.next_neighbor,id_node)))){
@@ -55,7 +63,5 @@ const char *TAG = "process_received_packet";
             }
          
           }
-         
-
     }
  }

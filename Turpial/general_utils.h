@@ -187,4 +187,8 @@ unsigned long convert_str_to_long(char *time_in_char);
  */
 bool Fileexists(const char *path);
 
+/*
+* Erase First Occurrence of given  substring from main string.
+*/
+void eraseSubStr(std::string & mainStr, const std::string & toErase);
 #endif // GENERAL_UTILS_H

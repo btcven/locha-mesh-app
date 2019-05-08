@@ -58,7 +58,12 @@ long long char2LL(char *str)
   return result;
 }
 
-// Funcion de conversion de tipo de datos: Texto a uint8_t
+/**
+ * @brief  Funcion de conversion de tipo de datos: std::string a uint8_t
+ * 
+ * @param texto 
+ * @return uint8_t 
+ */
 uint8_t convert_str_to_uint8(std::string texto)
 {
   unsigned long long y = 0;
@@ -148,6 +153,29 @@ std::string getValue(std::string data, char separator, int index)
   return found > index ? data.substr(strIndex[0], strIndex[1]) : "";
 }
 
+
+/*
+* Erase First Occurrence of given  substring from main string.
+*/
+void eraseSubStr(std::string & mainStr, const std::string & toErase)
+{
+// Search for the substring in string
+size_t pos = mainStr.find(toErase);
+if (pos != std::string::npos)
+{
+// If found then erase it from string
+mainStr.erase(pos, toErase.length());
+}
+}
+
+
+/**
+ * @brief verify if a nstd::string is a number
+ * 
+ * @param str 
+ * @return true 
+ * @return false 
+ */
 bool isNumeric(std::string str)
 {
   unsigned int stringLength = str.length();
@@ -256,7 +284,12 @@ std::string packet_into_json(packet_t packet_to_convert, std::string BLE_type)
   return ToString(rpta);
 }
 
-// devuelve la mac address del ESP32
+
+/**
+ * @brief Get devuelve la mac address del ESP32
+ * 
+ * @return std::string 
+ */
 std::string get_id_mac()
 {
   std::string result = getMacAddress();

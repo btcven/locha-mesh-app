@@ -44,7 +44,7 @@ static int callback(void *data, int argc, char **argv, char **azColName)
  */
 int db_open(const char *filename, sqlite3 **db)
 {
-
+const char *TAG = "SQLLite";
     int rc = sqlite3_open(filename, db);
 
     if (rc)
@@ -59,14 +59,21 @@ int db_open(const char *filename, sqlite3 **db)
     return rc;
 }
 
+/**
+ * @brief Exec a sql query against given database
+ * 
+ * @param db 
+ * @param sql 
+ * @return int 
+ */
 int db_exec(sqlite3 *db, const char *sql)
 {
     const char *TAG = "SQLLite";
-ESP_LOGE(TAG, "Voy a db_exec\n");
+    ESP_LOGE(TAG, "Voy a db_exec\n");
 
     int rc = sqlite3_exec(db, sql, callback, (void*)data, &zErrMsg);
   //  int rc = sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
-    ESP_LOGE(TAG, "Sigo en db_exec\n");
+    
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "SQL error: %s\n", zErrMsg);
@@ -82,24 +89,23 @@ ESP_LOGE(TAG, "Voy a db_exec\n");
 
 // exec any action query: insert, update or delete
 // return true if exec OK, or false on error
-bool ejecutar(char *query, sqlite3 **db)
+bool ejecutar(char *query, sqlite3 *db)
 {
   const char *TAG = "SQLLite";
     int rc;
-    ESP_LOGE(TAG, "Voy a abrir en ejecutar\n");
-    int tengo=db_open("/spiffs/data.db", db);
     
     ESP_LOGE(TAG, "Voy a ejecutar\n");
-    rc = db_exec(*db, query);
+    rc = db_exec(db, query);
     if (rc != SQLITE_OK)
-    {
-      ESP_LOGE(TAG, "Ejecute correctamente\n");
-        return true;
-    }
-    else
     {
       ESP_LOGE(TAG, "No se ejecuto\n");
         return false;
+    }
+    else
+    {
+      ESP_LOGE(TAG, "Ejecute correctamente\n");
+        return true;
+      
     }
 }
 
@@ -125,6 +131,7 @@ char *buscar(char *query, sqlite3 *db)
     int rc;
     int rec_count = 0;
     char *pChar = (char *)"";
+    const char *TAG = "SQLLite";
 
     rc = sqlite3_prepare_v2(db, query, 10000, &res, &tail);
     if (rc != SQLITE_OK)
@@ -155,38 +162,40 @@ char *buscar(char *query, sqlite3 *db)
   const char **pzTail      OUT: Pointer to unused portion of zSql 
 );
 */
-int buscar_valor(char *query, sqlite3 *db)
+int buscar_valor(const char *query, sqlite3 *db)
 {
 
     int resp;
-    sqlite3_stmt *res;
+  sqlite3_stmt *res;
+    int rec_count = 0;
     const char *tail;
     int rc;
-    int rec_count = 0;
+    
+    const char *TAG = "SQLLite";
   //  char *pChar = (char *)"";
- if (db_open("/spiffs/data.db", &db)){
-  ESP_LOGE(TAG, "No se pudo abrir la base de datos");
-    return 0;
-  }
+ //if (db_open("/spiffs/data.db", db)){
+ // ESP_LOGE(TAG, "No se pudo abrir la base de datos");
+ //   return 0;
+ // }
   
-    rc = sqlite3_prepare_v2(db, query, 10000, &res, &tail);
-    if (rc != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "Failed to fetch data: %s", sqlite3_errmsg(db));
+ 
+   rc = sqlite3_prepare_v2(db, query, -1, &res, &tail);
+    
+   if (rc != SQLITE_OK) {
+        ESP_LOGE(TAG, "Failed to fetch data:%s",sqlite3_errmsg(db));
+        return 0;   // TODO modificar para cuando se reciba un error devolver NULL y no un campo con cero
     }
-    while (sqlite3_step(res) == SQLITE_ROW)
-    {
-        resp = (int )sqlite3_column_int(res, 1); // el 1 es el numero de la columna (campo) en el query
-        if (rec_count > 5000)
-        {
-            ESP_LOGE(TAG, "Please select different range, too many records: %s", rec_count);
-            sqlite3_finalize(res);
-            return 0;
-        }
+
+while (sqlite3_step(res) == SQLITE_ROW) {
+        resp=sqlite3_column_int(res, 0);
+        ESP_LOGE(TAG, "dato obtenido: %d\n", resp);
+        rec_count++;
     }
+    ESP_LOGE(TAG, "No. of records: %d", rec_count);
     sqlite3_finalize(res);
     return resp;
 }
+
 
 
 
@@ -194,14 +203,15 @@ int buscar_valor(char *query, sqlite3 *db)
 // database file should not contains special characters neither /  , prefer to use 8+3 syntax name
 bool sqlite3_startup(const char *filename, sqlite3 *(&db), bool create_on_startup)
 {
-//const char *full_path_filename = "/spiffs/config.db";
 std::string only_file((char*)filename);
 
 char* only_file_char;
 char *pChar = (char*)"/";
-      std::replace( only_file.begin(), only_file.end(), '/spiffs/', NULL);
+const char *TAG = "SQLLite";
+    
+      eraseSubStr(only_file,"/spiffs");
       only_file_char=string2char(only_file);
-  //  strcat(file_plus_dirchr, pChar);
+  
     File root = SPIFFS.open(pChar);
     
 
@@ -294,18 +304,17 @@ esp_err_t SQLite_INIT()
     return ESP_FAIL;
   }
     ESP_LOGE(TAG, "exec ... SQLLite");
-   int rc = db_exec(data_db, "CREATE TABLE NODES ( id TEXT PRIMARY KEY, DATE_LAST_VIEWED INTEGER NULL, DATE_CREATED INTEGER NOT NULL);"); 
-    ESP_LOGE(TAG, "continuo ... SQLLite");
-    //rc = db_exec(*data_db, "CREATE TABLE NODES ( id integer);"); 
-   //bool rpta=ejecutar("CREATE TABLE NODES ( id TEXT PRIMARY KEY, DATE_LAST_VIEWED INTEGER NULL, DATE_CREATED INTEGER NOT NULL);",&data_db);
-   //bool rpta=ejecutar("CREATE TABLE NODES ( id TEXT PRIMARY KEY);",&data_db);
-  // bool rpta=ejecutar("CREATE TABLE NODES ( id integer);",&data_db);
-   // ESP_LOGE(TAG, "exec 1");
-   //rpta=ejecutar("INSERT INTO NODES ( id , DATE_LAST_VIEWED , DATE_CREATED) VALUES(8,date('now'),date('now'))", &data_db);
-   ESP_LOGE(TAG, "exec 2");
-  // int rpta2=buscar_valor("select count(id) from NODES",data_db);
-   
- //  ESP_LOGE(TAG, "exec %s",rpta2);
+
+  // si se usa WITHOUT ROWID oligatoriamente tiene que tener PRIMARY KEY
+    int rc=ejecutar("CREATE TABLE NODES ( id TEXT PRIMARY KEY,DATE_LAST_VIEWED REAL NULL, DATE_CREATED REAL NOT NULL) WITHOUT ROWID;", data_db);
+    // insert dummy para probar que este correctamente creada la tabla
+    rc=ejecutar("INSERT INTO NODES ( id , DATE_LAST_VIEWED , DATE_CREATED) VALUES('8',datetime('now'),datetime('now'));", data_db);
+
+   // select dummy para buscar, en la tabla de NODES se usa el siguiente query
+    String mysql="SELECT COUNT(*) FROM NODES";
+    int rpta2=buscar_valor(mysql.c_str(),data_db);
+   // ESP_LOGE(TAG, "Respuesta obtenida al buscar:%s",rpta2);
+      
    ESP_LOGE(TAG, "Table NODES ready");
  //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) [WITHOUT ROWID]", data_db);
  //  ESP_LOGE(TAG, "Table BLACKLISTED_NODES ready");

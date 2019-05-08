@@ -77,7 +77,15 @@ esp_err_t nvs_clear(const char *name)
     }
 }
 
-//char *nvs_get_string(const char *name, const char *key, char *defaultValue, bool upset)
+/**
+ * @brief get a string from NVS storage space
+ * 
+ * @param name 
+ * @param key 
+ * @param defaultValue 
+ * @param upset 
+ * @return char* 
+ */
 char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset)
 {
     const char *TAG = "NVS";

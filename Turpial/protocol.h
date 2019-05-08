@@ -15,6 +15,15 @@
 #include "memory_def.h"
 #include "packet.h"
 
+/**
+ * @brief Process a received packet , is processed based on packet.header.type , each type had their own void to process
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ * @param RSSI_recibido 
+ * @param SNR_recibido 
+ * @param db 
+ */
 void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido);
 
 #endif // PROTOCOL_H
