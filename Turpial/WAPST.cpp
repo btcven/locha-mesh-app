@@ -27,7 +27,7 @@ void WiFiEvent(WiFiEvent_t evt)
     switch (evt)
     {
     case SYSTEM_EVENT_WIFI_READY:
-        ESP_LOGD(TAG, "Event WIFI_READY #%d", evt);
+        ESP_LOGD(TAG, "Event -> WiFi ready #%d", evt);
         break;
     case SYSTEM_EVENT_SCAN_DONE:
         /* code */
@@ -81,27 +81,28 @@ void WiFiEvent(WiFiEvent_t evt)
         ESP_LOGD(TAG, "Event -> IP assigned to client #%d", evt);
         break;
     case SYSTEM_EVENT_AP_PROBEREQRECVED:
-        /* code */
+        ESP_LOGD(TAG, "Event -> PROBEREQRECVED #%d", evt);
         break;
     case SYSTEM_EVENT_GOT_IP6:
-        /* code */
+         ESP_LOGD(TAG, "Event -> got ipv6 #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_START:
-        /* code */
+         ESP_LOGD(TAG, "Event -> ETH start #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_STOP:
-        /* code */
+         ESP_LOGD(TAG, "Event -> ETH stop #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_CONNECTED:
-        /* code */
+         ESP_LOGD(TAG, "Event -> ETH connected #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
-        /* code */
+         ESP_LOGD(TAG, "Event -> ETH disconnected #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_GOT_IP:
-        /* code */
+         ESP_LOGD(TAG, "Event -> ETH got ip #%d", evt);
         break;
     default:
+        ESP_LOGD(TAG, "Event -> Unknow event  #%d", evt);
         break;
     }
 }
@@ -137,8 +138,8 @@ esp_err_t WiFi_INIT()
     // only in dev stage:
     // clear nvs before start.
     //
-    nvs_clear("WAP");
-    nvs_clear("WST");
+    // nvs_clear("WAP");
+    // nvs_clear("WST");
 
     bool WAP_enabled = nvs_get_bool("WAP", "enabled", WAP_ENABLED, true);
     ESP_LOGD(TAG, "WAP iface enabled: %d", WAP_enabled);

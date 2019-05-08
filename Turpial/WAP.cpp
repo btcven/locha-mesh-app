@@ -22,8 +22,7 @@ esp_err_t WAP_INIT()
 
   const char *WAP_ssid = nvs_get_string(TAG, "ssid", WAP_SSID, true);
   ESP_LOGD(TAG, "AP SSID : %s", WAP_ssid);
-
-  const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS, false);
+  const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS, true);
   ESP_LOGD(TAG, "AP PASSWORD : %s", WAP_ssid);
 
   int32_t WAP_channel = nvs_get_int(TAG, "channel", WAP_CHANNEL, true);

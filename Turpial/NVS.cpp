@@ -14,6 +14,8 @@
 #include <Preferences.h>
 #include "NVS.h"
 
+#include <typeinfo>
+
 esp_err_t nvs_remove(const char *name, const char *key)
 {
     const char *TAG = "NVS";
@@ -85,9 +87,9 @@ const char *nvs_get_string(const char *name, const char *key, const char *defaul
     {
         ESP_LOGD(TAG, "NVS namespace %s is open", name);
         // leer
-        String str_value = nvs.getString(key, String());
+        String ifStr = nvs.getString(key, String());
 
-        if (!str_value.length())
+        if (!ifStr.length())
         {
             ESP_LOGE(TAG, "%s %s not found", name, key);
             if (upset)
@@ -100,10 +102,11 @@ const char *nvs_get_string(const char *name, const char *key, const char *defaul
                 ESP_LOGD(TAG, "SAVED %d Bytes", str_len);
 
                 // get string
-                str_value = nvs.getString(key, String());
+                String ifSavedStr = nvs.getString(key, String());
+                
                 nvs.end();
 
-                if (!str_value.length())
+                if (!ifSavedStr.length())
                 {
                     // err saving
                     ESP_LOGE(TAG, "Saving.. returning default value for %s %s", name, key);
@@ -111,14 +114,16 @@ const char *nvs_get_string(const char *name, const char *key, const char *defaul
                 }
                 else
                 {
-                    // ok saving
+                    // saved!
                     ESP_LOGD(TAG, "Upset ok for %s %s", name, key);
-                    return str_value.c_str();
+                    const char *toCChar;
+                    toCChar = ifSavedStr.c_str();
+                    return toCChar;
                 }
             }
             else
             {
-                // upset disabled
+                // upset is disabled
                 ESP_LOGV(TAG, "%s: %s not found and upset is disabled, using default value", name, key);
                 nvs.end();
                 return defaultValue;
@@ -126,9 +131,11 @@ const char *nvs_get_string(const char *name, const char *key, const char *defaul
         }
         else
         {
-            ESP_LOGD(TAG, "%s %s found", name, key);
+            // found a value for the given key
+            ESP_LOGD(TAG, "%s, %s:%s found", name, key, ifStr.c_str());
             nvs.end();
-            return str_value.c_str();
+            const char *value = ifStr.c_str();
+            return value;
         }
     }
     else
