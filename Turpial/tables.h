@@ -13,11 +13,12 @@
 #define TABLES_H
 
 #include <Arduino.h>
+#include "hal/hardware.h"
 #include "memory_def.h"
 #include "packet.h"
 #include "SQLite.h"
 
-bool is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db);
+uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db);
 bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db);
 bool is_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db);
 bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db);

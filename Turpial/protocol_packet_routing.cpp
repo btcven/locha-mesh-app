@@ -10,14 +10,15 @@
  */
   
   #include <Arduino.h>
-  #include "protocol_packet_routing.h"
+  
   #include "hal/hardware.h"
   #include "lang/language.h"
   #include "memory_def.h"
   #include "general_utils.h"
   #include "packet.h"
   #include "SQLite.h"
-    #include "tables.h"
+  #include "tables.h"
+//  #include "protocol_packet_routing.h"
 
 /**
  * @brief process incoming packet type DATA , subtype HELLO
@@ -38,7 +39,7 @@ void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t 
     * se devuelve un packet ROUTING JOIN
     */
     
-    if (!(is_blacklisted(id_node, db))){
+    if ((is_blacklisted(id_node, db)==0)){
       if (!(is_blacklisted_route(packet_temporal.header.from,id_node, db))){
         if (!(is_neighbour(packet_temporal.header.from,db))){
             bool rpta=create_neighbour(packet_temporal.header.from, db);

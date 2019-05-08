@@ -11,11 +11,11 @@
  */
 
 #include <Arduino.h>
-#include "tables.h"
+#include "hal/hardware.h"
 #include "memory_def.h"
 #include "packet.h"
 #include "SQLite.h"
-
+#include "tables.h"
 
 /**
  * @brief check if a node is blacklisted
@@ -25,18 +25,16 @@
  * @return true 
  * @return false 
  */
-bool is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db){
+uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db){
   std::string query;
   query.append("SELECT COUNT(*) from BLACKLISTED_NODES WHERE ID='");
   query.append(id_node);
   query.append("'");
   int rpta=buscar_valor((char *)query.c_str(),db);
   if (rpta>0){ 
-    return true;
-  } else {
-    return false;
-  }
-  
+    return 1;
+  } 
+  return 0;
 }
 
 /**
@@ -77,7 +75,7 @@ bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db){
   char *pChar = (char *)"";
 
   if (!(compare_char(id_node,pChar))){
-    if (!(is_blacklisted(id_node,db))){
+    if ((is_blacklisted(id_node,db)==0)){
          query.append("INSERT INTO BLACKLISTED_NODES ( id ) VALUES ('");
           query.append(id_node);
           query.append("')");
@@ -114,7 +112,7 @@ bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db){
   char *pChar = (char *)"";
 
   if (!(compare_char(id_node,pChar))){
-    if (!(is_blacklisted(id_node,db))){
+    if ((is_blacklisted(id_node,db)==0)){
       if (!(is_neighbour(id_node,db))){
           query.append("INSERT INTO NODES ( id, date_created ) VALUES ('");
           query.append(id_node);

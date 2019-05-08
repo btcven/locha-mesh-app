@@ -62,9 +62,11 @@ int db_open(const char *filename, sqlite3 **db)
 int db_exec(sqlite3 *db, const char *sql)
 {
     const char *TAG = "SQLLite";
+ESP_LOGE(TAG, "Voy a db_exec\n");
 
-    // int rc = sqlite3_exec(db, sql, callback, (void*)data, &zErrMsg);
-    int rc = sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
+    int rc = sqlite3_exec(db, sql, callback, (void*)data, &zErrMsg);
+  //  int rc = sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
+    ESP_LOGE(TAG, "Sigo en db_exec\n");
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "SQL error: %s\n", zErrMsg);
@@ -78,12 +80,34 @@ int db_exec(sqlite3 *db, const char *sql)
     return rc;
 }
 
+// exec any action query: insert, update or delete
+// return true if exec OK, or false on error
+bool ejecutar(char *query, sqlite3 *(&db))
+{
+  const char *TAG = "SQLLite";
+    int rc;
+    ESP_LOGE(TAG, "Voy a ejecutar\n");
+    rc = db_exec(db, query);
+    if (rc != SQLITE_OK)
+    {
+      ESP_LOGE(TAG, "Ejecute correctamente\n");
+        return true;
+    }
+    else
+    {
+      ESP_LOGE(TAG, "No se ejecuto\n");
+        return false;
+    }
+}
+
+
 // check database file & inicialize database
 // database file should not contains special characters neither /  , prefer to use 8+3 syntax name
-bool sqlite3_startup(const char *filename, sqlite3 *db, bool create_on_startup)
+bool sqlite3_startup(const char *filename, sqlite3 *(&db), bool create_on_startup)
 {
 //const char *full_path_filename = "/spiffs/config.db";
 std::string only_file((char*)filename);
+
 char* only_file_char;
 char *pChar = (char*)"/";
       std::replace( only_file.begin(), only_file.end(), '/spiffs/', NULL);
@@ -172,31 +196,23 @@ esp_err_t SQLite_INIT()
     }
 
     // create tables if doesnt exists
-    //char* table_found=buscar("SELECT name FROM sqlite_master WHERE type='table' AND name='{NODES}'", data_db);
-   
-    int rpta=db_exec(data_db, "CREATE TABLE [IF NOT EXISTS] NODES ( id TEXT PRIMARY KEY, date_last_viewed INTEGER NULL, date_created INTEGER NOT NULL) [WITHOUT ROWID]");
-    rpta=db_exec(data_db, "CREATE TABLE [IF NOT EXISTS] BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) [WITHOUT ROWID];");
-    rpta=db_exec(data_db, "CREATE TABLE [IF NOT EXISTS] ROUTES (id_ruta INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL,id_next_neighbour TEXT NULL,age INTEGER,hops INTEGER,RSSI_packet INTEGER,SNR_packet INTEGER,date_last_viewed INTEGER NULL,date_created INTEGER NOT NULL) [WITHOUT ROWID]");
-    rpta=db_exec(data_db, "CREATE TABLE [IF NOT EXISTS] BLACKLISTED_ROUTES (id_ruta_blacklisted INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL) [WITHOUT ROWID]");
+    ESP_LOGE(TAG, "Create Tables SQLLite");
+ // if (db_open("/FLASH/test1.db", &db1))
+   // return;
     
+   bool rpta=ejecutar("CREATE TABLE NODES ( id TEXT PRIMARY KEY, DATE_LAST_VIEWED INTEGER NULL, DATE_CREATED INTEGER NOT NULL)", data_db);
+   ESP_LOGE(TAG, "Table NODES ready");
+ //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) [WITHOUT ROWID]", data_db);
+ //  ESP_LOGE(TAG, "Table BLACKLISTED_NODES ready");
+ //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] ROUTES (id_ruta INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL,id_next_neighbour TEXT NULL,age INTEGER,hops INTEGER,RSSI_packet INTEGER,SNR_packet INTEGER,date_last_viewed INTEGER NULL,date_created INTEGER NOT NULL) [WITHOUT ROWID]", data_db);
+ //  ESP_LOGE(TAG, "Table ROUTES ready");
+ //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] BLACKLISTED_ROUTES (id_ruta_blacklisted INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL) [WITHOUT ROWID]", data_db);
+ //  ESP_LOGE(TAG, "Table BLACKLISTED_ROUTES ready");
+    ESP_LOGE(TAG, "Tablas SQLLite listas.");
     return ESP_OK;
 }
 
-// exec any action query: insert, update or delete
-// return true if exec OK, or false on error
-bool ejecutar(char *query, sqlite3 *db)
-{
-    int rc;
-    rc = db_exec(db, query);
-    if (rc != SQLITE_OK)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
+
 // exec a select query and return only first record/first field
 // if select return more than 10000 records then return empty
 /* it uses: int sqlite3_prepare_v2(

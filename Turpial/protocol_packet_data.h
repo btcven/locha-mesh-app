@@ -13,9 +13,11 @@
 #define PROTOCOL_PACKET_DATA_H
 
 #include <Arduino.h>
+#include "hal/hardware.h"
 #include "memory_def.h"
 #include "packet.h"
-  #include "SQLite.h"
+#include "SQLite.h"
+
 
 /**
  * @brief 

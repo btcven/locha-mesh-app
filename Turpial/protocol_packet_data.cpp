@@ -10,14 +10,15 @@
  */
   
   #include <Arduino.h>
-  #include "protocol_packet_data.h"
+
   #include "hal/hardware.h"
   #include "lang/language.h"
   #include "memory_def.h"
   #include "general_utils.h"
   #include "packet.h"
   #include "SQLite.h"
-#include "tables.h"
+  #include "tables.h"
+ // #include "protocol_packet_data.h"
 
 // manejo del packets  MSG
 void protocol_incoming_PACKET_ROUTING_MSG(char id_node[SIZE_IDNODE], packet_t packet_temporal){

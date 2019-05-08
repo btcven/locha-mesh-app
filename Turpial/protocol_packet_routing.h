@@ -13,17 +13,13 @@
 #define PROTOCOL_PACKET_ROUTING_H
 
 #include <Arduino.h>
+#include "hal/hardware.h"
 #include "memory_def.h"
 #include "packet.h"
-  #include "SQLite.h"
+#include "SQLite.h"
+
 
 void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
-/**
- * @brief 
- * 
- * @param id_node 
- * @param packet_temporal 
- */
 
 /**
  * @brief 
@@ -63,6 +59,6 @@ void protocol_incoming_PACKET_ROUTING_BYE(char id_node[SIZE_IDNODE], packet_t pa
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido,sqlite3 *db);
 
 #endif // PROTOCOL_PACKET_ROUTING_H

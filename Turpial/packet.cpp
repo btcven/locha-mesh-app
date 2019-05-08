@@ -10,6 +10,7 @@
  * 
  */
 #include <Arduino.h>
+#include "memory_def.h"
 #include "packet.h"
 #include "general_utils.h"
 
@@ -171,16 +172,16 @@ packet_t construct_packet_HELLO(char *id_node,char *from)
 
 packet_t construct_packet_JOIN(char *id_node,char *to)
 {
-  packet_t packet_HELLO;
+  packet_t packet_JOIN;
   
   char *pChar = (char *)"";
   char *p_payload = (char *)"";
   
   subtype_u subtipo_packet;
   subtipo_packet.routing_type=JOIN;
-  packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, id_node, to, pChar, pChar, p_payload);
+  packet_JOIN=create_packet(id_node, ROUTING, subtipo_packet, id_node, to, pChar, pChar, p_payload);
   
-  return packet_HELLO;
+  return packet_JOIN;
 }
 
 // funcion que construye un mensaje son para devolver al bluetooth en formato ERR

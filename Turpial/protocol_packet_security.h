@@ -13,9 +13,11 @@
 #define PROTOCOL_PACKET_SECURITY_H
 
 #include <Arduino.h>
+#include "hal/hardware.h"
 #include "memory_def.h"
 #include "packet.h"
-  #include "SQLite.h"
+#include "SQLite.h"
+
 
 /**
  * @brief 
@@ -23,7 +25,7 @@
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_START(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_START(char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 
@@ -31,7 +33,7 @@ void protocol_incoming_PACKET_ROUTING_START(char id_node[SIZE_IDNODE], packet_t 
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_TEST(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_TEST(char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 
@@ -39,7 +41,7 @@ void protocol_incoming_PACKET_ROUTING_TEST(char id_node[SIZE_IDNODE], packet_t p
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_RESPONSE(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_RESPONSE(char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 
