@@ -14,26 +14,34 @@
 #include "NVS.h"
 #include "hal/hardware.h"
 
+
+/**
+ * @brief Start Wifi Access Point, read ssid, password data from NVS
+ * 
+ * @return esp_err_t 
+ */
+
 esp_err_t WAP_INIT()
 {
-  const char *TAG = "WAP";
- char *elssi = "ssid";
- char *elnombre = "ap.locha.io";
- char *elpass = "pass";
-char *pChar = (char*)"";
+ char *storage_name = "WAP";   // NVS Storage name on char*
+ const char *TAG(storage_name);   // NVS Storage name on const char* for ESP_LOGD
+ char *elssi = "ssid";   // SSID key name on NVS
+ char *elpass = "pass";  // password key name on NVS 
+
+ char *elnombre = "ap.locha.io";   // default Access Point SSID
+ 
+ char *pChar = (char*)"";          // default password 
 
   // getting values from nvs or set values by default from hal/hardware.h
-  char *WAP_ssid = nvs_get_string("WAP1", elssi, elnombre, true);
+  char *WAP_ssid = nvs_get_string(storage_name, elssi, elnombre, true);
   const char *ssid_received(WAP_ssid);
-  //const char *WAP_ssid = nvs_get_string(TAG, "ssid", WAP_SSID, true);
   ESP_LOGD(TAG, "AP SSID : %s", WAP_ssid);
-  char *WAP_pass = nvs_get_string("WAP1", elpass, pChar, true);
+  char *WAP_pass = nvs_get_string(storage_name, elpass, pChar, true);
   const char *pass_received(WAP_pass);
-  //const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS, true);
   ESP_LOGD(TAG, "AP PASSWORD : %s", pass_received);
 
-  int32_t WAP_channel = nvs_get_int(TAG, "channel", WAP_CHANNEL, true);
-  int32_t WAP_maxconn = nvs_get_int(TAG, "maxconn", WAP_MAXCONN, true);
+  int32_t WAP_channel = nvs_get_int(storage_name, "channel", WAP_CHANNEL, true);
+  int32_t WAP_maxconn = nvs_get_int(storage_name, "maxconn", WAP_MAXCONN, true);
 
 
   bool initAP = WiFi.softAP(ssid_received, pass_received, WAP_channel, 0, WAP_maxconn);

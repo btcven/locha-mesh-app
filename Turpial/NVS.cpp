@@ -118,9 +118,7 @@ char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset)
                     // saved!
                     ESP_LOGD(TAG, "Upset ok for %s %s", name, key);
                     char *toCChar;
-                  //  toCChar = ifSavedStr.c_str();
-                    ifSavedStr.toCharArray(toCChar, sizeof(ifSavedStr));
-                    //copy_array(ifSavedStr.c_str(), toCChar, sizeof(ifSavedStr.c_str()));
+                    toCChar=std_string_to_char(ifSavedStr.c_str());
                     return toCChar;
                 }
             }
@@ -137,10 +135,8 @@ char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset)
             // found a value for the given key
             ESP_LOGD(TAG, "%s, %s:%s found", name, key, ifStr.c_str());
             nvs.end();
-            
             char *value;
-            ifStr.toCharArray(value, sizeof(ifStr));
-           // copy_array(ifStr.c_str(), value, sizeof(ifStr.c_str()));
+            value=std_string_to_char(ifStr.c_str());
             return value;
         }
     }
