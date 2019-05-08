@@ -47,7 +47,7 @@ int32_t nvs_get_int(const char *name, const char *key, int32_t defaultValue, boo
  * @param upset 
  * @return const char* 
  */
-const char *nvs_get_string(const char *name, const char *key, const char *defaultValue, bool upset);
+char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset);
 
 /**
  * @brief 

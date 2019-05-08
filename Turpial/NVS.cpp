@@ -13,7 +13,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 #include "NVS.h"
-
+#include "general_utils.h"
 #include <typeinfo>
 
 esp_err_t nvs_remove(const char *name, const char *key)
@@ -77,7 +77,8 @@ esp_err_t nvs_clear(const char *name)
     }
 }
 
-const char *nvs_get_string(const char *name, const char *key, const char *defaultValue, bool upset)
+//char *nvs_get_string(const char *name, const char *key, char *defaultValue, bool upset)
+char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset)
 {
     const char *TAG = "NVS";
 
@@ -116,8 +117,10 @@ const char *nvs_get_string(const char *name, const char *key, const char *defaul
                 {
                     // saved!
                     ESP_LOGD(TAG, "Upset ok for %s %s", name, key);
-                    const char *toCChar;
-                    toCChar = ifSavedStr.c_str();
+                    char *toCChar;
+                  //  toCChar = ifSavedStr.c_str();
+                    ifSavedStr.toCharArray(toCChar, sizeof(ifSavedStr));
+                    //copy_array(ifSavedStr.c_str(), toCChar, sizeof(ifSavedStr.c_str()));
                     return toCChar;
                 }
             }
@@ -134,7 +137,10 @@ const char *nvs_get_string(const char *name, const char *key, const char *defaul
             // found a value for the given key
             ESP_LOGD(TAG, "%s, %s:%s found", name, key, ifStr.c_str());
             nvs.end();
-            const char *value = ifStr.c_str();
+            
+            char *value;
+            ifStr.toCharArray(value, sizeof(ifStr));
+           // copy_array(ifStr.c_str(), value, sizeof(ifStr.c_str()));
             return value;
         }
     }

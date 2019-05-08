@@ -17,19 +17,26 @@
 esp_err_t WAP_INIT()
 {
   const char *TAG = "WAP";
+ char *elssi = "ssid";
+ char *elnombre = "ap.locha.io";
+ char *elpass = "pass";
+char *pChar = (char*)"";
 
   // getting values from nvs or set values by default from hal/hardware.h
-
-  const char *WAP_ssid = nvs_get_string(TAG, "ssid", WAP_SSID, true);
+  char *WAP_ssid = nvs_get_string("WAP1", elssi, elnombre, true);
+  const char *ssid_received(WAP_ssid);
+  //const char *WAP_ssid = nvs_get_string(TAG, "ssid", WAP_SSID, true);
   ESP_LOGD(TAG, "AP SSID : %s", WAP_ssid);
-  const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS, true);
-  ESP_LOGD(TAG, "AP PASSWORD : %s", WAP_ssid);
+  char *WAP_pass = nvs_get_string("WAP1", elpass, pChar, true);
+  const char *pass_received(WAP_pass);
+  //const char *WAP_pass = nvs_get_string(TAG, "pass", WAP_PASS, true);
+  ESP_LOGD(TAG, "AP PASSWORD : %s", pass_received);
 
   int32_t WAP_channel = nvs_get_int(TAG, "channel", WAP_CHANNEL, true);
   int32_t WAP_maxconn = nvs_get_int(TAG, "maxconn", WAP_MAXCONN, true);
 
 
-  bool initAP = WiFi.softAP(WAP_ssid, WAP_pass, WAP_channel, 0, WAP_maxconn);
+  bool initAP = WiFi.softAP(ssid_received, pass_received, WAP_channel, 0, WAP_maxconn);
 
   if (initAP)
   {

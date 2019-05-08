@@ -82,12 +82,15 @@ ESP_LOGE(TAG, "Voy a db_exec\n");
 
 // exec any action query: insert, update or delete
 // return true if exec OK, or false on error
-bool ejecutar(char *query, sqlite3 *(&db))
+bool ejecutar(char *query, sqlite3 **db)
 {
   const char *TAG = "SQLLite";
     int rc;
+    ESP_LOGE(TAG, "Voy a abrir en ejecutar\n");
+    int tengo=db_open("/spiffs/data.db", db);
+    
     ESP_LOGE(TAG, "Voy a ejecutar\n");
-    rc = db_exec(db, query);
+    rc = db_exec(*db, query);
     if (rc != SQLITE_OK)
     {
       ESP_LOGE(TAG, "Ejecute correctamente\n");
@@ -99,6 +102,92 @@ bool ejecutar(char *query, sqlite3 *(&db))
         return false;
     }
 }
+
+
+
+
+// exec a select query and return only first record/first field
+// if select return more than 10000 records then return empty
+/* it uses: int sqlite3_prepare_v2(
+  sqlite3 *db,             Database handle 
+  const char *zSql,        SQL statement, UTF-8 encoded 
+  int nByte,               Maximum length of zSql in bytes. 
+  sqlite3_stmt **ppStmt,   OUT: Statement handle 
+  const char **pzTail      OUT: Pointer to unused portion of zSql 
+);
+*/
+char *buscar(char *query, sqlite3 *db)
+{
+
+    char *resp;
+    sqlite3_stmt *res;
+    const char *tail;
+    int rc;
+    int rec_count = 0;
+    char *pChar = (char *)"";
+
+    rc = sqlite3_prepare_v2(db, query, 10000, &res, &tail);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to fetch data: %s", sqlite3_errmsg(db));
+    }
+    while (sqlite3_step(res) == SQLITE_ROW)
+    {
+        resp = (char *)sqlite3_column_text(res, 1); // el 1 es el numero de la columna (campo) en el query
+        if (rec_count > 5000)
+        {
+            ESP_LOGE(TAG, "Please select different range, too many records: %s", rec_count);
+            sqlite3_finalize(res);
+            return pChar;
+        }
+    }
+    sqlite3_finalize(res);
+    return resp;
+}
+
+// exec a select query and return only first record/first field
+// if select return more than 10000 records then return empty
+/* it uses: int sqlite3_prepare_v2(
+  sqlite3 *db,             Database handle 
+  const char *zSql,        SQL statement, UTF-8 encoded 
+  int nByte,               Maximum length of zSql in bytes. 
+  sqlite3_stmt **ppStmt,   OUT: Statement handle 
+  const char **pzTail      OUT: Pointer to unused portion of zSql 
+);
+*/
+int buscar_valor(char *query, sqlite3 *db)
+{
+
+    int resp;
+    sqlite3_stmt *res;
+    const char *tail;
+    int rc;
+    int rec_count = 0;
+  //  char *pChar = (char *)"";
+ if (db_open("/spiffs/data.db", &db)){
+  ESP_LOGE(TAG, "No se pudo abrir la base de datos");
+    return 0;
+  }
+  
+    rc = sqlite3_prepare_v2(db, query, 10000, &res, &tail);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to fetch data: %s", sqlite3_errmsg(db));
+    }
+    while (sqlite3_step(res) == SQLITE_ROW)
+    {
+        resp = (int )sqlite3_column_int(res, 1); // el 1 es el numero de la columna (campo) en el query
+        if (rec_count > 5000)
+        {
+            ESP_LOGE(TAG, "Please select different range, too many records: %s", rec_count);
+            sqlite3_finalize(res);
+            return 0;
+        }
+    }
+    sqlite3_finalize(res);
+    return resp;
+}
+
 
 
 // check database file & inicialize database
@@ -128,9 +217,13 @@ char *pChar = (char*)"/";
         ESP_LOGE(TAG, " / is not a directory", TAG);
         return false;
     }
+    
     if (create_on_startup)
     {
+      ESP_LOGD(TAG, "go to delete older database ");
+      ESP_LOGD(TAG, "nombre del archivo %s",only_file_char);
         if (Fileexists(only_file_char))
+        
         {
             ESP_LOGD(TAG, "Erasing %s", only_file_char);
             SPIFFS.remove(only_file_char);
@@ -196,11 +289,23 @@ esp_err_t SQLite_INIT()
     }
 
     // create tables if doesnt exists
-    ESP_LOGE(TAG, "Create Tables SQLLite");
- // if (db_open("/FLASH/test1.db", &db1))
-   // return;
-    
-   bool rpta=ejecutar("CREATE TABLE NODES ( id TEXT PRIMARY KEY, DATE_LAST_VIEWED INTEGER NULL, DATE_CREATED INTEGER NOT NULL)", data_db);
+    ESP_LOGE(TAG, "open again Tables SQLLite");
+  if (db_open("/spiffs/data.db", &data_db)){
+    return ESP_FAIL;
+  }
+    ESP_LOGE(TAG, "exec ... SQLLite");
+   int rc = db_exec(data_db, "CREATE TABLE NODES ( id TEXT PRIMARY KEY, DATE_LAST_VIEWED INTEGER NULL, DATE_CREATED INTEGER NOT NULL);"); 
+    ESP_LOGE(TAG, "continuo ... SQLLite");
+    //rc = db_exec(*data_db, "CREATE TABLE NODES ( id integer);"); 
+   //bool rpta=ejecutar("CREATE TABLE NODES ( id TEXT PRIMARY KEY, DATE_LAST_VIEWED INTEGER NULL, DATE_CREATED INTEGER NOT NULL);",&data_db);
+   //bool rpta=ejecutar("CREATE TABLE NODES ( id TEXT PRIMARY KEY);",&data_db);
+  // bool rpta=ejecutar("CREATE TABLE NODES ( id integer);",&data_db);
+   // ESP_LOGE(TAG, "exec 1");
+   //rpta=ejecutar("INSERT INTO NODES ( id , DATE_LAST_VIEWED , DATE_CREATED) VALUES(8,date('now'),date('now'))", &data_db);
+   ESP_LOGE(TAG, "exec 2");
+  // int rpta2=buscar_valor("select count(id) from NODES",data_db);
+   
+ //  ESP_LOGE(TAG, "exec %s",rpta2);
    ESP_LOGE(TAG, "Table NODES ready");
  //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) [WITHOUT ROWID]", data_db);
  //  ESP_LOGE(TAG, "Table BLACKLISTED_NODES ready");
@@ -208,85 +313,6 @@ esp_err_t SQLite_INIT()
  //  ESP_LOGE(TAG, "Table ROUTES ready");
  //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] BLACKLISTED_ROUTES (id_ruta_blacklisted INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL) [WITHOUT ROWID]", data_db);
  //  ESP_LOGE(TAG, "Table BLACKLISTED_ROUTES ready");
-    ESP_LOGE(TAG, "Tablas SQLLite listas.");
+    ESP_LOGE(TAG, "Tablas SQLite listas.");
     return ESP_OK;
-}
-
-
-// exec a select query and return only first record/first field
-// if select return more than 10000 records then return empty
-/* it uses: int sqlite3_prepare_v2(
-  sqlite3 *db,             Database handle 
-  const char *zSql,        SQL statement, UTF-8 encoded 
-  int nByte,               Maximum length of zSql in bytes. 
-  sqlite3_stmt **ppStmt,   OUT: Statement handle 
-  const char **pzTail      OUT: Pointer to unused portion of zSql 
-);
-*/
-char *buscar(char *query, sqlite3 *db)
-{
-
-    char *resp;
-    sqlite3_stmt *res;
-    const char *tail;
-    int rc;
-    int rec_count = 0;
-    char *pChar = (char *)"";
-
-    rc = sqlite3_prepare_v2(db, query, 10000, &res, &tail);
-    if (rc != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "Failed to fetch data: %s", sqlite3_errmsg(db));
-    }
-    while (sqlite3_step(res) == SQLITE_ROW)
-    {
-        resp = (char *)sqlite3_column_text(res, 1); // el 1 es el numero de la columna (campo) en el query
-        if (rec_count > 5000)
-        {
-            ESP_LOGE(TAG, "Please select different range, too many records: %s", rec_count);
-            sqlite3_finalize(res);
-            return pChar;
-        }
-    }
-    sqlite3_finalize(res);
-    return resp;
-}
-
-// exec a select query and return only first record/first field
-// if select return more than 10000 records then return empty
-/* it uses: int sqlite3_prepare_v2(
-  sqlite3 *db,             Database handle 
-  const char *zSql,        SQL statement, UTF-8 encoded 
-  int nByte,               Maximum length of zSql in bytes. 
-  sqlite3_stmt **ppStmt,   OUT: Statement handle 
-  const char **pzTail      OUT: Pointer to unused portion of zSql 
-);
-*/
-int buscar_valor(char *query, sqlite3 *db)
-{
-
-    int resp;
-    sqlite3_stmt *res;
-    const char *tail;
-    int rc;
-    int rec_count = 0;
-  //  char *pChar = (char *)"";
-
-    rc = sqlite3_prepare_v2(db, query, 10000, &res, &tail);
-    if (rc != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "Failed to fetch data: %s", sqlite3_errmsg(db));
-    }
-    while (sqlite3_step(res) == SQLITE_ROW)
-    {
-        resp = (int )sqlite3_column_int(res, 1); // el 1 es el numero de la columna (campo) en el query
-        if (rec_count > 5000)
-        {
-            ESP_LOGE(TAG, "Please select different range, too many records: %s", rec_count);
-            sqlite3_finalize(res);
-            return 0;
-        }
-    }
-    sqlite3_finalize(res);
-    return resp;
 }

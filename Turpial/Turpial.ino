@@ -60,9 +60,11 @@ void setup()
    * @brief WAP or WST ifaces enabled on boot?
    * 
    */
- // sys_init = WiFi_INIT();
- // if (sys_init != ESP_OK)
- //   esp_restart();
+  sys_init = WiFi_INIT();
+  if (sys_init != ESP_OK){
+    delay(15000);
+    esp_restart();
+  }
 
   /**
    * @brief RAD iface enabled on boot?
