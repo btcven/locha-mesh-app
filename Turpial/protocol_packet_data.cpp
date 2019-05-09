@@ -50,6 +50,13 @@ void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(char id_node[SIZE_IDNODE], p
     
 }
   
+
+/**
+ * @brief select processing option based on data_type received
+ * only for packets with type=DATA
+ * @param id_node 
+ * @param packet_temporal 
+ */
 void protocol_incoming_PACKET_DATA(char id_node[SIZE_IDNODE], packet_t packet_temporal){
     // se clasifica se acuerdo al subtipo de packet recibido
       switch (packet_temporal.header.packet_sub.data_type)

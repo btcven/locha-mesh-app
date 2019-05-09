@@ -60,8 +60,8 @@ void protocol_incoming_PACKET_ROUTING_ACK(char id_node[SIZE_IDNODE], packet_t pa
 void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
- * @brief 
- * 
+ * @brief select processing option based on data_type received
+ * only for packets with type=DATA
  * @param id_node 
  * @param packet_temporal 
  */

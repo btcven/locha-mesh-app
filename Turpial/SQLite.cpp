@@ -198,9 +198,15 @@ while (sqlite3_step(res) == SQLITE_ROW) {
 
 
 
+/**
+ * @brief check database file & inicialize database
+ * check database file & inicialize database
+ * @param filename 
+ * @param create_on_startup 
+ * @return true 
+ * @return false 
+ */
 
-// check database file & inicialize database
-// database file should not contains special characters neither /  , prefer to use 8+3 syntax name
 bool sqlite3_startup(const char *filename, sqlite3 *(&db), bool create_on_startup)
 {
 std::string only_file((char*)filename);
@@ -239,7 +245,7 @@ const char *TAG = "SQLLite";
             SPIFFS.remove(only_file_char);
         }
     }
-    ESP_LOGD(TAG, "Goes to sqlite3_initialize()");
+  //  ESP_LOGD(TAG, "Goes to sqlite3_initialize()");
 
     sqlite3_initialize();
 
@@ -252,7 +258,7 @@ const char *TAG = "SQLLite";
     */
     
 
-    ESP_LOGD(TAG, "Copy path ready");
+//    ESP_LOGD(TAG, "Copy path ready");
 
     if (!db_open(filename, &db))
     {
@@ -299,29 +305,31 @@ esp_err_t SQLite_INIT()
     }
 
     // create tables if doesnt exists
-    ESP_LOGE(TAG, "open again Tables SQLLite");
-  if (db_open("/spiffs/data.db", &data_db)){
-    return ESP_FAIL;
-  }
-    ESP_LOGE(TAG, "exec ... SQLLite");
+ //   ESP_LOGE(TAG, "open again Tables SQLLite");
+ // if (db_open("/spiffs/data.db", &data_db)){
+ //   return ESP_FAIL;
+ // }
+    ESP_LOGE(TAG, "SQLite: creating tables");
 
-  // si se usa WITHOUT ROWID oligatoriamente tiene que tener PRIMARY KEY
-    int rc=ejecutar("CREATE TABLE NODES ( id TEXT PRIMARY KEY,DATE_LAST_VIEWED REAL NULL, DATE_CREATED REAL NOT NULL) WITHOUT ROWID;", data_db);
+    // si se usa WITHOUT ROWID oligatoriamente tiene que tener PRIMARY KEY
+    int rc=ejecutar("CREATE TABLE IF NOT EXISTS NODES ( id TEXT PRIMARY KEY,DATE_LAST_VIEWED REAL NULL, DATE_CREATED REAL NOT NULL) WITHOUT ROWID;", data_db);
+    
+    // el siguiente codigo es solo para probar que efectivamente se haga un insert y un select
     // insert dummy para probar que este correctamente creada la tabla
-    rc=ejecutar("INSERT INTO NODES ( id , DATE_LAST_VIEWED , DATE_CREATED) VALUES('8',datetime('now'),datetime('now'));", data_db);
-
-   // select dummy para buscar, en la tabla de NODES se usa el siguiente query
-    String mysql="SELECT COUNT(*) FROM NODES";
-    int rpta2=buscar_valor(mysql.c_str(),data_db);
-   // ESP_LOGE(TAG, "Respuesta obtenida al buscar:%s",rpta2);
+    //rc=ejecutar("INSERT INTO NODES ( id , DATE_LAST_VIEWED , DATE_CREATED) VALUES('8',datetime('now'),datetime('now'));", data_db);
+    // select dummy para buscar, en la tabla de NODES se usa el siguiente query
+    //  String mysql="SELECT COUNT(*) FROM NODES";
+    //  int rpta2=buscar_valor(mysql.c_str(),data_db);
+    // ESP_LOGE(TAG, "Respuesta obtenida al buscar:%s",rpta2);
       
    ESP_LOGE(TAG, "Table NODES ready");
- //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) [WITHOUT ROWID]", data_db);
- //  ESP_LOGE(TAG, "Table BLACKLISTED_NODES ready");
- //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] ROUTES (id_ruta INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL,id_next_neighbour TEXT NULL,age INTEGER,hops INTEGER,RSSI_packet INTEGER,SNR_packet INTEGER,date_last_viewed INTEGER NULL,date_created INTEGER NOT NULL) [WITHOUT ROWID]", data_db);
- //  ESP_LOGE(TAG, "Table ROUTES ready");
- //  rpta=ejecutar("CREATE TABLE [IF NOT EXISTS] BLACKLISTED_ROUTES (id_ruta_blacklisted INTEGER AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL) [WITHOUT ROWID]", data_db);
- //  ESP_LOGE(TAG, "Table BLACKLISTED_ROUTES ready");
+   rc=ejecutar("CREATE TABLE IF NOT EXISTS BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) WITHOUT ROWID;", data_db);
+   ESP_LOGE(TAG, "Table BLACKLISTED_NODES ready");
+   // AUTOINCREMENT only works with INTEGER PRIMARY KEY and doesn't allow  WITHOUT ROWID
+   rc=ejecutar("CREATE TABLE IF NOT EXISTS ROUTES (id_ruta INTEGER PRIMARY KEY AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL,id_next_neighbour TEXT NULL,age INTEGER,hops INTEGER,RSSI_packet INTEGER,SNR_packet INTEGER,date_last_viewed REAL NULL,date_created REAL NOT NULL);", data_db);
+   ESP_LOGE(TAG, "Table ROUTES ready");
+   rc=ejecutar("CREATE TABLE IF NOT EXISTS BLACKLISTED_ROUTES (id_ruta_blacklisted INTEGER PRIMARY KEY AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL);", data_db);
+   ESP_LOGE(TAG, "Table BLACKLISTED_ROUTES ready");
     ESP_LOGE(TAG, "Tablas SQLite listas.");
     return ESP_OK;
 }
