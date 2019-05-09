@@ -25,15 +25,17 @@
  * @return true 
  * @return false 
  */
-uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db){
+uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db)
+{
   std::string query;
   query.append("SELECT COUNT(*) from BLACKLISTED_NODES WHERE ID='");
   query.append(id_node);
   query.append("'");
-  int rpta=buscar_valor((char *)query.c_str(),db);
-  if (rpta>0){ 
+  int rpta = buscar_valor((char *)query.c_str(), db);
+  if (rpta > 0)
+  {
     return 1;
-  } 
+  }
   return 0;
 }
 
@@ -45,22 +47,24 @@ uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db){
  * @return true 
  * @return false 
  */
-bool is_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db){
-  
+bool is_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
+{
+
   std::string query;
   query.append("SELECT COUNT(*) from NODES WHERE ID='");
   query.append(id_node);
   query.append("'");
-  
-  int rpta=buscar_valor((char *)query.c_str(),db);
-  if (rpta>0){ 
+
+  int rpta = buscar_valor((char *)query.c_str(), db);
+  if (rpta > 0)
+  {
     return true;
-  } else {
+  }
+  else
+  {
     return false;
   }
-  
 }
-
 
 /**
  * @brief Create a blacklisted node
@@ -70,26 +74,32 @@ bool is_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db){
  * @return true 
  * @return false 
  */
-bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db){
+bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db)
+{
   std::string query;
   char *pChar = (char *)"";
 
-  if (!(compare_char(id_node,pChar))){
-    if ((is_blacklisted(id_node,db)==0)){
-         query.append("INSERT INTO BLACKLISTED_NODES ( id ) VALUES ('");
-          query.append(id_node);
-          query.append("')");
-          
-          bool rpta=ejecutar((char *)query.c_str(),db);
-          return rpta;
-    } else {
+  if (!(compare_char(id_node, pChar)))
+  {
+    if ((is_blacklisted(id_node, db) == 0))
+    {
+      query.append("INSERT INTO BLACKLISTED_NODES ( id ) VALUES ('");
+      query.append(id_node);
+      query.append("')");
+
+      bool rpta = ejecutar((char *)query.c_str(), db);
+      return rpta;
+    }
+    else
+    {
       return false;
     }
-  } else {
+  }
+  else
+  {
     return false;
   }
 }
-
 
 /**
  * @brief create a new neighbour
@@ -99,7 +109,8 @@ bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db){
  * @return true 
  * @return false 
  */
-bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db){
+bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
+{
   /**
    * se verifica que el id_node no sea vacio
    * se verifica que no exista previamente
@@ -107,28 +118,36 @@ bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db){
    * se agrega a la b/d
    * 
    */
-  
+
   std::string query;
   char *pChar = (char *)"";
 
-  if (!(compare_char(id_node,pChar))){
-    if ((is_blacklisted(id_node,db)==0)){
-      if (!(is_neighbour(id_node,db))){
-          query.append("INSERT INTO NODES ( id, date_created ) VALUES ('");
-          query.append(id_node);
-          query.append("',date('now'))");
-          bool rpta=ejecutar((char *)query.c_str(),db);
-          
-        
-          return rpta;
-      } else {
+  if (!(compare_char(id_node, pChar)))
+  {
+    if ((is_blacklisted(id_node, db) == 0))
+    {
+      if (!(is_neighbour(id_node, db)))
+      {
+        query.append("INSERT INTO NODES ( id, date_created ) VALUES ('");
+        query.append(id_node);
+        query.append("',date('now'))");
+        bool rpta = ejecutar((char *)query.c_str(), db);
+
+        return rpta;
+      }
+      else
+      {
         return false;
       }
-    } else {
-        return false;
     }
-  } else {
+    else
+    {
       return false;
+    }
+  }
+  else
+  {
+    return false;
   }
 }
 
@@ -140,13 +159,14 @@ bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db){
  * @return true 
  * @return false 
  */
-bool delete_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db){
-    std::string query;
-    query.append("DELETE FROM NODES where id='");
-    query.append(id_node);
-    query.append("'");
-    bool rpta=ejecutar((char *)query.c_str(),db);
-    return rpta;     
+bool delete_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
+{
+  std::string query;
+  query.append("DELETE FROM NODES where id='");
+  query.append(id_node);
+  query.append("'");
+  bool rpta = ejecutar((char *)query.c_str(), db);
+  return rpta;
 }
 
 /**
@@ -162,26 +182,27 @@ bool delete_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db){
  * @return true 
  * @return false 
  */
-bool create_route(char id_source[SIZE_IDNODE], char id_next_neighbour[SIZE_IDNODE],char id_destination[SIZE_IDNODE],uint8_t hops, int RSSI_recibido, int SNR_recibido, sqlite3 *db){
-    std::string query;
-    query.append("INSERT INTO ROUTES (id_origen,id_destino,id_next_neighbour,age,hops,RSSI_packet,SNR_packet,date_last_viewed,date_created) VALUES('");
-    query.append(id_source);
-    query.append("','");
-    query.append(id_destination);
-    query.append("','");
-    query.append(id_next_neighbour);
-    query.append("',");
-    query.append(ToString(millis()));
-    query.append(",");
-    query.append(ToString(hops));
-    query.append(",");
-    query.append(ToString(RSSI_recibido));
-    query.append(",");
-    query.append(ToString(SNR_recibido));
-    query.append(",date('now'),date('now'))");
-    
-    bool rpta=ejecutar((char *)query.c_str(),db);
-    return rpta;
+bool create_route(char id_source[SIZE_IDNODE], char id_next_neighbour[SIZE_IDNODE], char id_destination[SIZE_IDNODE], uint8_t hops, int RSSI_recibido, int SNR_recibido, sqlite3 *db)
+{
+  std::string query;
+  query.append("INSERT INTO ROUTES (id_origen,id_destino,id_next_neighbour,age,hops,RSSI_packet,SNR_packet,date_last_viewed,date_created) VALUES('");
+  query.append(id_source);
+  query.append("','");
+  query.append(id_destination);
+  query.append("','");
+  query.append(id_next_neighbour);
+  query.append("',");
+  query.append(ToString(millis()));
+  query.append(",");
+  query.append(ToString(hops));
+  query.append(",");
+  query.append(ToString(RSSI_recibido));
+  query.append(",");
+  query.append(ToString(SNR_recibido));
+  query.append(",date('now'),date('now'))");
+
+  bool rpta = ejecutar((char *)query.c_str(), db);
+  return rpta;
 }
 
 /**
@@ -193,16 +214,17 @@ bool create_route(char id_source[SIZE_IDNODE], char id_next_neighbour[SIZE_IDNOD
  * @return true 
  * @return false 
  */
-bool delete_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], sqlite3 *db){
-    std::string query;
-    query.append("DELETE FROM ROUTES WHERE id_origen='");
-    query.append(id_source);
-    query.append("' AND id_destino='");
-    query.append(id_destination);
-    query.append("'");
-    
-    bool rpta=ejecutar((char *)query.c_str(),db);
-    return rpta;
+bool delete_route(char id_source[SIZE_IDNODE], char id_destination[SIZE_IDNODE], sqlite3 *db)
+{
+  std::string query;
+  query.append("DELETE FROM ROUTES WHERE id_origen='");
+  query.append(id_source);
+  query.append("' AND id_destino='");
+  query.append(id_destination);
+  query.append("'");
+
+  bool rpta = ejecutar((char *)query.c_str(), db);
+  return rpta;
 }
 
 /**
@@ -214,30 +236,35 @@ bool delete_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], 
  * @return true 
  * @return false 
  */
-bool exist_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], sqlite3 *db){
-    std::string query;
+bool exist_route(char id_source[SIZE_IDNODE], char id_destination[SIZE_IDNODE], sqlite3 *db)
+{
+  std::string query;
+  query.append("SELECT COUNT(*) from ROUTES WHERE id_origen ='");
+  query.append(id_source);
+  query.append("' and id_destino='");
+  query.append(id_destination);
+  query.append("'");
+  int rpta = buscar_valor((char *)query.c_str(), db);
+  if (rpta > 0)
+  {
+    return true;
+  }
+  else
+  {
+    // se verifica la ruta invertida
+    query.clear();
     query.append("SELECT COUNT(*) from ROUTES WHERE id_origen ='");
-    query.append(id_source);
-    query.append("' and id_destino='");
     query.append(id_destination);
+    query.append("' and id_destino='");
+    query.append(id_source);
     query.append("'");
-    int rpta=buscar_valor((char *)query.c_str(),db);
-    if (rpta>0){ 
+    rpta = buscar_valor((char *)query.c_str(), db);
+    if (rpta > 0)
+    {
       return true;
-    } else {
-     // se verifica la ruta invertida
-      query.clear();
-      query.append("SELECT COUNT(*) from ROUTES WHERE id_origen ='");
-      query.append(id_destination);
-      query.append("' and id_destino='");
-      query.append(id_source);
-      query.append("'");
-      rpta=buscar_valor((char *)query.c_str(),db);
-      if (rpta>0){ 
-        return true;
-      }
-      return false;
     }
+    return false;
+  }
 }
 
 /**
@@ -249,18 +276,22 @@ bool exist_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], s
  * @return true 
  * @return false 
  */
-bool is_blacklisted_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], sqlite3 *db){
+bool is_blacklisted_route(char id_source[SIZE_IDNODE], char id_destination[SIZE_IDNODE], sqlite3 *db)
+{
   std::string query;
   query.append("SELECT COUNT(*) from BLACKLISTED_ROUTES WHERE id_origen='");
   query.append(id_source);
   query.append("' and id_destino='");
   query.append(id_destination);
   query.append("'");
-  
-  int rpta=buscar_valor((char *)query.c_str(),db);
-  if (rpta>0){ 
+
+  int rpta = buscar_valor((char *)query.c_str(), db);
+  if (rpta > 0)
+  {
     return true;
-  } else {
+  }
+  else
+  {
     // se verifica la ruta inversa
     query.clear();
     query.append("SELECT COUNT(*) from BLACKLISTED_ROUTES WHERE id_origen='");
@@ -268,8 +299,7 @@ bool is_blacklisted_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_I
     query.append("' and id_destino='");
     query.append(id_source);
     query.append("'");
-    rpta=buscar_valor((char *)query.c_str(),db);
+    rpta = buscar_valor((char *)query.c_str(), db);
     return rpta;
   }
-  
 }

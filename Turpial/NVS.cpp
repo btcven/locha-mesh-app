@@ -86,7 +86,7 @@ esp_err_t nvs_clear(const char *name)
  * @param upset 
  * @return char* 
  */
-char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset)
+char *nvs_get_string(const char *name, char *key, char *defaultValue, bool upset)
 {
     const char *TAG = "NVS";
 
@@ -112,7 +112,7 @@ char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset)
 
                 // get string
                 String ifSavedStr = nvs.getString(key, String());
-                
+
                 nvs.end();
 
                 if (!ifSavedStr.length())
@@ -126,7 +126,7 @@ char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset)
                     // saved!
                     ESP_LOGD(TAG, "Upset ok for %s %s", name, key);
                     char *toCChar;
-                    toCChar=std_string_to_char(ifSavedStr.c_str());
+                    toCChar = std_string_to_char(ifSavedStr.c_str());
                     return toCChar;
                 }
             }
@@ -144,7 +144,7 @@ char *nvs_get_string(char *name, char *key, char *defaultValue, bool upset)
             ESP_LOGD(TAG, "%s, %s:%s found", name, key, ifStr.c_str());
             nvs.end();
             char *value;
-            value=std_string_to_char(ifStr.c_str());
+            value = std_string_to_char(ifStr.c_str());
             return value;
         }
     }

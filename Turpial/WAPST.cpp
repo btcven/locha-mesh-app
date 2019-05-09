@@ -30,40 +30,40 @@ void WiFiEvent(WiFiEvent_t evt)
         ESP_LOGD(TAG, "Event -> WiFi ready #%d", evt);
         break;
     case SYSTEM_EVENT_SCAN_DONE:
-        /* code */
+        ESP_LOGD(TAG, "Event -> Scann done #%d", evt);
         break;
     case SYSTEM_EVENT_STA_START:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST start #%d", evt);
         break;
     case SYSTEM_EVENT_STA_STOP:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST stop #%d", evt);
         break;
     case SYSTEM_EVENT_STA_CONNECTED:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST connected #%d", evt);
         break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST disconnected #%d", evt);
         break;
     case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST auth mode change #%d", evt);
         break;
     case SYSTEM_EVENT_STA_GOT_IP:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST got IP #%d", evt);
         break;
     case SYSTEM_EVENT_STA_LOST_IP:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST lost IP #%d", evt);
         break;
     case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST WPS er success #%d", evt);
         break;
     case SYSTEM_EVENT_STA_WPS_ER_FAILED:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST WPS er failed #%d", evt);
         break;
     case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST er timeout #%d", evt);
         break;
     case SYSTEM_EVENT_STA_WPS_ER_PIN:
-        /* code */
+        ESP_LOGD(TAG, "Event -> WST er pin #%d", evt);
         break;
     case SYSTEM_EVENT_AP_START:
         ESP_LOGD(TAG, "Event -> AP start #%d", evt);
@@ -77,29 +77,29 @@ void WiFiEvent(WiFiEvent_t evt)
     case SYSTEM_EVENT_AP_STADISCONNECTED:
         ESP_LOGD(TAG, "Event -> Client disconnected #%d", evt);
         break;
-        case SYSTEM_EVENT_AP_STAIPASSIGNED:
+    case SYSTEM_EVENT_AP_STAIPASSIGNED:
         ESP_LOGD(TAG, "Event -> IP assigned to client #%d", evt);
         break;
     case SYSTEM_EVENT_AP_PROBEREQRECVED:
         ESP_LOGD(TAG, "Event -> PROBEREQRECVED #%d", evt);
         break;
     case SYSTEM_EVENT_GOT_IP6:
-         ESP_LOGD(TAG, "Event -> got ipv6 #%d", evt);
+        ESP_LOGD(TAG, "Event -> got ipv6 #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_START:
-         ESP_LOGD(TAG, "Event -> ETH start #%d", evt);
+        ESP_LOGD(TAG, "Event -> ETH start #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_STOP:
-         ESP_LOGD(TAG, "Event -> ETH stop #%d", evt);
+        ESP_LOGD(TAG, "Event -> ETH stop #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_CONNECTED:
-         ESP_LOGD(TAG, "Event -> ETH connected #%d", evt);
+        ESP_LOGD(TAG, "Event -> ETH connected #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
-         ESP_LOGD(TAG, "Event -> ETH disconnected #%d", evt);
+        ESP_LOGD(TAG, "Event -> ETH disconnected #%d", evt);
         break;
     case SYSTEM_EVENT_ETH_GOT_IP:
-         ESP_LOGD(TAG, "Event -> ETH got ip #%d", evt);
+        ESP_LOGD(TAG, "Event -> ETH got ip #%d", evt);
         break;
     default:
         ESP_LOGD(TAG, "Event -> Unknow event  #%d", evt);
@@ -155,15 +155,15 @@ esp_err_t WiFi_INIT()
     switch (WIFI_MODE)
     {
     case WIFI_STA:
-        ESP_LOGD(TAG, "Trying to start WST iface only");
+        ESP_LOGD(TAG, "Starting WST iface only");
         return ESP_OK;
         break;
     case WIFI_AP:
-        ESP_LOGD(TAG, "Trying to start WAP iface only");
+        ESP_LOGD(TAG, "Starting WAP iface only");
         return WAP_INIT();
         break;
     case WIFI_AP_STA:
-        ESP_LOGD(TAG, "Trying to start WAP and WST ifaces");
+        ESP_LOGD(TAG, "Starting WAP and WST ifaces");
         return ESP_OK;
         break;
     case WIFI_MODE_NULL:
