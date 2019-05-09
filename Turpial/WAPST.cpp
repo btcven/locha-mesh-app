@@ -12,6 +12,7 @@
 #include "WiFi.h"
 #include "WAPST.h"
 #include "WAP.h"
+#include "WST.h"
 #include "hal/hardware.h"
 #include "NVS.h"
 
@@ -156,7 +157,7 @@ esp_err_t WiFi_INIT()
     {
     case WIFI_STA:
         ESP_LOGD(TAG, "Starting WST iface only");
-        return ESP_OK;
+        return WST_INIT();
         break;
     case WIFI_AP:
         ESP_LOGD(TAG, "Starting WAP iface only");
@@ -164,7 +165,17 @@ esp_err_t WiFi_INIT()
         break;
     case WIFI_AP_STA:
         ESP_LOGD(TAG, "Starting WAP and WST ifaces");
-        return ESP_OK;
+        esp_err_t WAP_isInit, WST_isInit;
+        WAP_isInit = WAP_INIT();
+        WST_isInit = WST_INIT();
+        if (WAP_isInit && WST_isInit)
+        {
+            return ESP_OK;
+        }
+        else
+        {
+            return ESP_FAIL;
+        }
         break;
     case WIFI_MODE_NULL:
         ESP_LOGD(TAG, "WAP and WST ifaces are disabled");

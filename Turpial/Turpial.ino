@@ -62,8 +62,8 @@ void setup()
    */
   sys_init = WiFi_INIT();
   if (sys_init != ESP_OK){
-    delay(15000);
-    esp_restart();
+    //esp_restart();
+    ESP_LOGE(TAG, "Error starting WiFi modules");
   }
 
   /**

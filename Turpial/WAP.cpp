@@ -9,22 +9,16 @@
  * @license MIT license, see LICENSE file for details
  * 
  */
-
+#include <WiFi.h>
 #include "WAP.h"
 #include "NVS.h"
 #include "hal/hardware.h"
-
-/**
- * @brief Start Wifi Access Point, read ssid, password data from NVS
- * 
- * @return esp_err_t 
- */
 
 esp_err_t WAP_INIT()
 {
   const char *TAG = "WAP";
 
-  // getting values from nvs or set values by default from hal/hardware.h
+  // get values from nvs or set default values from hal/hardware.h
   const char *apSSID(nvs_get_string(TAG, "ssid", WAP_SSID, true));
   const char *apPassword(nvs_get_string(TAG, "pass", WAP_PASS, true));
   int32_t apChannel = nvs_get_int(TAG, "channel", WAP_CHANNEL, true);
