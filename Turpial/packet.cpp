@@ -22,13 +22,19 @@
  * @param source: source packet
  * @param s_size: size of source packet 
  */
-void packet_to_char(uint8_t *target, packet_t source, size_t s_size)
+void packet_to_char(char *target, packet_t source, size_t s_size)
 {
   // target ya es un puntero(*target) no necesitamos referenciarlo como tal
   // packet lo pasamos como parametro, necesitamos un puntero para memcpy (&)
   memcpy(target, &source, s_size);
 }
 
+void packet_to_uint8_t(uint8_t *target, packet_t source, size_t s_size)
+{
+  // target ya es un puntero(*target) no necesitamos referenciarlo como tal
+  // packet lo pasamos como parametro, necesitamos un puntero para memcpy (&)
+  memcpy(target, &source, s_size);
+}
 /**
  * @brief from uint8_t array to packet_t
  * 

@@ -15,7 +15,20 @@
 #include <Arduino.h>
 #include "memory_def.h"
 
-
+/**
+ * @brief Start Radio interface
+ * 
+ * @return esp_err_t 
+ */
 esp_err_t RAD_INIT();
+
+/**
+ * @brief send a string throw Radio
+ * 
+ * @param data_to_send 
+ * @return true 
+ * @return false 
+ */
+bool radioSend(std::string data_to_send);
 
 #endif // RAD_H

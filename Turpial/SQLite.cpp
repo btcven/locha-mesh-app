@@ -87,8 +87,15 @@ int db_exec(sqlite3 *db, const char *sql)
     return rc;
 }
 
-// exec any action query: insert, update or delete
-// return true if exec OK, or false on error
+
+/**
+ * @brief exec any action query: insert, update or delete
+ * return true if exec OK, or false on error
+ * @param query 
+ * @param db 
+ * @return true 
+ * @return false 
+ */
 bool ejecutar(char *query, sqlite3 *db)
 {
   const char *TAG = "SQLLite";
@@ -274,7 +281,7 @@ const char *TAG = "SQLLite";
 
 
 /**
- * @brief 
+ * @brief Start database
  * 
  * @return esp_err_t 
  */
@@ -322,14 +329,93 @@ esp_err_t SQLite_INIT()
     //  int rpta2=buscar_valor(mysql.c_str(),data_db);
     // ESP_LOGE(TAG, "Respuesta obtenida al buscar:%s",rpta2);
       
-   ESP_LOGE(TAG, "Table NODES ready");
-   rc=ejecutar("CREATE TABLE IF NOT EXISTS BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) WITHOUT ROWID;", data_db);
-   ESP_LOGE(TAG, "Table BLACKLISTED_NODES ready");
-   // AUTOINCREMENT only works with INTEGER PRIMARY KEY and doesn't allow  WITHOUT ROWID
-   rc=ejecutar("CREATE TABLE IF NOT EXISTS ROUTES (id_ruta INTEGER PRIMARY KEY AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL,id_next_neighbour TEXT NULL,age INTEGER,hops INTEGER,RSSI_packet INTEGER,SNR_packet INTEGER,date_last_viewed REAL NULL,date_created REAL NOT NULL);", data_db);
-   ESP_LOGE(TAG, "Table ROUTES ready");
-   rc=ejecutar("CREATE TABLE IF NOT EXISTS BLACKLISTED_ROUTES (id_ruta_blacklisted INTEGER PRIMARY KEY AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL);", data_db);
-   ESP_LOGE(TAG, "Table BLACKLISTED_ROUTES ready");
-    ESP_LOGE(TAG, "Tablas SQLite listas.");
-    return ESP_OK;
+      ESP_LOGE(TAG, "Table NODES ready");
+      rc=ejecutar("CREATE TABLE IF NOT EXISTS BLACKLISTED_NODES ( id TEXT PRIMARY KEY ) WITHOUT ROWID;", data_db);
+      ESP_LOGE(TAG, "Table BLACKLISTED_NODES ready");
+      // AUTOINCREMENT only works with INTEGER PRIMARY KEY and doesn't allow  WITHOUT ROWID
+      rc=ejecutar("CREATE TABLE IF NOT EXISTS ROUTES (id_ruta INTEGER PRIMARY KEY AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL,id_next_neighbour TEXT NULL,age INTEGER,hops INTEGER,RSSI_packet INTEGER,SNR_packet INTEGER,date_last_viewed REAL NULL,date_created REAL NOT NULL);", data_db);
+      ESP_LOGE(TAG, "Table ROUTES ready");
+      rc=ejecutar("CREATE TABLE IF NOT EXISTS BLACKLISTED_ROUTES(id_ruta_blacklisted INTEGER PRIMARY KEY AUTOINCREMENT,id_origen TEXT NOT NULL,id_destino TEXT NOT NULL);", data_db);
+      ESP_LOGE(TAG, "Table BLACKLISTED_ROUTES ready");
+      rc=ejecutar("CREATE TABLE IF NOT EXISTS PACKET(id_packet INTEGER PRIMARY KEY AUTOINCREMENT, status INTEGER NOT NULL, type_msg INTEGER NOT NULL, subtype_msg INTEGER NOT NULL, id_origen TEXT NOT NULL,id_destino TEXT NULL, id_next_neighbour TEXT NULL, checksum_data  TEXT NULL, timestamp REAL NULL, payload TEXT NULL, payload_length INTEGER NULL, packet_number INTEGER NULL, packet_total INTEGER NULL, not_delivered_type INTEGER NULL);", data_db);
+      ESP_LOGE(TAG, "Table PACKET ready");
+      rc=ejecutar("CREATE TABLE IF NOT EXISTS PACKET_STATUS(status INTEGER NOT NULL,desc TEXT NOT NULL);", data_db);
+      // Fill table PACKET_STATUS
+      rc=ejecutar("INSERT INTO PACKET_STATUS(status,desc) VALUES(0,'NOT SENDED');", data_db);
+      ESP_LOGE(TAG, "Table PACKET_STATUS ready");
+      // create packet_status
+      rc=ejecutar("CREATE TABLE IF NOT EXISTS MESSAGE(id_msg INTEGER PRIMARY KEY AUTOINCREMENT,priority INTEGER,retries INTEGER,retry_timestamp REAL NULL);", data_db);
+      ESP_LOGE(TAG, "Table MESSAGE ready");  
+      rc=ejecutar("CREATE TABLE IF NOT EXISTS MESSAGE_PACKET(id_msg INTEGER NOT NULL,id_packet INTEGER NOT NULL);", data_db);
+      ESP_LOGE(TAG, "Table MESSAGE_PACKET ready"); 
+      ESP_LOGE(TAG, "Tablas SQLite listas.");
+      return ESP_OK;
+}
+
+
+/**
+ * 
+ * Functions to send / get data from SQLite
+ * 
+ */
+
+
+/**
+ * @brief Send a packet to database
+ * 
+ * @param packet_received 
+ * @return true 
+ * @return false 
+ */
+bool packet_send(packet_t packet_received){
+  
+  std::string query_first_part="INSERT INTO PACKET ( status,type_msg , subtype_msg , id_origen,id_destino, id_next_neighbour, checksum_data, timestamp, payload, payload_length ";
+
+  if (packet_received.header.packet_type==DATA){
+     if ((packet_received.header.packet_sub.data_type==MSG)or(packet_received.header.packet_sub.data_type==TXN)or(packet_received.header.packet_sub.data_type==BINARY)){
+          query_first_part.append(", packet_number, packet_total, not_delivered_type");
+     }
+  }
+  // status=0 NOT SENDED
+  query_first_part.append(") VALUES(0,");
+  query_first_part.append(ToString(packet_received.header.packet_type));
+  query_first_part.append(",");
+  query_first_part.append(ToString(packet_received.header.packet_sub));
+  query_first_part.append(",'");
+  query_first_part.append(ToString(packet_received.header.from));
+  query_first_part.append("','");
+  query_first_part.append(ToString(packet_received.header.to));
+  query_first_part.append("','");
+  query_first_part.append(ToString(packet_received.header.next_neighbor));
+  query_first_part.append("','");
+  query_first_part.append(ToString(packet_received.header.checksum_data));
+  query_first_part.append("',");
+  query_first_part.append(ToString(packet_received.header.timestamp));
+  query_first_part.append(",'");
+  
+  
+  if (packet_received.header.packet_type==DATA){
+    if ((packet_received.header.packet_sub.data_type==MSG)or(packet_received.header.packet_sub.data_type==TXN)or(packet_received.header.packet_sub.data_type==BINARY)){
+      query_first_part.append(ToString(packet_received.body.body_data_splitted.payload));
+      query_first_part.append("',");
+      query_first_part.append(ToString(packet_received.body.body_data_splitted.payload_length));
+      query_first_part.append(",");
+      query_first_part.append(ToString(packet_received.body.body_data_splitted.packet_number));
+      query_first_part.append(",");
+      query_first_part.append(ToString(packet_received.body.body_data_splitted.packet_total));
+      query_first_part.append(",");
+      query_first_part.append(ToString(packet_received.body.body_data_splitted.not_delivered_type));
+    } else {
+      query_first_part.append(ToString(packet_received.body.body_data.payload));
+      query_first_part.append("',");
+      query_first_part.append(ToString(packet_received.body.body_data.payload_length));
+    }
+  } else {
+      query_first_part.append(ToString(packet_received.body.body_data.payload));
+      query_first_part.append("',");
+      query_first_part.append(ToString(packet_received.body.body_data.payload_length));
+  }
+  query_first_part.append(");");
+  bool rc=ejecutar((char *)query_first_part.c_str(), data_db);
+  return rc;
 }

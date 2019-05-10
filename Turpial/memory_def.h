@@ -34,7 +34,7 @@ static const int MSG_QUEUE_WAITING_MAX_AGE = 30000;
  * @brief  tiempo maximo desde que se recibio el ultimo packet para enviar un HELLO nuevamente y verificar si hay nodos nuevos
  * 
  */
-static const int HELLO_RETRY_TIMEOUT = 20000;
+static const int HELLO_RETRY_TIMEOUT = 30000;
 
 /**
  * @brief max payload length per packet

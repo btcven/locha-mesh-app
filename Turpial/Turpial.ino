@@ -79,6 +79,7 @@ void setup()
    * 
    */
   xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 2048, NULL, 5, &peerHandler, ARDUINO_RUNNING_CORE);
+  xTaskCreatePinnedToCore(AUTO_HELLO, "AUTO_HELLO", 2048, NULL, 2, &AUTO_HELLO_Handler, ARDUINO_RUNNING_CORE);
 }
 
 void loop()

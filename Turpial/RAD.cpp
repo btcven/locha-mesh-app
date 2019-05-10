@@ -60,8 +60,16 @@ void setFlag(void) {
   receivedFlag = true;
 }
 
+/**
+ * @brief send a string throw Radio
+ * 
+ * @param data_to_send 
+ * @return true 
+ * @return false 
+ */
 bool radioSend(std::string data_to_send){
   bool rpta=false;
+  const char *TAG = "RADIO Send";
      // start scanning current channel
   int state = lora.scanChannel();
   if(state == CHANNEL_FREE) {
@@ -69,14 +77,20 @@ bool radioSend(std::string data_to_send){
     state = lora.startTransmit(byteArr, 8);
     if (state != ERR_NONE) {
         ESP_LOGD(TAG, "Transmission failed, code %s",state);
-    }// else {
-     // state = lora.startReceive();
-     // rpta=true;
-    //}
+    } else {
+      // leave radio allow receive more packets
+      state = lora.startReceive();
+      rpta=true;
+    }
   }
   return rpta;
 }
 
+/**
+ * @brief Task for async access to Radio interface, managed as callback
+ * 
+ * @param params 
+ */
 void task_radio(void *params) {
     char *TAG = "RADIO TASK";
     int state;
@@ -143,7 +157,11 @@ while (1) {
       
 }
 
-
+/**
+ * @brief Start Radio interface
+ * 
+ * @return esp_err_t 
+ */
 esp_err_t RAD_INIT()
 {
     const char *TAG = "RADIO";

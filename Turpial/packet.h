@@ -149,13 +149,21 @@ typedef struct
 
 
 /**
+ * @brief: from packet_t to char array
+ * 
+ * @param target: pointer to uint8_t array
+ * @param source: source packet
+ * @param s_size: size of source packet 
+ */
+void packet_to_char(char *target, packet_t source, size_t s_size);
+/**
  * @brief: from packet_t to uint8_t array
  * 
  * @param target: pointer to uint8_t array
  * @param source: source packet
  * @param s_size: size of source packet 
  */
-void packet_to_char(uint8_t *target, packet_t source, size_t s_size);
+void packet_to_uint8_t(uint8_t *target, packet_t source, size_t s_size);
 
 /**
  * @brief from uint8_t array to packet_t

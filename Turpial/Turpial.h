@@ -18,11 +18,16 @@
 
 
 /**
- * @brief 
+ * @brief Handler for network task
  * 
  */
 TaskHandle_t peerHandler;
 
+/**
+ * @brief Handler for Auto Hello
+ * 
+ */
+TaskHandle_t AUTO_HELLO_Handler;
 
 
 #endif // TURPIAL_H
