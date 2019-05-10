@@ -12,6 +12,12 @@
 #ifndef MEMORY_DEF_H
 #define MEMORY_DEF_H
 
+#if CONFIG_FREERTOS_UNICORE
+#define ARDUINO_RUNNING_CORE 0
+#else
+#define ARDUINO_RUNNING_CORE 1
+#endif
+
 /**
  * @brief max retries to deliver a packet
  * 

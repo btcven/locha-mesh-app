@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file heltec_V2.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
@@ -34,14 +34,10 @@
 
 // Radio Module Settings
 #if RAD_ENABLED
-    #define RAD_SCK     5
     #define RAD_CSS     18
-    #define RAD_RST     14
-    #define RAD_MISO    19
-    #define RAD_MOSI    27
     #define RAD_DIO0    26
-    #define RAD_BAND    915E6
-    #define RAD_PABOOST true
+    #define RAD_DIO1    33
+    #define RAD_CHIP    SX1276
 #endif // RAD
 
 // WST default values.

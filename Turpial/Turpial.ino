@@ -70,9 +70,9 @@ void setup()
    * @brief RAD iface enabled on boot?
    * 
    */
- // sys_init = RAD_INIT();
- // if (sys_init != ESP_OK)
- //   esp_restart();
+  sys_init = RAD_INIT();
+  if (sys_init != ESP_OK)
+    esp_restart();
 
   /**
    * @brief Start a master task, running network peer routines.

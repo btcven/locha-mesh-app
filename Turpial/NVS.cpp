@@ -14,6 +14,9 @@
 #include <Preferences.h>
 #include "NVS.h"
 #include "general_utils.h"
+#include "hal/hardware.h"
+#include "lang/language.h"
+#include "memory_def.h"
 #include <typeinfo>
 
 esp_err_t nvs_remove(const char *name, const char *key)

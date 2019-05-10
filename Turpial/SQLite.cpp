@@ -49,12 +49,12 @@ const char *TAG = "SQLLite";
 
     if (rc)
     {
-        ESP_LOGD(TAG, "Can't open database: %s\n", sqlite3_errmsg(*db));
+        ESP_LOGD(TAG, "Can't open database: %s", sqlite3_errmsg(*db));
         return rc;
     }
     else
     {
-        ESP_LOGD(TAG, "Opened database successfully %d\n", rc);
+        ESP_LOGD(TAG, "Opened database successfully %d", rc);
     }
     return rc;
 }
@@ -69,19 +69,19 @@ const char *TAG = "SQLLite";
 int db_exec(sqlite3 *db, const char *sql)
 {
     const char *TAG = "SQLLite";
-    ESP_LOGE(TAG, "Voy a db_exec\n");
+    ESP_LOGE(TAG, "Voy a db_exec");
 
     int rc = sqlite3_exec(db, sql, callback, (void*)data, &zErrMsg);
   //  int rc = sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
     
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "SQL error: %s\n", zErrMsg);
+        ESP_LOGE(TAG, "SQL error: %s", zErrMsg);
         sqlite3_free(zErrMsg);
     }
     else
     {
-        ESP_LOGE(TAG, "Operation done successfully\n");
+        ESP_LOGE(TAG, "Operation done successfully");
     }
 
     return rc;
@@ -94,16 +94,16 @@ bool ejecutar(char *query, sqlite3 *db)
   const char *TAG = "SQLLite";
     int rc;
     
-    ESP_LOGE(TAG, "Voy a ejecutar\n");
+    ESP_LOGE(TAG, "Voy a ejecutar");
     rc = db_exec(db, query);
     if (rc != SQLITE_OK)
     {
-      ESP_LOGE(TAG, "No se ejecuto\n");
+      ESP_LOGE(TAG, "No se ejecuto");
         return false;
     }
     else
     {
-      ESP_LOGE(TAG, "Ejecute correctamente\n");
+      ESP_LOGE(TAG, "Ejecute correctamente");
         return true;
       
     }
@@ -188,7 +188,7 @@ int buscar_valor(const char *query, sqlite3 *db)
 
 while (sqlite3_step(res) == SQLITE_ROW) {
         resp=sqlite3_column_int(res, 0);
-        ESP_LOGE(TAG, "dato obtenido: %d\n", resp);
+        ESP_LOGE(TAG, "dato obtenido: %d", resp);
         rec_count++;
     }
     ESP_LOGE(TAG, "No. of records: %d", rec_count);

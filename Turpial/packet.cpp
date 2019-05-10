@@ -140,17 +140,17 @@ void show_packet(packet_t packet_rx,const char *TAG)
   {
     ESP_LOGE(TAG, "Showing packet_t");
     ESP_LOGE(TAG,"----------------------------------------\n");
-    ESP_LOGE(TAG,"type: %02X\n", packet_rx.header.packet_type);
-    ESP_LOGE(TAG,"subtype: %02X\n", packet_rx.header.packet_sub);
-    ESP_LOGE(TAG,"from: %s\n", packet_rx.header.from);
-    ESP_LOGE(TAG,"to: %s\n", packet_rx.header.to);
+    ESP_LOGE(TAG,"type: %02X", packet_rx.header.packet_type);
+    ESP_LOGE(TAG,"subtype: %02X", packet_rx.header.packet_sub);
+    ESP_LOGE(TAG,"from: %s", packet_rx.header.from);
+    ESP_LOGE(TAG,"to: %s", packet_rx.header.to);
     ESP_LOGE(TAG,"----------------------------------------\n");
     if (packet_rx.header.packet_type==DATA){ 
-        ESP_LOGE(TAG,"body length: %d\n", packet_rx.body.body_data_splitted.payload_length);
-        ESP_LOGE(TAG,"data: %s\n", packet_rx.body.body_data_splitted.payload);
+        ESP_LOGE(TAG,"body length: %d", packet_rx.body.body_data_splitted.payload_length);
+        ESP_LOGE(TAG,"data: %s", packet_rx.body.body_data_splitted.payload);
     } else {
-        ESP_LOGE(TAG,"body length: %d\n", packet_rx.body.body_data.payload_length);
-        ESP_LOGE(TAG,"data: %s\n", packet_rx.body.body_data.payload);
+        ESP_LOGE(TAG,"body length: %d", packet_rx.body.body_data.payload_length);
+        ESP_LOGE(TAG,"data: %s", packet_rx.body.body_data.payload);
     }
     
     ESP_LOGE(TAG,"----------------------------------------\n");
