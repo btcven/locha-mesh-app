@@ -18,7 +18,7 @@
 #define SCR_ENABLED     true
 #define RAD_ENABLED     true
 #define BLE_ENABLED     true
-#define WST_ENABLED     false
+#define WST_ENABLED     true
 #define WAP_ENABLED     true
 #define LED_ENABLED     true
 #define BTN_ENABLED     true
@@ -42,8 +42,8 @@
 
 // WST default values.
 #if WST_ENABLED
-    #define WST_SSID    NULL
-    #define WST_PASS    NULL
+    #define WST_SSID    ""
+    #define WST_PASS    ""
 #endif // WST_ENABLED
 
 // WAP default values.
