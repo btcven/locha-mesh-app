@@ -147,7 +147,6 @@ typedef struct
   body_data_u body;
 } packet_t;
 
-
 /**
  * @brief: from packet_t to char array
  * 
@@ -156,6 +155,7 @@ typedef struct
  * @param s_size: size of source packet 
  */
 void packet_to_char(char *target, packet_t source, size_t s_size);
+
 /**
  * @brief: from packet_t to uint8_t array
  * 
@@ -173,8 +173,20 @@ void packet_to_uint8_t(uint8_t *target, packet_t source, size_t s_size);
  * @param s_size: size of uint8_t array
  */
 void char_to_packet(packet_t *target, uint8_t *source, size_t s_size);
-
+/**
+ * @brief 
+ * 
+ * @param type_recibido 
+ * @return packet_type_e 
+ */
 packet_type_e convertir_str_packet_type_e(char* type_recibido);
+
+/**
+ * @brief 
+ * 
+ * @param type_recibido 
+ * @return char* 
+ */
 char* convertir_packet_type_e_str(packet_type_e type_recibido);
 
 /**
@@ -191,9 +203,30 @@ char* convertir_packet_type_e_str(packet_type_e type_recibido);
  */
 packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload, uint16_t packet_number, uint16_t packet_total);
 
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param from 
+ * @return packet_t 
+ */
 packet_t construct_packet_HELLO(char *id_node,char *from);
+
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param to 
+ * @return packet_t 
+ */
 packet_t construct_packet_JOIN(char *id_node,char *to);
 
+/**
+ * @brief 
+ * 
+ * @param packet_rx 
+ * @param TAG 
+ */
 void show_packet(packet_t packet_rx,const char *TAG);
 
 /**

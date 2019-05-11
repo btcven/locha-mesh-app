@@ -27,6 +27,7 @@
  * @return esp_err_t 
  */
 esp_err_t SQLite_INIT();
+
 /**
  * @brief exec any action query: insert, update or delete
  * return true if exec OK, or false on error
@@ -36,6 +37,7 @@ esp_err_t SQLite_INIT();
  * @return false 
  */
 bool ejecutar(char *query, sqlite3 *db);
+
 // exec a select query and return only first record/first field
 // if select return more than 10000 records then return empty
 /* it uses: int sqlite3_prepare_v2(
@@ -47,6 +49,7 @@ bool ejecutar(char *query, sqlite3 *db);
 );
 */
 char *buscar(char *query, sqlite3 *db);
+
 // exec a select query and return only first record/first field
 // if select return more than 10000 records then return empty
 /* it uses: int sqlite3_prepare_v2(
@@ -58,6 +61,7 @@ char *buscar(char *query, sqlite3 *db);
 );
 */
 int buscar_valor(char *query, sqlite3 *db);
+
 /**
  * @brief Send a packet to database
  * 
