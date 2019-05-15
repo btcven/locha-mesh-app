@@ -17,6 +17,7 @@
 BLEServer *ble_server = NULL;
 BLECharacteristic *tx_uart;
 BLECharacteristic *rx_uart;
+BLECharacteristic *rx_batt;
 bool deviceConnected = false;
 
 class ServerCB : public BLEServerCallbacks
@@ -35,12 +36,39 @@ class ServerCB : public BLEServerCallbacks
     }
 };
 
+/**
+ * @brief 
+ * 
+ */
 class characteristicCB : public BLECharacteristicCallbacks
 {
+    /**
+     * @brief 
+     * 
+     * @param pCharacteristic 
+     */
     void onWrite(BLECharacteristic *pCharacteristic)
     {
         // determinar *pCharacteristic
+        // mobile app -> Turpial
+
+        BLEUUID descriptor = pCharacteristic->getUUID();
+        // if rx uart.
+        if (descriptor.equals == rx_uart)
+        {
+            ESP_LOGD("BLE", "BLE (rx_uart)");
+        }
+        // if rx batt.
+        if (descriptor.equals == rx_batt)
+        {
+            ESP_LOGD("BLE", "BLE (rx_batt)");
+        }
     }
+    /**
+     * @brief 
+     * 
+     * @param pCharacteristic 
+     */
     void onRead(BLECharacteristic *pCharacteristic)
     {
         // determinar *pCharacteristic
@@ -56,27 +84,28 @@ void BLE_task(void *params)
     ble_server = BLEDevice::createServer();
     ble_server->setCallbacks(new ServerCB());
 
-    BLEService *server_service = ble_server->createService(UUID_UART);
+    BLEService *server_service = ble_server->createService(SERVICE_UUID);
 
     while (1)
     {
         if (deviceConnected)
         {
-            if(txValue_uart.size() > 0) {
+            if (txValue_uart.size() > 0)
+            {
                 // procesar tx_uart
             }
         }
         else
         {
-            if(txValue_uart.size() > 0) {
+            if (txValue_uart.size() > 0)
+            {
                 // aqui no ponemos nada, pues es temporal el uso de ble.
             }
         }
     }
 }
 
-esp_err_t BLE_INIT() {
+esp_err_t BLE_INIT()
+{
     // iniciar servidor ble.
-    
-
 }
