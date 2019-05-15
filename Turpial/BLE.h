@@ -20,9 +20,9 @@ uint16_t server_mtu = 255;
 
 std::string server_name = "subid.locha.io";
 
-std::string UUID_UART = "";
-std::string TX_UART = "";
-std::string RX_UART = "";
+std::string SERVICE_UUID = "";
+std::string CHARACTERISTIC_UUID_TX = "";
+std::string CHARACTERISTIC_UUID_RX = "";
 
 /**
  * @brief 
