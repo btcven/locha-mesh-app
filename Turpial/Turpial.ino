@@ -18,8 +18,8 @@
 #include "SCR.h"
 #include "RAD.h"
 #include "WAPST.h"
+#include "BLE.h"
 #include "SQLite.h"
-
 
 char *id_node;
 /*
@@ -54,14 +54,21 @@ void setup()
   if (sys_init != ESP_OK)
     esp_restart();
 
-  // init. BLE on boot?
+  /**
+   * @brief BLE enabled on boot?
+   * 
+   */
+  sys_init = BLE_INIT();
+  if (sys_init != ESP_OK)
+    esp_restart();
 
   /**
    * @brief WAP or WST ifaces enabled on boot?
    * 
    */
   sys_init = WiFi_INIT();
-  if (sys_init != ESP_OK){
+  if (sys_init != ESP_OK)
+  {
     //esp_restart();
     ESP_LOGE(TAG, "Error starting WiFi modules");
   }
@@ -79,7 +86,7 @@ void setup()
    * 
    */
   xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 2048, NULL, 5, &peerHandler, ARDUINO_RUNNING_CORE);
-  xTaskCreatePinnedToCore(AUTO_HELLO, "AUTO_HELLO", 2048, NULL, 2, &AUTO_HELLO_Handler, ARDUINO_RUNNING_CORE);
+  //xTaskCreatePinnedToCore(AUTO_HELLO, "AUTO_HELLO", 2048, NULL, 2, &AUTO_HELLO_Handler, ARDUINO_RUNNING_CORE);
 }
 
 void loop()
