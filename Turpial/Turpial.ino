@@ -6,6 +6,7 @@
  */
 
 #include <Arduino.h>
+#include <string>
 #include <WiFi.h>
 #include <Time.h>
 #include <TimeLib.h>
@@ -134,14 +135,14 @@ void setup()
   if (SCR_ENABLED)
   {
     ESP_LOGD("SCR", "Starting SCR..");
-    xTaskCreatePinnedToCore(task_screen, "task_screen", 2048 * 2, NULL, 3, NULL, 1);
+    xTaskCreatePinnedToCore(task_screen, "task_screen", 4096, NULL, 3, NULL, 1);
   }
 
   if (BLE_ENABLED)
   {
     // BLE Server is enabled?
     ESP_LOGD("BLE", "Starting BLE..");
-    xTaskCreatePinnedToCore(task_bluetooth, "task_bluetooth", 2048 * 4, NULL, 5, NULL, 1);
+    xTaskCreatePinnedToCore(task_bluetooth, "task_bluetooth", 8192, NULL, 5, NULL, 1);
   }
 
   // WiFi AP aka WAP, is enabled?
@@ -160,10 +161,8 @@ void setup()
   if (RAD_ENABLED)
   {
     ESP_LOGD("RAD", "Starting RAD..");
-    xTaskCreatePinnedToCore(task_radio, "task_radio", 2048 * 2, NULL, 5, NULL, 1);
+    xTaskCreatePinnedToCore(task_radio, "task_radio", 8192, NULL, 5, NULL, 1);
   }
-
-  // se coloca el cursor en el terminal serial
 
   // se genera el node_id solo si no existe
   if (compare_char(id_node, pChar))
@@ -172,11 +171,11 @@ void setup()
     strcpy(id_node, id_tmp.c_str());
   }
 
-  xTaskCreatePinnedToCore(task_update_older_records, "task_update_older_records", 2048, NULL, 2, NULL, 1);
+  xTaskCreatePinnedToCore(task_update_older_records, "task_update_older_records", 4096, NULL, 2, NULL, 1);
 
   tiempo = millis();
-  ESP_LOGD("PROTO", "[PROTOCOL] Sending Hello...")
-  uint8_t rptad = packet_to_send(construct_packet_HELLO(id_node), mensajes_salientes, total_mensajes_salientes); // se coloca el radio en modo receive
+  ESP_LOGD("PROTO", "[PROTOCOL] Sending Hello...");
+  uint8_t rptad = packet_to_send(construct_packet_HELLO(id_node), mensajes_salientes, total_mensajes_salientes);
   LoRa.receive();
 } //setup
 
@@ -197,9 +196,7 @@ void loop()
 
   if (radio_Lora_receiving)
   {
-    delay(20);
     process_Lora_incoming(vecinos, total_vecinos);
-    delay(20); // para que pueda dar tiempo de procesar cualquier mensaje BLE que haya que enviar y cuyo valor este en txValue
   }
 
   // se verifica si hay que devolver via BLE algun packet
@@ -210,13 +207,13 @@ void loop()
 
     if ((paquet_in_process2.header.type == MSG) or (paquet_in_process2.header.type == TXN))
     {
-      delay(20); // se hace una pausa antes de devolver para liberar el radio o cualquier otro recurso de menos prioridad que necesite ejecutarse
       ESP_LOGD("PROTO", "[PROTOCOL] incoming data..");
 
       devolver_como_packet_not_delivered(paquet_in_process2, BLE_NOT_CONNECTED);
 
       String text_to_send_to_ble = packet_into_json(paquet_in_process2, "err");
-      txValue = text_to_send_to_ble.c_str();
+
+      txValue.assign(text_to_send_to_ble.c_str());
     }
 
     packet_return_BLE_str = "";
