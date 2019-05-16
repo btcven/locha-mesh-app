@@ -45,6 +45,7 @@ uint8_t pending_tasks(message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE], uint8_
   if (total_mensajes_waiting > 0)
   {
     String msg_to_send_now = packet_serialize(mensajes_waiting[1].paquete);
+    uint8_t retries_packet_actual=mensajes_waiting[1].retries;
     radioSend(msg_to_send_now.c_str());
     // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
     LoRa.receive();
@@ -59,9 +60,12 @@ uint8_t pending_tasks(message_queue_t (&mensajes_waiting)[MAX_MSG_QUEUE], uint8_
     else
     {
       // para los MSG y TXN se actualiza los retries
-      mensajes_waiting[1].retries = mensajes_waiting[1].retries++;
+      if (mensajes_waiting[1].retries >=0){
+        mensajes_waiting[1].retries = retries_packet_actual++;
+      } else  {
+        mensajes_waiting[1].retries=1;
+      }
       mensajes_waiting[1].retry_timestamp = millis();
-
       // si llega al limite de retries hay que mandar un packet not delivered al originante
       if (mensajes_waiting[1].retries > MSG_QUEUE_WAITING_MAX_RETRIES)
       {
@@ -100,7 +104,9 @@ void task_update_older_records(void *params)
       String rpta_str = packet_serialize(packet_temporal);
 
       uint8_t rpta_rad = radioSend(rpta_str);
-
+      if (rpta_rad==0){
+            ESP_LOGD("task_update_older_records", "Radio message not sent:%s",rpta_str);
+      }
       // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
       LoRa.receive();
       tiempo_desde_ultimo_packet_recibido = millis();

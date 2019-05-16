@@ -32,9 +32,9 @@ typedef struct nodo_t
 typedef struct message_queue_t
 {
     packet_t paquete;  // packet completo, incluyendo header y body
-    uint8_t prioridad; // numero para asignar la prioridad a cada paquete
-    uint8_t retries;   // numero de reintentos de envio
-    unsigned long retry_timestamp;   // hora del ultimo reintento
+    uint8_t prioridad=0; // numero para asignar la prioridad a cada paquete
+    uint8_t retries=0;   // numero de reintentos de envio
+    unsigned long retry_timestamp=0;   // hora del ultimo reintento
     
 } message_queue_t;
 
@@ -43,8 +43,8 @@ typedef struct rutas_t
     nodo_t origen;        // uniqueid del destinatario
     nodo_t next_neighbor; // unique id del vecino mas cercano
     nodo_t destino;       // unique id del vecino mas cercano
-    uint8_t age;          // edad (ultima vez que se recibio/envio algo por esa ruta)
-    uint8_t hops;         // cantidad de saltos entre origen y destino
+    uint8_t age=0;          // edad (ultima vez que se recibio/envio algo por esa ruta)
+    uint8_t hops=0;         // cantidad de saltos entre origen y destino
     int RSSI_packet;   //  RSSI de este paquete 
     int SNR_packet;    // SNR del este paquete
 } rutas_t;

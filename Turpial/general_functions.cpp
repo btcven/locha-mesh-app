@@ -79,11 +79,13 @@ uint8_t convert_str_to_uint8(String texto)
  */
 char *string2char(String command)
 {
+  char *p;
   if (command.length() != 0)
   {
     char *p = const_cast<char *>(command.c_str());
-    return p;
+    
   }
+  return p;
 }
 
 /**
@@ -173,11 +175,11 @@ boolean isNumeric(String str)
 void json_receive(String message, char *&uid_intern, char *&msg_intern, char *&timemsg_intern_str, char *&hash_msg_intern)
 {
   // this function receives data message in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
-  double time_in_number = 0;
-  int tipo_dato_time_int;
-  int tipo_dato_time_dbl;
-  int tipo_dato_time_type;
-  char *nombre_del_dato;
+//  double time_in_number = 0;
+ // int tipo_dato_time_int;
+ // int tipo_dato_time_dbl;
+ // int tipo_dato_time_type;
+//  char *nombre_del_dato;
 
   message.replace("'", "\"");
   message = message.c_str();
@@ -256,7 +258,7 @@ void create_unique_id(char *&unique_id_created)
 bool is_valid_hash160(char *mensaje, char *hash_recibido)
 {
 
-  byte hash[SIZE_HASH_MSG] = {0};
+ // byte hash[SIZE_HASH_MSG] = {0};
 
   // hash160(mensaje, strlen(mensaje), hash);
   /*

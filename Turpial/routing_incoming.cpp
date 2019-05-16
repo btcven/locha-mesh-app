@@ -402,6 +402,7 @@ uint8_t routing_incoming_PACKET_ACK(char id_node[SIZE_IDNODE], packet_t packet_r
     total_mensajes_waiting--;
   }
   ESP_LOGD("PROTO", "[PROTO] ACK");
+  return 0;
 }
 
 void update_rssi_snr(char route_from[SIZE_IDNODE], char route_to[SIZE_IDNODE], struct rutas_t (&routeTable)[MAX_ROUTES], uint8_t &total_rutas, int RSSI_received, int SNR_received)

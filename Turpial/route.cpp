@@ -221,14 +221,20 @@ uint8_t existe_ruta(char id_nodo_from[SIZE_IDNODE], char id_nodo_to[SIZE_IDNODE]
   uint8_t pos_route = pos_ruta(id_nodo_from, id_nodo_to);
 
   // nuevo vecino de la tabla de vecinos
-  uint8_t rpta1;
+  uint8_t rpta1=0;
   if (!(compare_char(id_nodo_from, id_node)))
   {
     rpta1 = create_neighbor(id_nodo_from, vecinos, total_vecinos, blacklist_nodes, total_nodos_blacklist);
+    if (rpta1>0){
+      Serial.println(F("Neighbor could be not created"));
+    }
   }
   if (!(compare_char(id_nodo_to, id_node)))
   {
     rpta1 = create_neighbor(id_nodo_to, vecinos, total_vecinos, blacklist_nodes, total_nodos_blacklist);
+    if (rpta1>0){
+      Serial.println(F("Neighbor could be not created"));
+    }
   }
 
   if (update_route)
@@ -444,6 +450,9 @@ uint8_t delete_route(char id_nodo_from[SIZE_IDNODE], char id_nodo_to[SIZE_IDNODE
   {
     uint8_t rpta = delete_route_by_id(j, routeTable, total_rutas);
     rpta = delete_route(id_nodo_from, id_nodo_to, routeTable, total_rutas);
+    if (rpta>0){
+      Serial.println(F("Route may be not deleted"));
+    }
   }
   else
   {
@@ -477,6 +486,9 @@ uint8_t delete_neighbor(String id_node_neighbor, struct nodo_t (&vecinos)[MAX_NO
     total_vecinos--;
   }
   uint8_t rpta = delete_route(id_node, nombre_temporal, routeTable, total_rutas);
+  if (rpta>0){
+      Serial.println(F("Route may be not deleted"));
+    }
   return 0;
 }
 
@@ -560,14 +572,14 @@ char *vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES], uint8_t total_rutas)
   uint8_t j;
   uint8_t total_rutas_tmp = 0;
   uint8_t total_rutas_vecino_con_mas_rutas = 0;
-  uint8_t max_rutas = 0;
+ char *pChar = (char *)"";
   char nombre_vecino[SIZE_IDNODE];
   char nombre_vecino_con_mas_rutas[SIZE_IDNODE];
 
   for (i = 1; i <= total_rutas; i++)
   {
     total_rutas_tmp = 0;
-    if (!(compare_char(routeTable[i].origen.id, "")))
+    if (!(compare_char(routeTable[i].origen.id, pChar)))
     {
       copy_array_locha(routeTable[i].origen.id, nombre_vecino, SIZE_IDNODE);
       for (j = 1; j <= total_rutas; j++)
@@ -584,7 +596,7 @@ char *vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES], uint8_t total_rutas)
           }
           else
           {
-            if (!(compare_char(routeTable[i].next_neighbor.id, "")))
+            if (!(compare_char(routeTable[i].next_neighbor.id, pChar)))
             {
               if (compare_char(routeTable[j].next_neighbor.id, nombre_vecino))
               {
@@ -608,12 +620,12 @@ char *vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES], uint8_t total_rutas)
 uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_salientes_tmp)[MAX_MSG_QUEUE], uint8_t &total_mensajes_salientes_tmp)
 {
   // por ahora solo se agrega a la cola de paquetes salientes
-  uint8_t rptsx;
+  
   uint8_t i;
   bool exist_route = false;
   char *vecino_mas_conectado;
   bool send_route_request = false;
-
+  char *pChar = (char *)"";
   // se ubica la ruta que va a usar el packet en curso
   //1) se busca en la tabla de rutas
   //2) si no se encuentra, se busca al vecino que tenga mas rutas hacia otros nodos en la tabla de rutas
@@ -645,7 +657,7 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
     Serial.println("no existe ruta, voy a comparar");
     if (el_vecino_mas.length() > 0)
     {
-      if (!(compare_char(vecino_mas_conectado, "")))
+      if (!(compare_char(vecino_mas_conectado, pChar)))
       {
         Serial.println(F("no es vacio, se coloca como el next neigbour que se va a encargar del packet"));
         copy_array_locha(vecino_mas_conectado, packet_temp.header.next_neighbor, SIZE_IDNODE);
@@ -669,8 +681,10 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
   {
     total_mensajes_salientes_tmp = total_mensajes_salientes_tmp + 1;
     mensajes_salientes_tmp[total_mensajes_salientes_tmp] = nuevo_mensaje_en_cola;
-    rptsx = show_packet(nuevo_mensaje_en_cola.paquete, false);
-
+    uint8_t rptsx = show_packet(nuevo_mensaje_en_cola.paquete, false);
+     if (rptsx>0){
+                DEBUG_PRINT(F("Fail in show_packet"));
+          }
     ESP_LOGD("PROTO", "Message added to the queue");
   }
   else
@@ -693,13 +707,14 @@ void broadcast_bye(char *id_node, struct nodo_t(vecinos)[MAX_NODES], uint8_t tot
 {
   // se envia un packet para liberar recursos en los vecinos
   packet_t new_packet;
-  uint8_t rpta;
+ 
   uint8_t i;
-
+  char *pCharNULL = (char *)"";
+  
   for (i = 1; i <= total_vecinos; i++)
   {
-    new_packet = create_packet(id_node, BYE, id_node, vecinos[i].id, "", "", "");
-    rpta = packet_to_send(new_packet, mensajes_salientes, total_mensajes_salientes);
+    new_packet = create_packet(id_node, BYE, id_node, vecinos[i].id, pCharNULL, pCharNULL, pCharNULL);
+    uint8_t rpta = packet_to_send(new_packet, mensajes_salientes, total_mensajes_salientes);
   }
 }
 
@@ -708,8 +723,8 @@ void BLE_incoming(char *uid2, char *msg_ble, char *timemsg, char *hash_msg, mess
 {
   uint8_t i;
   uint8_t rpta;
-  char *pChar = (char *)"";
-
+  char *pCharNULL = (char *)"";
+char *pChar = (char *)"";
   // msg is type broadcast?
   pChar = (char *)"broadcast";
   if (compare_char(uid2, pChar))
@@ -724,7 +739,7 @@ void BLE_incoming(char *uid2, char *msg_ble, char *timemsg, char *hash_msg, mess
         if (existe_ruta(id_node, vecinos[i].id))
         {
           // solo si existe la ruta se envia al vecino el broadcast, asi se evita enviar packets a rutas blacklisted
-          packet_t tmp_packet = create_packet(id_node, convertir_str_packet_type_e(pChar), id_node, vecinos[i].id, "", "", msg_ble);
+          packet_t tmp_packet = create_packet(id_node, convertir_str_packet_type_e(pChar), id_node, vecinos[i].id, pCharNULL, pCharNULL, msg_ble);
           rpta = packet_to_send(tmp_packet, mensajes_salientes, total_mensajes_salientes_tmp2);
         }
         else
@@ -732,7 +747,7 @@ void BLE_incoming(char *uid2, char *msg_ble, char *timemsg, char *hash_msg, mess
           // no existe la ruta, se usa otro vecino para enviarse
           // se busca el vecino mas conectado para enviarlo por alli
           char *el_vecino = vecino_con_mas_rutas(routeTable, total_rutas);
-          packet_t tmp_packet = create_packet(id_node, convertir_str_packet_type_e(pChar), id_node, vecinos[i].id, el_vecino, "", msg_ble);
+          packet_t tmp_packet = create_packet(id_node, convertir_str_packet_type_e(pChar), id_node, vecinos[i].id, el_vecino, pCharNULL, msg_ble);
           rpta = packet_to_send(tmp_packet, mensajes_salientes, total_mensajes_salientes_tmp2);
         }
         if (rpta == 1)
@@ -757,8 +772,8 @@ void BLE_incoming(char *uid2, char *msg_ble, char *timemsg, char *hash_msg, mess
     pChar = (char *)"";
     if (compare_char(uid2, pChar))
     {
-      pChar = (char *)"MSG";
-      packet_t tmp_packet = create_packet(id_node, convertir_str_packet_type_e(pChar), id_node, uid2, "", "", msg);
+      char* pCharMSG = (char *)"MSG";
+      packet_t tmp_packet = create_packet(id_node, convertir_str_packet_type_e(pCharMSG), id_node, uid2, pChar, pChar, msg);
       rpta = packet_to_send(tmp_packet, mensajes_salientes, total_mensajes_salientes_tmp2);
     }
   }
@@ -817,7 +832,7 @@ std::string serialize_rutas(struct nodo_t(vecinos)[MAX_NODES], uint8_t total_vec
   std::string rpta_str = "";
   std::string id_node_tmp;
   std::ostringstream s;
-  uint8_t j;
+
 
   // hay que excluir la ruta entre origen y destino del packet en curso que se asume como ya conocida y no necesita ser compartida
   if (total_rutas > 0)

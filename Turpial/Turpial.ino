@@ -87,13 +87,10 @@ int Lora_SNR;
 
 void setup()
 {
-  uint8_t i;
+ 
   char *pChar = (char *)"";
   radio_Lora_receiving = false;
-  bool display_enabled = false;
-  bool lora_enabled = false;
-  bool serial_enabled = false;
-  bool wifi_enabled = false;
+ 
   total_mensajes_salientes = 0;
   total_nodos_blacklist = 0;
   total_rutas_blacklist = 0;
@@ -108,7 +105,7 @@ void setup()
   // fin de colocar id_nodo en mayusculas
 
 #if defined(DEBUG)
-  serial_enabled = true;
+  //serial_enabled = true;
 #endif
 
 #ifdef DEBUG
@@ -176,12 +173,16 @@ void setup()
   tiempo = millis();
   ESP_LOGD("PROTO", "[PROTOCOL] Sending Hello...");
   uint8_t rptad = packet_to_send(construct_packet_HELLO(id_node), mensajes_salientes, total_mensajes_salientes);
+  if (rptad>0){
+    // si recibe cualquier cosa distinta de 0 es que sucedio algo dentro del void
+    ESP_LOGD("SETUP", "[PROTOCOL] error inside packet_to_send ...");
+  }
   LoRa.receive();
 } //setup
 
 void loop()
 {
-  char *packet_str_tmp;
+ 
 
   if (millis() - tiempo < 0)
   {
@@ -192,6 +193,9 @@ void loop()
 // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
 #ifdef DEBUG
   uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos, remote_debugging);
+  if (rpta_tmp==0){
+    ESP_LOGD("Setup", "No pudo ser procesado show_debugging_info");
+  }
 #endif
 
   if (radio_Lora_receiving)
@@ -222,5 +226,8 @@ void loop()
   if (run_pending_task)
   {
     uint8_t rpta_task = pending_tasks(mensajes_waiting, total_mensajes_waiting);
+    if (rpta_task>0){
+       ESP_LOGD("Setup", "Fail processing pending_tasks");
+    }
   }
 }

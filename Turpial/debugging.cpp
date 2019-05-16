@@ -145,6 +145,7 @@ uint8_t mostrar_vecinos(char* node_id, nodo_t vecinos[MAX_NODES], size_t tamano_
   DEBUG_PRINT(F("Vecinos del nodo: "));
   DEBUG_PRINTLN(node_id);
   DEBUG_PRINTLN();
+  if (total_vecinos>0){
    for (i = 1; i <= 80; i++) {
           DEBUG_PRINT(F("-"));
       }
@@ -162,13 +163,16 @@ uint8_t mostrar_vecinos(char* node_id, nodo_t vecinos[MAX_NODES], size_t tamano_
    DEBUG_PRINT(F("Total de vecinos: "));
    DEBUG_PRINTLN(total_vecinos);
    DEBUG_PRINTLN();
-  return 0;   
+    return 0;   
+  } else {
+    return 1;
+  }
 }
 
 
 uint8_t mostrar_blacklist(char* node_id, nodo_t blacklist_nodes[MAX_NODES_BLACKLIST], size_t total_nodos_blacklist, std::string tipo){
   uint8_t i;
-  char* id_temporal;
+  
   DEBUG_PRINTLN();
   DEBUG_PRINT(F("Blacklist Nodes"));
   //DEBUG_PRINT(tipo.c_str());     // candidato al error 
@@ -202,7 +206,7 @@ uint8_t mostrar_blacklist(char* node_id, nodo_t blacklist_nodes[MAX_NODES_BLACKL
 
 uint8_t mostrar_blacklist_routes(char* node_id, rutas_blacklisted_t blacklist_routes[MAX_NODES_BLACKLIST], size_t total_nodos_blacklist, std::string tipo){
   uint8_t i;
-  char* id_temporal;
+
   DEBUG_PRINTLN();
   DEBUG_PRINT(F("Blacklist Routes"));
  // DEBUG_PRINT(tipo.c_str());
@@ -254,6 +258,7 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
           DEBUG_PRINT(F("-"));
       }
   DEBUG_PRINTLN();
+  if (total_rutas>0){
   for (i = 1; i <= total_rutas; i++) {
     DEBUG_PRINT(F("Ruta "));
     DEBUG_PRINT(i);
@@ -287,6 +292,9 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
     DEBUG_PRINTLN(total_rutas);
     DEBUG_PRINTLN();
     return 0;
+  } else { 
+    return 1;
+  }
 }
 
 
@@ -294,12 +302,12 @@ uint8_t mostrar_rutas(char* node_id, rutas_t routeTable[MAX_ROUTES], size_t tama
 
 uint8_t mostrar_cola_mensajes(message_queue_t (mensajes_encola)[MAX_MSG_QUEUE], uint8_t total_de_registros, size_t tamano_arreglo){
   uint8_t i;
-  uint8_t j;
-    uint8_t rptsx;
-    
+  uint8_t rptsx;
+  
    DEBUG_PRINTLN();
    DEBUG_PRINT(F("Cola mensajes: "));
    DEBUG_PRINTLN();
+   if (total_de_registros>0){
    for (i = 1; i <= 95; i++) {
           DEBUG_PRINT(F("-"));
       }
@@ -332,6 +340,9 @@ DEBUG_PRINT(F("Intentos de envio"));
           DEBUG_PRINT(mensajes_encola[i].prioridad);
           DEBUG_PRINT(F("\t"));
           rptsx=show_packet(mensajes_encola[i].paquete, false);
+          if (rptsx>0){
+                DEBUG_PRINT(F("Fail in show_packet"));
+          }
           DEBUG_PRINT(F("\t"));
           DEBUG_PRINT(mensajes_encola[i].retries);
           DEBUG_PRINT(F("\t"));
@@ -350,6 +361,10 @@ DEBUG_PRINT(F("Intentos de envio"));
     DEBUG_PRINTLN();
      
      return 0;
+   } else {
+    DEBUG_PRINTLN(F("No hay mensajes en la cola"));
+    return 1;
+   }
 }
 
 uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecute){
@@ -360,7 +375,12 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           str_buffer_serial_received="";
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
           uint8_t rpta=mostrar_rutas(id_node,routeTable, sizeof(routeTable));  
-          ejecute=true;
+          if (rpta==0){
+            ejecute=true;
+            return 1;
+          } else {
+            ejecute=false;
+          }
         }
         
         mensaje=F("SHOW NODES");
@@ -368,7 +388,12 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           str_buffer_serial_received="";
           DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
           uint8_t rpta=mostrar_vecinos(id_node,vecinos,sizeof(vecinos));  
-          ejecute=true;
+          if (rpta==0){
+            ejecute=true;
+            return 1;
+          } else {
+            ejecute=false;
+          }
         }
         
         mensaje=F("SHOW QUEUE");
@@ -377,7 +402,12 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           DEBUG_PRINTLN(F("Cola de mensajes salientes:"));
           str_buffer_serial_received="";
           uint8_t rpta=mostrar_cola_mensajes(mensajes_salientes, total_mensajes_salientes,sizeof(mensajes_salientes));  
-          ejecute=true;
+          if (rpta==0){
+            ejecute=true;
+            return 1;
+          } else {
+            ejecute=false;
+          }
           }
          
         mensaje=F("SHOW WAITING");
@@ -387,6 +417,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           DEBUG_PRINTLN(F("Cola de mensajes esperando reintento/ack:"));
           uint8_t rpta=mostrar_cola_mensajes(mensajes_waiting, total_mensajes_waiting,sizeof(mensajes_waiting));  
           ejecute=true;
+          return 1;
           }
      
         mensaje=F("BLACKLIST NODES SHOW");
@@ -403,6 +434,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           str_buffer_serial_received="";
           uint8_t rpta=mostrar_blacklist(id_node, blacklist_nodes, total_nodos_blacklist,"Nodes");
           ejecute=true;
+          return 1;
         }
 
         mensaje=F("SHOW BLACK ROUTES");
@@ -419,6 +451,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
           str_buffer_serial_received="";
           uint8_t rpta=mostrar_blacklist_routes(id_node, blacklist_routes, total_rutas_blacklist,"Routes");
           ejecute=true;
+          return 1;
         }
         
         mensaje=F("CLEAR ALL");
@@ -427,6 +460,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             uint8_t rpta=vaciar_tablas();
             ejecute=true;
+            return 1;
          }
         
          mensaje=F("SYSTEM RESET");
@@ -435,6 +469,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             broadcast_bye(id_node,vecinos,total_vecinos, mensajes_salientes,total_mensajes_salientes);
             ESP.restart();
+            return 1;
          }
          
          mensaje=F("BLE CREATE INCOMING");
@@ -445,6 +480,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
+            return 1;
          }
 
          mensaje=F("BLE TEST");
@@ -454,6 +490,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
+            return 1;
          }
 
          mensaje=F("BLE CREATE OUTCOMING");
@@ -464,6 +501,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             str_buffer_serial_received="";
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
+            return 1;
          }
          
           // limpia el buffer BLE (rxValue y txValue)
@@ -475,6 +513,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
+            return 1;
          }
 
          mensaje=F("MSG RADIO");
@@ -491,6 +530,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
              }
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
+            return 1;
          }
          mensaje=F("BLE SHOW");
          if (str_buffer_serial_received.substring(0, mensaje.length())==mensaje){
@@ -502,6 +542,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
+            return 1;
          }
 
          mensaje=F("BLE INFO");
@@ -514,6 +555,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             DEBUG_PRINTLN(mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
             ejecute=true;
+            return 1;
          }
 
          mensaje=F("SYSTEM INFO");
@@ -529,6 +571,7 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             
             str_buffer_serial_received="";
             ejecute=true;
+            return 1;
          }
                  
          mensaje=F("NODE CREATE");
@@ -721,9 +764,10 @@ uint8_t process_debugging_command(String str_buffer_serial_received, bool &ejecu
             Serial.write(12);
             DEBUG_PRINTLN((String)mensaje+MSG_SPACE+MSG_OK);
             DEBUG_PRINTLN(MSG_COMMAND_LINE+mensaje);
+            return 1;
          }
-
-         
+// si llega hasta aqui fue que no proceso o no proceso mal algun comando
+         return 0;
 }
 
 
@@ -769,6 +813,6 @@ uint8_t show_debugging_info(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_
          }
 
          return rpta;
-         }
+}
         
   

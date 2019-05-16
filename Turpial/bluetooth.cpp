@@ -117,8 +117,7 @@ void task_bluetooth(void *params)
 {
   String packet_in_process_str;
   String text_to_send;
-  uint8_t jj;
-
+ 
   uint16_t mtu = 254;
   BLEDevice::setMTU(mtu);
   BLEDevice::init(server_name);

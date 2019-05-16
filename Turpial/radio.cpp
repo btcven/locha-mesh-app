@@ -109,7 +109,7 @@ uint8_t radioSend(String _data)
   uint8_t rpta;
   uint16_t delay_time = 250; // millisegundos entre reintento de envio
   uint8_t ii;
-  // se hacen 5 intentos de delibery a busy variables en caso de que el canal este ocupado
+  // se hacen 5 intentos de delivery a busy variables en caso de que el canal este ocupado
   for (ii = 0; ii < 5; ++ii)
   {
     rpta = LoRa.beginPacket();
@@ -142,7 +142,8 @@ void task_radio(void *params)
 {
   SPI.begin(RAD_SCK, RAD_MISO, RAD_MOSI, RAD_CSS);
   LoRa.setPins(RAD_CSS, RAD_RST, RAD_DIO0);
-  int rad_isInit = LoRa.begin(RAD_BAND);
+  LoRa.setSPIFrequency(1e6);
+  int rad_isInit = LoRa.begin(RAD_BAND, RAD_PABOOST);
   if (rad_isInit)
   {
     ESP_LOGD("RAD", "[RAD] Started device");
