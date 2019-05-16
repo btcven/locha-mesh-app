@@ -148,7 +148,7 @@ void setup()
     DEBUG_PRINT(MSG_BLE);
     DEBUG_PRINT(" ");
     DEBUG_PRINTLN(MSG_START);
-    xTaskCreate(task_bluetooth, "task_bluetooth", 2048, NULL, 5, NULL);
+    xTaskCreatePinnedToCore(task_bluetooth, "task_bluetooth", 2048 * 3, NULL, 5, NULL, 1);
   }
 
   // WiFi AP aka WAP, is enabled?

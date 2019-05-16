@@ -12,7 +12,7 @@
 #include "graphics.h"
 
 boolean screen_on = true;
-uint8_t brightness = 0;
+uint8_t brightness = 5;
 unsigned int scr_timeToPoweroff = 15000;
 unsigned long scr_timeStart;
 unsigned long scr_elapsedTime;

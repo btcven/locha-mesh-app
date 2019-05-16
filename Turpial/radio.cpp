@@ -196,8 +196,9 @@ void task_radio(void *params) {
 
   SPI.begin(RAD_SCK, RAD_MISO, RAD_MOSI, RAD_CSS);
   LoRa.setPins(RAD_CSS, RAD_RST, RAD_DIO0);
-  LoRa.setSPIFrequency(1e6);
-  int rad_isInit = LoRa.begin(RAD_BAND, RAD_PABOOST);
+  // LoRa.setSPIFrequency(1e6);
+  
+  int rad_isInit = LoRa.begin(RAD_BAND);
 LoRa.setTxPower(2,false);
   if (rad_isInit) {
     DEBUG_PRINT(MSG_OK);
