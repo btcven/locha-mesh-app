@@ -248,7 +248,6 @@ uint8_t existe_ruta(char id_nodo_from[SIZE_IDNODE], char id_nodo_to[SIZE_IDNODE]
       copy_array_locha(id_nodo_from, nodo1.id, SIZE_IDNODE);
       copy_array_locha(id_nodo_to, nodo2.id, SIZE_IDNODE);
       create_route(nodo1, nodo2, nodo2, vecinos, total_vecinos, blacklist_nodes, total_nodos_blacklist, routeTable, total_rutas, blacklist_routes, total_rutas_blacklist);
-      DEBUG_PRINTLN(F("ruta creada correctamente"));
     }
   }
   // si existe la ruta se actualiza el
@@ -350,10 +349,6 @@ uint8_t create_route(nodo_t origen, nodo_t next_neighbor, nodo_t destino, struct
 
     if (ejecute_correctamente)
     {
-      DEBUG_PRINT("Creando ruta desde:");
-      DEBUG_PRINT(origen.id);
-      DEBUG_PRINT("-hasta:");
-      DEBUG_PRINTLN(destino.id);
       nueva_ruta.origen = origen;
       nueva_ruta.destino = destino;
       nueva_ruta.next_neighbor = next_neighbor;
@@ -452,7 +447,7 @@ uint8_t delete_route(char id_nodo_from[SIZE_IDNODE], char id_nodo_to[SIZE_IDNODE
   }
   else
   {
-    // no route to peer. 
+    // no route to peer.
   }
 
   return 0;
@@ -569,52 +564,36 @@ char *vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES], uint8_t total_rutas)
   char nombre_vecino[SIZE_IDNODE];
   char nombre_vecino_con_mas_rutas[SIZE_IDNODE];
 
-  DEBUG_PRINTLN(F("entrando a vecino con mas rutas"));
-
   for (i = 1; i <= total_rutas; i++)
   {
     total_rutas_tmp = 0;
     if (!(compare_char(routeTable[i].origen.id, "")))
     {
-      DEBUG_PRINT("vecino a verificar:");
-      DEBUG_PRINT((String)routeTable[i].origen.id);
       copy_array_locha(routeTable[i].origen.id, nombre_vecino, SIZE_IDNODE);
-      DEBUG_PRINT("copiado");
       for (j = 1; j <= total_rutas; j++)
       {
-        DEBUG_PRINT("comparando");
-        DEBUG_PRINT((String)j);
         if (compare_char(routeTable[j].origen.id, nombre_vecino))
         {
-          DEBUG_PRINT("es igual al origen");
           total_rutas_tmp++;
         }
         else
         {
-          DEBUG_PRINT("voy->");
           if (compare_char(routeTable[j].destino.id, nombre_vecino))
           {
-            DEBUG_PRINT("es igual al destino");
             total_rutas_tmp++;
           }
           else
           {
-            DEBUG_PRINT("dale->");
             if (!(compare_char(routeTable[i].next_neighbor.id, "")))
             {
-              DEBUG_PRINT("pase->");
               if (compare_char(routeTable[j].next_neighbor.id, nombre_vecino))
               {
-                DEBUG_PRINT("es igual al proximo");
                 total_rutas_tmp++;
               }
             }
           }
         }
-        DEBUG_PRINT("sigoooo");
       }
-      DEBUG_PRINT(F("Total de rutas de este vecino:"));
-      DEBUG_PRINTLN((String)total_rutas_tmp);
       if (total_rutas_tmp > total_rutas_vecino_con_mas_rutas)
       {
         copy_array_locha(nombre_vecino, nombre_vecino_con_mas_rutas, SIZE_IDNODE);
@@ -622,10 +601,6 @@ char *vecino_con_mas_rutas(rutas_t routeTable[MAX_ROUTES], uint8_t total_rutas)
       }
     }
   }
-
-  DEBUG_PRINT(F("saliendo de vecino con mas rutas"));
-  DEBUG_PRINT(nombre_vecino_con_mas_rutas);
-  DEBUG_PRINTLN("======");
   return (char *)nombre_vecino_con_mas_rutas;
 }
 
@@ -694,15 +669,14 @@ uint8_t packet_to_send(packet_t packet_temp, message_queue_t (&mensajes_saliente
   {
     total_mensajes_salientes_tmp = total_mensajes_salientes_tmp + 1;
     mensajes_salientes_tmp[total_mensajes_salientes_tmp] = nuevo_mensaje_en_cola;
-
-    DEBUG_PRINTLN(F("y se coloco en cola:"));
     rptsx = show_packet(nuevo_mensaje_en_cola.paquete, false);
-    DEBUG_PRINTLN(F("Packet queue succesfully"));
+
+    ESP_LOGD("PROTO", "Message added to the queue");
   }
   else
   {
     // esta la cola de mensajes salientes llena, no se puede colocar mas nada alli
-    Serial.println("MSG QUEUE FULL");
+    ESP_LOGE("PROTO", "Message queue full");
     return 1;
   }
 
@@ -735,6 +709,7 @@ void BLE_incoming(char *uid2, char *msg_ble, char *timemsg, char *hash_msg, mess
   uint8_t i;
   uint8_t rpta;
   char *pChar = (char *)"";
+
   // msg is type broadcast?
   pChar = (char *)"broadcast";
   if (compare_char(uid2, pChar))
@@ -767,7 +742,6 @@ void BLE_incoming(char *uid2, char *msg_ble, char *timemsg, char *hash_msg, mess
 
           String rpta_str = "NOT DELIVERED";
           rpta_str = Json_return_error(rpta_str);
-          DEBUG_PRINTLN(rpta_str);
         }
       }
     }
@@ -775,7 +749,6 @@ void BLE_incoming(char *uid2, char *msg_ble, char *timemsg, char *hash_msg, mess
     {
       String rpta_str = "No tiene vecinos";
       rpta_str = Json_return_error(rpta_str);
-      DEBUG_PRINTLN(rpta_str);
     }
   }
   else

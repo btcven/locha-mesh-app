@@ -18,17 +18,17 @@
 #include "radio.h"
 #include "debugging.h"
 
-//declaracion de variables
-// variables para trasmision BLE
+// variables para BLE
 extern std::string rxValue;
 extern std::string txValue;
-// variables para trasmision Lora
+
+// variables para Lora
 extern std::string rxValue_Lora;
 extern std::string txValue_Lora;
 extern int Lora_RSSI;
 extern int Lora_SNR;
 
-extern char *id_node; // id unico del nodo
+extern char *id_node;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
@@ -58,31 +58,25 @@ uint8_t routing_incoming_PACKET_MSG(char id_node[SIZE_IDNODE], packet_t packet_r
 
     // se manda al BLE en formato Json
     // modificado por ahora mientras solventamos lo de la limitacion de 20 char en BLE
-    //   String hacia_el_ble=Json_return_msg((String)packet_received.body.payload);
     String hacia_el_ble = (String)packet_received.body.payload;
+
     // en la siguiente linea se envia al BLE pero por algun motivo no lo muestra del lado BLE
     txValue = hacia_el_ble.c_str();
 
     uint8_t rptas = packet_to_send(new_packet, mensajes_salientes, total_mensajes_salientes); // se envia a la cola de mensajes salientes
+
     // se actualiza el age de la ruta desde el origen al destino y si no existe se crea
     update_route_age(packet_received.header.from, packet_received.header.to, routeTable, total_rutas, blacklist_routes, total_rutas_blacklist);
   }
   else
   {
     // el paquete no es para mi, pero tengo que hacerle relay a mis vecinos
-    // busco si tengo una ruta entre mi nodo y el destino del paquete (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
-    //   if (existe_ruta(id_node, packet_received.header.to,true,routeTable,total_rutas,blacklist_routes,total_rutas_blacklist)){
-
+    // busco si tengo una ruta entre mi nodo y el destino del paquete
+    // (y se actualiza el age de la ruta al conseguirla o se crea si no existe)
     packet_t new_packet;
     new_packet = create_packet(id_node, ACK, packet_received.header.from, packet_received.header.to, packet_received.header.next_neighbor, "", Buffer_packet.body.payload);
-    uint8_t rptas = packet_to_send(new_packet, mensajes_salientes, total_mensajes_salientes); // se envia a la cola de mensajes salientes
-                                                                                              //  } else {
-                                                                                              // si no existe ruta se aplica GDFA
-
-    //  }
+    uint8_t rptas = packet_to_send(new_packet, mensajes_salientes, total_mensajes_salientes);
   }
-
-  DEBUG_PRINT("Saliendo de PACKET_MSG");
   return 0;
 }
 
@@ -185,7 +179,7 @@ uint8_t routing_incoming_PACKET_NOT_DELIVERED(char id_node[SIZE_IDNODE], packet_
   // si no es para mi se reenvia el paquete a los vecinos por la ruta donde origino
   uint8_t i;
   uint8_t is_MSG = 0;
-  Serial.println(F("se recibio un packet not delivered"));
+
   for (i = 1; i <= total_mensajes_waiting; i++)
   {
 
@@ -242,7 +236,7 @@ uint8_t routing_incoming_PACKET_GOSSIP(char id_node[SIZE_IDNODE], packet_t packe
       {
         payload_tmp = payload_rutas.substr(1, SIZE_PAYLOAD);
         payload_rutas = payload_rutas.substr(SIZE_PAYLOAD, tamano_tmp);
-        //copy_array_locha(payload_tmp.c_str(), payload_char, SIZE_PAYLOAD);
+
         char *cstr = new char[payload_tmp.length() + 1];
         strcpy(cstr, payload_tmp.c_str());
         new_packet = create_packet(id_node, ROUTE, packet_received.header.to, packet_received.header.from, packet_received.header.next_neighbor, "", cstr);
@@ -356,7 +350,7 @@ uint8_t routing_incoming_PACKET_HELLO(char id_node[SIZE_IDNODE], packet_t packet
   }
   else
   {
-    // 
+    //
   }
   // se coloca el radio nuevamente en modo receives (se hace por segunda vez porque detectamos algunos casos en donde el radio no cambio de modo dentro del radioSend()
   LoRa.receive();
@@ -475,7 +469,7 @@ void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal
         routing_incoming_PACKET_NOT_DELIVERED(id_node, packet_temporal);
         break;
       default:
-        ESP_LOGD("PROTO", "[PROTO] Unknow packet type: %d", packet_temporal.header.type)
+        ESP_LOGD("PROTO", "[PROTO] Unknow packet type: %d", packet_temporal.header.type);
         break;
       }
 
