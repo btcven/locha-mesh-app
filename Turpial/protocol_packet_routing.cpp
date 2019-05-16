@@ -40,30 +40,39 @@ void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t 
     * se devuelve un packet ROUTING JOIN
     */
     char *pChar = (char *)"";
-
+    const char *TAG = "Packet Routing Hello";
+    ESP_LOGD(TAG, "Starting ...");
     if ((is_blacklisted(id_node, db) == 0))
     {
+      ESP_LOGD(TAG, "aaa ...");
         if (!(is_blacklisted_route(packet_temporal.header.from, id_node, db)))
         {
+          ESP_LOGD(TAG, "bbb ...");
             if (!(is_neighbour(packet_temporal.header.from, db)))
             {
+              ESP_LOGD(TAG, "ccc ...");
                 bool rpta = create_neighbour(packet_temporal.header.from, db);
                 if (rpta)
                 {
+                  ESP_LOGD(TAG, "ddd ...");
                     rpta = create_route(packet_temporal.header.from, pChar, id_node, 0, RSSI_recibido, SNR_recibido, db);
                     if (rpta)
                     {
                         // se devuelve un packet JOIN
+                        ESP_LOGD(TAG, "Sending packet Join ...");
                     }
                 }
             }
         }
     }
+    ESP_LOGD(TAG, "ending ...");
 }
+
 
 // manejo de packets  JOIN
 void protocol_incoming_PACKET_ROUTING_JOIN(char id_node[SIZE_IDNODE], packet_t packet_temporal)
 {
+   const char *TAG = "Packet Routing Join";
 }
 
 // manejo del packets  GOSSIP

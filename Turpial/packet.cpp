@@ -58,7 +58,7 @@ void char_to_packet(packet_t *target, uint8_t *source, size_t s_size)
 packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload, uint16_t packet_number, uint16_t packet_total)
 {
 
-  
+  const char *TAG = "Create packet";
   
   packet_header_t header;
   body_data_u body;
@@ -80,24 +80,26 @@ packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subti
    //      header.packet_sub.security_type=subtipo_packet;
    //     break;
    // }
-  
-  copy_array(from, header.from, SIZE_IDNODE);
-  copy_array(to, header.to, SIZE_IDNODE);
-  copy_array(next_neighbor, header.next_neighbor, SIZE_IDNODE);
+   header.from=from;
+ // ESP_LOGD(TAG, "From %s", from);
+ // ESP_LOGD(TAG, "To %s", to);
+ // ESP_LOGD(TAG, "Next %s", next_neighbor);
+ // ESP_LOGD(TAG, "checksum_data %s", checksum_data);
+ // copy_array(from, header.from, SIZE_IDNODE);
+  header.to=to;
+  header.next_neighbor=next_neighbor;
   header.timestamp = millis();
-  copy_array(checksum_data, header.checksum_data, SIZE_HASH_MSG);
-
+  header.checksum_data=checksum_data;
+  
   // el payload depende del tipo de packet_t
   if (tipo_packet==DATA){
-    copy_array(payload, body.body_data_splitted.payload, SIZE_PAYLOAD);
-    
-    body.body_data.payload_length = sizeof(body.body_data_splitted.payload);
-    body.body_data_splitted.packet_number=packet_number;
+     body.body_data_splitted.payload=payload;
+     body.body_data.payload_length = sizeof(body.body_data_splitted.payload);
+     body.body_data_splitted.packet_number=packet_number;
      body.body_data_splitted.packet_total=packet_total;
      body.body_data_splitted.not_delivered_type=EMPTY_NOT_DELIVERED;
   } else {
-    
-     copy_array(payload, body.body_data.payload, SIZE_PAYLOAD);
+     body.body_data.payload=payload;
      body.body_data.payload_length = sizeof(body.body_data.payload);
   }
   
@@ -166,9 +168,9 @@ void show_packet(packet_t packet_rx,const char *TAG)
 packet_t construct_packet_HELLO(char *id_node,char *from)
 {
   packet_t packet_HELLO;
-  
+  const char *TAG = "construct_packet_HELLO";
   char *pChar = (char *)"";
-  
+   
   subtype_u subtipo_packet;
   subtipo_packet.routing_type=HELLO;
   packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, from, pChar, pChar, pChar, pChar);

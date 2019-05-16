@@ -33,21 +33,45 @@ unsigned long time_since_last_auto_hello = millis();
 */
 void NetworkPeer(void *params)
 {
-
-  for (;;)
-  {
+  const char *TAG = "Task NetworkPeer";
+ ESP_LOGD(TAG, "Initial HELLO");
+  bool rpta = send_packet_HELLO(TAG,id_node);
+  while (1) {
+  
     /*
       WiFiClient client = server.available(); // listen for incoming clients
       responses_WAP(client);
     */
+   // ESP_LOGD(TAG, "Inside networkpeer");
+   
   }
+  
+}
+
+bool send_packet_HELLO(const char *TAG,char* id_node){
+   char *pChar = (char *)"";
+   packet_t packet_hello;
+
+      packet_hello = construct_packet_HELLO(id_node, id_node);
+      
+      char bytearr[sizeof(packet_hello)];
+      packet_to_char(bytearr, packet_hello, sizeof(packet_hello));
+      std::string mystring(bytearr);
+      bool rpta = radioSend(mystring);
+      
+      if (rpta) {
+        ESP_LOGD(TAG, "Packet HELLO sent  OK");
+      } else {
+        ESP_LOGD(TAG, "Error sending Packet HELLO ");
+      }
 }
 
 
 void AUTO_HELLO(void *params) {
-  packet_t packet_hello;
+ 
   char *pChar = (char *)"";
-  char* packet_in_char;
+  bool rpta ;
+  
 const char *TAG = "AUTO_HELLO";
 
   while (1) {
@@ -55,17 +79,7 @@ const char *TAG = "AUTO_HELLO";
       time_since_last_auto_hello = millis();
     }
     if ((millis() - time_since_last_auto_hello) > HELLO_RETRY_TIMEOUT) {
-      ESP_LOGD(TAG, "Sending packet HELLO");
-      packet_hello = construct_packet_HELLO(id_node, pChar);
-      
-      packet_to_char(packet_in_char, packet_hello, sizeof(packet_hello));
-      std::string mystring(packet_in_char);
-      bool rpta = radioSend(mystring);
-      if (rpta) {
-        ESP_LOGD(TAG, "Packet HELLO sent to database OK");
-      } else {
-        ESP_LOGD(TAG, "Error sending Packet HELLO to database");
-      }
+       rpta = send_packet_HELLO(TAG,id_node);
     }
     delay(50);
   }

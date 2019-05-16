@@ -25,16 +25,16 @@ int Lora_SNR;
 TaskHandle_t radioHandle = NULL;
 
 #ifdef RAD_ENABLED
-#ifdef RAD_CHIP
-#if RAD_CHIP == SX1276
+//#ifdef RAD_CHIP
+//#if RAD_CHIP == SX1276
 SX1276 lora = new LoRa(RAD_CSS, RAD_DIO0, RAD_DIO1);
-#else
+//#else
 // aqui se pueden definir otros radios
-#define RAD_ENABLED false;
-#endif
-#else
-#define RAD_ENABLED false;
-#endif
+//#define RAD_ENABLED false;
+//#endif
+//#else
+//#define RAD_ENABLED false;
+//#endif
 #endif
 
 // flag to indicate that a packet was received
@@ -69,24 +69,35 @@ void setFlag(void)
 bool radioSend(std::string data_to_send)
 {
   bool rpta = false;
+  int state;
+  uint8_t data_uint8;
   const char *TAG = "RADIO Send";
+  ESP_LOGD(TAG, "Inside RadioSend");
   // start scanning current channel
-  int state = lora.scanChannel();
-  if (state == CHANNEL_FREE)
-  {
+ //  state = lora.scanChannel();
+ //  ESP_LOGD(TAG, "scan channel ready");
+ // if (state == CHANNEL_FREE)
+ // {
+  //  ESP_LOGD(TAG, "Channel is free");
     byte byteArr[] = {0x01, 0x23, 0x45, 0x56, 0x78, 0xAB, 0xCD, 0xEF};
-    state = lora.startTransmit(byteArr, 8);
+   const char* text_to_send(string2char(data_to_send));
+    //state = lora.startTransmit(byteArr, 8);
+    state = lora.startTransmit(text_to_send);
     if (state != ERR_NONE)
     {
       ESP_LOGD(TAG, "Transmission failed, code %s", state);
     }
     else
     {
-      // leave radio allow receive more packets
-      state = lora.startReceive();
+      ESP_LOGD(TAG, "Send OK");
       rpta = true;
     }
-  }
+ // } else {
+ //   ESP_LOGD(TAG, "Channel is busy");
+ // }
+   // leave radio allow receive more packets
+      state = lora.startReceive();
+      ESP_LOGD(TAG, "Exit radio Send");
   return rpta;
 }
 

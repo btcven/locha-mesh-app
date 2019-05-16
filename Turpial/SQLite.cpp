@@ -69,10 +69,9 @@ const char *TAG = "SQLLite";
 int db_exec(sqlite3 *db, const char *sql)
 {
     const char *TAG = "SQLLite";
-    ESP_LOGE(TAG, "Voy a db_exec");
+   // ESP_LOGE(TAG, "Voy a db_exec");
 
     int rc = sqlite3_exec(db, sql, callback, (void*)data, &zErrMsg);
-  //  int rc = sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
     
     if (rc != SQLITE_OK)
     {
@@ -101,7 +100,7 @@ bool ejecutar(char *query, sqlite3 *db)
   const char *TAG = "SQLLite";
     int rc;
     
-    ESP_LOGE(TAG, "Voy a ejecutar");
+  //  ESP_LOGE(TAG, "Voy a ejecutar");
     rc = db_exec(db, query);
     if (rc != SQLITE_OK)
     {
@@ -110,7 +109,7 @@ bool ejecutar(char *query, sqlite3 *db)
     }
     else
     {
-      ESP_LOGE(TAG, "Ejecute correctamente");
+   //   ESP_LOGE(TAG, "Ejecute correctamente");
         return true;
       
     }

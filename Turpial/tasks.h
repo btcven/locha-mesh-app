@@ -18,5 +18,6 @@
 
  void NetworkPeer(void *params);
  void AUTO_HELLO(void *params);
+ bool send_packet_HELLO(const char *TAG,char* id_node);
  
 #endif // TASKS_H
