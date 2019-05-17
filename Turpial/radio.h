@@ -14,8 +14,8 @@
 #include "memory_def.h"
 
 // declaracion de funciones
-uint8_t radioSend(String _data);
+uint8_t radioSend(String _data, bool interactive);
 void task_radio(void *params);
-void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos);
+void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_vecinos,std::string &rxValue,std::string &txValue);
 
 #endif // RADIO_H

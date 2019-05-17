@@ -12,7 +12,7 @@
 #include "graphics.h"
 
 boolean screen_on = true;
-uint8_t brightness = 5;
+uint8_t brightness = 0;
 unsigned int scr_timeToPoweroff = 15000;
 unsigned long scr_timeStart;
 unsigned long scr_elapsedTime;
@@ -34,6 +34,9 @@ extern uint32_t route_table_size;
 extern uint8_t total_vecinos;
 extern uint32_t vecinos_table_size;
 
+
+
+
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 OLEDDisplayUi ui(&display);
 
@@ -48,14 +51,14 @@ void cb_next_option()
     {
         scr_timeStart = millis();
         // display.wakeup();
-        ESP_LOGD("SCR", "[SCR] wake up");
+        Serial.printf("[SCR] Wake up\n");
         screen_on = true;
     }
 }
 
 void cb_confirm_option()
 {
-    ESP_LOGD("SCR", "[SCR] Change frame");
+    Serial.printf("confirm option/frame\n");
 }
 
 void splash_screen(OLEDDisplay *scr)
@@ -73,6 +76,8 @@ void splash_screen(OLEDDisplay *scr)
 void frame_RAD(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, int16_t y = 0)
 {
     // show battery level or battery + bolt.
+
+    // @param battery_level: percent level
     int16_t battery_level = -1;
     // battery pos. coord.
     int16_t batPosX = x + 108;
@@ -293,7 +298,7 @@ void task_screen(void *params)
 
         if (scr_elapsedTime >= scr_timeToPoweroff && screen_on == true)
         {
-            ESP_LOGD("SCR", "[SCR] Entering in to sleep mode");
+            Serial.printf("[SCR] Entering in sleep mode\n");
             screen_on = false;
         }
 

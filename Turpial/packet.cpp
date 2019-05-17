@@ -72,14 +72,6 @@ packet_type_e convertir_str_packet_type_e(char* type_recibido){
    pChar = (char*)"NOT_DELIVERED";
   if (compare_char(type_recibido,pChar)) return NOT_DELIVERED;
          
- // if (type_recibido==F("ACK")) return ACK;
-//  if (type_recibido==F("JOIN")) return JOIN;
-//  if (type_recibido==F("BYE")) return BYE;
-//  if (type_recibido==F("MSG")) return MSG;
-//  if (type_recibido==F("ROUTE")) return ROUTE;
-//  if (type_recibido==F("HELLO")) return HELLO;
-//  if (type_recibido==F("GOSSIP")) return GOSSIP;
-//  if (type_recibido==F("NOT_DELIVERED")) return NOT_DELIVERED;
   return rpta;
 }
 
@@ -283,13 +275,13 @@ packet_t packet_deserialize(char* received_text){
  
   uint8_t i=1;
 
- DEBUG_PRINT(F("voy a deserialize con:"));
- DEBUG_PRINTLN(received_text);
+// DEBUG_PRINT(F("voy a deserialize con:"));
+// DEBUG_PRINTLN(received_text);
   while ((str_in_process = strtok_r(received_text, "|", &received_text)) != NULL) {
     switch (i) {
           case 1:
-            DEBUG_PRINT(F("el tipo es:"));
-            DEBUG_PRINT(str_in_process);
+  //          DEBUG_PRINT(F("el tipo es:"));
+    //        DEBUG_PRINT(str_in_process);
             packet_tmp.header.type=convertir_str_packet_type_e(str_in_process);
             break;
           case 2:

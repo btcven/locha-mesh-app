@@ -41,10 +41,9 @@ uint8_t blacklist_node_add(char* id_node_neighbor,struct nodo_t (&vecinos)[MAX_N
     char nombre_temporal[SIZE_IDNODE];
     nodo_t nodo_vecino;
     uint8_t i;
-       copy_array_locha(id_node_neighbor,nodo_vecino.id, SIZE_IDNODE);
- //   id_node_neighbor.toCharArray(nombre_temporal, SIZE_IDNODE);
- //   memcpy(nodo_vecino.id, nombre_temporal, SIZE_IDNODE);
-    total_nodos_blacklist++;
+ 
+     copy_array_locha(id_node_neighbor,nodo_vecino.id, SIZE_IDNODE);
+     total_nodos_blacklist++;
     blacklist_nodes[total_nodos_blacklist] = nodo_vecino;
     uint8_t rpta=delete_neighbor(id_node_neighbor,vecinos, total_vecinos);
     rpta=delete_route(id_node, id_node_neighbor,routeTable,total_rutas);
@@ -66,4 +65,22 @@ uint8_t blacklist_route_add(char* from, char* to,struct nodo_t (&vecinos)[MAX_NO
     // se elimina la ruta en caso de que exista
     
     return delete_route(from, to,routeTable,total_rutas);
+}
+
+
+
+
+// verifica si un vecino es blacklisted en este nodo
+uint8_t es_blacklisted(char id_nodo[SIZE_IDNODE]){
+  uint8_t i;
+   char *pChar = (char*)"";
+  if (!(compare_char(id_nodo,pChar))){
+  
+    for (i = 1; i <= total_nodos_blacklist; i++) {
+        if (compare_char(blacklist_nodes[i].id,id_nodo)){
+          return 1;
+        }
+    }
+  }
+  return 0;
 }
