@@ -8,7 +8,6 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-// declaracion de funciones
 void irq_button(void);
 
 #endif // BUTTON_H

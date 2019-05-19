@@ -12,7 +12,7 @@
 #include "graphics.h"
 
 boolean screen_on = true;
-uint8_t brightness = 0;
+uint8_t brightness = 5;
 unsigned int scr_timeToPoweroff = 15000;
 unsigned long scr_timeStart;
 unsigned long scr_elapsedTime;
@@ -23,6 +23,7 @@ extern int Lora_SNR;
 
 // node id
 extern char *id_node;
+
 // Queues
 extern uint8_t total_mensajes_salientes;
 extern uint32_t outcoming_msgs_size;
@@ -30,12 +31,13 @@ extern uint32_t outcoming_msgs_size;
 // Routes
 extern uint8_t total_rutas;
 extern uint32_t route_table_size;
+
 // Neighbours
 extern uint8_t total_vecinos;
 extern uint32_t vecinos_table_size;
 
-
-
+// dev status.
+extern bool deviceConnected;
 
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 OLEDDisplayUi ui(&display);
@@ -51,14 +53,14 @@ void cb_next_option()
     {
         scr_timeStart = millis();
         // display.wakeup();
-        Serial.printf("[SCR] Wake up\n");
+        ESP_LOGD("SCR", "[SCR] Wake up");
         screen_on = true;
     }
 }
 
 void cb_confirm_option()
 {
-    Serial.printf("confirm option/frame\n");
+    ESP_LOGD("SCR", "confirm option/frame");
 }
 
 void splash_screen(OLEDDisplay *scr)
@@ -82,6 +84,7 @@ void frame_RAD(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, i
     // battery pos. coord.
     int16_t batPosX = x + 108;
     int16_t batPosY = y;
+
     // if param battery_level = -1 then the battery is charging.
     if (battery_level >= 0)
     {
@@ -97,6 +100,10 @@ void frame_RAD(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0, i
     int16_t BLE_xPos = x + 120;
     int16_t BLE_yPos = y + 16;
     display->drawXbm(BLE_xPos, BLE_yPos, BLE_width, BLE_height, BLE_bits);
+    if (deviceConnected)
+    {
+        display->fillRect(BLE_xPos - 5, BLE_yPos + 4, 4, 5);
+    }
 
     // show Wifi AP logo if AP is Enabled
     int16_t WAP_xPos = x + 114;
@@ -241,7 +248,6 @@ void frame_Queue(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x = 0,
     display->setTextAlignment(TEXT_ALIGN_RIGHT);
     display->drawString(x + 128, y + 14, (String)total_mensajes_salientes);
     display->drawString(x + 128, y + 26, (String)outcoming_msgs_size);
-
 }
 
 // display the nearest neighbours and routes table.
@@ -273,7 +279,7 @@ void task_screen(void *params)
     // if v2
     pinMode(Vext, OUTPUT);
     digitalWrite(Vext, LOW); // OLED USE Vext as power supply, must turn ON Vext before OLED init
-    delay(100);
+    delay(200);
 
     // end if v2
     ui.setTargetFPS(30);

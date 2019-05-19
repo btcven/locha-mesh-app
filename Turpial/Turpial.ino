@@ -7,6 +7,7 @@
  */
 
 #include <Arduino.h>
+#include <string>
 #include <WiFi.h>
 #include <Time.h>
 #include <TimeLib.h>
@@ -89,8 +90,9 @@ std::string txValue_Lora = "";
 int Lora_RSSI;
 int Lora_SNR;
 
-TaskHandle_t radioHandle = NULL;
-TaskHandle_t BLEHandle = NULL;
+TaskHandle_t RADHandler;
+TaskHandle_t BLEHandler;
+TaskHandle_t SCRHandler;
 
 void setup()
 {
@@ -138,52 +140,37 @@ void setup()
   // Screen aka SCR is enabled?
   if (SCR_ENABLED)
   {
-    DEBUG_PRINT(MSG_SCR);
-    DEBUG_PRINT(" ");
-    DEBUG_PRINTLN(MSG_START);
-    xTaskCreate(task_screen, "task_screen", 2048, NULL, 3, NULL);
+    ESP_LOGD("MAIN", "Starting SCR module");
+    xTaskCreate(task_screen, "task_screen", 1024 * 4, NULL, 3, &SCRHandler);
+    delay(1000);
   }
 
   if (BLE_ENABLED)
   {
     // BLE Server is enabled?
-    DEBUG_PRINT(MSG_BLE);
-    DEBUG_PRINT(" ");
-    DEBUG_PRINTLN(MSG_START);
-    xTaskCreate(task_bluetooth, "task_bluetooth", 4096, NULL, 4, &BLEHandle);
+    ESP_LOGD("MAIN", "Starting BLE iface");
+    xTaskCreate(task_bluetooth, "task_bluetooth", 1024 * 4, NULL, 4, &BLEHandler);
   }
 
   // WiFi AP aka WAP, is enabled?
   if (WAP_ENABLED)
   {
-    DEBUG_PRINT(MSG_WAP);
-    DEBUG_PRINT(" ");
-    DEBUG_PRINTLN(MSG_START);
+    ESP_LOGD("MAIN", "Starting AP iface");
   }
 
   // WiFi Station aka WST, is enabled?
   if (WST_ENABLED)
   {
-    DEBUG_PRINT(MSG_WST);
-    DEBUG_PRINT(" ");
-    DEBUG_PRINTLN(MSG_START);
+    ESP_LOGD("MAIN", "Starting WST iface");
   }
 
   // Radio iface is enabled?
   if (RAD_ENABLED)
   {
-    DEBUG_PRINT(MSG_RAD);
-    DEBUG_PRINT(" ");
-    DEBUG_PRINTLN(MSG_START);
-
-    xTaskCreate(task_radio, "task_radio", 4096, NULL, 4, &radioHandle);
+    ESP_LOGD("MAIN", "Starting RAD module");
+    xTaskCreate(task_radio, "task_radio", 1024 * 2, NULL, 4, &RADHandler);
   }
 
-  // se coloca el cursor en el terminal serial
-
-  DEBUG_PRINT(MSG_SERIAL);
-  DEBUG_PRINT(" ");
-  DEBUG_PRINTLN(MSG_START);
   // se genera el node_id solo si no existe
   if (compare_char(id_node, pChar))
   {
@@ -193,19 +180,19 @@ void setup()
 
   // se crea un task para las tareas de baja prioridad tipo garbage collector  (prioridad 2 por debajo de las otras task)
   // que chequea rutas viejas, paquetes en espera,  vecinos no reportados desde hace mucho tiempo
-  xTaskCreate(task_update_older_records, "task_update_older_records", 2048, NULL, 2, NULL);
+  xTaskCreate(task_update_older_records, "task_update_older_records", 1024 * 3, NULL, 2, NULL);
 
   // se inicializa el control del tiempo
   tiempo = millis();
-  DEBUG_PRINTLN(F("Enviando HELLO"));
+
+  ESP_LOGD("MAIN", "Searching nearest neigbours");
   // se manda un mensaje por Lora tipo HELLO para que los vecinos lo identifiquen y le hagan JOIN
   // se coloca en la cola de salida para evitar mandarlo directo sobre el radio y que bloquee las otras tareas
   uint8_t rptad = packet_to_send(construct_packet_HELLO(id_node), mensajes_salientes, total_mensajes_salientes, total_vecinos, total_rutas); // se envia a la cola de mensajes salientes
                                                                                                                                              // se coloca el radio en modo receive
-  LoRa.receive();
+  //LoRa.receive();
   DEBUG_PRINT(id_node);
   DEBUG_PRINT(F(" >"));
-  Serial.println("Going to loop");
 } //setup
 
 // con esta variable se lleva el control de cual frame de pantalla se esta mostrando en el momento
@@ -234,10 +221,9 @@ void loop()
     process_Lora_incoming(vecinos, total_vecinos, rxValue, txValue);
     if (txValue.size() > 0)
     {
-      vTaskSuspend(radioHandle);
-      //  vTaskResume( BLEHandle );
+      vTaskSuspend(RADHandler);
       delay(500);
-      vTaskResume(radioHandle);
+      vTaskResume(RADHandler);
     }
   }
 
@@ -249,8 +235,6 @@ void loop()
 
     if ((paquet_in_process2.header.type == MSG) or (paquet_in_process2.header.type == TXN))
     {
-      DEBUG_PRINT(F("devolviendo packet ..."));
-      DEBUG_PRINT("recibi:");
       DEBUG_PRINTLN(packet_return_BLE_str);
 
       devolver_como_packet_not_delivered(paquet_in_process2, BLE_NOT_CONNECTED);
@@ -258,10 +242,10 @@ void loop()
       String text_to_send_to_ble = packet_into_json(paquet_in_process2, "err");
       txValue = text_to_send_to_ble.c_str();
 
-      DEBUG_PRINT(F("enviado al BLE desde text_to_send_to_ble :"));
+      DEBUG_PRINTLN("--------------------------------");
       DEBUG_PRINTLN(text_to_send_to_ble);
-      DEBUG_PRINT(F("Largo de la cadena enviada al BLE:"));
       DEBUG_PRINTLN((String)text_to_send_to_ble.length());
+      DEBUG_PRINTLN("--------------------------------");
     }
 
     packet_return_BLE_str = "";
