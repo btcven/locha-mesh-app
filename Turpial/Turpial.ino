@@ -190,9 +190,8 @@ void setup()
   // se coloca en la cola de salida para evitar mandarlo directo sobre el radio y que bloquee las otras tareas
   uint8_t rptad = packet_to_send(construct_packet_HELLO(id_node), mensajes_salientes, total_mensajes_salientes, total_vecinos, total_rutas); // se envia a la cola de mensajes salientes
                                                                                                                                              // se coloca el radio en modo receive
-  //LoRa.receive();
-  DEBUG_PRINT(id_node);
-  DEBUG_PRINT(F(" >"));
+  // LoRa.receive();
+  ESP_LOGD("MAIN", "NID: %s", id_node);
 } //setup
 
 // con esta variable se lleva el control de cual frame de pantalla se esta mostrando en el momento
@@ -211,6 +210,7 @@ void loop()
   packet_processing_outcoming(mensajes_salientes, total_mensajes_salientes, mensajes_waiting, total_mensajes_waiting);
 
 // solo se agrega la consola de comandos cuando se esta compilando para DEBUG
+
 #ifdef DEBUG
   uint8_t rpta_tmp = show_debugging_info(vecinos, total_vecinos, remote_debugging);
 #endif
@@ -230,7 +230,6 @@ void loop()
   // se verifica si hay que devolver via BLE algun packet
   if (packet_return_BLE_str.length() > 0)
   {
-
     packet_t paquet_in_process2 = packet_deserialize_str(packet_return_BLE_str.c_str());
 
     if ((paquet_in_process2.header.type == MSG) or (paquet_in_process2.header.type == TXN))

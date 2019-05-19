@@ -24,9 +24,10 @@ extern std::string txValue;
 // variables para trasmision Lora
 extern std::string rxValue_Lora;
 extern std::string txValue_Lora;
+/*
 extern int Lora_RSSI;
 extern int Lora_SNR;
-
+*/
 extern char* id_node; // id unico del nodo
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];

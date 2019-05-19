@@ -47,7 +47,13 @@ void cb_next_option()
     if (screen_on)
     {
         scr_timeStart = millis();
-        ui.nextFrame();
+        OLEDDisplayUiState *UIState;
+        UIState = ui.getUiState();
+        
+        if (UIState->frameState == FIXED)
+        {
+            ui.nextFrame();
+        }
     }
     else
     {
@@ -282,7 +288,7 @@ void task_screen(void *params)
     delay(200);
 
     // end if v2
-    ui.setTargetFPS(30);
+    ui.setTargetFPS(30); //  was 30
 
     ui.disableAutoTransition();
     ui.disableAllIndicators();
@@ -311,5 +317,5 @@ void task_screen(void *params)
         int remainingTimeBudget = ui.update();
         delay(15 + remainingTimeBudget);
     }
-    vTaskDelete(NULL);
+    //vTaskDelete(NULL);
 }

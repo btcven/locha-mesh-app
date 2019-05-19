@@ -25,8 +25,6 @@
     #define SCR_SCL     15
     #define SCR_RST     16
     #define Vext        21
-    //
-    #define SCR_INTERVAL 5000
 #endif // SCR
 
 // Radio Module Settings
@@ -37,7 +35,7 @@
     #define RAD_MISO    19
     #define RAD_MOSI    27
     #define RAD_DIO0    26
-    #define RAD_BAND    915E6
+    #define RAD_BAND    868E6
     #define RAD_PABOOST true
 #endif // RAD
 

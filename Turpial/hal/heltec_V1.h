@@ -25,8 +25,6 @@
     #define SCR_SCL 15
     #define SCR_RST 16
     #define Vext false
-    //
-    #define SCR_INTERVAL 5000
 #endif // SCR
 
 // Radio Module Settings

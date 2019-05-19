@@ -74,10 +74,10 @@ void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_v
   // se verifica el header del mensaje recibido a ver si es un packet valido
   if (packet_received.header.type != HELLO)
   {
-    ESP_LOGD("RAD", "[RAD] type: %s", packet_received.header.type);
+    ESP_LOGD("RAD", "[RAD] type: %d", packet_received.header.type);
     ESP_LOGD("RAD", "[RAD] from: %s", packet_received.header.from);
     ESP_LOGD("RAD", "[RAD] to: %s", packet_received.header.to);
-    // ESP_LOGD("RAD", "[RAD] time: %s", packet_received.header.timestamp);
+    // ESP_LOGD("RAD", "[RAD] time: %d", packet_received.header.timestamp);
     // ESP_LOGD("RAD", "[RAD] payload: %s", packet_received.body.payload);
   }
   // si no existe la ruta previamente se agrega la nueva ruta, si existe la ruta se actualiza el age de esa ruta
@@ -100,8 +100,7 @@ void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_v
   }
   else
   {
-    DEBUG_PRINTLN(F("Se recibio un packet repetido, no se procesa"));
-    ESP_LOGD("RAD", "[RAD] dupped");
+    ESP_LOGD("RAD", "[RAD] duplicated packet");
   }
 }
 
@@ -110,6 +109,7 @@ void onReceive(int packetSize)
 {
   // modificaciones para evitar el error de call back
   ESP_LOGD("RAD", "[RAD] incoming packet..");
+
   if (packetSize == 0)
     return;
 
@@ -143,7 +143,7 @@ uint8_t radioSend(String _data, bool interactive)
   uint8_t rpta;
   uint16_t delay_time = 50; // millisegundos entre reintento de envio
   uint8_t ii = 0;
-  // hay que verificar primero si el canal esta libre Listen before Talk
+  // hay que verificar primero si el canal esta libre "LbT"
   ESP_LOGD("RAD", "[RAD] Sending: %s", _data.c_str());
   // LoRa.setTxPower(20, false);
   // se hacen 5 intentos de delibery a busy variables en caso de que el canal este ocupado
@@ -187,10 +187,11 @@ void task_radio(void *params)
 
   SPI.begin(RAD_SCK, RAD_MISO, RAD_MOSI, RAD_CSS);
   LoRa.setPins(RAD_CSS, RAD_RST, RAD_DIO0);
-  //LoRa.setSPIFrequency(1e6);
+  // LoRa.setSPIFrequency(1e6);
+  LoRa.setTxPower(10, false);
   int rad_isInit = LoRa.begin(RAD_BAND);
-  delay(500);
-  //LoRa.setTxPower(2,false);
+  delay(1000);
+  // LoRa.set(2,false);
 
   if (rad_isInit)
   {
@@ -215,11 +216,10 @@ void task_radio(void *params)
   {
     if (txValue_Lora.size() > 0)
     {
-      DEBUG_PRINT(F("LoRa:"));
-      DEBUG_PRINTLN(txValue_Lora.c_str());
+      ESP_LOGD("RAD", "[RAD] %s", txValue_Lora.c_str());
       Lora_RSSI = LoRa.packetRssi();
       Lora_SNR = LoRa.packetSnr();
     }
-    delay(40);
+    delay(50);
   }
 }
