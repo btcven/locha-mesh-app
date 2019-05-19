@@ -12,28 +12,27 @@
 
 // declaracion de librerias
 #include <Arduino.h>
-#include <string.h>
+#include <string>
 #include "memory_def.h"
 #include "route.h"
 #include "packet.h"
 
-//declaracion de variables
 // variables para trasmision BLE
 extern std::string rxValue;
 extern std::string txValue;
 // variables para trasmision Lora
 extern std::string rxValue_Lora;
 extern std::string txValue_Lora;
-/*
 extern int Lora_RSSI;
 extern int Lora_SNR;
-*/
+
 extern char* id_node; // id unico del nodo
 extern packet_t Buffer_packet;
 extern rutas_t routeTable[MAX_ROUTES];
 extern nodo_t vecinos[MAX_NODES];
 extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
 extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
+
 extern uint8_t total_mensajes_waiting; 
 extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 

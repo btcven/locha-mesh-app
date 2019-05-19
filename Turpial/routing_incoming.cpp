@@ -17,25 +17,6 @@
 #include "radio.h"
 #include "debugging.h"
 
-//declaracion de variables
-// variables para trasmision BLE
-extern std::string rxValue;
-extern std::string txValue;
-// variables para trasmision Lora
-extern std::string rxValue_Lora;
-extern std::string txValue_Lora;
-extern int Lora_RSSI;
-extern int Lora_SNR;
-
-extern char *id_node; // id unico del nodo
-extern rutas_t routeTable[MAX_ROUTES];
-extern nodo_t vecinos[MAX_NODES];
-extern message_queue_t mensajes_salientes[MAX_MSG_QUEUE];
-extern message_queue_t mensajes_waiting[MAX_MSG_QUEUE];
-extern uint8_t total_mensajes_waiting;
-extern uint8_t total_vecinos;
-extern uint8_t total_rutas;
-extern uint8_t total_mensajes_salientes;
 extern uint8_t total_rutas_blacklist;
 extern uint8_t total_nodos_blacklist;
 extern nodo_t blacklist_nodes[MAX_NODES_BLACKLIST];
@@ -260,10 +241,7 @@ uint8_t routing_incoming_PACKET_GOSSIP(char id_node[SIZE_IDNODE], packet_t packe
     uint8_t cantidad_packets = 1;
     while (1)
     {
-      DEBUG_PRINTLN("");
-      DEBUG_PRINT(F("enviando rutas...:"));
-      DEBUG_PRINTLN((String)cantidad_packets);
-      DEBUG_PRINTLN("");
+      ESP_LOGD("PROTO", "Sharing %d Routes", cantidad_packets);
       if (tamano_tmp > SIZE_PAYLOAD)
       {
         payload_tmp = payload_rutas.substr(1, SIZE_PAYLOAD);

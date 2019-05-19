@@ -77,16 +77,16 @@ bool run_pending_task = false;
 bool radio_Lora_receiving;
 
 // variables para trasmision BLE
-std::string rxValue = "";
-std::string txValue = "";
+std::string rxValue;
+std::string txValue;
 char *uid;
 char *msg;
 double timemsg;
 char *hash_msg;
 
 // variables para trasmision Lora
-std::string rxValue_Lora = "";
-std::string txValue_Lora = "";
+std::string rxValue_Lora;
+std::string txValue_Lora;
 int Lora_RSSI;
 int Lora_SNR;
 
@@ -98,11 +98,13 @@ void setup()
 {
   uint8_t i;
   char *pChar = (char *)"";
+
   radio_Lora_receiving = false;
   bool display_enabled = false;
   bool lora_enabled = false;
   bool serial_enabled = false;
   bool wifi_enabled = false;
+
   total_mensajes_salientes = 0;
   total_nodos_blacklist = 0;
   total_rutas_blacklist = 0;
@@ -141,7 +143,7 @@ void setup()
   if (SCR_ENABLED)
   {
     ESP_LOGD("MAIN", "Starting SCR module");
-    xTaskCreate(task_screen, "task_screen", 1024 * 4, NULL, 3, &SCRHandler);
+    xTaskCreate(task_screen, "task_screen", 1024 * 2, NULL, 3, &SCRHandler);
     delay(1000);
   }
 
@@ -149,7 +151,7 @@ void setup()
   {
     // BLE Server is enabled?
     ESP_LOGD("MAIN", "Starting BLE iface");
-    xTaskCreate(task_bluetooth, "task_bluetooth", 1024 * 4, NULL, 4, &BLEHandler);
+    xTaskCreate(task_bluetooth, "task_bluetooth", 1024 * 4, NULL, 5, &BLEHandler);
   }
 
   // WiFi AP aka WAP, is enabled?
