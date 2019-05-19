@@ -74,20 +74,11 @@ void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_v
   // se verifica el header del mensaje recibido a ver si es un packet valido
   if (packet_received.header.type != HELLO)
   {
-    DEBUG_PRINT(F("Procesar packet recibido por LoRa1:"));
-    DEBUG_PRINTLN((String)mensaje_recibido);
-    DEBUG_PRINT(F("Detalle del packet:"));
-    DEBUG_PRINT(F("type:"));
-    DEBUG_PRINT(convertir_packet_type_e_str(packet_received.header.type));
-    DEBUG_PRINT((String)packet_received.header.type);
-    DEBUG_PRINT(F("from:"));
-    DEBUG_PRINT(packet_received.header.from);
-    DEBUG_PRINT(F("to:"));
-    DEBUG_PRINT(packet_received.header.to);
-    DEBUG_PRINT(F("timestamp:"));
-    DEBUG_PRINT((String)packet_received.header.timestamp);
-    DEBUG_PRINT(F("payload:"));
-    DEBUG_PRINTLN(packet_received.body.payload);
+    ESP_LOGD("RAD", "[RAD] type: %s", packet_received.header.type);
+    ESP_LOGD("RAD", "[RAD] from: %s", packet_received.header.from);
+    ESP_LOGD("RAD", "[RAD] to: %s", packet_received.header.to);
+    // ESP_LOGD("RAD", "[RAD] time: %s", packet_received.header.timestamp);
+    // ESP_LOGD("RAD", "[RAD] payload: %s", packet_received.body.payload);
   }
   // si no existe la ruta previamente se agrega la nueva ruta, si existe la ruta se actualiza el age de esa ruta
 
@@ -110,6 +101,7 @@ void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_v
   else
   {
     DEBUG_PRINTLN(F("Se recibio un packet repetido, no se procesa"));
+    ESP_LOGD("RAD", "[RAD] dupped");
   }
 }
 
@@ -117,7 +109,7 @@ void process_Lora_incoming(struct nodo_t (&vecinos)[MAX_NODES], uint8_t &total_v
 void onReceive(int packetSize)
 {
   // modificaciones para evitar el error de call back
-  Serial.println("Recibiendo un packet ...");
+  ESP_LOGD("RAD", "[RAD] incoming packet..");
   if (packetSize == 0)
     return;
 
@@ -152,8 +144,7 @@ uint8_t radioSend(String _data, bool interactive)
   uint16_t delay_time = 50; // millisegundos entre reintento de envio
   uint8_t ii = 0;
   // hay que verificar primero si el canal esta libre Listen before Talk
-  DEBUG_PRINT(F("se envia el packet..."));
-  DEBUG_PRINT(_data.c_str());
+  ESP_LOGD("RAD", "[RAD] Sending: %s", _data.c_str());
   // LoRa.setTxPower(20, false);
   // se hacen 5 intentos de delibery a busy variables en caso de que el canal este ocupado
   for (ii = 0; ii < 5; ++ii)
@@ -163,9 +154,10 @@ uint8_t radioSend(String _data, bool interactive)
     {
       break; // si logra enviarse se sale de los reintentos
     }
-    DEBUG_PRINT(F("radio busy, reintentando ..."));
+
+    ESP_LOGD("RAD", "[RAD] busy, next retry in %d milliseconds", delay_time);
     delay(delay_time);
-    delay_time = 20 + delay_time; //
+    delay_time = 20 + delay_time;
   }
   LoRa.print(_data.c_str());
   done = LoRa.endPacket();
@@ -177,10 +169,9 @@ uint8_t radioSend(String _data, bool interactive)
     {
       if (ii > 0)
       {
-        DEBUG_PRINT("Cantidad de reintentos efectuados:");
-        DEBUG_PRINT((String)ii);
+        ESP_LOGD("RAD", "Retry: %d", ii);
       }
-      DEBUG_PRINTLN(F("enviado OK"));
+      ESP_LOGD("RAD", "OK");
       return 1;
     }
   }
