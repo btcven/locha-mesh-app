@@ -13,12 +13,17 @@
 #include <WiFi.h>
 #include "WST.h"
 #include "NVS.h"
+#include "memory_def.h"
 #include "hal/hardware.h"
+
+
+char* WST_SSID;
+char* WST_PASS;
 
 esp_err_t WST_INIT()
 {
     const char *TAG = "WAP";
-
+    
     // get values from NVS or set default values from hal/hardware.h
     const char *wst_ssid(nvs_get_string(TAG, "ssid", WST_SSID, true));
     const char *wst_pass(nvs_get_string(TAG, "pass", WST_PASS, true));

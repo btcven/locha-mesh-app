@@ -12,7 +12,13 @@
 #include <WiFi.h>
 #include "WAP.h"
 #include "NVS.h"
+#include "memory_def.h"
 #include "hal/hardware.h"
+
+char* WAP_SSID;
+char* WAP_PASS;
+int WAP_CHANNEL=5;
+int WAP_MAXCONN=4;  // could be from 0 to 8
 
 esp_err_t WAP_INIT()
 {

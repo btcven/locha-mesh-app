@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file heltec_V2.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
@@ -14,12 +14,12 @@
 #define HELTEC_V2_H
 
 // Los siguientes parametros son tomados por defecto
-// algunos de ellos pueden ser sobreescritos en tiempo de ejecución.
+// algunos de ellos pueden ser sobreescritos en tiempo de ejecuci�n.
 #define SCR_ENABLED     true
 #define RAD_ENABLED     true
 #define BLE_ENABLED     true
-#define WST_ENABLED     true
-#define WAP_ENABLED     true
+#define WST_ENABLED     false
+#define WAP_ENABLED     false
 #define LED_ENABLED     true
 #define BTN_ENABLED     true
 

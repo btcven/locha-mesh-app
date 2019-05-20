@@ -24,24 +24,19 @@
 
 extern char *id_node;
 
+
+/**
+ * @brief Handler for Auto Hello
+ * 
+ */
+TaskHandle_t AUTO_HELLO_Handler;
+
+
 // variable for Auto hello timing control
 unsigned long time_since_last_auto_hello = millis();
 
 
-/*
-  extern WiFiServer server;
-*/
-void NetworkPeer(void *params)
-{
 
-  for (;;)
-  {
-    /*
-      WiFiClient client = server.available(); // listen for incoming clients
-      responses_WAP(client);
-    */
-  }
-}
 
 
 void AUTO_HELLO(void *params) {
@@ -51,6 +46,7 @@ void AUTO_HELLO(void *params) {
 const char *TAG = "AUTO_HELLO";
 
   while (1) {
+    ESP_LOGD(TAG, "Inside AUTO HELLO");
     if (millis() < time_since_last_auto_hello) {
       time_since_last_auto_hello = millis();
     }
@@ -67,6 +63,25 @@ const char *TAG = "AUTO_HELLO";
         ESP_LOGD(TAG, "Error sending Packet HELLO to database");
       }
     }
+    delay(50);
+  }
+}
+
+/*
+  extern WiFiServer server;
+*/
+void NetworkPeer(void *params)
+{
+  const char *TAG = "NetworkPeer";
+  ESP_LOGD(TAG, "Starting AUTO HELLO");
+  xTaskCreatePinnedToCore(AUTO_HELLO, "AUTO_HELLO", 2048, NULL, 5, &AUTO_HELLO_Handler, ARDUINO_RUNNING_CORE);
+  while(1)
+  {
+    /*
+      WiFiClient client = server.available(); // listen for incoming clients
+      responses_WAP(client);
+    */
+    ESP_LOGD(TAG, "Inside network peer");
     delay(50);
   }
 }

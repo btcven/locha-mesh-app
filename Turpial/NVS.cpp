@@ -167,17 +167,17 @@ int32_t nvs_get_int(const char *name, const char *key, int32_t defaultValue, boo
     if (nvs.begin(name, false))
     {
         ESP_LOGV(TAG, "NVS namespace %s is open", name);
-        int32_t value = nvs.getInt(key, NULL);
-        if (value == NULL)
+        int32_t value = nvs.getInt(key, -1);  // se coloca -1 que es equivalente a NULL para un entero, porque esta funcion no puede recibir NULL
+        if (value >=0)
         {
             if (upset)
             {
                 // upset enabled
                 ESP_LOGD(TAG, "%s %s not found, trying to save it", name, key);
                 size_t stored = nvs.putInt(key, defaultValue);
-                value = nvs.getInt(key, NULL);
+                value = nvs.getInt(key, -1);
                 nvs.end();
-                if (value == NULL)
+                if (value >=0)
                 {
                     // error saving
                     ESP_LOGE(TAG, "Saving.. returning default value for %s %s", name, key);
@@ -222,18 +222,19 @@ bool nvs_get_bool(const char *name, const char *key, bool defaultValue, bool ups
     {
         ESP_LOGV(TAG, "NVS namespace %s is open", name);
 
-        bool value = nvs.getBool(key, NULL);
+        bool value = nvs.getBool(key, false);
 
-        if (value == NULL)
+        if (value >=0)
         {
             if (upset)
             {
                 ESP_LOGD(TAG, "%s %s not found, trying to save it", name, key);
                 size_t stored = nvs.putBool(key, defaultValue);
-                value = nvs.getBool(key, NULL);
+                value=false;
+                value = nvs.getBool(key, false);
                 nvs.end();
 
-                if (value == NULL)
+                if (value==defaultValue)
                 {
                     // error saving
                     ESP_LOGE(TAG, "Saving.. returning default value for %s %s", name, key);
