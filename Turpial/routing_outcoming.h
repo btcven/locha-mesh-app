@@ -30,7 +30,6 @@ extern uint8_t total_vecinos;
 extern uint8_t total_rutas; 
 extern uint8_t total_mensajes_salientes; 
 
-// declaracion de funciones
 uint8_t routing_outcoming_PACKET_MSG(char* id_node_destino, char mensaje[]);
 
 
