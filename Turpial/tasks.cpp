@@ -42,7 +42,7 @@ unsigned long time_since_last_auto_hello = millis();
 void AUTO_HELLO(void *params) {
   packet_t packet_hello;
   char *pChar = (char *)"";
-  char* packet_in_char;
+  char *packet_in_char = (char *)"";
 const char *TAG = "AUTO_HELLO";
 
   while (1) {
@@ -51,11 +51,17 @@ const char *TAG = "AUTO_HELLO";
       time_since_last_auto_hello = millis();
     }
     if ((millis() - time_since_last_auto_hello) > HELLO_RETRY_TIMEOUT) {
-      ESP_LOGD(TAG, "Sending packet HELLO");
-      packet_hello = construct_packet_HELLO(id_node, pChar);
       
+      packet_hello = construct_packet_HELLO(id_node, id_node);
+      ESP_LOGD(TAG, "Sending packet HELLO from:%s",packet_hello.header.from);
+      ESP_LOGD(TAG, "Sending packet HELLO to:%s",packet_hello.header.to);
+            ESP_LOGD(TAG, "Sending packet HELLO size:%d",sizeof(packet_hello));
+            ESP_LOGD(TAG, "Sending packet HELLO next:%s",packet_hello.header.next_neighbor);
+      ESP_LOGD(TAG, "packet HELLO already construct ...");
       packet_to_char(packet_in_char, packet_hello, sizeof(packet_hello));
+      ESP_LOGD(TAG, "packet HELLO converting to string ...");
       std::string mystring(packet_in_char);
+      ESP_LOGD(TAG, "packet HELLO already sending now...");
       bool rpta = radioSend(mystring);
       if (rpta) {
         ESP_LOGD(TAG, "Packet HELLO sent to database OK");
