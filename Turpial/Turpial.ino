@@ -28,6 +28,14 @@ WiFiServer server(80);
 
 void setup()
 {
+/**
+   * @brief Generating Unique Device ID
+   * 
+   */
+   std::string mac_device=get_id_mac();
+   id_node=string2char(mac_device);
+  Serial.begin(115200);
+  ESP_LOGD("Setup", "Id device %s", id_node);
   esp_err_t sys_init;
 
   /**

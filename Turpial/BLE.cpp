@@ -14,6 +14,7 @@
 #include <BLE2902.h>
 #include "BLE.h"
 #include "NVS.h"
+#include "general_utils.h"
 #include "hal/hardware.h"
 
 BLEServer *ble_server = NULL;
@@ -131,7 +132,10 @@ esp_err_t BLE_INIT()
     if (BLE_enabled)
     {
         ESP_LOGD(TAG, "[BLE] enabled on boot, starting..");
-        xTaskCreatePinnedToCore(BLE_task, "BLE_task", 2048 * 2, NULL, 5, &bleTaskHandler, 1);
+        xTaskCreatePinnedToCore(BLE_task, "BLE_task", 6144, NULL, 4, &bleTaskHandler, 1);
+        float temp1 = GetTaskHighWaterMarkPercent(bleTaskHandler, 6144);
+  ESP_LOGD(TAG, "[BLE] calculating stack size");
+printf(" %04.1f%%\r\n",temp1);
     }
     else
     {

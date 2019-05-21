@@ -330,3 +330,35 @@ std::string freeRam()
 {
   return number_to_str(ESP.getFreeHeap());
 }
+
+UBaseType_t GetTaskHighWaterMark( TaskHandle_t task_handle )
+{
+  UBaseType_t uxHighWaterMark;
+  uxHighWaterMark = uxTaskGetStackHighWaterMark( task_handle );
+  return uxHighWaterMark;
+}
+/* -----------------------------------------------------------------------------
+  GetTaskHighWaterMarkPercent( TaskHandle_t task_handle, uint32_t stack_allotment )
+
+   Input Params:
+    - task_handle: The task name you want to examine
+    - stack_allotment:  How much stack space did you allocate to it when you created it
+
+  Returns: float with the % of stacke used
+  Example:   printf("Stack Used %04.1f%%\r\n", GetTaskHighWaterMarkPercent(xTask1, 2048) );
+  Notes:
+ -----------------------------------------------------------------------------*/
+float GetTaskHighWaterMarkPercent( TaskHandle_t task_handle, uint32_t stack_allotment )
+{
+  UBaseType_t uxHighWaterMark;
+  uint32_t diff;
+  float result;
+
+  uxHighWaterMark = uxTaskGetStackHighWaterMark( task_handle );
+
+  diff = stack_allotment - uxHighWaterMark;
+
+  result = ( (float)diff / (float)stack_allotment ) * 100.0;
+
+  return result;
+}

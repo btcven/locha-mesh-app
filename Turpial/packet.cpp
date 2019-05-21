@@ -80,24 +80,30 @@ packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subti
    //      header.packet_sub.security_type=subtipo_packet;
    //     break;
    // }
-  
-  copy_array(from, header.from, SIZE_IDNODE);
-  copy_array(to, header.to, SIZE_IDNODE);
-  copy_array(next_neighbor, header.next_neighbor, SIZE_IDNODE);
+  header.from=from;
+  ESP_LOGD("create_packet", "Id device from %s", from);
+  ESP_LOGD("create_packet", "Id device header.from %s", from);
+  //copy_array(from, header.from, SIZE_IDNODE);
+  header.to=to;
+  //copy_array(to, header.to, SIZE_IDNODE);
+  header.next_neighbor=next_neighbor;
+  //copy_array(next_neighbor, header.next_neighbor, SIZE_IDNODE);
   header.timestamp = millis();
-  copy_array(checksum_data, header.checksum_data, SIZE_HASH_MSG);
+  header.checksum_data=checksum_data;
+  //copy_array(checksum_data, header.checksum_data, SIZE_HASH_MSG);
 
   // el payload depende del tipo de packet_t
   if (tipo_packet==DATA){
-    copy_array(payload, body.body_data_splitted.payload, SIZE_PAYLOAD);
+    body.body_data_splitted.payload=payload;
+    //copy_array(payload, body.body_data_splitted.payload, SIZE_PAYLOAD);
     
     body.body_data.payload_length = sizeof(body.body_data_splitted.payload);
     body.body_data_splitted.packet_number=packet_number;
      body.body_data_splitted.packet_total=packet_total;
      body.body_data_splitted.not_delivered_type=EMPTY_NOT_DELIVERED;
   } else {
-    
-     copy_array(payload, body.body_data.payload, SIZE_PAYLOAD);
+    body.body_data.payload=payload;
+     //copy_array(payload, body.body_data.payload, SIZE_PAYLOAD);
      body.body_data.payload_length = sizeof(body.body_data.payload);
   }
   
@@ -150,6 +156,8 @@ void show_packet(packet_t packet_rx,const char *TAG)
     ESP_LOGE(TAG,"subtype: %02X", packet_rx.header.packet_sub);
     ESP_LOGE(TAG,"from: %s", packet_rx.header.from);
     ESP_LOGE(TAG,"to: %s", packet_rx.header.to);
+    
+    ESP_LOGE(TAG,"next: %s", packet_rx.header.next_neighbor);
     ESP_LOGE(TAG,"----------------------------------------\n");
     if (packet_rx.header.packet_type==DATA){ 
         ESP_LOGE(TAG,"body length: %d", packet_rx.body.body_data_splitted.payload_length);
@@ -166,13 +174,16 @@ void show_packet(packet_t packet_rx,const char *TAG)
 packet_t construct_packet_HELLO(char *id_node,char *from)
 {
   packet_t packet_HELLO;
-  
+  const char *TAG = "Packet HELLO construct";
   char *pChar = (char *)"";
   
   subtype_u subtipo_packet;
   subtipo_packet.routing_type=HELLO;
-  packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, from, pChar, pChar, pChar, pChar);
-  
+    ESP_LOGD("construct_packet_HELLO", "Id device %s", from);
+  packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, from, " ", " ", " ", " ");
+  ESP_LOGD(TAG, "creating packet");
+  show_packet(packet_HELLO,TAG);
+  ESP_LOGD(TAG, "show packet ready");
   return packet_HELLO;
 }
 
