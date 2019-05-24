@@ -201,8 +201,7 @@ char* convertir_packet_type_e_str(packet_type_e type_recibido);
  * @param payload 
  * @return packet_t 
  */
-packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload, uint16_t packet_number, uint16_t packet_total);
-
+packet_t create_packet(packet_type_e tipo_packet, subtype_u subtipo_packet, const char *from, const char *to, const char *next_neighbor, char *checksum_data, char *payload, uint16_t packet_number, uint16_t packet_total);
 /**
  * @brief 
  * 
@@ -210,7 +209,7 @@ packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subti
  * @param from 
  * @return packet_t 
  */
-packet_t construct_packet_HELLO(char *id_node,char *from);
+packet_t construct_packet_HELLO(const char *from);
 
 /**
  * @brief 
@@ -219,7 +218,7 @@ packet_t construct_packet_HELLO(char *id_node,char *from);
  * @param to 
  * @return packet_t 
  */
-packet_t construct_packet_JOIN(char *id_node,char *to);
+packet_t construct_packet_JOIN(const char *id_node_from,const char *to);
 
 /**
  * @brief 

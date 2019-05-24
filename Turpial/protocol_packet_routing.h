@@ -19,7 +19,7 @@
 #include "SQLite.h"
 
 
-void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
+void protocol_incoming_PACKET_ROUTING_HELLO( packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
 
 /**
  * @brief 
@@ -27,7 +27,7 @@ void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t 
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_JOIN(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_JOIN( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -35,7 +35,7 @@ void protocol_incoming_PACKET_ROUTING_JOIN(char id_node[SIZE_IDNODE], packet_t p
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_GOSSIP(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_GOSSIP( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -43,7 +43,7 @@ void protocol_incoming_PACKET_ROUTING_GOSSIP(char id_node[SIZE_IDNODE], packet_t
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_ROUTE(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_ROUTE( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -51,7 +51,7 @@ void protocol_incoming_PACKET_ROUTING_ROUTE(char id_node[SIZE_IDNODE], packet_t 
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_BYE(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_BYE( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -59,6 +59,6 @@ void protocol_incoming_PACKET_ROUTING_BYE(char id_node[SIZE_IDNODE], packet_t pa
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido,sqlite3 *db);
+void protocol_incoming_PACKET_ROUTING( packet_t packet_temporal, int RSSI_recibido, int SNR_recibido,sqlite3 *db);
 
 #endif // PROTOCOL_PACKET_ROUTING_H

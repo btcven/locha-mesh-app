@@ -14,6 +14,7 @@
 #include "packet.h"
 #include "general_utils.h"
 
+extern char *id_node;
 
 /**
  * @brief: from packet_t to uint8_t array
@@ -55,10 +56,14 @@ void char_to_packet(packet_t *target, uint8_t *source, size_t s_size)
 
 
 // Funcion para construir un packet dao el origen, destino, tipo y contenido (payload)
-packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload, uint16_t packet_number, uint16_t packet_total)
+packet_t create_packet(packet_type_e tipo_packet, subtype_u subtipo_packet, const char *from, const char *to, const char *next_neighbor, char *checksum_data, char *payload, uint16_t packet_number, uint16_t packet_total)
 {
-
-  
+ char *to_inchar;
+ char *from_inchar; 
+ char *next_inchar;
+  memcpy(from_inchar,from,sizeof(from));
+  memcpy(to_inchar,to,sizeof(to));
+  memcpy(next_inchar,next_neighbor,sizeof(next_neighbor));
   
   packet_header_t header;
   body_data_u body;
@@ -80,13 +85,13 @@ packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subti
    //      header.packet_sub.security_type=subtipo_packet;
    //     break;
    // }
-  header.from=from;
+  header.from=from_inchar;
   ESP_LOGD("create_packet", "Id device from %s", from);
-  ESP_LOGD("create_packet", "Id device header.from %s", from);
+  ESP_LOGD("create_packet", "Id device header.from %s", from_inchar);
   //copy_array(from, header.from, SIZE_IDNODE);
-  header.to=to;
+  header.to=to_inchar;
   //copy_array(to, header.to, SIZE_IDNODE);
-  header.next_neighbor=next_neighbor;
+  header.next_neighbor=next_inchar;
   //copy_array(next_neighbor, header.next_neighbor, SIZE_IDNODE);
   header.timestamp = millis();
   header.checksum_data=checksum_data;
@@ -114,8 +119,8 @@ packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subti
 }
 
 // create_packet overload for individual packets
-packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload){
-  return create_packet(id_node, tipo_packet, subtipo_packet, from, to, next_neighbor, checksum_data, payload, 1,1);
+packet_t create_packet(packet_type_e tipo_packet, subtype_u subtipo_packet, const char *from, const char *to, const char *next_neighbor, char *checksum_data, char *payload){
+  return create_packet( tipo_packet, subtipo_packet, from, to, next_neighbor, checksum_data, payload, 1,1);
   
 }
 
@@ -171,32 +176,34 @@ void show_packet(packet_t packet_rx,const char *TAG)
    
 }
 
-packet_t construct_packet_HELLO(char *id_node,char *from)
+packet_t construct_packet_HELLO(const char *from)
 {
   packet_t packet_HELLO;
   const char *TAG = "Packet HELLO construct";
   char *pChar = (char *)"";
+  const char *p2Char = (char *)"";
   
   subtype_u subtipo_packet;
   subtipo_packet.routing_type=HELLO;
     ESP_LOGD("construct_packet_HELLO", "Id device %s", from);
-  packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, from, " ", " ", " ", " ");
+  packet_HELLO=create_packet( ROUTING, subtipo_packet, from, p2Char, p2Char, pChar, pChar);
   ESP_LOGD(TAG, "creating packet");
   show_packet(packet_HELLO,TAG);
   ESP_LOGD(TAG, "show packet ready");
   return packet_HELLO;
 }
 
-packet_t construct_packet_JOIN(char *id_node,char *to)
+packet_t construct_packet_JOIN(const char *id_node_from,const char *to)
 {
   packet_t packet_JOIN;
   
-  char *pChar = (char *)"";
+  const char *pChar = (char *)"";
+  char *p2Char = (char *)"";
   char *p_payload = (char *)"";
   
   subtype_u subtipo_packet;
   subtipo_packet.routing_type=JOIN;
-  packet_JOIN=create_packet(id_node, ROUTING, subtipo_packet, id_node, to, pChar, pChar, p_payload);
+  packet_JOIN=create_packet( ROUTING, subtipo_packet, id_node_from, to, pChar, p2Char, p_payload);
   
   return packet_JOIN;
 }

@@ -19,6 +19,7 @@
   #include "protocol_packet_routing.h"
   #include "protocol_packet_security.h"
 
+extern char *id_node;
 
 /**
  * @brief Process a received packet , is processed based on packet.header.type , each type had their own void to process
@@ -29,7 +30,7 @@
  * @param SNR_recibido 
  * @param db 
  */
- void process_received_packet(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db){
+ void process_received_packet( packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db){
   uint8_t rpta;
   char *pChar = (char*)"";
   const char *TAG = "process_received_packet";
@@ -50,13 +51,13 @@
                   ESP_LOGE(TAG, "Node:%s is sending EMPTY packets, review it or block it (add to blacklist)", packet_temporal.header.from);
               break;
             case DATA:
-                protocol_incoming_PACKET_DATA(id_node, packet_temporal);
+                protocol_incoming_PACKET_DATA( packet_temporal);
                 break;
             case ROUTING:
-                protocol_incoming_PACKET_ROUTING(id_node, packet_temporal,RSSI_recibido, SNR_recibido,db);
+                protocol_incoming_PACKET_ROUTING( packet_temporal,RSSI_recibido, SNR_recibido,db);
                 break;
             case SECURITY:
-                protocol_incoming_PACKET_SECURITY(id_node, packet_temporal);
+                protocol_incoming_PACKET_SECURITY( packet_temporal);
                 break;
             default:
               break;

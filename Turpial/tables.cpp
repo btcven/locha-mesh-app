@@ -17,6 +17,8 @@
 #include "SQLite.h"
 #include "tables.h"
 
+extern char *id_node;
+
 /**
  * @brief check if a node is blacklisted
  * 
@@ -25,11 +27,11 @@
  * @return true 
  * @return false 
  */
-uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db)
+uint8_t is_blacklisted(char id_node_eval[SIZE_IDNODE], sqlite3 *db)
 {
   std::string query;
   query.append("SELECT COUNT(*) from BLACKLISTED_NODES WHERE ID='");
-  query.append(id_node);
+  query.append(id_node_eval);
   query.append("'");
   int rpta = buscar_valor((char *)query.c_str(), db);
   if (rpta > 0)
@@ -47,12 +49,12 @@ uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db)
  * @return true 
  * @return false 
  */
-bool is_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
+bool is_neighbour(char id_node_eval[SIZE_IDNODE], sqlite3 *db)
 {
 
   std::string query;
   query.append("SELECT COUNT(*) from NODES WHERE ID='");
-  query.append(id_node);
+  query.append(id_node_eval);
   query.append("'");
 
   int rpta = buscar_valor((char *)query.c_str(), db);
@@ -74,17 +76,17 @@ bool is_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
  * @return true 
  * @return false 
  */
-bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db)
+bool create_blacklisted_node(char id_node_eval[SIZE_IDNODE], sqlite3 *db)
 {
   std::string query;
   char *pChar = (char *)"";
 
-  if (!(compare_char(id_node, pChar)))
+  if (!(compare_char(id_node_eval, pChar)))
   {
-    if ((is_blacklisted(id_node, db) == 0))
+    if ((is_blacklisted(id_node_eval, db) == 0))
     {
       query.append("INSERT INTO BLACKLISTED_NODES ( id ) VALUES ('");
-      query.append(id_node);
+      query.append(id_node_eval);
       query.append("')");
 
       bool rpta = ejecutar((char *)query.c_str(), db);
@@ -109,7 +111,7 @@ bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db)
  * @return true 
  * @return false 
  */
-bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
+bool create_neighbour(char id_node_neig[SIZE_IDNODE], sqlite3 *db)
 {
   /**
    * se verifica que el id_node no sea vacio
@@ -122,14 +124,14 @@ bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
   std::string query;
   char *pChar = (char *)"";
 
-  if (!(compare_char(id_node, pChar)))
+  if (!(compare_char(id_node_neig, pChar)))
   {
-    if ((is_blacklisted(id_node, db) == 0))
+    if ((is_blacklisted(id_node_neig, db) == 0))
     {
-      if (!(is_neighbour(id_node, db)))
+      if (!(is_neighbour(id_node_neig, db)))
       {
         query.append("INSERT INTO NODES ( id, date_created ) VALUES ('");
-        query.append(id_node);
+        query.append(id_node_neig);
         query.append("',date('now'))");
         bool rpta = ejecutar((char *)query.c_str(), db);
 
@@ -159,11 +161,11 @@ bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
  * @return true 
  * @return false 
  */
-bool delete_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db)
+bool delete_neighbour(char id_node_neig[SIZE_IDNODE], sqlite3 *db)
 {
   std::string query;
   query.append("DELETE FROM NODES where id='");
-  query.append(id_node);
+  query.append(id_node_neig);
   query.append("'");
   bool rpta = ejecutar((char *)query.c_str(), db);
   return rpta;

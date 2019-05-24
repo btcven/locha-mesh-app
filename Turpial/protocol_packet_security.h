@@ -25,7 +25,7 @@
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_SECURITY_START(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_START( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -33,7 +33,7 @@ void protocol_incoming_PACKET_SECURITY_START(char id_node[SIZE_IDNODE], packet_t
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_SECURITY_TEST(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_TEST( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -41,7 +41,7 @@ void protocol_incoming_PACKET_SECURITY_TEST(char id_node[SIZE_IDNODE], packet_t 
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_SECURITY_RESPONSE(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_RESPONSE( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -49,6 +49,6 @@ void protocol_incoming_PACKET_SECURITY_RESPONSE(char id_node[SIZE_IDNODE], packe
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_SECURITY(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY( packet_t packet_temporal);
 
 #endif // PROTOCOL_PACKET_SECURITY_H

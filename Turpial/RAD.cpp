@@ -1,14 +1,14 @@
 /**
- * @file RAD.cpp
- * @author locha.io project developers (dev@locha.io)
- * @brief 
- * @version 0.1
- * @date 2019-04-24
- * 
- * @copyright Copyright (c) 2019 locha.io project developers
- * @license MIT license, see LICENSE file for details
- * 
- */
+   @file RAD.cpp
+   @author locha.io project developers (dev@locha.io)
+   @brief
+   @version 0.1
+   @date 2019-04-24
+
+   @copyright Copyright (c) 2019 locha.io project developers
+   @license MIT license, see LICENSE file for details
+
+*/
 #include <Arduino.h>
 #include <LoRaLib.h>
 #include "RAD.h"
@@ -17,6 +17,8 @@
 #include "memory_def.h"
 #include "general_utils.h"
 #include "NVS.h"
+
+
 
 int Lora_FQERROR;
 int Lora_RSSI;
@@ -60,13 +62,13 @@ void setFlag(void)
 }
 
 /**
- * @brief send a string throw Radio
- * 
- * @param data_to_send 
- * @return true 
- * @return false 
- */
-bool radioSend(std::string data_to_send)
+   @brief send a string throw Radio
+
+   @param data_to_send
+   @return true
+   @return false
+*/
+bool radioSend(uint8_t *data_to_send, size_t size_of_data)
 {
   bool rpta = false;
   const char *TAG = "RADIO Send";
@@ -74,8 +76,8 @@ bool radioSend(std::string data_to_send)
   int state = lora.scanChannel();
   if (state == CHANNEL_FREE)
   {
-    byte byteArr[] = {0x01, 0x23, 0x45, 0x56, 0x78, 0xAB, 0xCD, 0xEF};
-    state = lora.startTransmit(byteArr, 8);
+
+    state = lora.startTransmit(data_to_send, size_of_data);
     if (state != ERR_NONE)
     {
       ESP_LOGD(TAG, "Transmission failed, code %s", state);
@@ -91,10 +93,10 @@ bool radioSend(std::string data_to_send)
 }
 
 /**
- * @brief Task for async access to Radio interface, managed as callback
- * 
- * @param params 
- */
+   @brief Task for async access to Radio interface, managed as callback
+
+   @param params
+*/
 void task_radio(void *params)
 {
   char *TAG = "RADIO TASK";
@@ -168,10 +170,10 @@ void task_radio(void *params)
 }
 
 /**
- * @brief Start Radio interface
- * 
- * @return esp_err_t 
- */
+   @brief Start Radio interface
+
+   @return esp_err_t
+*/
 esp_err_t RAD_INIT()
 {
   const char *TAG = "RADIO";
@@ -218,6 +220,8 @@ esp_err_t RAD_INIT()
     lora.setDio0Action(setFlag);
 
     xTaskCreatePinnedToCore(task_radio, "task_radio", 2048, NULL, 5, &radioHandle, ARDUINO_RUNNING_CORE);
+    float temp1 = GetTaskHighWaterMarkPercent(radioHandle, 2048);
+    ESP_LOGD(TAG, "calculating stack size:%04.1f%%\r space free (unused)", temp1);
   }
 
   return ESP_OK;

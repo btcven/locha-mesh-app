@@ -20,6 +20,8 @@
 #include "tables.h"
 //  #include "protocol_packet_routing.h"
 
+extern char *id_node;
+
 /**
  * @brief process incoming packet type DATA , subtype HELLO
  * 
@@ -29,7 +31,7 @@
  * @param SNR_recibido 
  * @param db 
  */
-void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db)
+void protocol_incoming_PACKET_ROUTING_HELLO( packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db)
 {
     /**
     * se verifica si el remitente esta en blacklist
@@ -41,7 +43,7 @@ void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t 
     */
     char *pChar = (char *)"";
 
-    if ((is_blacklisted(id_node, db) == 0))
+    if ((is_blacklisted(packet_temporal.header.from, db) == 0))
     {
         if (!(is_blacklisted_route(packet_temporal.header.from, id_node, db)))
         {
@@ -62,22 +64,22 @@ void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t 
 }
 
 // manejo de packets  JOIN
-void protocol_incoming_PACKET_ROUTING_JOIN(char id_node[SIZE_IDNODE], packet_t packet_temporal)
+void protocol_incoming_PACKET_ROUTING_JOIN( packet_t packet_temporal)
 {
 }
 
 // manejo del packets  GOSSIP
-void protocol_incoming_PACKET_ROUTING_GOSSIP(char id_node[SIZE_IDNODE], packet_t packet_temporal)
+void protocol_incoming_PACKET_ROUTING_GOSSIP( packet_t packet_temporal)
 {
 }
 
 // manejo del packets  ROUTE
-void protocol_incoming_PACKET_ROUTING_ROUTE(char id_node[SIZE_IDNODE], packet_t packet_temporal)
+void protocol_incoming_PACKET_ROUTING_ROUTE( packet_t packet_temporal)
 {
 }
 
 // manejo del packets  BYE
-void protocol_incoming_PACKET_ROUTING_BYE(char id_node[SIZE_IDNODE], packet_t packet_temporal)
+void protocol_incoming_PACKET_ROUTING_BYE( packet_t packet_temporal)
 {
 }
 
@@ -90,7 +92,7 @@ void protocol_incoming_PACKET_ROUTING_BYE(char id_node[SIZE_IDNODE], packet_t pa
  * @param SNR_recibido 
  * @param db 
  */
-void protocol_incoming_PACKET_ROUTING(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db)
+void protocol_incoming_PACKET_ROUTING( packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db)
 {
     // se clasifica se acuerdo al subtipo de packet recibido
     switch (packet_temporal.header.packet_sub.routing_type)
@@ -98,19 +100,19 @@ void protocol_incoming_PACKET_ROUTING(char id_node[SIZE_IDNODE], packet_t packet
     case EMPTY_ROUTING:
         break;
     case HELLO:
-        protocol_incoming_PACKET_ROUTING_HELLO(id_node, packet_temporal, RSSI_recibido, SNR_recibido, db);
+        protocol_incoming_PACKET_ROUTING_HELLO( packet_temporal, RSSI_recibido, SNR_recibido, db);
         break;
     case JOIN:
-        protocol_incoming_PACKET_ROUTING_JOIN(id_node, packet_temporal);
+        protocol_incoming_PACKET_ROUTING_JOIN( packet_temporal);
         break;
     case GOSSIP:
-        protocol_incoming_PACKET_ROUTING_GOSSIP(id_node, packet_temporal);
+        protocol_incoming_PACKET_ROUTING_GOSSIP( packet_temporal);
         break;
     case ROUTE:
-        protocol_incoming_PACKET_ROUTING_ROUTE(id_node, packet_temporal);
+        protocol_incoming_PACKET_ROUTING_ROUTE( packet_temporal);
         break;
     case BYE:
-        protocol_incoming_PACKET_ROUTING_BYE(id_node, packet_temporal);
+        protocol_incoming_PACKET_ROUTING_BYE( packet_temporal);
         break;
     }
 }

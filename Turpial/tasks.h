@@ -15,6 +15,7 @@
 #include "RAD.h"
 
 
+extern char *id_node;
 
  void NetworkPeer(void *params);
  void AUTO_HELLO(void *params);

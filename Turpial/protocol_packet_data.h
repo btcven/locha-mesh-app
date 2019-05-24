@@ -25,7 +25,7 @@
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_MSG(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_MSG( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -33,7 +33,7 @@ void protocol_incoming_PACKET_ROUTING_MSG(char id_node[SIZE_IDNODE], packet_t pa
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_TXN(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_TXN( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -41,7 +41,7 @@ void protocol_incoming_PACKET_ROUTING_TXN(char id_node[SIZE_IDNODE], packet_t pa
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_BINARY(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_BINARY( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -49,7 +49,7 @@ void protocol_incoming_PACKET_ROUTING_BINARY(char id_node[SIZE_IDNODE], packet_t
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_ACK(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_ACK( packet_t packet_temporal);
 
 /**
  * @brief 
@@ -57,7 +57,7 @@ void protocol_incoming_PACKET_ROUTING_ACK(char id_node[SIZE_IDNODE], packet_t pa
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED( packet_t packet_temporal);
 
 /**
  * @brief select processing option based on data_type received
@@ -65,7 +65,7 @@ void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(char id_node[SIZE_IDNODE], p
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_DATA(char id_node[SIZE_IDNODE], packet_t packet_temporal);
+void protocol_incoming_PACKET_DATA( packet_t packet_temporal);
 
 
 #endif // PROTOCOL_PACKET_DATA_H

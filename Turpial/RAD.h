@@ -29,6 +29,6 @@ esp_err_t RAD_INIT();
  * @return true 
  * @return false 
  */
-bool radioSend(std::string data_to_send);
+bool radioSend(uint8_t *data_to_send, size_t size_of_data);
 
 #endif // RAD_H

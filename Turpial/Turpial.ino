@@ -93,8 +93,10 @@ void setup()
    * @brief Start a master task, running network peer routines.
    * 
    */
-  xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 2048, NULL, 5, &peerHandler, ARDUINO_RUNNING_CORE);
-  //xTaskCreatePinnedToCore(AUTO_HELLO, "AUTO_HELLO", 2048, NULL, 2, &AUTO_HELLO_Handler, ARDUINO_RUNNING_CORE);
+   ESP_LOGD("Setup", "antes del task Id device %s", id_node);
+  xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 6144, NULL, 5, &peerHandler, ARDUINO_RUNNING_CORE);
+
+   ESP_LOGD("Setup", "al final Id device %s", id_node);
 }
 
 void loop()

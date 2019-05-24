@@ -22,7 +22,7 @@
  * @param db 
  * @return uint8_t 
  */
-uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db);
+uint8_t is_blacklisted(char id_node_eval[SIZE_IDNODE], sqlite3 *db);
 /**
  * @brief Create a blacklisted node object
  * 
@@ -31,7 +31,7 @@ uint8_t is_blacklisted(char id_node[SIZE_IDNODE], sqlite3 *db);
  * @return true 
  * @return false 
  */
-bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db);
+bool create_blacklisted_node(char id_node_eval[SIZE_IDNODE], sqlite3 *db);
 /**
  * @brief 
  * 
@@ -40,7 +40,7 @@ bool create_blacklisted_node(char id_node[SIZE_IDNODE], sqlite3 *db);
  * @return true 
  * @return false 
  */
-bool is_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db);
+bool is_neighbour(char id_node_eval[SIZE_IDNODE], sqlite3 *db);
 /**
  * @brief Create a neighbour object
  * 
@@ -49,7 +49,7 @@ bool is_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db);
  * @return true 
  * @return false 
  */
-bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db);
+bool create_neighbour(char id_node_neig[SIZE_IDNODE], sqlite3 *db);
 /**
  * @brief 
  * 
@@ -58,7 +58,7 @@ bool create_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db);
  * @return true 
  * @return false 
  */
-bool delete_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db);
+bool delete_neighbour(char id_node_neig[SIZE_IDNODE], sqlite3 *db);
 /**
  * @brief Create a route object
  * 

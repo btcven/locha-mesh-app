@@ -134,8 +134,7 @@ esp_err_t BLE_INIT()
         ESP_LOGD(TAG, "[BLE] enabled on boot, starting..");
         xTaskCreatePinnedToCore(BLE_task, "BLE_task", 6144, NULL, 4, &bleTaskHandler, 1);
         float temp1 = GetTaskHighWaterMarkPercent(bleTaskHandler, 6144);
-  ESP_LOGD(TAG, "[BLE] calculating stack size");
-printf(" %04.1f%%\r\n",temp1);
+        ESP_LOGD(TAG, "calculating stack size:%04.1f%%\r space free (unused)",temp1);
     }
     else
     {
