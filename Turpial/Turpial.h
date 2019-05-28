@@ -15,8 +15,6 @@
 
 #include <Arduino.h>
 
-
-
 /**
  * @brief Handler for network task
  * 
@@ -28,6 +26,5 @@ TaskHandle_t peerHandler;
  * 
  */
 TaskHandle_t AUTO_HELLO_Handler;
-
 
 #endif // TURPIAL_H

@@ -12,10 +12,10 @@
 
 #include <Arduino.h>
 #include "Hash.h"
-
 #include "crypto_utils.h"
 #include "general_utils.h"
 #include "memory_def.h"
+
 /*
 // esta funcion verifica si el hash del mensaje es valido comparando el hash160
 bool is_valid_hash160(char *mensaje, char *hash_recibido)
@@ -43,7 +43,6 @@ std::string hash160(char *mensaje)
 
 */
 
-
 /**
  * @brief 
  * 
@@ -57,7 +56,6 @@ uint8_t *hash(const char *buff)
   if (result)
     return hash;
 }
-
 
 /**
  * @brief 
@@ -77,9 +75,8 @@ uint8_t *checksum(const char *buff, size_t sub)
   return result;
 }
 
-bool checksum_compare(const char *buff, uint8_t *sum) {
+bool checksum_compare(const char *buff, uint8_t *sum)
+{
   uint8_t *result = checksum(buff, sizeof(sum));
   // compare between two uint8_t pointers.
-
-
 }

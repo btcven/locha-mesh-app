@@ -15,8 +15,6 @@
 
 #include <Arduino.h>
 
-
-
 /**
  * @brief Start the Wifi AP
  * 

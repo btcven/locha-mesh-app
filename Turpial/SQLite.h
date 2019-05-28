@@ -38,28 +38,22 @@ esp_err_t SQLite_INIT();
  */
 bool ejecutar(char *query, sqlite3 *db);
 
-// exec a select query and return only first record/first field
-// if select return more than 10000 records then return empty
-/* it uses: int sqlite3_prepare_v2(
-  sqlite3 *db,             Database handle 
-  const char *zSql,        SQL statement, UTF-8 encoded 
-  int nByte,               Maximum length of zSql in bytes. 
-  sqlite3_stmt **ppStmt,   OUT: Statement handle 
-  const char **pzTail      OUT: Pointer to unused portion of zSql 
-);
-*/
+/**
+ * @brief 
+ * 
+ * @param query 
+ * @param db 
+ * @return char* 
+ */
 char *buscar(char *query, sqlite3 *db);
 
-// exec a select query and return only first record/first field
-// if select return more than 10000 records then return empty
-/* it uses: int sqlite3_prepare_v2(
-  sqlite3 *db,             Database handle 
-  const char *zSql,        SQL statement, UTF-8 encoded 
-  int nByte,               Maximum length of zSql in bytes. 
-  sqlite3_stmt **ppStmt,   OUT: Statement handle 
-  const char **pzTail      OUT: Pointer to unused portion of zSql 
-);
-*/
+/**
+ * @brief 
+ * 
+ * @param query 
+ * @param db 
+ * @return int 
+ */
 int buscar_valor(char *query, sqlite3 *db);
 
 /**

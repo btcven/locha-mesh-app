@@ -9,7 +9,7 @@
  * @license MIT license, see LICENSE file for details
  * 
   */
-#ifndef TABLES_H 
+#ifndef TABLES_H
 #define TABLES_H
 
 #include <Arduino.h>
@@ -72,7 +72,7 @@ bool delete_neighbour(char id_node[SIZE_IDNODE], sqlite3 *db);
  * @return true 
  * @return false 
  */
-bool create_route(char id_source[SIZE_IDNODE], char id_next_neighbour[SIZE_IDNODE],char id_destination[SIZE_IDNODE],uint8_t hops, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
+bool create_route(char id_source[SIZE_IDNODE], char id_next_neighbour[SIZE_IDNODE], char id_destination[SIZE_IDNODE], uint8_t hops, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
 /**
  * @brief 
  * 
@@ -82,7 +82,7 @@ bool create_route(char id_source[SIZE_IDNODE], char id_next_neighbour[SIZE_IDNOD
  * @return true 
  * @return false 
  */
-bool delete_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], sqlite3 *db);
+bool delete_route(char id_source[SIZE_IDNODE], char id_destination[SIZE_IDNODE], sqlite3 *db);
 /**
  * @brief 
  * 
@@ -92,7 +92,7 @@ bool delete_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], 
  * @return true 
  * @return false 
  */
-bool exist_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], sqlite3 *db);
+bool exist_route(char id_source[SIZE_IDNODE], char id_destination[SIZE_IDNODE], sqlite3 *db);
 /**
  * @brief 
  * 
@@ -102,6 +102,6 @@ bool exist_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], s
  * @return true 
  * @return false 
  */
-bool is_blacklisted_route(char id_source[SIZE_IDNODE],char id_destination[SIZE_IDNODE], sqlite3 *db);
+bool is_blacklisted_route(char id_source[SIZE_IDNODE], char id_destination[SIZE_IDNODE], sqlite3 *db);
 
 #endif // TABLES_H

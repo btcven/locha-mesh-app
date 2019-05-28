@@ -22,7 +22,7 @@
 // manejo del packets  START
 void protocol_incoming_PACKET_SECURITY_START(char id_node[SIZE_IDNODE], packet_t packet_temporal)
 {
-    // se verifica si el remitente esta en blacklist
+  // se verifica si el remitente esta en blacklist
 }
 
 // manejo del packets  TEST
@@ -37,19 +37,19 @@ void protocol_incoming_PACKET_SECURITY_RESPONSE(char id_node[SIZE_IDNODE], packe
 
 void protocol_incoming_PACKET_SECURITY(char id_node[SIZE_IDNODE], packet_t packet_temporal)
 {
-    // se clasifica se acuerdo al subtipo de packet recibido
-    switch (packet_temporal.header.packet_sub.security_type)
-    {
-    case EMPTY_SECURITY:
-        break;
-    case START:
-        protocol_incoming_PACKET_SECURITY_START(id_node, packet_temporal);
-        break;
-    case TEST:
-        protocol_incoming_PACKET_SECURITY_TEST(id_node, packet_temporal);
-        break;
-    case RESPONSE:
-        protocol_incoming_PACKET_SECURITY_RESPONSE(id_node, packet_temporal);
-        break;
-    }
+  // se clasifica se acuerdo al subtipo de packet recibido
+  switch (packet_temporal.header.packet_sub.security_type)
+  {
+  case EMPTY_SECURITY:
+    break;
+  case START:
+    protocol_incoming_PACKET_SECURITY_START(id_node, packet_temporal);
+    break;
+  case TEST:
+    protocol_incoming_PACKET_SECURITY_TEST(id_node, packet_temporal);
+    break;
+  case RESPONSE:
+    protocol_incoming_PACKET_SECURITY_RESPONSE(id_node, packet_temporal);
+    break;
+  }
 }

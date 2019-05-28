@@ -153,21 +153,22 @@ std::string getValue(std::string data, char separator, int index)
   return found > index ? data.substr(strIndex[0], strIndex[1]) : "";
 }
 
-
-/*
-* Erase First Occurrence of given  substring from main string.
-*/
-void eraseSubStr(std::string & mainStr, const std::string & toErase)
+/**
+ * @brief Erase First Occurrence of given  substring from main string.
+ * 
+ * @param mainStr 
+ * @param toErase 
+ */
+void eraseSubStr(std::string &mainStr, const std::string &toErase)
 {
-// Search for the substring in string
-size_t pos = mainStr.find(toErase);
-if (pos != std::string::npos)
-{
-// If found then erase it from string
-mainStr.erase(pos, toErase.length());
+  // Search for the substring in string
+  size_t pos = mainStr.find(toErase);
+  if (pos != std::string::npos)
+  {
+    // If found then erase it from string
+    mainStr.erase(pos, toErase.length());
+  }
 }
-}
-
 
 /**
  * @brief verify if a nstd::string is a number
@@ -219,6 +220,16 @@ bool isNumeric(std::string str)
 
 //char *string;               /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
 //} cJSON;
+
+/**
+ * @brief 
+ * 
+ * @param message 
+ * @param uid_intern 
+ * @param msg_intern 
+ * @param timemsg_intern_str 
+ * @param hash_msg_intern 
+ */
 void json_receive(std::string message, char *&uid_intern, char *&msg_intern, char *&timemsg_intern_str, char *&hash_msg_intern)
 {
   // this function receives data message in format: "{'uid':'xxxxx','msg':'yyyy','time':#############}"
@@ -249,6 +260,14 @@ void json_receive(std::string message, char *&uid_intern, char *&msg_intern, cha
 }
 
 // procedimiento inverso a Json_receive para devolver valores al BLE (toma un packet y lo transforma en un json)
+
+/**
+ * @brief 
+ * 
+ * @param packet_to_convert 
+ * @param BLE_type 
+ * @return std::string 
+ */
 std::string packet_into_json(packet_t packet_to_convert, std::string BLE_type)
 {
   // this function convert [acket data in format: "{'uid':'xxxxx','BLE_type':'yyyy','time':#############,'hash':'XXXXXXXXXX'}"
@@ -283,7 +302,6 @@ std::string packet_into_json(packet_t packet_to_convert, std::string BLE_type)
   }
   return ToString(rpta);
 }
-
 
 /**
  * @brief Get devuelve la mac address del ESP32
@@ -331,10 +349,10 @@ std::string freeRam()
   return number_to_str(ESP.getFreeHeap());
 }
 
-UBaseType_t GetTaskHighWaterMark( TaskHandle_t task_handle )
+UBaseType_t GetTaskHighWaterMark(TaskHandle_t task_handle)
 {
   UBaseType_t uxHighWaterMark;
-  uxHighWaterMark = uxTaskGetStackHighWaterMark( task_handle );
+  uxHighWaterMark = uxTaskGetStackHighWaterMark(task_handle);
   return uxHighWaterMark;
 }
 /* -----------------------------------------------------------------------------
@@ -348,17 +366,17 @@ UBaseType_t GetTaskHighWaterMark( TaskHandle_t task_handle )
   Example:   printf("Stack Used %04.1f%%\r\n", GetTaskHighWaterMarkPercent(xTask1, 2048) );
   Notes:
  -----------------------------------------------------------------------------*/
-float GetTaskHighWaterMarkPercent( TaskHandle_t task_handle, uint32_t stack_allotment )
+float GetTaskHighWaterMarkPercent(TaskHandle_t task_handle, uint32_t stack_allotment)
 {
   UBaseType_t uxHighWaterMark;
   uint32_t diff;
   float result;
 
-  uxHighWaterMark = uxTaskGetStackHighWaterMark( task_handle );
+  uxHighWaterMark = uxTaskGetStackHighWaterMark(task_handle);
 
   diff = stack_allotment - uxHighWaterMark;
 
-  result = ( (float)diff / (float)stack_allotment ) * 100.0;
+  result = ((float)diff / (float)stack_allotment) * 100.0;
 
   return result;
 }

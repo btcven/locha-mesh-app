@@ -38,33 +38,33 @@ bool deviceConnected = false;
 
 class ServerCB : public BLEServerCallbacks
 {
-    void onConnect(BLEServer *ble_server)
-    {
-        deviceConnected = true;
-        ESP_LOGD("BLE", "[BLE] Client connected %d", ble_server->getConnId());
-    }
-    void onDisconnect(BLEServer *ble_server)
-    {
-        deviceConnected = false;
-        ESP_LOGD("BLE", "Client disconnected %d", ble_server->getConnId());
-        delay(500);
-        ble_server->startAdvertising();
-    }
+  void onConnect(BLEServer *ble_server)
+  {
+    deviceConnected = true;
+    ESP_LOGD("BLE", "[BLE] Client connected %d", ble_server->getConnId());
+  }
+  void onDisconnect(BLEServer *ble_server)
+  {
+    deviceConnected = false;
+    ESP_LOGD("BLE", "Client disconnected %d", ble_server->getConnId());
+    delay(500);
+    ble_server->startAdvertising();
+  }
 };
 
 class characteristicCB : public BLECharacteristicCallbacks
 {
-    void onWrite(BLECharacteristic *pCharacteristic)
+  void onWrite(BLECharacteristic *pCharacteristic)
+  {
+    ESP_LOGD("BLE", "[BLE] event onWrite");
+    rxValue_uart = pCharacteristic->getValue();
+    if (rxValue_uart.size() > 0)
     {
-        ESP_LOGD("BLE", "[BLE] event onWrite");
-        rxValue_uart = pCharacteristic->getValue();
-        if (rxValue_uart.size() > 0)
-        {
-            // incoming msg. via BLE (Mobile -> Turpial)
-            ESP_LOGD("BLE", "[BLE] MSG: %s", rxValue_uart.c_str());
-            rxValue_uart.clear();
-        }
+      // incoming msg. via BLE (Mobile -> Turpial)
+      ESP_LOGD("BLE", "[BLE] MSG: %s", rxValue_uart.c_str());
+      rxValue_uart.clear();
     }
+  }
 };
 
 /**
@@ -80,66 +80,66 @@ TaskHandle_t bleTaskHandler;
  */
 void BLE_task(void *params)
 {
-    BLEDevice::setMTU(server_mtu);
-    BLEDevice::init(server_name);
+  BLEDevice::setMTU(server_mtu);
+  BLEDevice::init(server_name);
 
-    ble_server = BLEDevice::createServer();
-    ble_server->setCallbacks(new ServerCB());
+  ble_server = BLEDevice::createServer();
+  ble_server->setCallbacks(new ServerCB());
 
-    BLEService *server_service = ble_server->createService(SERVICE_UUID);
+  BLEService *server_service = ble_server->createService(SERVICE_UUID);
 
-    // tx_uart.
-    tx_uart = server_service->createCharacteristic(CHARACTERISTIC_UUID_TX, BLECharacteristic::PROPERTY_NOTIFY);
-    tx_uart->addDescriptor(new BLE2902());
+  // tx_uart.
+  tx_uart = server_service->createCharacteristic(CHARACTERISTIC_UUID_TX, BLECharacteristic::PROPERTY_NOTIFY);
+  tx_uart->addDescriptor(new BLE2902());
 
-    // rx_uart.
-    rx_uart = server_service->createCharacteristic(CHARACTERISTIC_UUID_RX, BLECharacteristic::PROPERTY_WRITE);
-    rx_uart->setCallbacks(new characteristicCB());
+  // rx_uart.
+  rx_uart = server_service->createCharacteristic(CHARACTERISTIC_UUID_RX, BLECharacteristic::PROPERTY_WRITE);
+  rx_uart->setCallbacks(new characteristicCB());
 
-    // start advertising
-    server_service->start();
-    ble_server->getAdvertising()->start();
+  // start advertising
+  server_service->start();
+  ble_server->getAdvertising()->start();
 
-    for (;;)
+  for (;;)
+  {
+    if (deviceConnected)
     {
-        if (deviceConnected)
-        {
-            if (txValue_uart.size() > 0)
-            {
-                // outcoming msg (Turpial -> mobile)
-                ESP_LOGD("BLE", "BLE tx uart: %s", txValue_uart.c_str());
-                tx_uart->setValue(txValue_uart);
-                tx_uart->notify();
-                txValue_uart.clear();
-            }
-        }
-        else
-        {
-            // dispositivo no conectado a un cliente movil,
-            // al ser temporal el uso de mensajeria via ble
-            // aqui no hacemos nada.
-        }
+      if (txValue_uart.size() > 0)
+      {
+        // outcoming msg (Turpial -> mobile)
+        ESP_LOGD("BLE", "BLE tx uart: %s", txValue_uart.c_str());
+        tx_uart->setValue(txValue_uart);
+        tx_uart->notify();
+        txValue_uart.clear();
+      }
     }
+    else
+    {
+      // dispositivo no conectado a un cliente movil,
+      // al ser temporal el uso de mensajeria via ble
+      // aqui no hacemos nada.
+    }
+  }
 }
 
 esp_err_t BLE_INIT()
 {
-    const char *TAG = "BLE";
-    // get value from nvs.
-    // nvs_clear("BLE");
-    bool BLE_enabled = nvs_get_bool("BLE", "enabled", BLE_ENABLED, true);
+  const char *TAG = "BLE";
+  // get value from nvs.
+  // nvs_clear("BLE");
+  bool BLE_enabled = nvs_get_bool("BLE", "enabled", BLE_ENABLED, true);
 
-    if (BLE_enabled)
-    {
-        ESP_LOGD(TAG, "[BLE] enabled on boot, starting..");
-        xTaskCreatePinnedToCore(BLE_task, "BLE_task", 6144, NULL, 4, &bleTaskHandler, 1);
-        float temp1 = GetTaskHighWaterMarkPercent(bleTaskHandler, 6144);
-  ESP_LOGD(TAG, "[BLE] calculating stack size");
-printf(" %04.1f%%\r\n",temp1);
-    }
-    else
-    {
-        ESP_LOGD(TAG, "[BLE] Disabled on boot");
-    }
-    return ESP_OK;
+  if (BLE_enabled)
+  {
+    ESP_LOGD(TAG, "[BLE] enabled on boot, starting..");
+    xTaskCreatePinnedToCore(BLE_task, "BLE_task", 6144, NULL, 4, &bleTaskHandler, 1);
+    float temp1 = GetTaskHighWaterMarkPercent(bleTaskHandler, 6144);
+    ESP_LOGD(TAG, "[BLE] calculating stack size");
+    printf(" %04.1f%%\r\n", temp1);
+  }
+  else
+  {
+    ESP_LOGD(TAG, "[BLE] Disabled on boot");
+  }
+  return ESP_OK;
 }

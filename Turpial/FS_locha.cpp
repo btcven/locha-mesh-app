@@ -18,17 +18,17 @@
 
 esp_err_t open_fs()
 {
-    const char *TAG = "FileSystem";
-    // FS init
-    if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
-    {
+  const char *TAG = "FileSystem";
+  // FS init
+  if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
+  {
 
-        ESP_LOGE(TAG, "Error Mounting file system");
-        return ESP_FAIL;
-    }
-    else
-    {
-        ESP_LOGE(TAG, "Mounting file system");
-        return ESP_OK;
-    }
+    ESP_LOGE(TAG, "Error Mounting file system");
+    return ESP_FAIL;
+  }
+  else
+  {
+    ESP_LOGE(TAG, "Mounting file system");
+    return ESP_OK;
+  }
 }

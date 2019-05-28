@@ -24,42 +24,42 @@ SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 
 esp_err_t SCR_INIT()
 {
-    const char *TAG = "SCR";
-    //
-    // only in dev stage:
-    // clear nvs before start.
-    //
-    // nvs_clear("SCR");
+  const char *TAG = "SCR";
 
-    bool SCR_enabled = nvs_get_bool(TAG, "enabled", SCR_ENABLED, false);
+  // only in dev stage:
+  // clear nvs before start.
+  //
+  // nvs_clear("SCR");
 
-    if (SCR_enabled)
+  bool SCR_enabled = nvs_get_bool(TAG, "enabled", SCR_ENABLED, false);
+
+  if (SCR_enabled)
+  {
+    if (Vext)
     {
-        if (Vext)
-        {
-            pinMode(Vext, OUTPUT);
-            digitalWrite(Vext, LOW);
-            delay(100);
-        }
+      pinMode(Vext, OUTPUT);
+      digitalWrite(Vext, LOW);
+      delay(100);
+    }
 
-        if (!display.init())
-        {
-            ESP_LOGE(TAG, "[%s] Error starting", TAG);
-            return ESP_FAIL;
-        }
-        else
-        {
-            display.setBrightness(5);
-            display.flipScreenVertically();
-            display.drawString(0, 0, "Starting...");
-            display.display();
-            ESP_LOGD(TAG, "%s OK", TAG);
-            return ESP_OK;
-        }
+    if (!display.init())
+    {
+      ESP_LOGE(TAG, "[%s] Error starting", TAG);
+      return ESP_FAIL;
     }
     else
     {
-        ESP_LOGD(TAG, "%s disabled on boot", TAG);
-        return ESP_OK;
+      display.setBrightness(5);
+      display.flipScreenVertically();
+      display.drawString(0, 0, "Starting...");
+      display.display();
+      ESP_LOGD(TAG, "%s OK", TAG);
+      return ESP_OK;
     }
+  }
+  else
+  {
+    ESP_LOGD(TAG, "%s disabled on boot", TAG);
+    return ESP_OK;
+  }
 }

@@ -14,7 +14,6 @@
 #include "packet.h"
 #include "general_utils.h"
 
-
 /**
  * @brief: from packet_t to uint8_t array
  * 
@@ -49,64 +48,61 @@ void char_to_packet(packet_t *target, uint8_t *source, size_t s_size)
   memcpy(target, source, s_size);
 }
 
-
 // funcion para contruir un packet HELLO que identifique inicialmente al nodo
-
-
 
 // Funcion para construir un packet dao el origen, destino, tipo y contenido (payload)
 packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload, uint16_t packet_number, uint16_t packet_total)
 {
 
-  
-  
   packet_header_t header;
   body_data_u body;
- 
-  
+
   header.packet_type = tipo_packet;
-   header.packet_sub=subtipo_packet;
-   
+  header.packet_sub = subtipo_packet;
+
   //switch (tipo_packet)
   //  {
   //  case DATA:
-    
-    //    header.packet_sub=subtipo_packet;
-    //    break;
-    //case ROUTING:
-   //      header.packet_sub.routing_type=subtipo_packet;
-   //     break;
-   // case SECURITY:
-   //      header.packet_sub.security_type=subtipo_packet;
-   //     break;
-   // }
-  header.from=from;
+
+  //    header.packet_sub=subtipo_packet;
+  //    break;
+  //case ROUTING:
+  //      header.packet_sub.routing_type=subtipo_packet;
+  //     break;
+  // case SECURITY:
+  //      header.packet_sub.security_type=subtipo_packet;
+  //     break;
+  // }
+  header.from = from;
   ESP_LOGD("create_packet", "Id device from %s", from);
   ESP_LOGD("create_packet", "Id device header.from %s", from);
   //copy_array(from, header.from, SIZE_IDNODE);
-  header.to=to;
+  header.to = to;
   //copy_array(to, header.to, SIZE_IDNODE);
-  header.next_neighbor=next_neighbor;
+  header.next_neighbor = next_neighbor;
   //copy_array(next_neighbor, header.next_neighbor, SIZE_IDNODE);
   header.timestamp = millis();
-  header.checksum_data=checksum_data;
+  header.checksum_data = checksum_data;
   //copy_array(checksum_data, header.checksum_data, SIZE_HASH_MSG);
 
   // el payload depende del tipo de packet_t
-  if (tipo_packet==DATA){
-    body.body_data_splitted.payload=payload;
+  if (tipo_packet == DATA)
+  {
+    body.body_data_splitted.payload = payload;
     //copy_array(payload, body.body_data_splitted.payload, SIZE_PAYLOAD);
-    
+
     body.body_data.payload_length = sizeof(body.body_data_splitted.payload);
-    body.body_data_splitted.packet_number=packet_number;
-     body.body_data_splitted.packet_total=packet_total;
-     body.body_data_splitted.not_delivered_type=EMPTY_NOT_DELIVERED;
-  } else {
-    body.body_data.payload=payload;
-     //copy_array(payload, body.body_data.payload, SIZE_PAYLOAD);
-     body.body_data.payload_length = sizeof(body.body_data.payload);
+    body.body_data_splitted.packet_number = packet_number;
+    body.body_data_splitted.packet_total = packet_total;
+    body.body_data_splitted.not_delivered_type = EMPTY_NOT_DELIVERED;
   }
-  
+  else
+  {
+    body.body_data.payload = payload;
+    //copy_array(payload, body.body_data.payload, SIZE_PAYLOAD);
+    body.body_data.payload_length = sizeof(body.body_data.payload);
+  }
+
   packet_t new_packet;
   new_packet.header = header;
   new_packet.body = body;
@@ -114,95 +110,107 @@ packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subti
 }
 
 // create_packet overload for individual packets
-packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload){
-  return create_packet(id_node, tipo_packet, subtipo_packet, from, to, next_neighbor, checksum_data, payload, 1,1);
-  
+packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subtipo_packet, char *from, char *to, char *next_neighbor, char *checksum_data, char *payload)
+{
+  return create_packet(id_node, tipo_packet, subtipo_packet, from, to, next_neighbor, checksum_data, payload, 1, 1);
 }
 
-char* convertir_packet_type_e_str(packet_type_e type_recibido){
-  char* rpta=NULL;
-  char *pChar = (char*)"EMPTY";
-  if (type_recibido==EMPTY) rpta=pChar;
-  pChar = (char*)"DATA";
-  if (type_recibido==DATA) rpta=pChar;
-  pChar = (char*)"ROUTING";
-  if (type_recibido==ROUTING) rpta=pChar;
-  pChar = (char*)"SECURITY";
-  if (type_recibido==SECURITY) rpta=pChar;
- 
+char *convertir_packet_type_e_str(packet_type_e type_recibido)
+{
+  char *rpta = NULL;
+  char *pChar = (char *)"EMPTY";
+  if (type_recibido == EMPTY)
+    rpta = pChar;
+  pChar = (char *)"DATA";
+  if (type_recibido == DATA)
+    rpta = pChar;
+  pChar = (char *)"ROUTING";
+  if (type_recibido == ROUTING)
+    rpta = pChar;
+  pChar = (char *)"SECURITY";
+  if (type_recibido == SECURITY)
+    rpta = pChar;
+
   return rpta;
 }
 
-// convierte una cadena de caracteres recibida en formato texto al typedef enum packet_type_e 
-packet_type_e convertir_str_packet_type_e(char* type_recibido){
-  packet_type_e rpta=EMPTY;
-  char *pChar = (char*)"EMPTY";
-  if (compare_char(type_recibido,pChar)) return EMPTY;
-  pChar = (char*)"DATA";
-  if (compare_char(type_recibido,pChar)) return DATA;
-  pChar = (char*)"ROUTING";
-  if (compare_char(type_recibido,pChar)) return ROUTING;
-   pChar = (char*)"SECURITY";
-  if (compare_char(type_recibido,pChar)) return SECURITY;
- 
+// convierte una cadena de caracteres recibida en formato texto al typedef enum packet_type_e
+packet_type_e convertir_str_packet_type_e(char *type_recibido)
+{
+  packet_type_e rpta = EMPTY;
+  char *pChar = (char *)"EMPTY";
+  if (compare_char(type_recibido, pChar))
+    return EMPTY;
+  pChar = (char *)"DATA";
+  if (compare_char(type_recibido, pChar))
+    return DATA;
+  pChar = (char *)"ROUTING";
+  if (compare_char(type_recibido, pChar))
+    return ROUTING;
+  pChar = (char *)"SECURITY";
+  if (compare_char(type_recibido, pChar))
+    return SECURITY;
+
   return rpta;
 }
 
-void show_packet(packet_t packet_rx,const char *TAG)
+void show_packet(packet_t packet_rx, const char *TAG)
+{
+  ESP_LOGE(TAG, "Showing packet_t");
+  ESP_LOGE(TAG, "----------------------------------------\n");
+  ESP_LOGE(TAG, "type: %02X", packet_rx.header.packet_type);
+  ESP_LOGE(TAG, "subtype: %02X", packet_rx.header.packet_sub);
+  ESP_LOGE(TAG, "from: %s", packet_rx.header.from);
+  ESP_LOGE(TAG, "to: %s", packet_rx.header.to);
+
+  ESP_LOGE(TAG, "next: %s", packet_rx.header.next_neighbor);
+  ESP_LOGE(TAG, "----------------------------------------\n");
+  if (packet_rx.header.packet_type == DATA)
   {
-    ESP_LOGE(TAG, "Showing packet_t");
-    ESP_LOGE(TAG,"----------------------------------------\n");
-    ESP_LOGE(TAG,"type: %02X", packet_rx.header.packet_type);
-    ESP_LOGE(TAG,"subtype: %02X", packet_rx.header.packet_sub);
-    ESP_LOGE(TAG,"from: %s", packet_rx.header.from);
-    ESP_LOGE(TAG,"to: %s", packet_rx.header.to);
-    
-    ESP_LOGE(TAG,"next: %s", packet_rx.header.next_neighbor);
-    ESP_LOGE(TAG,"----------------------------------------\n");
-    if (packet_rx.header.packet_type==DATA){ 
-        ESP_LOGE(TAG,"body length: %d", packet_rx.body.body_data_splitted.payload_length);
-        ESP_LOGE(TAG,"data: %s", packet_rx.body.body_data_splitted.payload);
-    } else {
-        ESP_LOGE(TAG,"body length: %d", packet_rx.body.body_data.payload_length);
-        ESP_LOGE(TAG,"data: %s", packet_rx.body.body_data.payload);
-    }
-    
-    ESP_LOGE(TAG,"----------------------------------------\n");
-   
+    ESP_LOGE(TAG, "body length: %d", packet_rx.body.body_data_splitted.payload_length);
+    ESP_LOGE(TAG, "data: %s", packet_rx.body.body_data_splitted.payload);
+  }
+  else
+  {
+    ESP_LOGE(TAG, "body length: %d", packet_rx.body.body_data.payload_length);
+    ESP_LOGE(TAG, "data: %s", packet_rx.body.body_data.payload);
+  }
+
+  ESP_LOGE(TAG, "----------------------------------------\n");
 }
 
-packet_t construct_packet_HELLO(char *id_node,char *from)
+packet_t construct_packet_HELLO(char *id_node, char *from)
 {
   packet_t packet_HELLO;
   const char *TAG = "Packet HELLO construct";
   char *pChar = (char *)"";
-  
+
   subtype_u subtipo_packet;
-  subtipo_packet.routing_type=HELLO;
-    ESP_LOGD("construct_packet_HELLO", "Id device %s", from);
-  packet_HELLO=create_packet(id_node, ROUTING, subtipo_packet, from, " ", " ", " ", " ");
+  subtipo_packet.routing_type = HELLO;
+  ESP_LOGD("construct_packet_HELLO", "Id device %s", from);
+  packet_HELLO = create_packet(id_node, ROUTING, subtipo_packet, from, " ", " ", " ", " ");
   ESP_LOGD(TAG, "creating packet");
-  show_packet(packet_HELLO,TAG);
+  show_packet(packet_HELLO, TAG);
   ESP_LOGD(TAG, "show packet ready");
   return packet_HELLO;
 }
 
-packet_t construct_packet_JOIN(char *id_node,char *to)
+packet_t construct_packet_JOIN(char *id_node, char *to)
 {
   packet_t packet_JOIN;
-  
+
   char *pChar = (char *)"";
   char *p_payload = (char *)"";
-  
+
   subtype_u subtipo_packet;
-  subtipo_packet.routing_type=JOIN;
-  packet_JOIN=create_packet(id_node, ROUTING, subtipo_packet, id_node, to, pChar, pChar, p_payload);
-  
+  subtipo_packet.routing_type = JOIN;
+  packet_JOIN = create_packet(id_node, ROUTING, subtipo_packet, id_node, to, pChar, pChar, p_payload);
+
   return packet_JOIN;
 }
 
 // funcion que construye un mensaje son para devolver al bluetooth en formato ERR
-std::string Json_return_error(std::string mensaje,std::string uid_mensaje)
+std::string Json_return_error(std::string mensaje, std::string uid_mensaje)
 {
   char *msg_to_return;
   strcpy(msg_to_return, "{\"uid\":\"");
@@ -216,7 +224,7 @@ std::string Json_return_error(std::string mensaje,std::string uid_mensaje)
   return ToString(msg_to_return);
 }
 // funcion que construye un mensaje son para devolver al bluetooth en formato MSG
-std::string Json_return_msg(std::string mensaje,std::string uid_mensaje)
+std::string Json_return_msg(std::string mensaje, std::string uid_mensaje)
 {
   char *msg_to_return;
   strcpy(msg_to_return, "{\"uid\":\"");

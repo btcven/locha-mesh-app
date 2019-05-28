@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2019
  * 
   */
-#ifndef PROTOCOL_H 
+#ifndef PROTOCOL_H
 #define PROTOCOL_H
 
 #include <Arduino.h>

@@ -22,10 +22,10 @@
  */
 typedef enum
 {
-  EMPTY=0B0000,
-  DATA=0B0001,
-  ROUTING=0B0010,
-  SECURITY=0B0011
+  EMPTY = 0B0000,
+  DATA = 0B0001,
+  ROUTING = 0B0010,
+  SECURITY = 0B0011
 } packet_type_e;
 
 /**
@@ -34,12 +34,12 @@ typedef enum
  */
 typedef enum
 {
-  EMPTY_ROUTING=0B0000,
-  HELLO=0B0001,
-  JOIN=0B0010,
-  GOSSIP=0B0011,
-  ROUTE=0B0100,
-  BYE=0B0101
+  EMPTY_ROUTING = 0B0000,
+  HELLO = 0B0001,
+  JOIN = 0B0010,
+  GOSSIP = 0B0011,
+  ROUTE = 0B0100,
+  BYE = 0B0101
 } subpacket_routing_type_e;
 
 /**
@@ -48,12 +48,12 @@ typedef enum
  */
 typedef enum
 {
-  EMPTY_DATA=0B0000,
-  MSG=0B0001,
-  TXN=0B0010,
-  BINARY=0B0011,
-  ACK=0B0100,
-  NOT_DELIVERED=0B0101
+  EMPTY_DATA = 0B0000,
+  MSG = 0B0001,
+  TXN = 0B0010,
+  BINARY = 0B0011,
+  ACK = 0B0100,
+  NOT_DELIVERED = 0B0101
 } subpacket_data_type_e;
 
 /**
@@ -62,10 +62,10 @@ typedef enum
  */
 typedef enum
 {
-  EMPTY_SECURITY=0B0000,
-  START=0B0001,
-  TEST=0B0010,
-  RESPONSE=0B0011
+  EMPTY_SECURITY = 0B0000,
+  START = 0B0001,
+  TEST = 0B0010,
+  RESPONSE = 0B0011
 } subpacket_security_type_e;
 
 /**
@@ -74,9 +74,9 @@ typedef enum
  */
 typedef enum
 {
-  EMPTY_NOT_DELIVERED=0B0000,
-  BLE_NOT_CONNECTED=0B0001,
-  MAX_RETRIES_REACHED=0B0010
+  EMPTY_NOT_DELIVERED = 0B0000,
+  BLE_NOT_CONNECTED = 0B0001,
+  MAX_RETRIES_REACHED = 0B0010
 } not_delivered_type_e;
 
 /**
@@ -84,9 +84,9 @@ typedef enum
  * 
  */
 typedef union {
-  subpacket_routing_type_e routing_type :4;
-  subpacket_data_type_e data_type :4;
-  subpacket_security_type_e security_type :4;
+  subpacket_routing_type_e routing_type : 4;
+  subpacket_data_type_e data_type : 4;
+  subpacket_security_type_e security_type : 4;
 } subtype_u;
 
 /**
@@ -95,15 +95,14 @@ typedef union {
  */
 typedef struct
 {
-  packet_type_e packet_type:4;     // tipo de packet: corresponde a packet_type_e
-  subtype_u packet_sub;  // corresponde al subtipo de packet dependiendo del valor type puede ser subpacket_routing_type_e , subpacket_data_type_e o subpacket_security_type_e
-  char *from;   // origen
-  char *to;     // destino
-  char *next_neighbor;   // siguiente vecino
-  char *checksum_data;     // hash160 first 6 digits
-  unsigned long timestamp;      // epoch timestamp
+  packet_type_e packet_type : 4; // tipo de packet: corresponde a packet_type_e
+  subtype_u packet_sub;          // corresponde al subtipo de packet dependiendo del valor type puede ser subpacket_routing_type_e , subpacket_data_type_e o subpacket_security_type_e
+  char *from;                    // origen
+  char *to;                      // destino
+  char *next_neighbor;           // siguiente vecino
+  char *checksum_data;           // hash160 first 6 digits
+  unsigned long timestamp;       // epoch timestamp
 } packet_header_t;
-
 
 /**
  * @brief packet body could be simple: only payload and payload size, or splitted: with packet number/total of packets, not delivery response, and payload w/ length
@@ -111,8 +110,8 @@ typedef struct
  */
 typedef struct
 {
-  uint16_t packet_number;        // packet number or total 
-  uint16_t packet_total;         // total of packets compossing full msg or file , max 65535, file size max: 65535 x sizeof(payload) = 11403090 bytes ~~11Mb 
+  uint16_t packet_number; // packet number or total
+  uint16_t packet_total;  // total of packets compossing full msg or file , max 65535, file size max: 65535 x sizeof(payload) = 11403090 bytes ~~11Mb
   not_delivered_type_e not_delivered_type;
   uint8_t payload_length; // 1 byte
   char *payload;
@@ -179,7 +178,7 @@ void char_to_packet(packet_t *target, uint8_t *source, size_t s_size);
  * @param type_recibido 
  * @return packet_type_e 
  */
-packet_type_e convertir_str_packet_type_e(char* type_recibido);
+packet_type_e convertir_str_packet_type_e(char *type_recibido);
 
 /**
  * @brief 
@@ -187,7 +186,7 @@ packet_type_e convertir_str_packet_type_e(char* type_recibido);
  * @param type_recibido 
  * @return char* 
  */
-char* convertir_packet_type_e_str(packet_type_e type_recibido);
+char *convertir_packet_type_e_str(packet_type_e type_recibido);
 
 /**
  * @brief Create a packet object
@@ -210,7 +209,7 @@ packet_t create_packet(char *id_node, packet_type_e tipo_packet, subtype_u subti
  * @param from 
  * @return packet_t 
  */
-packet_t construct_packet_HELLO(char *id_node,char *from);
+packet_t construct_packet_HELLO(char *id_node, char *from);
 
 /**
  * @brief 
@@ -219,7 +218,7 @@ packet_t construct_packet_HELLO(char *id_node,char *from);
  * @param to 
  * @return packet_t 
  */
-packet_t construct_packet_JOIN(char *id_node,char *to);
+packet_t construct_packet_JOIN(char *id_node, char *to);
 
 /**
  * @brief 
@@ -227,7 +226,7 @@ packet_t construct_packet_JOIN(char *id_node,char *to);
  * @param packet_rx 
  * @param TAG 
  */
-void show_packet(packet_t packet_rx,const char *TAG);
+void show_packet(packet_t packet_rx, const char *TAG);
 
 /**
  * @brief 
@@ -235,7 +234,7 @@ void show_packet(packet_t packet_rx,const char *TAG);
  * @param mensaje 
  * @return std::string 
  */
-std::string Json_return_error(std::string mensaje,std::string uid_mensaje);
+std::string Json_return_error(std::string mensaje, std::string uid_mensaje);
 
 /**
  * @brief 
@@ -243,6 +242,6 @@ std::string Json_return_error(std::string mensaje,std::string uid_mensaje);
  * @param mensaje 
  * @return std::string 
  */
-std::string Json_return_msg(std::string mensaje,std::string uid_mensaje);
+std::string Json_return_msg(std::string mensaje, std::string uid_mensaje);
 
 #endif // PACKET_H

@@ -190,10 +190,10 @@ bool Fileexists(const char *path);
 /*
 * Erase First Occurrence of given  substring from main string.
 */
-void eraseSubStr(std::string & mainStr, const std::string & toErase);
+void eraseSubStr(std::string &mainStr, const std::string &toErase);
 
 /*
 * For xTask stack sizing
 */
-float GetTaskHighWaterMarkPercent( TaskHandle_t task_handle, uint32_t stack_allotment );
+float GetTaskHighWaterMarkPercent(TaskHandle_t task_handle, uint32_t stack_allotment);
 #endif // GENERAL_UTILS_H

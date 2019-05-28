@@ -14,9 +14,7 @@
 #include <Arduino.h>
 #include "RAD.h"
 
+void NetworkPeer(void *params);
+void AUTO_HELLO(void *params);
 
-
- void NetworkPeer(void *params);
- void AUTO_HELLO(void *params);
- 
 #endif // TASKS_H
