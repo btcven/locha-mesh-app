@@ -88,6 +88,13 @@ void copy_array(char *src, char *dst, int len);
 std::string getMacAddress();
 
 /**
+ * @brief Get the Mac Address object without :
+ * 
+ * @return std::string 
+ */
+std::string getMacAddress_onlychars();
+
+/**
  * @brief 
  * 
  * @tparam T 

@@ -1,14 +1,14 @@
 /**
- * @file general_utils.cpp
- * @author locha.io project developers (dev@locha.io)
- * @brief 
- * @version 0.1
- * @date 2019-04-24
- * 
- * @copyright Copyright (c) 2019 locha.io project developers
- * @license MIT license, see LICENSE file for details
- * 
- */
+   @file general_utils.cpp
+   @author locha.io project developers (dev@locha.io)
+   @brief
+   @version 0.1
+   @date 2019-04-24
+
+   @copyright Copyright (c) 2019 locha.io project developers
+   @license MIT license, see LICENSE file for details
+
+*/
 
 #include <Arduino.h>
 
@@ -39,7 +39,7 @@ void eraseAllSubStr(std::string &mainStr, const std::string &toErase)
   }
 }
 
-// funcion para convertir un std::string en un char*
+// function for convert std::string into char*
 char *std_string_to_char(std::string cadena)
 {
   char *cstr = new char[cadena.length() + 1];
@@ -47,8 +47,8 @@ char *std_string_to_char(std::string cadena)
   return cstr;
 }
 
-// Funcion de conversion de tipo de datos: Char* a long long
-// usada para convertir timestamps que  vienen en cadenas de caracteres a un numero tipo long long
+// function for convert  Char* to long long
+// used to convert timestamps coming from char* into long long variable
 long long char2LL(char *str)
 {
   long long result = 0; // Initialize result
@@ -59,11 +59,11 @@ long long char2LL(char *str)
 }
 
 /**
- * @brief  Funcion de conversion de tipo de datos: std::string a uint8_t
- * 
- * @param texto 
- * @return uint8_t 
- */
+   @brief  Function to convert std::string to uint8_t array
+
+   @param texto
+   @return uint8_t
+*/
 uint8_t convert_str_to_uint8(std::string texto)
 {
   unsigned long long y = 0;
@@ -79,7 +79,7 @@ uint8_t convert_str_to_uint8(std::string texto)
   return y;
 }
 
-// Funcion de conversion de tipo de datos: std::string a char*
+// Function to convert std::string to char*
 char *string2char(std::string command)
 {
   if (command.length() != 0)
@@ -89,7 +89,7 @@ char *string2char(std::string command)
   }
 }
 
-// Copia arreglos de char (src->dst) dado un largo determinado len
+// Copy a char* into another char*
 void copy_array(char *src, char *dst, int len)
 {
   for (int i = 0; i < len; i++)
@@ -98,7 +98,7 @@ void copy_array(char *src, char *dst, int len)
   }
 }
 
-// obtiene la macaddress del ESP32 una vez conectado a Wifi
+// get ESP32 macaddress once connected to Wifi
 std::string getMacAddress()
 {
   uint8_t baseMac[6];
@@ -109,7 +109,20 @@ std::string getMacAddress()
   return (baseMacChr);
 }
 
-// funcion para convertir un valor en un tipo std::string
+// same as getMacAddress() without character :
+std::string getMacAddress_onlychars()
+{
+  uint8_t baseMac[6];
+  // Get MAC address for WiFi station
+  esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
+  char baseMacChr[18] = {0};
+  sprintf(baseMacChr, "%02X%02X%02X%02X%02X%02X", baseMac[0], baseMac[1], baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
+  return (baseMacChr);
+}
+
+
+
+// function to convert any type to std::string
 template <typename T>
 std::string ToString(T val)
 {
@@ -118,14 +131,14 @@ std::string ToString(T val)
   return stream.str();
 }
 
-// funcion para convertir un numero en un std::string
+// function to convert a number into std::string
 std::string number_to_str(unsigned long long i)
 {
   std::string str = ToString(i);
   return str;
 }
 
-// convierte un string en un numero tipo long
+// function to convert a char* into long
 unsigned long convert_str_to_long(char *time_in_char)
 {
   unsigned long uil;
@@ -155,27 +168,27 @@ std::string getValue(std::string data, char separator, int index)
 
 
 /*
-* Erase First Occurrence of given  substring from main string.
+  Erase First Occurrence of given  substring from main string.
 */
 void eraseSubStr(std::string & mainStr, const std::string & toErase)
 {
-// Search for the substring in string
-size_t pos = mainStr.find(toErase);
-if (pos != std::string::npos)
-{
-// If found then erase it from string
-mainStr.erase(pos, toErase.length());
-}
+  // Search for the substring in string
+  size_t pos = mainStr.find(toErase);
+  if (pos != std::string::npos)
+  {
+    // If found then erase it from string
+    mainStr.erase(pos, toErase.length());
+  }
 }
 
 
 /**
- * @brief verify if a nstd::string is a number
- * 
- * @param str 
- * @return true 
- * @return false 
- */
+   @brief verify if a nstd::string is a number
+
+   @param str
+   @return true
+   @return false
+*/
 bool isNumeric(std::string str)
 {
   unsigned int stringLength = str.length();
@@ -230,25 +243,22 @@ void json_receive(std::string message, char *&uid_intern, char *&msg_intern, cha
   const char *TAG = "JSON_RECEIVE";
 
   std::replace(message.begin(), message.end(), '\'', '\"');
-  // message.replace("'","\"");
-  // message=message.c_str();
   char *mensaje3;
-  //message.toCharArray(mensaje3,message.length()+1);
   mensaje3 = string2char(message);
-  ESP_LOGD(TAG, "%s mensaje completo Json recibido:", mensaje3);
+  ESP_LOGD(TAG, "%s message Json received:", mensaje3);
   cJSON *el_arreglo = cJSON_Parse(mensaje3);
   uid_intern = cJSON_GetObjectItem(el_arreglo, "uid")->valuestring;
   msg_intern = cJSON_GetObjectItem(el_arreglo, "msg")->valuestring;
   timemsg_intern_str = cJSON_GetObjectItem(el_arreglo, "time")->valuestring;
   hash_msg_intern = cJSON_GetObjectItem(el_arreglo, "hash")->valuestring;
 
-  // TODO: verificar si se recibe en lugar de msg un ERR
+  // TODO: check if received message is a ERR
 
-  // deletes cJSON from memory, ESTA OPCION ESTA PENDIENTE DE PRUEBA
+  // deletes cJSON from memory, this option is pending to test
   //  cJSON_Delete(el_arreglo);
 }
 
-// procedimiento inverso a Json_receive para devolver valores al BLE (toma un packet y lo transforma en un json)
+// reverse function of Json_receive , used to send values to BLE (take a packet y converts into json)
 std::string packet_into_json(packet_t packet_to_convert, std::string BLE_type)
 {
   // this function convert [acket data in format: "{'uid':'xxxxx','BLE_type':'yyyy','time':#############,'hash':'XXXXXXXXXX'}"
@@ -286,10 +296,10 @@ std::string packet_into_json(packet_t packet_to_convert, std::string BLE_type)
 
 
 /**
- * @brief Get devuelve la mac address del ESP32
- * 
- * @return std::string 
- */
+   @brief Get gets ESP32 mac address without character :
+
+   @return std::string
+*/
 std::string get_id_mac()
 {
   std::string result = getMacAddress();
@@ -297,18 +307,17 @@ std::string get_id_mac()
   return result;
 }
 
-// funcion usada para imprimir valores hexadecimales (tipo hash160)
+// print hexadecimal values (ex.: hash160)
 void printHex(byte *data, int len)
 {
   const char *TAG = "printHex";
   ESP_LOGD(TAG, "%04X", data);
 }
 
-// se genera un unique id basado en la mac address original de fabrica del equipo
+// create un unique id based on original factory mac address
 void create_unique_id(char *&unique_id_created)
 {
-  // se adiciona el random porque puede que un mcu no tenga RTC integrado y de esa forma se evitan duplicados
-  //TODO: armar el unique id como un compuesto donde el user pueda colocar una parte del uniqueid y el resto sea el chipid (completo o una parte) y algun caracter de validacion
+  //TODO: create a composed unique id
 
   char uniqueid3[SIZE_IDNODE];
   uint32_t uChipId;
@@ -318,14 +327,14 @@ void create_unique_id(char *&unique_id_created)
   copy_array(uniqueid3, unique_id_created, SIZE_IDNODE);
 }
 
-// verifica si existe un archivo en el FS
+// verify if a given file exists in FS
 bool Fileexists(const char *path)
 {
   File f = SPIFFS.open(path, "r");
   return (f == true) && !f.isDirectory();
 }
 
-// verifica la cantidad de memoria disponible libre
+// check avaliable memory
 std::string freeRam()
 {
   return number_to_str(ESP.getFreeHeap());
@@ -347,7 +356,7 @@ UBaseType_t GetTaskHighWaterMark( TaskHandle_t task_handle )
   Returns: float with the % of stacke used
   Example:   printf("Stack Used %04.1f%%\r\n", GetTaskHighWaterMarkPercent(xTask1, 2048) );
   Notes:
- -----------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 float GetTaskHighWaterMarkPercent( TaskHandle_t task_handle, uint32_t stack_allotment )
 {
   UBaseType_t uxHighWaterMark;

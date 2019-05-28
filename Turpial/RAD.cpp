@@ -177,6 +177,8 @@ void task_radio(void *params)
 esp_err_t RAD_INIT()
 {
   const char *TAG = "RADIO";
+   BaseType_t xReturned_Radio;
+   
   // only in dev stage:
   // clear nvs before start.
   //
@@ -212,16 +214,21 @@ esp_err_t RAD_INIT()
       // se coloca reiniciar el ESP pero deberia ser reiniciar el task_radio pero no se consigue un comando para reiniciar
       // ver https://github.com/espressif/arduino-esp32/issues/1996
       ESP.restart();
-      //xTaskAbortDelay(radioHandle);
+      
     }
     // set the function that will be called
     // when new packet is received
     ESP_LOGD(TAG, "Setting DIO0");
     lora.setDio0Action(setFlag);
 
-    xTaskCreatePinnedToCore(task_radio, "task_radio", 2048, NULL, 5, &radioHandle, ARDUINO_RUNNING_CORE);
-    float temp1 = GetTaskHighWaterMarkPercent(radioHandle, 2048);
-    ESP_LOGD(TAG, "calculating stack size:%04.1f%%\r space free (unused)", temp1);
+    xReturned_Radio=xTaskCreatePinnedToCore(task_radio, "task_radio", 2048, NULL, 5, &radioHandle, ARDUINO_RUNNING_CORE);
+    if( xReturned_Radio == pdPASS )
+    {
+        float temp1 = GetTaskHighWaterMarkPercent(radioHandle, 2048);
+        ESP_LOGD(TAG, "calculating stack size:%04.1f%%\r space free (unused)", temp1);
+    } else {
+        ESP_LOGD(TAG, "Radio task fail to start");
+    }
   }
 
   return ESP_OK;
