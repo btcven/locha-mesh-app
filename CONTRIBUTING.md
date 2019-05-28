@@ -4,11 +4,11 @@ Thanks for taking the time to contribute!
 
 The following is a set of guidelines for contributing to [**Locha**](), [**Turpial**]() or [**Harpia**]().
 
-##### Table of contents
+#### Table of contents
 
-* [Before starting](before-starting)
+* [Before starting](#before-starting)
 
-* [How can i contribute?]()
+* [How can i contribute?](#how-can-i-contribute)
     * [I just have a question]()
     * [Suggesting **enhancements**]()
     * [Reporting **bugs**]()
@@ -16,7 +16,39 @@ The following is a set of guidelines for contributing to [**Locha**](), [**Turpi
 
 * [Styleguide]()
     * [Commit messages]()
-    * [Code styleguide]()
+    * [Code styleguide](#code-styleguide)
     * [Documentation styleguide]()
 
+
+
+>
+
 ## Before starting
+...
+
+## How can i contribute?
+...
+
+### I just have a question
+...
+
+### Suggesting enhancements
+...
+
+### Reporting bugs
+...
+
+### Pull request
+...
+
+## Styleguide
+
+### Commit messages
+...
+
+### Code styleguide
+...
+
+### Documentation styleguide
+...
+
