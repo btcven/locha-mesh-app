@@ -69,6 +69,11 @@ Include statements must be located at the top of the file **only**. By default t
 - Use a descriptive name and be consistent in style when write code
 - All names should be written in English
 
+**Macros** Use uppercase and underscore
+```cpp
+... LOW_NIBBLE(x) (x & 0xf)
+```
+
 **Variable names** Use underscore, dont't group variables by types
 ```cpp
 // GOOD, underscore
@@ -95,8 +100,12 @@ int snrLevel;
 
 **Classes** Use CamelCase
 ```cpp
-class SomeClass {
-    ...
+class SomeClass { 
+    public:
+        ...
+        void putFoo(int n);
+    private:
+    int foo_; // Private variables ends with underscore
 };
 ```
 
