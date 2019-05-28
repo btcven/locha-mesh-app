@@ -6,7 +6,7 @@ The following is a set of guidelines for contributing to [**Locha**](), [**Turpi
 
 ##### Table of contents
 
-* [Before starting](#before-starting)
+* [Before starting](before-starting)
 
 * [How can i contribute?]()
     * [I just have a question]()
