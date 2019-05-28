@@ -14,7 +14,7 @@
 #include "packet.h"
 #include "general_utils.h"
 
-extern char id_node[SIZE_IDNODE];
+//extern char id_node[SIZE_IDNODE];
 
 /**
  * @brief: from packet_t to uint8_t array
@@ -115,6 +115,9 @@ packet_t create_packet(packet_type_e tipo_packet, subtype_u subtipo_packet, cons
   packet_t new_packet;
   new_packet.header = header;
   new_packet.body = body;
+  free(from_inchar);
+  free(to_inchar);
+  free(next_inchar);
   return new_packet;
 }
 

@@ -25,7 +25,7 @@
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_SECURITY_START( packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_START(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 
@@ -33,7 +33,7 @@ void protocol_incoming_PACKET_SECURITY_START( packet_t packet_temporal);
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_SECURITY_TEST( packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_TEST(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 
@@ -41,7 +41,7 @@ void protocol_incoming_PACKET_SECURITY_TEST( packet_t packet_temporal);
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_SECURITY_RESPONSE( packet_t packet_temporal);
+void protocol_incoming_PACKET_SECURITY_RESPONSE(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 

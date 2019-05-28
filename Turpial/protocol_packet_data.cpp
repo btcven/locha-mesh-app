@@ -20,34 +20,34 @@
   #include "tables.h"
  // #include "protocol_packet_data.h"
 
- extern char *id_node;
+ //extern char *id_node;
 
 // manejo del packets  MSG
-void protocol_incoming_PACKET_ROUTING_MSG( packet_t packet_temporal){
+void protocol_incoming_PACKET_ROUTING_MSG(const char id_node[SIZE_IDNODE], packet_t packet_temporal){
     // se verifica si el remitente esta en blacklist
     
 }
 
 // manejo del packets  TXN
-void protocol_incoming_PACKET_ROUTING_TXN( packet_t packet_temporal){
+void protocol_incoming_PACKET_ROUTING_TXN(const char id_node[SIZE_IDNODE], packet_t packet_temporal){
     
     
 }
 
 // manejo del packets  BINARY
-void protocol_incoming_PACKET_ROUTING_BINARY( packet_t packet_temporal){
+void protocol_incoming_PACKET_ROUTING_BINARY(const char id_node[SIZE_IDNODE], packet_t packet_temporal){
     
     
 }
 
 // manejo del packets  ACK
-void protocol_incoming_PACKET_ROUTING_ACK( packet_t packet_temporal){
+void protocol_incoming_PACKET_ROUTING_ACK(const char id_node[SIZE_IDNODE], packet_t packet_temporal){
     
     
 }
 
 // manejo del packets  NOT_DELIVERED
-void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED( packet_t packet_temporal){
+void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(const char id_node[SIZE_IDNODE], packet_t packet_temporal){
     
     
 }
@@ -66,19 +66,19 @@ void protocol_incoming_PACKET_DATA(const char id_node_from[SIZE_IDNODE], packet_
             case EMPTY_DATA:
                 break;
             case MSG:
-                protocol_incoming_PACKET_ROUTING_MSG( packet_temporal);
+                protocol_incoming_PACKET_ROUTING_MSG(id_node_from, packet_temporal);
                 break;
             case TXN:
-                protocol_incoming_PACKET_ROUTING_TXN( packet_temporal);
+                protocol_incoming_PACKET_ROUTING_TXN(id_node_from, packet_temporal);
                 break;
             case BINARY:
-                protocol_incoming_PACKET_ROUTING_BINARY( packet_temporal);
+                protocol_incoming_PACKET_ROUTING_BINARY(id_node_from, packet_temporal);
                 break;
             case ACK:
-                protocol_incoming_PACKET_ROUTING_ACK( packet_temporal);
+                protocol_incoming_PACKET_ROUTING_ACK(id_node_from, packet_temporal);
                 break;
             case NOT_DELIVERED:
-                protocol_incoming_PACKET_ROUTING_NOT_DELIVERED( packet_temporal);
+                protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(id_node_from, packet_temporal);
                 break;
             }
 }

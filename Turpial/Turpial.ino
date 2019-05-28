@@ -20,7 +20,7 @@
 #include "BLE.h"
 #include "SQLite.h"
 
-char id_node[SIZE_IDNODE];
+
 
 
 
@@ -31,6 +31,9 @@ void setup()
    * @brief Generating Unique Device ID
    * 
    */
+   
+   char id_node[SIZE_IDNODE];
+
    std::string mac_device=get_id_mac();
    char *id_node_char=string2char(mac_device);
    memcpy(id_node, id_node_char, SIZE_IDNODE);
@@ -98,12 +101,16 @@ void setup()
    // params for task
    xData xData_to_send;
    strcpy(xData_to_send.id_node,id_node);
+   BaseType_t xReturned_NetworkPeer;
    
-   xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 8192, ( void * ) &( xData_to_send ), 5, &peerHandler, ARDUINO_RUNNING_CORE);
-   float temp2 = GetTaskHighWaterMarkPercent(peerHandler, 8192);
-   ESP_LOGD(TAG, "calculating NetworkPeer stack size:%04.1f%%\r space free (unused)",temp2);
-  
-   
+   xReturned_NetworkPeer=xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 10240, ( void * ) &( xData_to_send ), 5, &peerHandler, ARDUINO_RUNNING_CORE);
+   // if xtask was created ok then calc stack size
+   if( xReturned_NetworkPeer == pdPASS )
+    {
+        float temp2 = GetTaskHighWaterMarkPercent(peerHandler, 10240);
+        ESP_LOGD(TAG, "calculating NetworkPeer stack size:%04.1f%%\r space free (unused)",temp2);
+    }
+    free(id_node);
 }
 
 void loop()

@@ -19,21 +19,21 @@
 // #include "tables.h"
 // #include "protocol_packet_security.h"
 
-extern char *id_node;
+//extern char *id_node;
 
 // manejo del packets  START
-void protocol_incoming_PACKET_SECURITY_START( packet_t packet_temporal)
+void protocol_incoming_PACKET_SECURITY_START(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal)
 {
     // se verifica si el remitente esta en blacklist
 }
 
 // manejo del packets  TEST
-void protocol_incoming_PACKET_SECURITY_TEST( packet_t packet_temporal)
+void protocol_incoming_PACKET_SECURITY_TEST(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal)
 {
 }
 
 // manejo del packets  RESPONSE
-void protocol_incoming_PACKET_SECURITY_RESPONSE( packet_t packet_temporal)
+void protocol_incoming_PACKET_SECURITY_RESPONSE(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal)
 {
 }
 
@@ -45,13 +45,13 @@ void protocol_incoming_PACKET_SECURITY(const char id_node_from[SIZE_IDNODE], pac
     case EMPTY_SECURITY:
         break;
     case START:
-        protocol_incoming_PACKET_SECURITY_START( packet_temporal);
+        protocol_incoming_PACKET_SECURITY_START(id_node_from, packet_temporal);
         break;
     case TEST:
-        protocol_incoming_PACKET_SECURITY_TEST( packet_temporal);
+        protocol_incoming_PACKET_SECURITY_TEST(id_node_from, packet_temporal);
         break;
     case RESPONSE:
-        protocol_incoming_PACKET_SECURITY_RESPONSE( packet_temporal);
+        protocol_incoming_PACKET_SECURITY_RESPONSE(id_node_from, packet_temporal);
         break;
     }
 }

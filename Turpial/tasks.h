@@ -16,7 +16,7 @@
 #include "RAD.h"
 
 
-extern char id_node[SIZE_IDNODE];
+//extern char id_node[SIZE_IDNODE];
 
 // params for tasks
 typedef struct AData{ 

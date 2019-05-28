@@ -19,7 +19,7 @@
 #include "SQLite.h"
 
 
-void protocol_incoming_PACKET_ROUTING_HELLO( packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
+void protocol_incoming_PACKET_ROUTING_HELLO(const char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
 
 /**
  * @brief 
@@ -27,7 +27,7 @@ void protocol_incoming_PACKET_ROUTING_HELLO( packet_t packet_temporal, int RSSI_
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_JOIN( packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_JOIN(const char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 
@@ -35,7 +35,7 @@ void protocol_incoming_PACKET_ROUTING_JOIN( packet_t packet_temporal);
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_GOSSIP( packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_GOSSIP(const char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 
@@ -43,7 +43,7 @@ void protocol_incoming_PACKET_ROUTING_GOSSIP( packet_t packet_temporal);
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_ROUTE( packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_ROUTE(const char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 
@@ -51,7 +51,7 @@ void protocol_incoming_PACKET_ROUTING_ROUTE( packet_t packet_temporal);
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_ROUTING_BYE( packet_t packet_temporal);
+void protocol_incoming_PACKET_ROUTING_BYE(const char id_node[SIZE_IDNODE], packet_t packet_temporal);
 
 /**
  * @brief 

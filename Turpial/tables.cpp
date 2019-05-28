@@ -17,7 +17,7 @@
 #include "SQLite.h"
 #include "tables.h"
 
-extern char *id_node;
+//extern char *id_node;
 
 /**
  * @brief check if a node is blacklisted
