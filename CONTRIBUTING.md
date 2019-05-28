@@ -20,6 +20,7 @@ The following is a set of guidelines for contributing to [**Locha**](), [**Turpi
         * [Include guards](#include-guards)
         * [Include statements](#include-statements)
         * [Naming rules](#naming-rules)
+        * [Indentation](#indentation)
     * [Documentation styleguide](#documentation-styleguide)
 
 
@@ -103,11 +104,63 @@ int snrLevel;
 class SomeClass { 
     public:
         ...
-        void putFoo(int n);
     private:
-    int foo_; // Private variables ends with underscore
+        int foo_; // Private variables ends with an underscore
 };
 ```
+### Common statements
+
+#### if / if-else
+
+- Always put braces around the if-else statement or when is nested in another if statement
+- Put space between `if` and `()`
+
+
+```cpp
+// if-else or nested if-else statements ALWAYS put braces
+if (foo)
+{
+    if(foo == 1)
+    {
+        bar = UP;
+    }
+    else 
+    {
+        bar = DOWN;
+    }
+
+}
+else 
+{
+    bar = MIDDLE;
+}
+
+// only if statement
+if (foo)
+    bar = UP;
+```
+#### while / do-while loops
+
+- Put space between `while` and `()`
+```cpp
+// while statement
+while (foo > 0)
+{
+    bar++;
+}
+
+// do-while statement
+do
+{
+    bar++;
+}
+while (foo > 0);
+
+```
+### Indentation
+
+- Do not use tabs
+- Use 4 spaces as default identation
 
 ### Documentation styleguide
 ...
