@@ -24,6 +24,6 @@
  * @param SNR_recibido 
  * @param db 
  */
-void process_received_packet( packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
+void process_received_packet(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
 
 #endif // PROTOCOL_H

@@ -37,7 +37,7 @@ void protocol_incoming_PACKET_SECURITY_RESPONSE( packet_t packet_temporal)
 {
 }
 
-void protocol_incoming_PACKET_SECURITY( packet_t packet_temporal)
+void protocol_incoming_PACKET_SECURITY(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal)
 {
     // se clasifica se acuerdo al subtipo de packet recibido
     switch (packet_temporal.header.packet_sub.security_type)

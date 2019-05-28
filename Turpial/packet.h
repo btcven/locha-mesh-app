@@ -209,7 +209,7 @@ packet_t create_packet(packet_type_e tipo_packet, subtype_u subtipo_packet, cons
  * @param from 
  * @return packet_t 
  */
-packet_t construct_packet_HELLO(const char *from);
+packet_t construct_packet_HELLO(const char id_node_from[SIZE_IDNODE]);
 
 /**
  * @brief 

@@ -92,7 +92,7 @@ void protocol_incoming_PACKET_ROUTING_BYE( packet_t packet_temporal)
  * @param SNR_recibido 
  * @param db 
  */
-void protocol_incoming_PACKET_ROUTING( packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db)
+void protocol_incoming_PACKET_ROUTING(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db)
 {
     // se clasifica se acuerdo al subtipo de packet recibido
     switch (packet_temporal.header.packet_sub.routing_type)

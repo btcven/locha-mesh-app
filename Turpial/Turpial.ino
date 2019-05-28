@@ -13,7 +13,6 @@
 #include "Turpial.h"
 #include "hal/hardware.h"
 #include "lang/language.h"
-#include "memory_def.h"
 #include "tasks.h"
 #include "SCR.h"
 #include "RAD.h"
@@ -21,10 +20,10 @@
 #include "BLE.h"
 #include "SQLite.h"
 
-char *id_node;
-/*
-WiFiServer server(80);
-*/
+char id_node[SIZE_IDNODE];
+
+
+
 
 void setup()
 {
@@ -33,7 +32,10 @@ void setup()
    * 
    */
    std::string mac_device=get_id_mac();
-   id_node=string2char(mac_device);
+   char *id_node_char=string2char(mac_device);
+   memcpy(id_node, id_node_char, SIZE_IDNODE);
+   
+   
   Serial.begin(115200);
   ESP_LOGD("Setup", "Id device %s", id_node);
   esp_err_t sys_init;
@@ -93,10 +95,15 @@ void setup()
    * @brief Start a master task, running network peer routines.
    * 
    */
-   ESP_LOGD("Setup", "antes del task Id device %s", id_node);
-  xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 6144, NULL, 5, &peerHandler, ARDUINO_RUNNING_CORE);
-
-   ESP_LOGD("Setup", "al final Id device %s", id_node);
+   // params for task
+   xData xData_to_send;
+   strcpy(xData_to_send.id_node,id_node);
+   
+   xTaskCreatePinnedToCore(NetworkPeer, "NetworkPeer", 8192, ( void * ) &( xData_to_send ), 5, &peerHandler, ARDUINO_RUNNING_CORE);
+   float temp2 = GetTaskHighWaterMarkPercent(peerHandler, 8192);
+   ESP_LOGD(TAG, "calculating NetworkPeer stack size:%04.1f%%\r space free (unused)",temp2);
+  
+   
 }
 
 void loop()

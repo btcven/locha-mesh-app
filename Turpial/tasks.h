@@ -12,10 +12,17 @@
 #ifndef TASKS_H
 #define TASKS_H
 #include <Arduino.h>
+#include "memory_def.h"
 #include "RAD.h"
 
 
-extern char *id_node;
+extern char id_node[SIZE_IDNODE];
+
+// params for tasks
+typedef struct AData{ 
+  char id_node[SIZE_IDNODE]; 
+ } xData;
+ 
 
  void NetworkPeer(void *params);
  void AUTO_HELLO(void *params);

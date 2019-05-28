@@ -14,6 +14,7 @@
 #define TURPIAL_H
 
 #include <Arduino.h>
+#include "memory_def.h"
 
 
 

@@ -65,7 +65,7 @@ void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED( packet_t packet_temporal);
  * @param id_node 
  * @param packet_temporal 
  */
-void protocol_incoming_PACKET_DATA( packet_t packet_temporal);
+void protocol_incoming_PACKET_DATA(const char id_node_from[SIZE_IDNODE], packet_t packet_temporal);
 
 
 #endif // PROTOCOL_PACKET_DATA_H

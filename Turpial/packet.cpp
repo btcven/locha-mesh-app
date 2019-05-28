@@ -14,7 +14,7 @@
 #include "packet.h"
 #include "general_utils.h"
 
-extern char *id_node;
+extern char id_node[SIZE_IDNODE];
 
 /**
  * @brief: from packet_t to uint8_t array
@@ -176,24 +176,25 @@ void show_packet(packet_t packet_rx,const char *TAG)
    
 }
 
-packet_t construct_packet_HELLO(const char *from)
+packet_t construct_packet_HELLO(const char id_node_from[SIZE_IDNODE])
 {
   packet_t packet_HELLO;
   const char *TAG = "Packet HELLO construct";
   char *pChar = (char *)"";
-  const char *p2Char = (char *)"";
+  const char *to= "fffffffffffff";
+  const char *next= "fffffffffffff";
   
   subtype_u subtipo_packet;
   subtipo_packet.routing_type=HELLO;
-    ESP_LOGD("construct_packet_HELLO", "Id device %s", from);
-  packet_HELLO=create_packet( ROUTING, subtipo_packet, from, p2Char, p2Char, pChar, pChar);
+  ESP_LOGD("construct_packet_HELLO", "Id device %s", id_node_from);
+  packet_HELLO=create_packet( ROUTING, subtipo_packet, id_node_from, to, next, pChar, pChar);
   ESP_LOGD(TAG, "creating packet");
   show_packet(packet_HELLO,TAG);
   ESP_LOGD(TAG, "show packet ready");
   return packet_HELLO;
 }
 
-packet_t construct_packet_JOIN(const char *id_node_from,const char *to)
+packet_t construct_packet_JOIN(const char id_node_from[SIZE_IDNODE],const char to[SIZE_IDNODE])
 {
   packet_t packet_JOIN;
   
