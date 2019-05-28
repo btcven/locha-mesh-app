@@ -18,12 +18,12 @@ The following is a set of guidelines for contributing to [**Locha**](), [**Turpi
     * [Commit messages](#commit-messages)
     * [Code styleguide](#code-styleguide)
         * [Include guards](#include-guards)
-        * [#include in local header files](#include-in-local-header-files)
+        * [Include statements](#include-statements)
+        * [Naming rules](#naming-rules)
     * [Documentation styleguide](#documentation-styleguide)
 
 
 
->
 
 ## Before starting
 ...
@@ -60,12 +60,45 @@ Local header files must contain an distinctly named include guard to avoid probl
 #endif // FOO_H
 ```
 
-#### Use of #include in local header files
-Don't use #include in header files if possible.
+#### Include statements
 
-By default ```#include``` will go in the .cpp files and not in the header files, except when necessary. 
+Include statements must be located at the top of the file **only**. By default this statement will go in the .cpp files, not in header files, except when necessary and it should be sorted and grouped.
 
+#### Naming rules
 
+- Use a descriptive name and be consistent in style when write code
+- All names should be written in English
+
+**Variable names** Use underscore, dont't group variables by types
+```cpp
+// GOOD, underscore
+int rssi_level;
+int snr_level;
+
+// BAD, Grouped
+int rssi_level, snr_level;
+
+// BAD, CamelCase
+int RssiLevel;
+int SnrLevel;
+
+// BAD, mixed case
+int rssiLevel;
+int snrLevel;
+```
+
+**Methods or functions**  Use descriptive verbs and mixed case starting with lower case.
+
+ ```cpp
+ int getTotalNearestNodes();
+```
+
+**Classes** Use CamelCase
+```cpp
+class SomeClass {
+    ...
+};
+```
 
 ### Documentation styleguide
 ...
