@@ -72,7 +72,8 @@ Include statements must be located at the top of the file **only**. By default t
 
 **Macros** Use uppercase and underscore
 ```cpp
-... LOW_NIBBLE(x) (x & 0xf)
+
+#define LOW_NIBBLE(x) (x & 0xf)
 ```
 
 **Variable names** Use underscore, dont't group variables by types
