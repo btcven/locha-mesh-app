@@ -51,10 +51,10 @@ std::string hash160(char *mensaje)
  */
 uint8_t *hash(const char *buff)
 {
-  uint8_t hash[32];
-  int result = sha256(buff, sizeof(buff), hash);
-  if (result)
-    return hash;
+    uint8_t hash[32];
+    int result = sha256(buff, sizeof(buff), hash);
+    if (result)
+        return hash;
 }
 
 /**
@@ -66,17 +66,25 @@ uint8_t *hash(const char *buff)
  */
 uint8_t *checksum(const char *buff, size_t sub)
 {
-  uint8_t *h = hash(buff);
-  uint8_t result[sub];
-  for (size_t i = 0; i < sub; i++)
-  {
-    result[i] = h[i];
-  }
-  return result;
+    uint8_t *h = hash(buff);
+    uint8_t result[sub];
+    for (size_t i = 0; i < sub; i++)
+    {
+        result[i] = h[i];
+    }
+    return result;
 }
 
+/**
+ * @brief 
+ * 
+ * @param buff 
+ * @param sum 
+ * @return true 
+ * @return false 
+ */
 bool checksum_compare(const char *buff, uint8_t *sum)
 {
-  uint8_t *result = checksum(buff, sizeof(sum));
-  // compare between two uint8_t pointers.
+    uint8_t *result = checksum(buff, sizeof(sum));
+    // compare between two uint8_t pointers.
 }

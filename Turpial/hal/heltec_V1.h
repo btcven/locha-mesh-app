@@ -1,7 +1,7 @@
 /**
  * @file heltec_V1.h
  * @author locha.io project developers (dev@locha.io)
- * @brief 
+ * @brief  The following parameters are taken by default and can be changed in execution.
  * @version 0.1
  * @date 2019-04-24
  * 
@@ -25,49 +25,49 @@
 
 // Screen Settings
 #if SCR_ENABLED
-  #define SCR_ADD     0x3c
-  #define SCR_SDA     4
-  #define SCR_SCL     15
-  #define SCR_RST     16
-  #define Vext        false
+    #define SCR_ADD     0x3c
+    #define SCR_SDA     4
+    #define SCR_SCL     15
+    #define SCR_RST     16
+    #define Vext        false
 #endif // SCR
 
 // Radio Module Settings
 #if RAD_ENABLED
-  #define RAD_SCK     5
-  #define RAD_CSS     18
-  #define RAD_RST     14
-  #define RAD_MISO    19
-  #define RAD_MOSI    27
-  #define RAD_DIO0    26
-  #define RAD_DIO1    33
-  #define RAD_BAND    915E6
-  #define RAD_PABOOST true
-  #define RAD_CHIP    SX1276
+    #define RAD_SCK     5
+    #define RAD_CSS     18
+    #define RAD_RST     14
+    #define RAD_MISO    19
+    #define RAD_MOSI    27
+    #define RAD_DIO0    26
+    #define RAD_DIO1    33
+    #define RAD_BAND    915E6
+    #define RAD_PABOOST true
+    #define RAD_CHIP    SX1276
 #endif // RAD
 
 // WST default values.
 #if WST_ENABLED
-  #define WST_SSID    NULL
-  #define WST_PASS    NULL
+    #define WST_SSID    NULL
+    #define WST_PASS    NULL
 #endif // WST_ENABLED
 
 // WAP default values.
 #if WAP_ENABLED
-  #define WAP_SSID    "io.locha.ap"
-  #define WAP_PASS    "io.locha.ap"
-  #define WAP_CHANNEL 6
-  #define WAP_MAXCONN 4
+    #define WAP_SSID    "io.locha.ap"
+    #define WAP_PASS    "io.locha.ap"
+    #define WAP_CHANNEL 6
+    #define WAP_MAXCONN 4
 #endif // WAP_ENABLED
 
 // On board LED
 #if defined(LED_ENABLED)
-  #define LED_PIN 25
+    #define LED_PIN 25
 #endif
 
 // On Board Button
 #if BTN_ENABLED
-  #define BTN_GPIO 0
+    #define BTN_GPIO 0
 #endif // BTN
 
 #endif // HELTEC_V1_H

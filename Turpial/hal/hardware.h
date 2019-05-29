@@ -19,9 +19,9 @@
 #define BAUDRATE 115200
 
 #if defined(HELTEC_V1)
-  #include "heltec_V1.h"
+    #include "heltec_V1.h"
 #elif defined(HELTEC_V2)
-  #include "heltec_V2.h"
+    #include "heltec_V2.h"
 #endif
 
 #endif // HARDWARE_H

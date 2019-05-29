@@ -11,10 +11,19 @@
  */
 #ifndef TASKS_H
 #define TASKS_H
-#include <Arduino.h>
-#include "RAD.h"
 
+/**
+ * @brief 
+ * 
+ * @param params 
+ */
 void NetworkPeer(void *params);
+
+/**
+ * @brief 
+ * 
+ * @param params 
+ */
 void AUTO_HELLO(void *params);
 
 #endif // TASKS_H

@@ -23,7 +23,7 @@
 // manejo del packets  MSG
 void protocol_incoming_PACKET_ROUTING_MSG(char id_node[SIZE_IDNODE], packet_t packet_temporal)
 {
-  // se verifica si el remitente esta en blacklist
+    // se verifica si el remitente esta en blacklist
 }
 
 // manejo del packets  TXN
@@ -54,25 +54,25 @@ void protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(char id_node[SIZE_IDNODE], p
  */
 void protocol_incoming_PACKET_DATA(char id_node[SIZE_IDNODE], packet_t packet_temporal)
 {
-  // se clasifica se acuerdo al subtipo de packet recibido
-  switch (packet_temporal.header.packet_sub.data_type)
-  {
-  case EMPTY_DATA:
-    break;
-  case MSG:
-    protocol_incoming_PACKET_ROUTING_MSG(id_node, packet_temporal);
-    break;
-  case TXN:
-    protocol_incoming_PACKET_ROUTING_TXN(id_node, packet_temporal);
-    break;
-  case BINARY:
-    protocol_incoming_PACKET_ROUTING_BINARY(id_node, packet_temporal);
-    break;
-  case ACK:
-    protocol_incoming_PACKET_ROUTING_ACK(id_node, packet_temporal);
-    break;
-  case NOT_DELIVERED:
-    protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(id_node, packet_temporal);
-    break;
-  }
+    // se clasifica se acuerdo al subtipo de packet recibido
+    switch (packet_temporal.header.packet_sub.data_type)
+    {
+    case EMPTY_DATA:
+        break;
+    case MSG:
+        protocol_incoming_PACKET_ROUTING_MSG(id_node, packet_temporal);
+        break;
+    case TXN:
+        protocol_incoming_PACKET_ROUTING_TXN(id_node, packet_temporal);
+        break;
+    case BINARY:
+        protocol_incoming_PACKET_ROUTING_BINARY(id_node, packet_temporal);
+        break;
+    case ACK:
+        protocol_incoming_PACKET_ROUTING_ACK(id_node, packet_temporal);
+        break;
+    case NOT_DELIVERED:
+        protocol_incoming_PACKET_ROUTING_NOT_DELIVERED(id_node, packet_temporal);
+        break;
+    }
 }

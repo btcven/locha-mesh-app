@@ -18,7 +18,6 @@
 #include "packet.h"
 #include "SQLite.h"
 
-
 /**
  * @brief 
  * 

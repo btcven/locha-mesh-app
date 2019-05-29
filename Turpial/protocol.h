@@ -7,7 +7,8 @@
  * 
  * @copyright Copyright (c) 2019
  * 
-  */
+ */
+
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 

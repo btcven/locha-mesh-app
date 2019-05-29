@@ -18,7 +18,15 @@
 #include "packet.h"
 #include "SQLite.h"
 
-
+/**
+ * @brief 
+ * 
+ * @param id_node 
+ * @param packet_temporal 
+ * @param RSSI_recibido 
+ * @param SNR_recibido 
+ * @param db 
+ */
 void protocol_incoming_PACKET_ROUTING_HELLO(char id_node[SIZE_IDNODE], packet_t packet_temporal, int RSSI_recibido, int SNR_recibido, sqlite3 *db);
 
 /**
