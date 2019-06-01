@@ -13,7 +13,6 @@
 #ifndef RAD_H
 #define RAD_H
 #include <Arduino.h>
-#include "memory_def.h"
 
 /**
  * @brief Start Radio interface

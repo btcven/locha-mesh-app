@@ -11,13 +11,19 @@
  */
 
 #include <Arduino.h>
+#include <string>
 #include <Preferences.h>
 #include "NVS.h"
-#include "general_utils.h"
 #include "hal/hardware.h"
 #include "lang/language.h"
-#include "memory_def.h"
 #include <typeinfo>
+
+char *std_string_to_char(std::string cadena)
+{
+    char *cstr = new char[cadena.length() + 1];
+    strcpy(cstr, cadena.c_str());
+    return cstr;
+}
 
 /**
  * @brief 
@@ -160,7 +166,7 @@ char *nvs_get_string(const char *name, char *key, char *defaultValue, bool upset
             ESP_LOGD(TAG, "%s, %s:%s found", name, key, ifStr.c_str());
             nvs.end();
             char *value;
-            value = std_string_to_char(ifStr.c_str());
+            // value = std_string_to_char(ifStr.c_str());
             return value;
         }
     }
