@@ -24,6 +24,6 @@
  * 
  * @return esp_err_t 
  */
-esp_err_t open_fs();
+esp_err_t fsInit();
 
 #endif // FS_LOCHA_H

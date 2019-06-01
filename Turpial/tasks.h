@@ -19,11 +19,4 @@
  */
 void NetworkPeer(void *params);
 
-/**
- * @brief 
- * 
- * @param params 
- */
-void AUTO_HELLO(void *params);
-
 #endif // TASKS_H

@@ -10,25 +10,22 @@
  * 
  */
 
-#include <Arduino.h>
 #include "FS_locha.h"
 #include <SPI.h>
 #include <FS.h>
 #include <SPIFFS.h>
 
-esp_err_t open_fs()
+esp_err_t fsInit()
 {
-    const char *TAG = "FileSystem";
-    // FS init
+    const char *TAG = "FS";
     if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
     {
-
-        ESP_LOGE(TAG, "Error Mounting file system");
+        ESP_LOGE(TAG, "FileSystem Error");
         return ESP_FAIL;
     }
     else
     {
-        ESP_LOGE(TAG, "Mounting file system");
+        ESP_LOGD(TAG, "FileSystem Started");
         return ESP_OK;
     }
 }
