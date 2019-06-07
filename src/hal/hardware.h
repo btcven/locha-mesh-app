@@ -18,6 +18,4 @@
     #include "heltec_v2.h"
 #endif
 
-
-
 #endif // HARDWARE_H_
