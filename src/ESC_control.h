@@ -12,7 +12,7 @@
 #define ESC_CONTROL_H_
 #include <Arduino.h>
 
-typedef struct system_status_t
+struct system_status_t
 {
     float bat_lvl;
     float bat_lvl_percent;
