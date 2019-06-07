@@ -27,27 +27,29 @@ The following is a set of guidelines for contributing to [**Locha**](), [**Turpi
 
 
 ## Before starting
-...
+ToDo
 
 ## How can i contribute?
-...
+
+ToDo
 
 ### I just have a question
-...
+For any question you can send us a message via Twitter @Locha_io and soon through the form you will find on our website **locha.io**
 
 ### Suggesting enhancements
-...
+ToDo
 
 ### Reporting bugs
-...
+ToDo
 
 ### Pull request
-...
+ToDo
 
 ## Styleguide
 
 ### Commit messages
-...
+A commit message must be short, clear and a general description of the changes or improvements.
+If a commit includes changes in several files or sections, we can include after the initial message a more extended description of each change.
 
 ### Code styleguide
 
@@ -63,7 +65,7 @@ Local header files must contain an distinctly named include guard to avoid probl
 
 #### Include statements
 
-Include statements must be located at the top of the file **only**. By default this statement will go in the .cpp files, not in header files, except when necessary and it should be sorted and grouped.
+Include statements must be located at the top of the file **only**. By default this statement will go in the .cpp files, not in header files (.h), except when necessary and it should be sorted and grouped.
 
 #### Naming rules
 
@@ -164,5 +166,5 @@ while (foo > 0);
 - Use 4 spaces as default identation
 
 ### Documentation styleguide
-...
+ToDo
 
