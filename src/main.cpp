@@ -10,8 +10,8 @@
  */
 #include <Arduino.h>
 #include <SPI.h>
-#include "esc.h"
-#include "scr.h"
+#include "dev/esc/esc.h"
+#include "dev/scr/scr.h"
 
 system_status_t system_status;
 
@@ -22,24 +22,13 @@ void setup()
     // Battery level
     sys_init = ESC_init();
     if (sys_init != ESP_OK)
-    {
         ESP_LOGE("SETUP", "Under voltage detected");
-    }
-    else
-    {
-        ESP_LOGD("SETUP", "Voltage OK");
-    }
 
     // Screen Test
     sys_init = SCR_test();
     if (sys_init != ESP_OK)
-    {
         ESP_LOGE("SETUP", "Screen module: ERROR");
-    }
-    else
-    {
-        ESP_LOGD("SETUP", "Screen module: OK");
-    }
+
 }
 
 void loop() {}

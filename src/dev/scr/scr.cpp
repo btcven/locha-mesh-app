@@ -11,10 +11,10 @@
 #include <Arduino.h>
 #include "scr.h"
 #include "SSD1306.h"
-#include "nvs.h"
+#include "dev/nvs/nvs.h"
 #include "hal/hardware.h"
 #include <Wire.h>
-#include "esc.h"
+#include "dev/esc/esc.h"
 
 /**
  * @brief Create an instance of SSD1306

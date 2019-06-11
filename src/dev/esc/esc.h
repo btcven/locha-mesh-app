@@ -10,7 +10,6 @@
  */
 #ifndef ESC_CONTROL_H_
 #define ESC_CONTROL_H_
-#include <Arduino.h>
 
 struct system_status_t
 {

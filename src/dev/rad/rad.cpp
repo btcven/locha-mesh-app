@@ -13,7 +13,7 @@
 #include "rad.h"
 #include "hal/hardware.h"
 #include "lang/language.h"
-#include "nvs.h"
+#include "dev/nvs/nvs.h"
 
 /**
  * @brief 
