@@ -22,7 +22,7 @@
  */
 SSD1306 display(SCR_ADD, SCR_SDA, SCR_SCL, SCR_RST);
 
-esp_err_t SCR_test()
+esp_err_t scrInit()
 {
     const char *tag = "SCR";
     // only in dev stage:

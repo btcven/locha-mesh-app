@@ -17,6 +17,6 @@
  * 
  * @return esp_err_t 
  */
-esp_err_t SCR_test();
+esp_err_t scrInit();
 
 #endif // SCR_H_

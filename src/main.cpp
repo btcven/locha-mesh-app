@@ -20,12 +20,12 @@ void setup()
     esp_err_t sys_init;
     
     // Battery level
-    sys_init = ESC_init();
+    sys_init = escInit();
     if (sys_init != ESP_OK)
         ESP_LOGE("SETUP", "Under voltage detected");
 
     // Screen Test
-    sys_init = SCR_test();
+    sys_init = scrInit();
     if (sys_init != ESP_OK)
         ESP_LOGE("SETUP", "Screen module: ERROR");
 

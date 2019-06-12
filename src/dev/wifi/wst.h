@@ -9,14 +9,14 @@
  * 
  */
  
-#ifndef WST_H
-#define WST_H
+#ifndef WST_H_
+#define WST_H_
 
 /**
  * @brief 
  * 
  * @return esp_err_t 
  */
-esp_err_t WST_INIT();
+esp_err_t wstInit();
 
-#endif // WST_H
+#endif // WST_H_

@@ -36,6 +36,6 @@ float getBatteryLevelPercent();
  * 
  * @return esp_err_t 
  */
-esp_err_t ESC_init();
+esp_err_t escInit();
 
 #endif // ESC_CONTROL_H_

@@ -26,7 +26,7 @@ float getBatteryLevelPercent()
     return bat_lvl_pct;
 };
 
-esp_err_t ESC_init()
+esp_err_t escInit()
 {
     float lvl_pct = getBatteryLevelPercent();
     if (lvl_pct >= 2)

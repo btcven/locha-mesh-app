@@ -8,3 +8,14 @@
  * @copyright Copyright (c) 2019
  * 
  */
+#ifndef WAPST_H_
+#define WAPST_H_
+
+/**
+ * @brief Initialize WiFi ifaces
+ * 
+ * @return esp_err_t 
+ */
+esp_err_t wifiInit();
+
+#endif // WAPST_H_

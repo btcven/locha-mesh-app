@@ -9,14 +9,14 @@
  * 
  */
  
-#ifndef WAP_H
-#define WAP_H
+#ifndef WAP_H_
+#define WAP_H_
 
 /**
  * @brief Start the Wifi AP
  * 
  * @return esp_err_t 
  */
-esp_err_t WAP_INIT();
+esp_err_t wapInit();
 
 #endif // WAP_H_
