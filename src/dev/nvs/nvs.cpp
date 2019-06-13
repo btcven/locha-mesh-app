@@ -14,6 +14,7 @@
 #include <Preferences.h>
 #include "nvs.h"
 #include "hal/hardware.h"
+#include "dev/core/general_utils.h"
 
 bool nvsGetBool(const char *name, const char *key, bool defaultValue, bool upset)
 {
@@ -71,15 +72,15 @@ bool nvsGetBool(const char *name, const char *key, bool defaultValue, bool upset
     }
 }
 
-esp_err_t nvs_clear(const char *name)
+esp_err_t nvsClear(const char *name)
 {
-    const char *tag = "NVS";
+    const char *TAG = "NVS";
 
     Preferences nvs;
-
+    ESP_LOGV(TAG, "Clearing NVS");
     if (nvs.begin(name, false))
     {
-        ESP_LOGV(tag, "NVS namespace %s is open", name);
+        ESP_LOGV(TAG, "NVS namespace %s is open", name);
 
         if (nvs.clear())
         {
@@ -98,5 +99,137 @@ esp_err_t nvs_clear(const char *name)
     {
         ESP_LOGE(tag, "Opening.. the NVS namespace %s", name);
         return ESP_FAIL;
+    }
+}
+
+/**
+ * @brief get a string from NVS storage space
+ * 
+ * @param name 
+ * @param key 
+ * @param defaultValue 
+ * @param upset 
+ * @return char* 
+ */
+char *nvsGetString(const char *name, char *key, char *defaultValue, bool upset)
+{
+    const char *TAG = "NVS";
+
+    Preferences nvs;
+    ESP_LOGV(TAG, "NVS reading string");
+    if (nvs.begin(name, false))
+    {
+        ESP_LOGV(TAG, "NVS namespace %s is open", name);
+        // leer
+        String ifStr = nvs.getString(key, String());
+
+        if (!ifStr.length())
+        {
+            ESP_LOGE(TAG, "%s %s not found", name, key);
+            if (upset)
+            {
+                // upset enabled
+                ESP_LOGD(TAG, "%s %s not found, trying to save it", name, key);
+
+                size_t str_len = nvs.putString(key, String(defaultValue));
+
+                ESP_LOGD(TAG, "SAVED %d Bytes", str_len);
+
+                // get string
+                String ifSavedStr = nvs.getString(key, String());
+
+                nvs.end();
+
+                if (!ifSavedStr.length())
+                {
+                    // err saving
+                    ESP_LOGE(TAG, "Saving.. returning default value for %s %s", name, key);
+                    return defaultValue;
+                }
+                else
+                {
+                    // saved!
+                    ESP_LOGD(TAG, "Upset ok for %s %s", name, key);
+                    char *toCChar;
+                    toCChar = std_string_to_char(ifSavedStr.c_str());
+                    return toCChar;
+                }
+            }
+            else
+            {
+                // upset is disabled
+                ESP_LOGV(TAG, "%s: %s not found and upset is disabled, using default value", name, key);
+                nvs.end();
+                return defaultValue;
+            }
+        }
+        else
+        {
+            // found a value for the given key
+            ESP_LOGD(TAG, "%s, %s:%s found", name, key, ifStr.c_str());
+            nvs.end();
+            char *value;
+            value = std_string_to_char(ifStr.c_str());
+            return value;
+        }
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Opening.. the NVS namespace %s, using default value", name);
+        return defaultValue;
+    }
+};
+
+int32_t nvsGetInt(const char *name, const char *key, int32_t defaultValue, bool upset)
+{
+    const char *TAG = "NVS";
+
+    Preferences nvs;
+    ESP_LOGV(TAG, "NVS getInt ...");
+    if (nvs.begin(name, false))
+    {
+        ESP_LOGV(TAG, "NVS namespace %s is open", name);
+        int32_t value = nvs.getInt(key, NULL);
+        if (value == NULL)
+        {
+            if (upset)
+            {
+                // upset enabled
+                ESP_LOGD(TAG, "%s %s not found, trying to save it", name, key);
+                size_t stored = nvs.putInt(key, defaultValue);
+                value = nvs.getInt(key, NULL);
+                nvs.end();
+                if (value == NULL)
+                {
+                    // error saving
+                    ESP_LOGE(TAG, "Saving.. returning default value for %s %s", name, key);
+                    return defaultValue;
+                }
+                else
+                {
+                    // ok saving
+                    ESP_LOGD(TAG, "Upset ok for %s %s", name, key);
+                    return value;
+                }
+            }
+            else
+            {
+                // upset disabled
+                ESP_LOGV(TAG, "%s: %s not found and upset is disabled, using default value", name, key);
+                nvs.end();
+                return defaultValue;
+            }
+        }
+        else
+        {
+            nvs.end();
+            ESP_LOGD(TAG, "Setting found for %s %s", name, key);
+            return value;
+        }
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Opening.. the NVS namespace: %s", name);
+        return defaultValue;
     }
 }

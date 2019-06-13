@@ -17,6 +17,6 @@
  * 
  * @return esp_err_t 
  */
-esp_err_t rad_init();
+esp_err_t radInit();
 
 #endif // RAD_H_

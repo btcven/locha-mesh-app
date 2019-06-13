@@ -14,7 +14,7 @@
 
 #define ESC_ENABLED true
 #define SCR_ENABLED true
-#define RAD_ENABLED false
+#define RAD_ENABLED true
 #define BLE_ENABLED false
 #define WST_ENABLED false
 #define WAP_ENABLED false
@@ -49,6 +49,7 @@
     #define RAD_DIO1    33
     #define RAD_BAND    915E6
     #define RAD_PABOOST true
+    #define RAD_PIN_RECEIVE_DATA    23
 #endif // RAD_ENABLED
 
 #if WST_ENABLED

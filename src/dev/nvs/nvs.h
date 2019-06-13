@@ -13,7 +13,8 @@
 #define NVS_H_
 
 bool nvsGetBool(const char *name, const char *key, bool defaultValue, bool upset);
-
-esp_err_t nvs_clear(const char *name);
+char *nvsGetString(const char *name, char *key, char *defaultValue, bool upset);
+int32_t nvsGetInt(const char *name, const char *key, int32_t defaultValue, bool upset);
+esp_err_t nvsClear(const char *name);
 
 #endif // NVS_H_
