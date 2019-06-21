@@ -49,7 +49,7 @@ void setFlag(void)
  * @return true 
  * @return false 
  */
-bool radioSend(std::string data_to_send)
+bool radioSendLora(std::string data_to_send)
 {
   bool rpta = false;
   int state;
@@ -84,7 +84,7 @@ bool radioSend(std::string data_to_send)
   return rpta;
 }
 
-bool radioInit()
+bool radioInitLora()
 {
   // find radio params on NVS
   const char *TAG = "RADIO";
@@ -136,7 +136,7 @@ bool radioInit()
  * @brief Processing incoming Radio packets
  * 
  */
-byte *onRadioReceive(int packetSize)
+byte *onRadioReceiveLora(int packetSize)
 {
   const char *TAG = "RAD";
   byte byteArr[packetSize];

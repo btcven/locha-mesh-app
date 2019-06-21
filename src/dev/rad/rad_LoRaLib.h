@@ -18,11 +18,11 @@
  * @return true 
  * @return false 
  */
-bool radioSend(std::string data_to_send);
+bool radioSendLora(std::string data_to_send);
 
 
-bool radioInit();
+bool radioInitLora();
 
-byte *onRadioReceive(int packetSize);
+byte *onRadioReceiveLora(int packetSize);
 
 #endif // RAD_LORALIB_H_

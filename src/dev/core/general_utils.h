@@ -12,6 +12,12 @@
 #ifndef GENERAL_UTILS_H
 #define GENERAL_UTILS_H
 
+#include <Arduino.h>
+#include <string>
+#include <sstream>
+#include <cJSON.h>
+#include <SPI.h>
+
 /**
  * @brief converts string into char array
  * 
@@ -26,6 +32,7 @@ char *std_string_to_char(std::string textreceived);
 
 
 void copy_array_tobyte(char *src, byte *dst, int len);
+
 
 /**
  * @brief 
@@ -43,7 +50,6 @@ template <typename T>
  * @return std::string 
  */
 std::string ToString(T val);
-
 /**
  * @brief removes character ":" from factory mac address
  * 
