@@ -40,6 +40,7 @@
 #endif // SCR_ENABLED
 
 #if RAD_ENABLED
+    #define RAD_TYPE    RFM95
     #define RAD_SCK     5
     #define RAD_CSS     18
     #define RAD_RST     14

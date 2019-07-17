@@ -16,8 +16,7 @@
 
 system_status_t system_status;
 
-void setup()
-{
+void setup(){
     esp_err_t sys_init;
 
     const char *TAG = "SETUP";
@@ -40,4 +39,6 @@ void setup()
 
 }
 
-void loop() {}
+void loop() {
+    
+}
