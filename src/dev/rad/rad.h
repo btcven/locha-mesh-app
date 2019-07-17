@@ -15,17 +15,6 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
-#if RAD_ENABLED
-#ifdef RAD_TYPE
-#if (RAD_TYPE == RFM95)
-#include <LoRaLib.h>
-#include "rad_LoRaLib.h"
-#endif
-#if (RAD_TYPE == E32)
-#include <RH_Serial.h>
-#endif
-#endif
-#endif
 
 
 
