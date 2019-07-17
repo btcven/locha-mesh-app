@@ -59,7 +59,7 @@
 
 #if WAP_ENABLED
     #define WAP_SSID "io.locha.ap"
-    #define WAP_PASS "io.locha.ap"
+    #define WAP_PASS ""
     #define WAP_CHANNEL 6
     #define WAP_MAXCONN 4
 #endif // WAP_ENABLED

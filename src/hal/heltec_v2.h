@@ -16,8 +16,8 @@
 #define SCR_ENABLED true
 #define RAD_ENABLED true
 #define BLE_ENABLED false
-#define WST_ENABLED false
-#define WAP_ENABLED false
+#define WST_ENABLED true
+#define WAP_ENABLED true
 #define LED_ENABLED false
 #define BTN_ENABLED false
 
@@ -59,7 +59,7 @@
 
 #if WAP_ENABLED
     #define WAP_SSID "io.locha.ap"
-    #define WAP_PASS "io.locha.ap"
+    #define WAP_PASS ""
     #define WAP_CHANNEL 6
     #define WAP_MAXCONN 4
 #endif // WAP_ENABLED
@@ -77,6 +77,5 @@
 #else
     #define ARDUINO_RUNNING_CORE 1
 #endif // CONFIG_FREERTOS_UNICORE
-
 
 #endif // HELTEC_V2_H_

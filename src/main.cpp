@@ -11,36 +11,33 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "dev/esc/esc.h"
+#include "dev/wifi/wapst.h"
 #include "dev/scr/scr.h"
-#include "dev/rad/rad.h"
 
 system_status_t system_status;
 
 void setup()
 {
     esp_err_t sys_init;
+
     const char *TAG = "SETUP";
 
-    // Battery level
+    // Battery
     sys_init = escInit();
     if (sys_init != ESP_OK)
         ESP_LOGE(TAG, "Under voltage detected");
 
-    // Screen Test
+    // Display
     sys_init = scrInit();
     if (sys_init != ESP_OK)
         ESP_LOGE(TAG, "Screen module: ERROR");
 
-    /**
-   * @brief RAD iface enabled on boot?
-   * 
-   */
-    ESP_LOGD(TAG, "Starting RADIO");
-    sys_init = radInit();
-    if (sys_init != ESP_OK)
-    {
-        esp_restart();
-    }
+    // WiFi
+    sys_init = wifiStart();
+
+    // Sub-GHz Radio 
+
+
 }
 
 void loop() {}

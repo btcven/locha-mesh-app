@@ -21,19 +21,16 @@
  */
 esp_err_t wapInit()
 {
-    const char *tag = "WAP";
+    const char *TAG = "WAP";
 
     // get values from nvs or set default values from hal/hardware.h
-    /* 
-    const char *apSSID(nvs_get_string(TAG, "ssid", WAP_SSID, true));
-    const char *apPassword(nvs_get_string(TAG, "pass", WAP_PASS, true));
-    int32_t apChannel = nvs_get_int(TAG, "channel", WAP_CHANNEL, true);
-    int32_t apMaxConn = nvs_get_int(TAG, "maxconn", WAP_MAXCONN, true);
+    const char *apSSID(nvsGetString(TAG, "ssid", WAP_SSID, true));
+    const char *apPassword(nvsGetString(TAG, "pass", WAP_PASS, true));
+    int32_t apChannel = nvsGetInt(TAG, "channel", WAP_CHANNEL, true);
+    int32_t apMaxConn = nvsGetInt(TAG, "maxconn", WAP_MAXCONN, true);
     bool initAP = WiFi.softAP(apSSID, apPassword, apChannel, 0, apMaxConn);
-    */
 
-    //if (initAP)
-    if (true)
+    if (initAP)
     {
         ESP_LOGD(TAG, "AP init OK");
         return ESP_OK;

@@ -116,7 +116,7 @@ char *nvsGetString(const char *name, char *key, char *defaultValue, bool upset)
     const char *TAG = "NVS";
 
     Preferences nvs;
-    ESP_LOGV(TAG, "NVS reading string");
+
     if (nvs.begin(name, false))
     {
         ESP_LOGV(TAG, "NVS namespace %s is open", name);

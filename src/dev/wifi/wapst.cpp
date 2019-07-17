@@ -131,21 +131,20 @@ wifi_mode_t selectWiFiMode(bool AP, bool ST)
         return WIFI_MODE_NULL;
 }
 
-
 /**
  * @brief 
  * 
  * @return esp_err_t 
  */
-esp_err_t WiFi_INIT()
+esp_err_t wifiStart()
 {
     const char *TAG = "WiFi";
-    //
+
     // only in dev stage:
     // clear nvs before start.
-    //
-    // nvs_clear("WAP");
-    // nvs_clear("WST");
+
+    // nvsClear("WAP");
+    // nvsClear("WST");
 
     bool WAP_enabled = nvsGetBool("WAP", "enabled", WAP_ENABLED, true);
     ESP_LOGD(TAG, "WAP iface enabled: %d", WAP_enabled);
