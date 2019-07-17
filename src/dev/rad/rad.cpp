@@ -15,7 +15,6 @@
 #include "dev/nvs/nvs.h"
 #include "dev/core/general_utils.h"
 
-
 bool radioreceiving;
 bool radioCAD;
 std::string radiorxvalue;
@@ -33,10 +32,9 @@ esp_err_t radInit()
 
     bool rad_enabled = nvsGetBool(TAG, "enabled", RAD_ENABLED, true);
 
-    if (rad_enabled)
+    if (true)
     {
-        ESP_LOGD(TAG, "Radio not started: %s %S", MSG_FAIL, MSG_RADIO);
-        return ESP_FAIL;
+        return ESP_OK;
     }
     else
     {

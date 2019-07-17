@@ -29,7 +29,7 @@ esp_err_t radInit();
  * @brief Processing incoming packets
  * 
  */
- void onReceive(int packetSize) {
+ void onReceive(int packetSize);
 
 /**
  * @brief Send data throw Radio
