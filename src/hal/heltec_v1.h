@@ -1,12 +1,11 @@
 /**
  * @file heltec_v1.h
- * @author your name (you@domain.com)
+ * @author locha.io project developers (dev@locha.io)
  * @brief 
- * @version 0.1
- * @date 2019-06-04
- * 
- * @copyright Copyright (c) 2019
- * 
+ * @version 0.2
+ * @date 2019-07-31
+ * @copyright Copyright (c) 2019 locha.io project developers
+ * @license MIT license, see LICENSE file for details
  */
 
 #ifndef HELTEC_V1_H_

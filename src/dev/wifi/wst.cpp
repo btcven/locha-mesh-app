@@ -1,12 +1,11 @@
 /**
  * @file wst.cpp
- * @author your name (you@domain.com)
+ * @author locha.io project developers (dev@locha.io)
  * @brief 
- * @version 0.1
- * @date 2019-06-07
- * 
- * @copyright Copyright (c) 2019
- * 
+ * @version 0.2
+ * @date 2019-07-31
+ * @copyright Copyright (c) 2019 locha.io project developers
+ * @license MIT license, see LICENSE file for details
  */
 #include <Arduino.h> 
 #include <WiFi.h>

@@ -1,4 +1,11 @@
 /**
+ * @file certify.cpp
+ * @author locha.io project developers (dev@locha.io)
+ * @brief 
+ * @version 0.1
+ * @date 2019-07-31
+ * @copyright Copyright (c) 2019 locha.io project developers
+ * @license MIT license, see LICENSE file for details
  * 
  */
 #include <Arduino.h>
@@ -7,6 +14,11 @@
 
 using namespace httpsserver;
 
+/**
+ * @brief Get the Certificate object
+ * 
+ * @return certify_t 
+ */
 certify_t getCertificate(void)
 {
     unsigned long timer_init = millis();
