@@ -3,4 +3,5 @@
 .piolibdeps
 .vscode
 *.code-workspace
+dev-setup.h
 
