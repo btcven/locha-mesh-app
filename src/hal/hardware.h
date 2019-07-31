@@ -16,6 +16,8 @@
     #include "heltec_v1.h"
 #elif defined(ARDUINO_HELTEC_WIFI_LORA_32_V2)
     #include "heltec_v2.h"
+#elif defined(ARDUINO_FEATHER_ESP32)
+    #include "featheresp32.h"
 #endif
 
 #endif // HARDWARE_H_

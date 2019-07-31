@@ -13,8 +13,8 @@
 #define FEATHERESP32_H_
 
 #define ESC_ENABLED true
-#define SCR_ENABLED false
-#define RAD_ENABLED false
+#define SCR_ENABLED true
+#define RAD_ENABLED true
 #define BLE_ENABLED false
 #define WST_ENABLED true
 #define WAP_ENABLED true
@@ -36,7 +36,7 @@
     #define SCR_SDA     4
     #define SCR_SCL     15
     #define SCR_RST     16
-    #define Vext        21
+    #define Vext        0
 #endif // SCR_ENABLED
 
 #if RAD_ENABLED
