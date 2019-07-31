@@ -12,6 +12,11 @@
 #ifndef FEATHERESP32_H_
 #define FEATHERESP32_H_
 
+#if DEV_SETUP == 1
+    #include "dev-setup.h"
+#endif
+
+
 #define ESC_ENABLED true
 #define SCR_ENABLED true
 #define RAD_ENABLED true
@@ -54,8 +59,13 @@
 #endif // RAD_ENABLED
 
 #if WST_ENABLED
-    #define WST_SSID    ""
-    #define WST_PASS    ""
+    #if DEV_SETUP == 1
+        #define WST_SSID    DEV_WST_SSID
+        #define WST_PASS    DEV_WST_PASS
+    #else
+        #define WST_SSID    ""
+        #define WST_PASS    ""
+    #endif // DEV_SETUP
 #endif // WST_ENABLED
 
 #if WAP_ENABLED
