@@ -16,4 +16,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ___
 Read the full text:
-[Locha Mesh Apache License 2.0](https://github.com/btcven/LochaMesh-Chat/blob/master/LICENSE)
+[Locha Mesh Apache License 2.0](LICENSE)
