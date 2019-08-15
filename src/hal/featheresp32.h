@@ -1,31 +1,37 @@
 /**
- * @file heltec_v1.h
+ * @file heltec_v2.h
  * @author locha.io project developers (dev@locha.io)
  * @brief 
- * @version 0.2
+ * @version 0.1
  * @date 2019-07-31
  * @copyright Copyright (c) 2019 locha.io project developers
  * @license MIT license, see LICENSE file for details
+ * 
  */
 
-#ifndef HELTEC_V1_H_
-#define HELTEC_V1_H_
+#ifndef FEATHERESP32_H_
+#define FEATHERESP32_H_
+
+#if DEV_SETUP == 1
+    #include "dev-setup.h"
+#endif
+
 
 #define ESC_ENABLED true
-#define SCR_ENABLED false
-#define RAD_ENABLED false
+#define SCR_ENABLED true
+#define RAD_ENABLED true
 #define BLE_ENABLED false
-#define WST_ENABLED false
-#define WAP_ENABLED false
-#define LED_ENABLED false
-#define BTN_ENABLED false
+#define WST_ENABLED true
+#define WAP_ENABLED true
+#define LED_ENABLED true
+#define BTN_ENABLED true
 
 // Energy Source Control
 #if ESC_ENABLED
     #define ESC_PIN     13
-    #define ESC_BAT_MAX 4840
-    #define ESC_BAT_MIN 3100
-    #define ESC_XS      0.00225
+    #define ESC_BAT_MAX 4095
+    #define ESC_BAT_MIN 2200
+    #define ESC_XS      0.000256
     #define ESC_MUL     1000
     #define ESC_MMUL    100
 #endif // ESC_ENABLED
@@ -35,7 +41,7 @@
     #define SCR_SDA     4
     #define SCR_SCL     15
     #define SCR_RST     16
-    #define Vext        NULL
+    #define Vext        0
 #endif // SCR_ENABLED
 
 #if RAD_ENABLED
@@ -53,8 +59,13 @@
 #endif // RAD_ENABLED
 
 #if WST_ENABLED
-    #define WST_SSID    ""
-    #define WST_PASS    ""
+    #if DEV_SETUP == 1
+        #define WST_SSID    DEV_WST_SSID
+        #define WST_PASS    DEV_WST_PASS
+    #else
+        #define WST_SSID    ""
+        #define WST_PASS    ""
+    #endif // DEV_SETUP
 #endif // WST_ENABLED
 
 #if WAP_ENABLED
@@ -78,4 +89,4 @@
     #define ARDUINO_RUNNING_CORE 1
 #endif // CONFIG_FREERTOS_UNICORE
 
-#endif // HELTEC_V1_H_
+#endif // FEATHERESP32_H_
