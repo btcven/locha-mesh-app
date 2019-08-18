@@ -4,4 +4,6 @@
 .vscode
 *.code-workspace
 dev-setup.h
+message_exchange.*
+
 
